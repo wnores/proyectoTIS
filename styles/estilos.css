@@ -70,3 +70,39 @@ footer {
   background: #2b7575;
   text-align: center;
 }
+
+.destacados h1 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.curso-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.curso-card:hover {
+    transform: translateY(-4px);
+}
+
+.curso-card .card-img-top {
+    width: 100%;
+    aspect-ratio: 772 / 516;
+    object-fit: cover;
+    display: block;
+}
+
+.curso-card .card-body {
+    padding: 1.25rem;
+}
+
+.curso-card .card-title {
+    color: #333;
+    font-weight: 600;
+}
+
+.destacados-container {
+    max-width: 1000px;
+}

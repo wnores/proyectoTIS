@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mostrarCurso(curso) {
-    const imagen = curso.imagen_url || 'recursos/img/curso-default.jpg';
+    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
     const precioFormateado = Number(curso.precio).toLocaleString('es-UY', {
       style: 'currency',
       currency: 'UYU'
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedor.innerHTML = `
       <div class="row">
         <div class="col-12 col-md-6">
-          <img src="${imagen}" alt="${curso.titulo}" class="img-fluid rounded shadow-sm">
+          <div class="curso-thumb ${claseCategoria}">${icono}</div>
         </div>
         <div class="col-12 col-md-6">
           <h1>${curso.titulo}</h1>
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <li><strong>Duración:</strong> ${curso.duracion_horas ?? '-'} horas</li>
             <li><strong>Cupos disponibles:</strong> ${curso.cupos_disponibles}</li>
           </ul>
-          <div class="d-flex gap-2 mt-3">
+          <div class="d-flex gap-2 mt-3 flex-wrap">
             <button class="btn btn-primary" id="btnInscribirse" disabled>
               Inscribirme (próximamente)
             </button>
@@ -72,5 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
     mensajeEstado.textContent = texto;
     mensajeEstado.classList.remove('d-none');
     contenedor.innerHTML = '';
+  }
+
+  // Misma lógica de categorías que catalogo.js, para mantener consistencia visual.
+  function obtenerCategoria(titulo) {
+    const tituloLower = titulo.toLowerCase();
+
+    if (tituloLower.includes('inteligencia artificial') || tituloLower.includes('machine learning') || tituloLower.includes(' ia')) {
+      return { claseCategoria: 'categoria-ia', icono: '🤖' };
+    }
+    if (tituloLower.includes('base de datos') || tituloLower.includes('mysql') || tituloLower.includes('datos')) {
+      return { claseCategoria: 'categoria-datos', icono: '🗄️' };
+    }
+    return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 });

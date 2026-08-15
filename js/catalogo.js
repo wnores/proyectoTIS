@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function crearTarjetaCurso(curso) {
-    const imagen = curso.imagen_url || 'recursos/img/curso-default.jpg';
+    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
     const precioFormateado = Number(curso.precio).toLocaleString('es-UY', {
       style: 'currency',
       currency: 'UYU'
@@ -40,17 +40,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return `
       <div class="col-12 col-md-6 col-lg-4 mb-4">
-        <div class="card h-100 shadow-sm">
-          <img src="${imagen}" class="card-img-top" alt="${curso.titulo}">
+        <div class="card h-100">
+          <div class="curso-thumb ${claseCategoria}">${icono}</div>
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">${curso.titulo}</h5>
             <p class="card-text flex-grow-1">${curso.descripcion ?? ''}</p>
-            <p class="card-text"><strong>${precioFormateado}</strong></p>
+            <p class="card-text precio-curso">${precioFormateado}</p>
             <p class="card-text"><small class="text-muted">${curso.cupos_disponibles} cupos disponibles</small></p>
             <a href="descripcionDeCurso.html?id=${curso.id}" class="btn btn-primary mt-auto">Ver más</a>
           </div>
         </div>
       </div>
     `;
+  }
+
+  // Elige un color/ícono de categoría según palabras clave del título.
+  // Es un recurso visual temporal, hasta tener fotos reales de cada curso.
+  function obtenerCategoria(titulo) {
+    const tituloLower = titulo.toLowerCase();
+
+    if (tituloLower.includes('inteligencia artificial') || tituloLower.includes('machine learning') || tituloLower.includes(' ia')) {
+      return { claseCategoria: 'categoria-ia', icono: '🤖' };
+    }
+    if (tituloLower.includes('base de datos') || tituloLower.includes('mysql') || tituloLower.includes('datos')) {
+      return { claseCategoria: 'categoria-datos', icono: '🗄️' };
+    }
+    return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 });

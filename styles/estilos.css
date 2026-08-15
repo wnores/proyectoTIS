@@ -70,3 +70,166 @@ footer {
   background: #2b7575;
   text-align: center;
 }
+
+/* =====================================================
+   CATÁLOGO Y DETALLE DE CURSO
+   (se suma al CSS existente, no lo reemplaza)
+   ===================================================== */
+
+:root {
+  --color-principal: #2b7575;
+  --color-principal-oscuro: #1e5757;
+  --color-acento: #1a743c;
+  --color-fondo: wheat;
+  --color-texto-claro: white;
+}
+
+/* --- Hero de sección (catálogo, detalle, etc.) --- */
+.hero {
+  background: linear-gradient(135deg, var(--color-principal), var(--color-principal-oscuro));
+  color: var(--color-texto-claro);
+  text-align: center;
+  padding: 48px 16px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.hero p {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* --- Grilla de tarjetas del catálogo --- */
+#listaCursos {
+  row-gap: 24px;
+}
+
+.card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.card-body {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.card-title {
+  color: var(--color-principal-oscuro);
+  font-weight: 700;
+}
+
+.card .btn-primary {
+  background-color: var(--color-principal);
+  border-color: var(--color-principal);
+  font-weight: 600;
+}
+
+.card .btn-primary:hover {
+  background-color: var(--color-principal-oscuro);
+  border-color: var(--color-principal-oscuro);
+}
+
+/* --- Placeholder de imagen por categoría (mientras no hay fotos reales) --- */
+.curso-thumb {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+}
+
+.curso-thumb.categoria-programacion {
+  background: linear-gradient(135deg, #2b7575, #16228f);
+}
+
+.curso-thumb.categoria-ia {
+  background: linear-gradient(135deg, #6a3fb5, #16228f);
+}
+
+.curso-thumb.categoria-datos {
+  background: linear-gradient(135deg, #1a743c, #2b7575);
+}
+
+/* --- Precio destacado --- */
+.precio-curso {
+  color: var(--color-acento);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* --- Página de detalle de curso --- */
+#detalleCurso h1 {
+  color: var(--color-principal-oscuro);
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+}
+
+#detalleCurso .lead {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+#detalleCurso .curso-thumb {
+  height: 320px;
+  border-radius: 14px;
+  font-size: 5rem;
+}
+
+#detalleCurso ul li {
+  margin-bottom: 8px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+#detalleCurso .btn-outline-secondary {
+  border-color: var(--color-principal);
+  color: var(--color-principal-oscuro);
+  font-weight: 600;
+}
+
+#detalleCurso .btn-outline-secondary:hover {
+  background-color: var(--color-principal);
+  color: white;
+}
+
+/* --- Estados de carga / error --- */
+#estadoCarga {
+  font-family: Inter, system-ui, sans-serif;
+  padding: 40px 0;
+}
+
+/* =====================================================
+   RESPONSIVE
+   
+@media (max-width: 576px) {
+  .hero p {
+    font-size: 1.2rem;
+  }
+
+  .curso-thumb {
+    height: 140px;
+    font-size: 2.2rem;
+  }
+
+  #detalleCurso .curso-thumb {
+    height: 200px;
+    font-size: 3rem;
+  }
+
+  .navbar .nav-link {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 991px) {
+  .curso-thumb {
+    height: 160px;
+  }
+}

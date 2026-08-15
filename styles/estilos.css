@@ -3,7 +3,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Inter, system-ui, sans-serif;
-  background: wheat;
+  background: #FAF9F6;
 }
 
 .navbar {
@@ -77,14 +77,25 @@ footer {
 }
 
 .curso-card {
+    position: relative;
+    background: white;
     border: none;
     border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.curso-card::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: #2b7575;
 }
 
 .curso-card:hover {
     transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 .curso-card .card-img-top {
@@ -105,4 +116,10 @@ footer {
 
 .destacados-container {
     max-width: 1000px;
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+    display: block;
 }

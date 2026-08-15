@@ -3,14 +3,12 @@ body {
   margin: 0;
   padding: 0;
   font-family: Inter, system-ui, sans-serif;
-  background: wheat;
+  background: #FAF9F6;
 }
 
 .navbar {
   background: #2b7575;
- width: 100%;       
-  left: 0;           
-  right: 0;          
+  width: 100%;                 
   box-sizing: border-box;
 }
 
@@ -22,12 +20,10 @@ body {
   color: wheat;
   font-weight: 600;
   font-size: 20px;
-  font-family: "Courier New", Courier, monospace;
 }
 .navbar .nav-link.active {
   color: white;
   font-weight: 600;
-  font-family: "Courier New", Courier, monospace;
 }
 
 .navbar .nav-link:hover {
@@ -36,200 +32,146 @@ body {
   font-size: 20px;
 }
 
-.hero img {
-    width: 80%;      
-    background-size: cover;     
-    background-position: center; 
-    background-repeat: no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-}
-
 .btn-volver {
     background-color: #1a743c;
     color: white;
     border: 3px solid black;
 }
 
-.privacy-link {
-  color: #16228f;   
-  text-decoration: none;
-  font-weight: 500;
+.footer {
+    background: #2b7575;
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
 }
 
-.privacy-link:hover {
-  text-decoration: underline;
+.footer p {
+    margin-bottom: 8px;
 }
 
-footer {
-  margin: 0;
-  padding: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: #2b7575;
-  text-align: center;
+.footer a {
+    color: white;
+    text-decoration: none;
 }
 
-/* =====================================================
-   CATÁLOGO Y DETALLE DE CURSO
-   (se suma al CSS existente, no lo reemplaza)
-   ===================================================== */
-
-:root {
-  --color-principal: #2b7575;
-  --color-principal-oscuro: #1e5757;
-  --color-acento: #1a743c;
-  --color-fondo: wheat;
-  --color-texto-claro: white;
+.footer a:hover {
+    text-decoration: underline;
 }
 
-/* --- Hero de sección (catálogo, detalle, etc.) --- */
+.destacados h2 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.curso-card {
+    position: relative;
+    background: white;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.curso-card::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: #2b7575;
+}
+
+.curso-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.curso-card .card-img-top {
+    width: 100%;
+    aspect-ratio: 772 / 516;
+    object-fit: cover;
+    display: block;
+}
+
+.curso-card .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.curso-card .btn {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.curso-card .card-title {
+    color: #333;
+    font-weight: 600;
+}
+
+.destacados-container {
+    max-width: 1000px;
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+    display: block;
+}
+
 .hero {
-  background: linear-gradient(135deg, var(--color-principal), var(--color-principal-oscuro));
-  color: var(--color-texto-claro);
-  text-align: center;
-  padding: 48px 16px;
-  font-family: "Courier New", Courier, monospace;
+    padding: 80px 20px;
+    background: #eef7f6;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    color: #2b7575;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
 }
 
 .hero p {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0;
+    max-width: 700px;
+    margin: 0 auto 30px;
+    color: #333;
+    font-size: 1.15rem;
+    line-height: 1.7;
 }
 
-/* --- Grilla de tarjetas del catálogo --- */
-#listaCursos {
-  row-gap: 24px;
+.hero .btn {
+    padding: 10px 28px;
+    font-weight: 600;
 }
 
-.card {
-  border: none;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.btn-primary {
+    background-color: #2b7575;
+    border-color: #2b7575;
+    color: white;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+.btn-primary:hover {
+    background-color: #225f5f;
+    border-color: #225f5f;
+    color: white;
 }
 
-.card-body {
-  font-family: Inter, system-ui, sans-serif;
+.curso-nivel {
+    color: #2b7575;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
-.card-title {
-  color: var(--color-principal-oscuro);
-  font-weight: 700;
+.curso-descripcion {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
 }
 
-.card .btn-primary {
-  background-color: var(--color-principal);
-  border-color: var(--color-principal);
-  font-weight: 600;
-}
-
-.card .btn-primary:hover {
-  background-color: var(--color-principal-oscuro);
-  border-color: var(--color-principal-oscuro);
-}
-
-/* --- Placeholder de imagen por categoría (mientras no hay fotos reales) --- */
-.curso-thumb {
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: white;
-}
-
-.curso-thumb.categoria-programacion {
-  background: linear-gradient(135deg, #2b7575, #16228f);
-}
-
-.curso-thumb.categoria-ia {
-  background: linear-gradient(135deg, #6a3fb5, #16228f);
-}
-
-.curso-thumb.categoria-datos {
-  background: linear-gradient(135deg, #1a743c, #2b7575);
-}
-
-/* --- Precio destacado --- */
-.precio-curso {
-  color: var(--color-acento);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-/* --- Página de detalle de curso --- */
-#detalleCurso h1 {
-  color: var(--color-principal-oscuro);
-  font-family: "Courier New", Courier, monospace;
-  font-weight: 700;
-}
-
-#detalleCurso .lead {
-  font-family: Inter, system-ui, sans-serif;
-}
-
-#detalleCurso .curso-thumb {
-  height: 320px;
-  border-radius: 14px;
-  font-size: 5rem;
-}
-
-#detalleCurso ul li {
-  margin-bottom: 8px;
-  font-family: Inter, system-ui, sans-serif;
-}
-
-#detalleCurso .btn-outline-secondary {
-  border-color: var(--color-principal);
-  color: var(--color-principal-oscuro);
-  font-weight: 600;
-}
-
-#detalleCurso .btn-outline-secondary:hover {
-  background-color: var(--color-principal);
-  color: white;
-}
-
-/* --- Estados de carga / error --- */
-#estadoCarga {
-  font-family: Inter, system-ui, sans-serif;
-  padding: 40px 0;
-}
-
-/* =====================================================
-   RESPONSIVE
-   
-@media (max-width: 576px) {
-  .hero p {
-    font-size: 1.2rem;
-  }
-
-  .curso-thumb {
-    height: 140px;
-    font-size: 2.2rem;
-  }
-
-  #detalleCurso .curso-thumb {
-    height: 200px;
-    font-size: 3rem;
-  }
-
-  .navbar .nav-link {
-    font-size: 16px;
-  }
-}
-
-@media (min-width: 577px) and (max-width: 991px) {
-  .curso-thumb {
-    height: 160px;
-  }
-}

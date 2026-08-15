@@ -1,5 +1,5 @@
 # proyectoTIS
- PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
+PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
 ================================================
 Creación de la base del proyecto.
 En el index.html se crea el menú y botón de ingreso.
@@ -24,3 +24,6 @@ El menú contiene:
 "registrarse.html: Formulario de registro, sólo con opción como alumno, los docentes que van a administrar la página ya deberían estar creados por defecto.
 
 "politicaDePrivacidad": Políticas de privacidad que se utilizan para tratar datos personales, imágenes agregadas y el propio contenido de los cursos.
+
+## Pagina "Acerca de ..."
+ La página "Acerca de ..." posee información acerca de la organización, su misión, y el propósito del sitio.

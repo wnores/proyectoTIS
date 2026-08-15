@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <div class="col-12 col-md-6 col-lg-4 mb-4">
         <div class="card h-100">
-          <div class="curso-thumb ${claseCategoria}">${icono}</div>
+          ${crearThumb(curso, claseCategoria, icono)}
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">${curso.titulo}</h5>
             <p class="card-text flex-grow-1">${curso.descripcion ?? ''}</p>
@@ -55,16 +55,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Elige un color/ícono de categoría según palabras clave del título.
-  // Es un recurso visual temporal, hasta tener fotos reales de cada curso.
   function obtenerCategoria(titulo) {
-    const tituloLower = titulo.toLowerCase();
+    const t = titulo.toLowerCase();
 
-    if (tituloLower.includes('inteligencia artificial') || tituloLower.includes('machine learning') || tituloLower.includes(' ia')) {
-      return { claseCategoria: 'categoria-ia', icono: '🤖' };
-    }
-    if (tituloLower.includes('base de datos') || tituloLower.includes('mysql') || tituloLower.includes('datos')) {
-      return { claseCategoria: 'categoria-datos', icono: '🗄️' };
-    }
+    if (t.includes('excel')) return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
+    if (t.includes('word')) return { claseCategoria: 'categoria-ofimatica', icono: '📝' };
+    if (t.includes('micro:bit') || t.includes('microbit')) return { claseCategoria: 'categoria-hardware', icono: '🔌' };
+    if (t.includes('scratch')) return { claseCategoria: 'categoria-hardware', icono: '🧩' };
+    if (t.includes('inteligencia artificial') || t.includes('machine learning')) return { claseCategoria: 'categoria-ia', icono: '🤖' };
+    if (t.includes('base de datos') || t.includes('mysql') || t.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
+
+  // Si el curso tiene imagen_url, muestra la foto real (con respaldo de ícono
+  // si la foto no carga). Si no tiene, muestra directamente el ícono de color.
+  function crearThumb(curso, claseCategoria, icono) {
+    if (curso.imagen_url) {
+      return `
+        <div class="curso-thumb-container">
+          <img src="${curso.imagen_url}" class="curso-thumb-real" alt="${curso.titulo}"
+               data-clase="${claseCategoria}" data-icono="${icono}"
+               onerror="handleThumbError(this)">
+        </div>
+      `;
+    }
+    return `<div class="curso-thumb ${claseCategoria}">${icono}</div>`;
+  }
 });
+
+// Reemplaza la imagen rota por el ícono de color de respaldo.
+// Está fuera del DOMContentLoaded porque se llama desde el atributo onerror del HTML.
+function handleThumbError(imgEl) {
+  const clase = imgEl.dataset.clase;
+  const icono = imgEl.dataset.icono;
+  const contenedor = imgEl.parentElement;
+  contenedor.outerHTML = `<div class="curso-thumb ${clase}">${icono}</div>`;
+}

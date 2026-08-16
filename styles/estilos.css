@@ -392,11 +392,12 @@ body {
 
 /* Llamada a la acción */
 .cta-final {
-    background-color: #2b7575;
-    color: white;
+    background-color: #eef7f6;
+    padding: 60px 20px !important;
 }
 
 .cta-final h2 {
+    color: #2b7575;
     font-weight: 700;
     margin-bottom: 15px;
 }
@@ -404,15 +405,11 @@ body {
 .cta-final p {
     max-width: 650px;
     margin: 0 auto 25px;
+    color: #555;
     font-size: 1.05rem;
 }
 
 .cta-final .btn {
     font-weight: 600;
     padding: 10px 25px;
-}
-
-.cta-final .btn:hover {
-    background-color: #eef7f6;
-    color: #2b7575;
 }

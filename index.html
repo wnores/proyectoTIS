@@ -45,20 +45,89 @@
 
     <main class="flex-grow-1"></main>
 
-        <section class="hero">
+       <section class="hero">
             <div class="container">
-                <div class="hero-content text-center">
-                    <h1>Aprendé Ciencias de la Computación</h1>
+                <div class="row align-items-center">
 
-                    <p>
-                        Explorá cursos de programación, desarrollo web, inteligencia artificial
-                        y otras áreas de la informática. Aprendé a tu ritmo y desarrollá
-                        habilidades para el mundo digital.
-                    </p>
+                    <!-- Texto del hero -->
+                    <div class="col-lg-6 hero-content">
+                        <h1>Aprendé. Creá. Transformá.</h1>
 
-                    <a href="catalogo.html" class="btn btn-primary">
-                        Explorar cursos
-                    </a>
+                        <p>
+                            Explorá cursos de programación, desarrollo web,
+                            inteligencia artificial y otras áreas de la informática.
+                            Aprendé a tu ritmo y desarrollá nuevas habilidades.
+                        </p>
+
+                        <a href="catalogo.html" class="btn btn-primary">
+                            Explorar cursos
+                        </a>
+                    </div>
+
+                    <!-- Carrusel -->
+                    <div class="col-lg-6">
+                        
+                    <div id="carouselCursos" class="carousel slide" 
+                        data-bs-ride="carousel"
+                        data-bs-interval="4000">
+
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselCursos" data-bs-slide-to="0"
+                                class="active" aria-current="true" aria-label="Imagen 1"></button>
+
+                            <button type="button" data-bs-target="#carouselCursos" data-bs-slide-to="1"
+                                aria-label="Imagen 2"></button>
+
+                            <button type="button" data-bs-target="#carouselCursos" data-bs-slide-to="2"
+                                aria-label="Imagen 3"></button>
+
+                            <button type="button" data-bs-target="#carouselCursos" data-bs-slide-to="3"
+                                aria-label="Imagen 4"></button>
+                        </div>
+
+                        <div class="carousel-inner">
+
+                            <div class="carousel-item active">
+                                <img src="recursos/imagenes/Introduccion_programacion.jpg"
+                                    class="d-block w-100"
+                                    alt="Introducción a la programación">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="recursos/imagenes/Desarrollo_webFS.jpg"
+                                    class="d-block w-100"
+                                    alt="Desarrollo web Full Stack">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="recursos/imagenes/Introduccion_IA.jpg"
+                                    class="d-block w-100"
+                                    alt="Introducción a la Inteligencia Artificial">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="recursos/imagenes/Programacion_Python.jpg"
+                                    class="d-block w-100"
+                                    alt="Programación con Python">
+                            </div>
+
+                        </div>
+
+                        <button class="carousel-control-prev" type="button"
+                            data-bs-target="#carouselCursos" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+
+                        <button class="carousel-control-next" type="button"
+                            data-bs-target="#carouselCursos" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+
+                    </div>
+                    </div>
+
                 </div>
             </div>
         </section>

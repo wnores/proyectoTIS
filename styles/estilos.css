@@ -140,6 +140,19 @@ body {
     color: white;
 }
 
+.curso-categoria {
+    display: inline-block;
+    width: fit-content;
+    color: #2b7575;
+    background-color: #eef7f6;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
 .curso-nivel {
     color: #2b7575;
     font-size: 0.9rem;
@@ -286,4 +299,50 @@ body {
     background-color: white;
     color: #2b7575;
     text-decoration: none;
+}
+
+/* Áreas de aprendizaje */
+.areas-aprendizaje {
+    background-color: #eef7f6;
+}
+
+.areas-aprendizaje h2 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.areas-intro {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #555;
+}
+
+.area-card {
+    height: 100%;
+    padding: 25px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.area-icon {
+    display: inline-block;
+    font-size: 2.2rem;
+    color: #2b7575;
+    margin-bottom: 15px;
+}
+
+.area-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.area-card p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0;
 }

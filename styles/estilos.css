@@ -346,3 +346,73 @@ body {
     line-height: 1.5;
     margin-bottom: 0;
 }
+
+/* Beneficios */
+.beneficios {
+    background-color: white;
+}
+
+.beneficios h2 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.beneficios-intro {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #555;
+}
+
+.beneficio {
+    height: 100%;
+    padding: 20px;
+}
+
+.beneficio-icon {
+    display: inline-block;
+    font-size: 2.3rem;
+    color: #2b7575;
+    margin-bottom: 15px;
+}
+
+.beneficio h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.beneficio p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Llamada a la acción */
+.cta-final {
+    background-color: #2b7575;
+    color: white;
+}
+
+.cta-final h2 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.cta-final p {
+    max-width: 650px;
+    margin: 0 auto 25px;
+    font-size: 1.05rem;
+}
+
+.cta-final .btn {
+    font-weight: 600;
+    padding: 10px 25px;
+}
+
+.cta-final .btn:hover {
+    background-color: #eef7f6;
+    color: #2b7575;
+}

@@ -38,27 +38,6 @@ body {
     border: 3px solid black;
 }
 
-.footer {
-    background: #2b7575;
-    color: white;
-    text-align: center;
-    padding: 30px 20px;
-    margin-top: 40px;
-}
-
-.footer p {
-    margin-bottom: 8px;
-}
-
-.footer a {
-    color: white;
-    text-decoration: none;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-}
-
 .destacados h2 {
     color: #2b7575;
     font-weight: 700;
@@ -161,6 +140,19 @@ body {
     color: white;
 }
 
+.curso-categoria {
+    display: inline-block;
+    width: fit-content;
+    color: #2b7575;
+    background-color: #eef7f6;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
 .curso-nivel {
     color: #2b7575;
     font-size: 0.9rem;
@@ -222,4 +214,251 @@ body {
   .curso-thumb-container {
     height: 160px;
   }
+}
+
+/* Carrusel del hero */
+#carouselCursos {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+#carouselCursos .carousel-item {
+    width: 100%;
+}
+
+#carouselCursos .carousel-item img {
+    display: block;
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+}
+
+/* Controles del carrusel */
+#carouselCursos .carousel-control-prev,
+#carouselCursos .carousel-control-next {
+    width: 10%;
+}
+
+#carouselCursos .carousel-control-prev-icon,
+#carouselCursos .carousel-control-next-icon {
+    width: 42px;
+    height: 42px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    background-image: none;
+    position: relative;
+}
+
+#carouselCursos .carousel-control-prev-icon::after,
+#carouselCursos .carousel-control-next-icon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #123b5d;
+    border-right: 2px solid #123b5d;
+}
+
+#carouselCursos .carousel-control-prev-icon::after {
+    transform: translate(-35%, -50%) rotate(-135deg);
+}
+
+#carouselCursos .carousel-control-next-icon::after {
+    transform: translate(-65%, -50%) rotate(45deg);
+}
+
+/* Indicadores del carrusel */
+#carouselCursos .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+#carouselCursos .carousel-indicators button.active {
+    background-color: #ffffff;
+    border: 2px solid #123b5d;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Footer */
+.footer {
+    background-color: #2b7575;
+    color: white;
+    padding: 40px 20px 20px;
+    margin-top: 40px;
+}
+
+.footer h5 {
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.footer p {
+    margin-bottom: 10px;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.footer hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 30px 0 15px;
+}
+
+.footer-copy {
+    text-align: center;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.footer-social {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.footer-social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+    background-color: white;
+    color: #2b7575;
+    text-decoration: none;
+}
+
+/* Áreas de aprendizaje */
+.areas-aprendizaje {
+    background-color: #eef7f6;
+}
+
+.areas-aprendizaje h2 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.areas-intro {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #555;
+}
+
+.area-card {
+    height: 100%;
+    padding: 25px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.area-icon {
+    display: inline-block;
+    font-size: 2.2rem;
+    color: #2b7575;
+    margin-bottom: 15px;
+}
+
+.area-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.area-card p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Beneficios */
+.beneficios {
+    background-color: white;
+}
+
+.beneficios h2 {
+    color: #2b7575;
+    font-weight: 700;
+}
+
+.beneficios-intro {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #555;
+}
+
+.beneficio {
+    height: 100%;
+    padding: 20px;
+}
+
+.beneficio-icon {
+    display: inline-block;
+    font-size: 2.3rem;
+    color: #2b7575;
+    margin-bottom: 15px;
+}
+
+.beneficio h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.beneficio p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Llamada a la acción */
+.cta-final {
+    background-color: #eef7f6;
+    padding: 60px 20px !important;
+}
+
+.cta-final h2 {
+    color: #2b7575;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.cta-final p {
+    max-width: 650px;
+    margin: 0 auto 25px;
+    color: #555;
+    font-size: 1.05rem;
+}
+
+.cta-final .btn {
+    font-weight: 600;
+    padding: 10px 25px;
 }

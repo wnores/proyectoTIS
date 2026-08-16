@@ -15,7 +15,8 @@ El menú contiene:
 
 "descripcionDeCurso.html": Dónde se datallará específicamente cada curso que se ofrece, su descripción, contenidos, precio, duración, etc.
 
-"beca.html": Se describen las becas y/o descuentos que ofrece el sitio para beneficio de los cursos. 
+"beca.html": Se describen las becas y/o descuentos que ofrece el sitio para beneficio de los cursos. Se incorporó una sección explicativa sobre el sistema de becas. Se agregaron los tipos de becas, requisitos y beneficios. Se creó un apartado para solicitar una beca. Se incorporó un formulario utilizando componentes de Bootstrap, con campos para nombre, correo electrónico, curso de interés, tipo de beca y motivo de la solicitud. Se revisó la estructura HTML y se corrigieron errores en los div para que el formulario quedara correctamente dentro de la tarjeta.
+Se verificó la presentación visual y la adaptación de la página al diseño general del sitio.
 
 "contacto.html": Se colocan los medios de contacto para consultar sobre cursos u otras consultas.
 
@@ -23,4 +24,4 @@ El menú contiene:
 
 "registrarse.html: Formulario de registro, sólo con opción como alumno, los docentes que van a administrar la página ya deberían estar creados por defecto.
 
-"politicaDePrivacidad": Políticas de privacidad que se utilizan para tratar datos personales, imágenes agregadas y el propio contenido de los cursos.
+"politicaDePrivacidad": Políticas de privacidad que se utilizan para tratar datos personales, imágenes agregadas y el propio contenido de los cursos. e incorporó información sobre el tratamiento y protección de los datos personales de los usuarios.Se adaptó el contenido a la realidad del proyecto y al contexto normativo de Uruguay. Se mantuvo la estructura visual del sitio utilizando HTML y Bootstrap.Se verificó la navegación y el acceso a la página desde el sitio.

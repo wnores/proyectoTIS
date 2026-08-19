@@ -15,24 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function cargarCurso(id) {
-    try {
-      const respuesta = await fetch(`${API_BASE_URL}/cursos/${id}`);
+  try {
+    const respuesta = await fetch('cursos.json');
 
-      if (respuesta.status === 404) {
-        mostrarError('El curso que buscás no existe.');
-        return;
-      }
-      if (!respuesta.ok) {
-        throw new Error('No se pudo obtener el curso.');
-      }
-
-      const curso = await respuesta.json();
-      mostrarCurso(curso);
-    } catch (error) {
-      console.error('Error al cargar el curso:', error);
-      mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el curso.');
     }
+
+    const cursos = await respuesta.json();
+    const curso = cursos.find(item => item.id == id);
+
+    if (!curso) {
+      mostrarError('El curso que buscás no existe.');
+      return;
+    }
+
+    mostrarCurso(curso);
+  } catch (error) {
+    console.error('Error al cargar el curso:', error);
+    mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
   }
+}
 
   function mostrarCurso(curso) {
     const { claseCategoria, icono } = obtenerCategoria(curso.titulo);

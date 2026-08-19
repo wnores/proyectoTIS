@@ -7,29 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cargarCursos();
 
-  async function cargarCursos() {
-    try {
-      const respuesta = await fetch("cursos.json");
+async function cargarCursos() {
+  try {
+    const respuesta = await fetch('cursos.json');
 
-      if (!respuesta.ok) {
-        throw new Error('No se pudo obtener el catálogo de cursos.');
-      }
-
-      const cursos = await respuesta.json();
-
-      if (cursos.length === 0) {
-        mensajeEstado.textContent = 'Todavía no hay cursos cargados.';
-        return;
-      }
-
-      mensajeEstado.classList.add('d-none');
-      contenedor.innerHTML = cursos.map(crearTarjetaCurso).join('');
-    } catch (error) {
-      console.error('Error al cargar cursos:', error);
-      mensajeEstado.textContent = 'Ocurrió un error al cargar los cursos. Intentá nuevamente más tarde.';
-      mensajeEstado.classList.remove('d-none');
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el catálogo de cursos.');
     }
+
+    const cursos = await respuesta.json();
+
+    if (cursos.length === 0) {
+      mensajeEstado.textContent = 'Todavía no hay cursos cargados.';
+      return;
+    }
+
+    mensajeEstado.classList.add('d-none');
+    contenedor.innerHTML = cursos.map(crearTarjetaCurso).join('');
+  } catch (error) {
+    console.error('Error al cargar cursos:', error);
+    mensajeEstado.textContent = 'Ocurrió un error al cargar los cursos. Intentá nuevamente más tarde.';
+    mensajeEstado.classList.remove('d-none');
   }
+}
 
   function crearTarjetaCurso(curso) {
     const { claseCategoria, icono } = obtenerCategoria(curso.titulo);

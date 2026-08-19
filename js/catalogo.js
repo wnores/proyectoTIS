@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function cargarCursos() {
     try {
-      const respuesta = await fetch(cursos.json);
+      const respuesta = await fetch("cursos.json");
 
       if (!respuesta.ok) {
         throw new Error('No se pudo obtener el catálogo de cursos.');

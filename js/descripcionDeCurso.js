@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedor.innerHTML = `
       <div class="row">
         <div class="col-12 col-md-6">
-          <div class="curso-thumb ${claseCategoria}">${icono}</div>
+          ${crearThumb(curso, claseCategoria, icono)}
         </div>
         <div class="col-12 col-md-6">
           <h1>${curso.titulo}</h1>
@@ -76,14 +76,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Misma lógica de categorías que catalogo.js, para mantener consistencia visual.
   function obtenerCategoria(titulo) {
-    const tituloLower = titulo.toLowerCase();
+    const t = titulo.toLowerCase();
 
-    if (tituloLower.includes('inteligencia artificial') || tituloLower.includes('machine learning') || tituloLower.includes(' ia')) {
-      return { claseCategoria: 'categoria-ia', icono: '🤖' };
-    }
-    if (tituloLower.includes('base de datos') || tituloLower.includes('mysql') || tituloLower.includes('datos')) {
-      return { claseCategoria: 'categoria-datos', icono: '🗄️' };
-    }
+    if (t.includes('excel')) return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
+    if (t.includes('word')) return { claseCategoria: 'categoria-ofimatica', icono: '📝' };
+    if (t.includes('micro:bit') || t.includes('microbit')) return { claseCategoria: 'categoria-hardware', icono: '🔌' };
+    if (t.includes('scratch')) return { claseCategoria: 'categoria-hardware', icono: '🧩' };
+    if (t.includes('inteligencia artificial') || t.includes('machine learning')) return { claseCategoria: 'categoria-ia', icono: '🤖' };
+    if (t.includes('base de datos') || t.includes('mysql') || t.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
+
+  // Misma lógica que catalogo.js: foto real si existe, ícono de color si no.
+  function crearThumb(curso, claseCategoria, icono) {
+    if (curso.imagen_url) {
+      return `
+        <div class="curso-thumb-container">
+          <img src="${curso.imagen_url}" class="curso-thumb-real" alt="${curso.titulo}"
+               data-clase="${claseCategoria}" data-icono="${icono}"
+               onerror="handleThumbError(this)">
+        </div>
+      `;
+    }
+    return `<div class="curso-thumb ${claseCategoria}">${icono}</div>`;
+  }
 });
+
+function handleThumbError(imgEl) {
+  const clase = imgEl.dataset.clase;
+  const icono = imgEl.dataset.icono;
+  const contenedor = imgEl.parentElement;
+  contenedor.outerHTML = `<div class="curso-thumb ${clase}">${icono}</div>`;
+}

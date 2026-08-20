@@ -26,13 +26,139 @@
             </div>
         </div>
     </nav>
-     <main class='flex-grow-1'>
-        <section class="hero"> <p><br>Página - Contactos</p></section>
-     </main>
-     <footer>
-        <div>
-    <p><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
+    <main class="flex-grow-1 bg-light py-5">
+  <section class="container">
+    <div class="container text-center">
+        <h1>¡Ponte en contacto con nosotros!</h1>
+        <p>Si tienes alguna consulta o necesitas asistencia, no dudes en ponerte en contacto con nosotros</p>
+        <img class="img-fluid my-4" src="recursos/imagenes/portadaContacto.png" alt="Contacto" width="500">
+        <p>Utilizá la información de contacto proporcionada o completá el formulario, te responderemos a la brevedad</p>
     </div>
+    <div class="row g-0 shadow-lg rounded-3 overflow-hidden">
+      <div class="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+        <div class="mb-4">
+          <h5><img src="recursos/iconos/whatsapp.png" alt="WhatsApp">Whatsapp</h5>
+          <p class="text-muted mb-0">(+598) 099 123 456</p>
+        </div>
+        
+        <div class="mb-4">
+          <h5><img src="recursos/iconos/horario.png" alt="Horario">Días y horarios de atención</h5>
+          <p class="text-muted mb-0">De lunes a viernes de 08:00 a 18:00</p>
+          <p class="text-muted mb-0">Sábados de 08:00 a 13:00</p>
+          <p class="text-muted mb-0">Domingos cerrado</p>
+        </div>
+
+         <div class="mb-4">
+          <h5><img src="recursos/iconos/ubicacion.png" alt="Ubicación">Oficinas administrativas</h5>
+          <p class="text-muted mb-0">Bulevar 123, Montevideo, Uruguay</p>
+            <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3272.032158888299!2d-56.1645318!3d-34.9011124!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x959f802d334582f3%3A0x6a2c2b3c12345678!2sMontevideo%2C%20Uruguay!5e0!3m2!1ses!2suy!4v1620000000000!5m2!1ses!2suy" 
+                    style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+      <div class="col-md-6 bg-secondary-subtle p-5">
+        <h2 class="text-center fw-bold mb-4">Formulario de Contacto</h2>
+        
+        <form action="https://formspree.io/f/xjybaveg" method="POST" autocomplete="off">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nombre y apellido <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="form-control form-control-lg" placeholder="Nombre y apellido" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Correo electrónico <span class="text-danger">*</span></label>
+            <input type="email" name="email" class="form-control form-control-lg" placeholder="Correo electrónico" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Mensaje <span class="text-danger">*</span></label>
+            <textarea name="mensaje" class="form-control form-control-lg" rows="4" placeholder="Mensaje" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-success w-50 btn-lg text-white fw-bold">ENVIAR</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+    <footer class="footer">  <!-- FOOTER -->
+
+        <div class="container">
+
+            <div class="row">
+
+                <!-- Información -->
+                <div class="col-lg-5">
+
+                    <h5>Cursos de Ciencias de la Computación</h5>
+
+                    <p>
+                        Desarrollá nuevas habilidades
+                        y preparate para el mundo digital.
+                    </p>
+
+                </div>
+
+
+                <!-- Enlaces -->
+                <div class="col-lg-3">
+
+                    <h5>Enlaces</h5>
+
+                    <a href="politicaDePrivacidad.html">
+                        Política de privacidad
+                    </a>
+
+                </div>
+
+
+                <!-- Contacto -->
+                <div class="col-lg-4">
+
+                    <h5>Contacto</h5>
+
+                    <p>
+                        Seguinos en nuestras redes
+                    </p>
+
+                    <div class="footer-social">
+
+                        <a href="#"
+                            aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+
+                        <a href="#"
+                            aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+
+                        <a href="#"
+                            aria-label="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+
+                        <a href="#"
+                            aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr>
+            <p class="footer-copy"><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
+        </div>
+        
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

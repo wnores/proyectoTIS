@@ -60,7 +60,7 @@
     "precio": 1000.00,
     "duracion_horas": 20,
     "cupos_disponibles": 30,
-    "imagen_url": "recursos/imagenes/Office.png"
+    "imagen_url": "recursos/imagenes/Excel.jpg"
   },
   {
     "id": 11,
@@ -69,7 +69,7 @@
     "precio": 900.00,
     "duracion_horas": 15,
     "cupos_disponibles": 30,
-    "imagen_url": "recursos/imagenes/Office.png"
+    "imagen_url": "recursos/imagenes/Word.jpg"
   },
   {
     "id": 12,

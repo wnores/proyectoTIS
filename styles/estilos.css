@@ -473,3 +473,7 @@ body {
 .btn-outline-light:hover img {
     filter: brightness(0);
 }
+
+.header-nosotros {
+    background-color: #eef7f6;
+}

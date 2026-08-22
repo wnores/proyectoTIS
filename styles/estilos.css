@@ -41,6 +41,7 @@ body {
 .destacados h2 {
     color: #2b7575;
     font-weight: 700;
+    
 }
 
 .curso-card {
@@ -96,6 +97,7 @@ body {
     height: 60px;
     width: auto;
     display: block;
+    border-radius: 15px; 
 }
 
 .hero {
@@ -461,4 +463,12 @@ body {
 .cta-final .btn {
     font-weight: 600;
     padding: 10px 25px;
+}
+
+.btn-outline-light img {
+    filter: brightness(0) invert(1);
+}
+
+.btn-outline-light:hover img {
+    filter: brightness(0);
 }

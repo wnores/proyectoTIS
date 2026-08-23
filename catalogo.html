@@ -28,7 +28,25 @@
     </nav>
      <main class='flex-grow-1'>
         <section class="hero"> <p><br>Página - Catálogo de cursos</p></section>
-        <section class="container py-4"> <p id="estadoCarga" class="text-center text-muted">Cargando cursos...</p> <div class="row" id="listaCursos"></div> </section>
+        <section class="container py-4">
+    <form class="row justify-content-center mb-4" id="formBuscarCursos" role="search">
+        <div class="col-12 col-md-6 d-flex">
+            <input
+                class="form-control form-control-sm"
+                type="search"
+                id="inputBuscarCursos"
+                placeholder="Buscar cursos"
+                aria-label="Buscar cursos">
+            <button
+                class="btn btn-primary btn-sm ms-1"
+                type="submit">
+                Buscar
+            </button>
+        </div>
+    </form>
+    <p id="estadoCarga" class="text-center text-muted">Cargando cursos...</p>
+    <div class="row" id="listaCursos"></div>
+</section>
      </main>
      <footer>
         <div>

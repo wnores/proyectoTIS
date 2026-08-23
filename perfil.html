@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/estilos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Perfil de Uuario</title>
+</head>
+<body class="d-flex flex-column min-vh-100" data-page="perfil.html">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">Logo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
+                </ul>
+        <div>
+                
+           
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> Usuario
+                </button>
+            
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                    <li><a class="dropdown-item" href="perfil.html">Perfil</a></li>
+                    <li><a class="dropdown-item" href="recuperar_password.html">Recuperar Acceso</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
+                </ul>
+            </div>
+           
+            </div>
+            </div>
+        </div>
+    </nav>
+     <main class='flex-grow-1'>
+        <section class="hero"> 
+
+<!-- Contenido principal del perfil -->
+<div class="container py-5">
+    <div class="row">
+        
+        <!-- Columna Izquierda: Información del Perfil -->
+        <div class="col-lg-8">
+            
+            <!-- Encabezado -->
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="fw-bold me-3 mb-0">Perfil</h2>
+                <p class="mb-0 text-secondary">Información del perfil</p>
+            </div>
+
+            <!-- Lista de datos del usuario con botones de edición -->
+<div style="max-width: 600px;">
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Nombre:</label>
+        <span class="flex-grow-1">Jorge</span>
+        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar nombre"></i>
+    </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Apellido:</label>
+        <span class="flex-grow-1">Gonzalez</span>
+        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar apellido"></i>
+    </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Email:</label>
+        <span class="flex-grow-1">jgonzalez@gmail.com</span>
+        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar email"></i>
+    </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Departamento:</label>
+        <span class="flex-grow-1">Paysandú</span>
+        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar departamento"></i>
+    </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Tipo de documento:</label>
+        <span class="flex-grow-1">Cédula Uruguaya</span>
+        </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Nro de Documento:</label>
+        <span class="flex-grow-1">99999999</span>
+        </div>
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <label class="fw-bold mb-0" style="width: 180px;">Rol:</label>
+        <span class="flex-grow-1">Docente</span>
+    </div>
+</div>
+            <!-- Botón Ir a Inicio -->
+            <div class="mt-5">
+                 <a href="index.html" class="btn btn-primary">Volver al inicio <img src="recursos/iconos/atras.png" alt="atrás"></a>
+            </div>
+
+        </div>
+
+        <!-- Columna Derecha: Avatar y Botones -->
+        <div class="col-lg-4">
+            
+            <!-- Avatar (CSS mínimo para el tamaño y posicionamiento de la cámara) -->
+            <div class="d-flex justify-content-center mb-4">
+                <!-- Contenedor del círculo -->
+                <div class="position-relative" style="width: 200px; height: 200px;">
+                    <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
+                        <i class="bi bi-person-fill text-secondary" style="font-size: 80px;"></i>
+                    </div>
+                    <!-- Botón de la cámara -->
+                    <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm position-absolute" 
+                            style="width: 45px; height: 45px; bottom: 10px; right: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-camera-fill text-dark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-primary">Modificar Contraseña</button>
+                <button class="btn btn-primary">Servicios adquiridos</button>
+                <button class="btn btn-primary">Eliminar cuenta</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+        </section>
+     </main>
+     <footer>
+        <div>
+    <p><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

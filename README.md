@@ -35,7 +35,7 @@ Se verificó la presentación visual y la adaptación de la página al diseño g
 Se implementó el backend del sitio y se conectó con las páginas de catálogo de cursos.
 
 ### Backend
-- API en Node.js + Express, con MySQL como base de datos (carpeta `backend/`).
+- API en Node.js + Express, con json como base de datos (carpeta `backend/`).
 - Endpoints principales: registro/login de usuarios, listado de cursos, detalle de curso, solicitud de becas, mensajes de contacto.
 - Instrucciones de instalación y configuración en `backend/README.md`.
 

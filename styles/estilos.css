@@ -41,6 +41,7 @@ body {
 .destacados h2 {
     color: #2b7575;
     font-weight: 700;
+    
 }
 
 .curso-card {
@@ -96,6 +97,7 @@ body {
     height: 60px;
     width: auto;
     display: block;
+    border-radius: 15px; 
 }
 
 .hero {
@@ -168,52 +170,25 @@ body {
 }
 
 
-/* =====================================================
-   NUEVAS CATEGORÍAS (Excel/Word y Micro:bit/Scratch)
-   ===================================================== */
-.curso-thumb.categoria-ofimatica {
-  background: linear-gradient(135deg, #b8860b, #1a743c);
-}
-
-.curso-thumb.categoria-hardware {
-  background: linear-gradient(135deg, #b5451b, #2b7575);
-}
-
-/* =====================================================
-   CONTENEDOR DE IMAGEN REAL (con respaldo de ícono)
-   ===================================================== */
 .curso-thumb-container {
-  height: 180px;
-  overflow: hidden;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
 }
 
 .curso-thumb-real {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
+
+/* Imagen en la página de detalle */
 
 #detalleCurso .curso-thumb-container {
-  height: 320px;
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-@media (max-width: 576px) {
-  .curso-thumb-container {
-    height: 140px;
-  }
-
-  #detalleCurso .curso-thumb-container {
-    height: 200px;
-  }
-}
-
-@media (min-width: 577px) and (max-width: 991px) {
-  .curso-thumb-container {
-    height: 160px;
-  }
+    aspect-ratio: 3 / 2;
+    border-radius: 14px;
+    overflow: hidden;
 }
 
 /* Carrusel del hero */
@@ -322,6 +297,7 @@ body {
     text-align: center;
     margin: 0;
     font-size: 0.9rem;
+    filter: brightness(0) invert(1);
 }
 
 .footer-social {
@@ -461,4 +437,16 @@ body {
 .cta-final .btn {
     font-weight: 600;
     padding: 10px 25px;
+}
+
+.btn-outline-light img {
+    filter: brightness(0) invert(1);
+}
+
+.btn-outline-light:hover img {
+    filter: brightness(0);
+}
+
+.header-nosotros {
+    background-color: #eef7f6;
 }

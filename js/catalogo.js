@@ -1,35 +1,72 @@
 // js/catalogo.js
-// Trae los cursos desde el backend y arma las tarjetas de catalogo.html
+// Trae los cursos desde cursos.json y arma las tarjetas de catalogo.html
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('listaCursos');
   const mensajeEstado = document.getElementById('estadoCarga');
+  const formBuscar = document.getElementById('formBuscarCursos');
+  const inputBuscar = document.getElementById('inputBuscarCursos');
+
+  let todosLosCursos = [];
 
   cargarCursos();
 
-async function cargarCursos() {
-  try {
-    const respuesta = await fetch('cursos.json');
-
-    if (!respuesta.ok) {
-      throw new Error('No se pudo obtener el catálogo de cursos.');
-    }
-
-    const cursos = await respuesta.json();
-
-    if (cursos.length === 0) {
-      mensajeEstado.textContent = 'Todavía no hay cursos cargados.';
-      return;
-    }
-
-    mensajeEstado.classList.add('d-none');
-    contenedor.innerHTML = cursos.map(crearTarjetaCurso).join('');
-  } catch (error) {
-    console.error('Error al cargar cursos:', error);
-    mensajeEstado.textContent = 'Ocurrió un error al cargar los cursos. Intentá nuevamente más tarde.';
-    mensajeEstado.classList.remove('d-none');
+  if (formBuscar) {
+    formBuscar.addEventListener('submit', (e) => {
+      e.preventDefault();
+      filtrarCursos();
+    });
   }
-}
+
+  if (inputBuscar) {
+    inputBuscar.addEventListener('input', filtrarCursos);
+  }
+
+  async function cargarCursos() {
+    try {
+      const respuesta = await fetch('cursos.json');
+
+      if (!respuesta.ok) {
+        throw new Error('No se pudo obtener el catálogo de cursos.');
+      }
+
+      const cursos = await respuesta.json();
+      todosLosCursos = cursos;
+
+      if (cursos.length === 0) {
+        mensajeEstado.textContent = 'Todavía no hay cursos cargados.';
+        return;
+      }
+
+      mensajeEstado.classList.add('d-none');
+      mostrarCursos(cursos);
+    } catch (error) {
+      console.error('Error al cargar cursos:', error);
+      mensajeEstado.textContent = 'Ocurrió un error al cargar los cursos. Intentá nuevamente más tarde.';
+      mensajeEstado.classList.remove('d-none');
+    }
+  }
+
+  function mostrarCursos(cursos) {
+    contenedor.innerHTML = cursos.map(crearTarjetaCurso).join('');
+  }
+
+  function filtrarCursos() {
+    const texto = inputBuscar.value.trim().toLowerCase();
+    const filtrados = todosLosCursos.filter(curso =>
+      curso.titulo.toLowerCase().includes(texto) ||
+      (curso.descripcion ?? '').toLowerCase().includes(texto)
+    );
+
+    if (filtrados.length === 0) {
+      contenedor.innerHTML = '';
+      mensajeEstado.textContent = 'No se encontraron cursos que coincidan con la búsqueda.';
+      mensajeEstado.classList.remove('d-none');
+    } else {
+      mensajeEstado.classList.add('d-none');
+      mostrarCursos(filtrados);
+    }
+  }
 
   function crearTarjetaCurso(curso) {
     const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
@@ -54,7 +91,6 @@ async function cargarCursos() {
     `;
   }
 
-  // Elige un color/ícono de categoría según palabras clave del título.
   function obtenerCategoria(titulo) {
     const t = titulo.toLowerCase();
 
@@ -67,8 +103,6 @@ async function cargarCursos() {
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 
-  // Si el curso tiene imagen_url, muestra la foto real (con respaldo de ícono
-  // si la foto no carga). Si no tiene, muestra directamente el ícono de color.
   function crearThumb(curso, claseCategoria, icono) {
     if (curso.imagen_url) {
       return `
@@ -83,8 +117,6 @@ async function cargarCursos() {
   }
 });
 
-// Reemplaza la imagen rota por el ícono de color de respaldo.
-// Está fuera del DOMContentLoaded porque se llama desde el atributo onerror del HTML.
 function handleThumbError(imgEl) {
   const clase = imgEl.dataset.clase;
   const icono = imgEl.dataset.icono;

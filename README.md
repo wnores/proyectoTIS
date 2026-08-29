@@ -31,9 +31,9 @@ Se verificó la presentación visual y la adaptación de la página al diseño g
  La página "Acerca de ..." posee información acerca de la organización, su misión, y el propósito del sitio.
 
  ## Desarrollo Frontend – Anny
- ## Página de becas
+ ### Página de becas
 Se desarrolló y ajustó la página beca.html, destinada a informar a los usuarios sobre las becas y beneficios disponibles para los cursos.
-# Se incorporó información sobre el sistema de becas.
+### Se incorporó información sobre el sistema de becas.
 Se agregaron los diferentes tipos de becas, requisitos y beneficios.
 Se creó una sección para solicitar una beca.
 Se desarrolló un formulario de solicitud utilizando componentes de Bootstrap.
@@ -42,7 +42,7 @@ Se corrigió la estructura HTML
 Se verificó la presentación visual y la adaptación responsive de la página.
 Se mantuvo la identidad visual y la estructura general del proyecto.
 
-## Página de Política de Privacidad
+### Página de Política de Privacidad
 Se desarrolló y adaptó la página politicaDePrivacidad.html, destinada a informar a los usuarios sobre el tratamiento y protección de los datos utilizados por el sitio.
 Se incorporó información relacionada con el tratamiento de datos personales.
 Se contempló el uso de imágenes y contenidos publicados dentro de la plataforma.

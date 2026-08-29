@@ -51,7 +51,7 @@ Se mantuvo la estructura visual general del sitio utilizando HTML y Bootstrap.
 Se verificó la navegación y el acceso a la página desde el menú principal.
 Estructura y diseño del sitio
 
-# Durante el desarrollo se trabajó en:
+### Durante el desarrollo se trabajó en:
 Estructuración de páginas mediante HTML semántico.
 Integración de Bootstrap mediante CDN.
 Aplicación y ajuste de estilos CSS.

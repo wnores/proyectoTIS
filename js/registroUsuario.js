@@ -6,7 +6,6 @@ const form = document.getElementById("registerForm");
 const errorBox = document.getElementById("registerError");
 const submitBtn = form.querySelector('button[type="submit"]');
 
-// --- Mostrar/ocultar contraseña (ícono de ojito, independiente en cada campo) ---
 function activarToggleContraseña(inputId, botonId, iconoId) {
   const input = document.getElementById(inputId);
   const boton = document.getElementById(botonId);
@@ -23,12 +22,11 @@ function activarToggleContraseña(inputId, botonId, iconoId) {
 activarToggleContraseña("password", "togglePassword", "togglePasswordIcon");
 activarToggleContraseña("repetirPassword", "toggleRepetirPassword", "toggleRepetirPasswordIcon");
 
-// --- Selección y previsualización de la foto de avatar ---
 const avatarBtn = document.getElementById("avatarBtn");
 const avatarInput = document.getElementById("avatarInput");
 const avatarImg = document.getElementById("avatarImg");
 const avatarIcon = document.getElementById("avatarIcon");
-let avatarFile = null; // queda disponible acá por si más adelante lo subimos a Firebase Storage
+let avatarFile = null; 
 
 avatarBtn.addEventListener("click", () => avatarInput.click());
 
@@ -51,7 +49,6 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   event.stopPropagation();
 
-  // Validación visual de Bootstrap (campos requeridos, tipo email, etc.)
   if (!form.checkValidity()) {
     form.classList.add("was-validated");
     return;
@@ -68,7 +65,6 @@ form.addEventListener("submit", async (event) => {
 
   ocultarError();
 
-  // Validación manual: las contraseñas deben coincidir
   if (password !== repetirPassword) {
     mostrarError("Las contraseñas no coinciden.");
     return;
@@ -77,24 +73,19 @@ form.addEventListener("submit", async (event) => {
   deshabilitarBoton(true);
 
   try {
-    // 1. Crear el usuario en Firebase Authentication
     const credenciales = await createUserWithEmailAndPassword(auth, email, password);
     const uid = credenciales.user.uid;
 
-    // 2. Guardar el resto de los datos del formulario en Firestore,
-    //    en la colección "usuarios", usando el uid como id del documento
     await setDoc(doc(db, "usuarios", uid), {
       nombre,
       apellido,
       email,
       departamento,
       tipoDocumento,
-      nroDocumento,
+      Documento,
       tipoUsuario: "estudiante",
-      fechaRegistro: new Date().toISOString()
     });
 
-    // 3. Redirigir tras el registro exitoso
     window.location.href = "index.html";
 
   } catch (error) {

@@ -4,13 +4,13 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCizvOiA2wnpRGr8H7UylELOZ850dah9aQ",
-  authDomain: "bdcursos-8549a.firebaseapp.com",
-  projectId: "bdcursos-8549a",
-  storageBucket: "bdcursos-8549a.firebasestorage.app",
-  messagingSenderId: "125252933034",
-  appId: "1:125252933034:web:369ae2ad859521a91787d3",
-  measurementId: "G-0QNHFT11C1"
+  apiKey: "AIzaSyBe3JTJXoPn-wo5g9IVzBGI-9ghSiF259Y",
+  authDomain: "bdcursoscc.firebaseapp.com",
+  projectId: "bdcursoscc",
+  storageBucket: "bdcursoscc.firebasestorage.app",
+  messagingSenderId: "253871349135",
+  appId: "1:253871349135:web:43b58595f2f9042f2c7ffa",
+  measurementId: "G-N47FZGJF2M"
 };
 
 // Inicializar Firebase

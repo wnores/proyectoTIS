@@ -17,10 +17,12 @@
 </head>
 
 <body>
-
+    <header>
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-        <div class="container">
+        
+        <div class="container"
+            aria-label="Navegación principal">
 
             <a class="navbar-brand" href="index.html">
                 <img src="recursos/imagenes/logo.jpg"
@@ -31,7 +33,10 @@
             <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#mainNav">
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Mostrar menú de navegación">
 
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -112,6 +117,7 @@
             </div>
         </div>
     </nav>
+    </header>
 
 
     <!-- CONTENIDO PRINCIPAL -->
@@ -119,7 +125,8 @@
 
 
         <!-- HERO -->
-        <section class="hero">
+        <section class="hero"
+            aria-labelledby="tituloHero">
 
             <div class="container">
 
@@ -128,7 +135,7 @@
                     <!-- Texto del hero -->
                     <div class="col-lg-6 hero-content">
 
-                        <h1>Aprendé. Creá. Transformá.</h1>
+                        <h1 id="tituloHero">Aprendé. Creá. Transformá.</h1>
 
                         <p>
                             Explorá cursos de programación, desarrollo web,
@@ -280,11 +287,12 @@
 
 
         <!-- ÁREAS DE APRENDIZAJE -->
-        <section class="areas-aprendizaje py-5">
+        <section class="areas-aprendizaje py-5"
+            aria-labelledby="tituloAreas">
 
             <div class="container">
 
-                <h2 class="text-center mb-3">
+                <h2 id="tituloAreas" class="text-center mb-3" >
                     Áreas de aprendizaje
                 </h2>
 
@@ -418,11 +426,12 @@
 
 
         <!-- CURSOS DESTACADOS -->
-        <section class="destacados py-5">
+        <section class="destacados py-5"
+            aria-labelledby="tituloCursos">
 
             <div class="container destacados-container">
 
-                <h2 class="text-center mb-5">
+                <h2 id="tituloCursos" class="text-center mb-5">
                     Cursos destacados
                 </h2>
 
@@ -604,11 +613,12 @@
 
 
         <!-- BENEFICIOS -->
-        <section class="beneficios py-5">
+        <section class="beneficios py-5"
+            aria-labelledby="tituloBeneficios">
 
             <div class="container">
 
-                <h2 class="text-center mb-3">
+                <h2 id="tituloBeneficios" class="text-center mb-3">
                     ¿Por qué aprender con nosotros?
                 </h2>
 
@@ -702,10 +712,11 @@
 
         </section>
 
-        <section class="cta-final py-5">
+        <section class="cta-final py-5"
+            aria-labelledby="tituloCTA">
             <div class="container text-center">
 
-                <h2>Comenzá a aprender hoy</h2>
+                <h2 id="tituloCTA">Comenzá a aprender hoy</h2>
 
                 <p>
                     Encontrá una beca y accedé a nuevas oportunidades

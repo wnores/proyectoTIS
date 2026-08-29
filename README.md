@@ -30,6 +30,34 @@ Se verificó la presentación visual y la adaptación de la página al diseño g
 ## Pagina "Acerca de ..."
  La página "Acerca de ..." posee información acerca de la organización, su misión, y el propósito del sitio.
 
+ ## Desarrollo Frontend – Anny
+ ## Página de becas
+Se desarrolló y ajustó la página beca.html, destinada a informar a los usuarios sobre las becas y beneficios disponibles para los cursos.
+# Se incorporó información sobre el sistema de becas.
+Se agregaron los diferentes tipos de becas, requisitos y beneficios.
+Se creó una sección para solicitar una beca.
+Se desarrolló un formulario de solicitud utilizando componentes de Bootstrap.
+El formulario incluye campos para nombre, correo electrónico, curso de interés, tipo de beca y motivo de la solicitud.
+Se corrigió la estructura HTML
+Se verificó la presentación visual y la adaptación responsive de la página.
+Se mantuvo la identidad visual y la estructura general del proyecto.
+
+## Página de Política de Privacidad
+Se desarrolló y adaptó la página politicaDePrivacidad.html, destinada a informar a los usuarios sobre el tratamiento y protección de los datos utilizados por el sitio.
+Se incorporó información relacionada con el tratamiento de datos personales.
+Se contempló el uso de imágenes y contenidos publicados dentro de la plataforma.
+Se adaptó el contenido al contexto del proyecto y a la normativa vigente en Uruguay.
+Se mantuvo la estructura visual general del sitio utilizando HTML y Bootstrap.
+Se verificó la navegación y el acceso a la página desde el menú principal.
+Estructura y diseño del sitio
+
+# Durante el desarrollo se trabajó en:
+Estructuración de páginas mediante HTML semántico.
+Integración de Bootstrap mediante CDN.
+Aplicación y ajuste de estilos CSS.
+Creación y modificación de formularios.
+Revisión de la estructura HTML y corrección de errores.
+ 
  ## Backend y catálogo de cursos (Giovanna)
 
 Se implementó el backend del sitio y se conectó con las páginas de catálogo de cursos.

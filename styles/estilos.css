@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   padding: 0;
@@ -13,7 +12,7 @@ body {
 }
 
 .navbar-nav {
-  gap: 20px; /* separación entre los elementos */
+  gap: 20px; 
 } 
 
 .navbar .nav-link {
@@ -183,8 +182,6 @@ body {
     display: block;
 }
 
-/* Imagen en la página de detalle */
-
 #detalleCurso .curso-thumb-container {
     aspect-ratio: 3 / 2;
     border-radius: 14px;
@@ -211,7 +208,6 @@ body {
     object-fit: contain;
 }
 
-/* Controles del carrusel */
 #carouselCursos .carousel-control-prev,
 #carouselCursos .carousel-control-next {
     width: 10%;
@@ -417,7 +413,6 @@ body {
     margin-bottom: 0;
 }
 
-/* Llamada a la acción */
 .cta-final {
     background-color: #eef7f6;
     padding: 60px 20px !important;
@@ -453,52 +448,28 @@ body {
     background-color: #eef7f6;
 }
 
-/* AVISOS DE LA PÁGINA DE DETALLE DEL CURSO */
-
-.aviso-curso {
-    max-width: 700px;
-    margin: 30px auto;
-    padding: 18px 24px;
-    border-radius: 12px;
-    background-color: #f8f9fa;
-    border-left: 5px solid #1976a3;
-    color: #495057;
-    text-align: center;
-    font-size: 1rem;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-form button[type="submit"] {
-    text-align: center !important;
-    text-indent: 0 !important;
-    padding: 0.5rem 1rem !important;
-    margin: 0 !important;
-}
-
-/* =========================
-   PERFIL
-   ========================= */
-
-.perfil-card {
-    background-color: #ffffff;
+.register-card {
+    background-color: #fff;
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
+.register-card .form-control,
+.register-card .form-select {
+    border: 1px solid #444;
+}
 
-/* Avatar
-   Se mantiene el mismo estilo
-   utilizado en Registrarse */
+.register-card .form-control:focus,
+.register-card .form-select:focus {
+    box-shadow: none;
+    border-color: #000;
+}
 
 .avatar-wrapper {
     width: 140px;
     height: 140px;
     position: relative;
-}
-
-.avatar-wrapper .bi-person-fill {
-    font-size: 60px;
 }
 
 .camera-btn {
@@ -507,107 +478,24 @@ form button[type="submit"] {
     bottom: 0;
     right: 0;
     padding: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 18px;
 }
 
-
-/* Datos del perfil */
-
-.perfil-dato {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    min-height: 55px;
-
-    padding: 8px 0;
-
-    border-bottom: 1px solid #dee2e6;
-}
-
-.perfil-dato label {
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    margin-bottom: 0;
-}
-
-.perfil-dato > span,
-.perfil-dato > div {
-    color: #333;
-}
-
-.perfil-dato > div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-editar {
-    border: none;
-    background: transparent;
-
+.btn-outline-custom {
+    border-radius: 50px;
+    border: 1px solid #444;
     color: #444;
+    padding: 8px 24px;
+}
 
-    padding: 4px;
+.btn-outline-custom:hover {
+    background-color: #444;
+    color: #fff;
+}
 
+.info-icon {
     cursor: pointer;
-}
-
-.btn-editar:hover {
-    color: #000;
-}
-
-
-/* Botones inferiores */
-
-.perfil-botones {
-    border-top: 1px solid #dee2e6;
-
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.perfil-botones .btn {
-    font-weight: 600;
-}
-
-
-/* =========================
-   CELULAR
-   ========================= */
-
-@media (max-width: 767.98px) {
-
-    .perfil-card {
-        padding: 30px 20px;
-    }
-
-    .perfil-dato {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 3px;
-        padding: 12px 0;
-    }
-
-    .perfil-dato > div {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .perfil-botones {
-        flex-direction: column;
-    }
-
-    .perfil-botones .btn {
-        width: 100%;
-    }
-
 }

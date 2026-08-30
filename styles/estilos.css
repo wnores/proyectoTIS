@@ -475,3 +475,139 @@ form button[type="submit"] {
     margin: 0 !important;
 }
 
+/* =========================
+   PERFIL
+   ========================= */
+
+.perfil-card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Avatar
+   Se mantiene el mismo estilo
+   utilizado en Registrarse */
+
+.avatar-wrapper {
+    width: 140px;
+    height: 140px;
+    position: relative;
+}
+
+.avatar-wrapper .bi-person-fill {
+    font-size: 60px;
+}
+
+.camera-btn {
+    width: 38px;
+    height: 38px;
+    bottom: 0;
+    right: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+}
+
+
+/* Datos del perfil */
+
+.perfil-dato {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 55px;
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid #dee2e6;
+}
+
+.perfil-dato label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 0;
+}
+
+.perfil-dato > span,
+.perfil-dato > div {
+    color: #333;
+}
+
+.perfil-dato > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-editar {
+    border: none;
+    background: transparent;
+
+    color: #444;
+
+    padding: 4px;
+
+    cursor: pointer;
+}
+
+.btn-editar:hover {
+    color: #000;
+}
+
+
+/* Botones inferiores */
+
+.perfil-botones {
+    border-top: 1px solid #dee2e6;
+
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.perfil-botones .btn {
+    font-weight: 600;
+}
+
+
+/* =========================
+   CELULAR
+   ========================= */
+
+@media (max-width: 767.98px) {
+
+    .perfil-card {
+        padding: 30px 20px;
+    }
+
+    .perfil-dato {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+        padding: 12px 0;
+    }
+
+    .perfil-dato > div {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .perfil-botones {
+        flex-direction: column;
+    }
+
+    .perfil-botones .btn {
+        width: 100%;
+    }
+
+}

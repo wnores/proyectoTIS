@@ -1,11 +1,10 @@
-proyectoTIS
+PROYECTO DE TALLER INTEGRADOR DE SISTEMAS (proyectoTIS)
 ==================================================================
-PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
 
-Sitio web de gestión de cursos sobre ciencias de la computación.
-Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Techera Marilina
-Estudiantes de tercer año del profesorado semipresencial especialidad informática
-CERP Salto - Uruguay
+- Sitio web de gestión de cursos sobre ciencias de la computación.
+- Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Techera Marilina
+- Estudiantes de tercer año del profesorado semipresencial especialidad informática
+- CERP Salto - Uruguay
 
 ### Nombre
 El nombre seleccionado para el sitio fue Cursos CC
@@ -16,32 +15,31 @@ Se crea el logo correspondiente
 
 ## Sprint 1 (10/08/2026 al 30/08/2026)
 
-12/08 Creación de la base del proyecto.
-En el index.html se crea el menú y botón de ingreso.
-Se agrega una imagen de portada creada con IA gemini.
-Y se crea el footer. 
+- 12/08 Creación de la base del proyecto.
+- En el index.html se crea el menú y botón de ingreso.
+- Se agrega una imagen de portada creada con IA gemini.
+- Y se crea el footer. 
 El menú y el pie se mostrará en todas las páginas, a excepeción del botón de ingresar que no se
 mostrará en las páginas ingresar.html y registrarse.html.
 
-A partir de esa base del proyecto y teniendo en cuenta el prototipo realizado anteriormente en Miro, se comienza a programar la estructura del sitio web con tareas específicas asignadas a cada integrante.
+- A partir de esa base del proyecto y teniendo en cuenta el prototipo realizado anteriormente en Miro, se comienza a programar la estructura del sitio web con tareas específicas asignadas a cada integrante.
 
-##El menú contiene:
--acercaDe.html: Dónde se describirá el por qué de la página y la información de los creadores, público al que va dirigido y qué cursos contiene. (Creado por Walter)
--"catalogo.html": Se muestra la lista de cursos que se ofrecen y una breve descripción de cada uno. con la opción "ver detalle del curso" que te llevará a la pagina descripcionDeCurso.html". Muestra los cursos disponibles trayéndolos dinámicamente desde la base de datos (ya no están escritos a mano en el HTML).(Creado por Giovanna)
--"descripcionDeCurso.html": Dónde se detallará específicamente cada curso que se ofrece, su descripción, precio, duración, contenidos, etc. Muestra el detalle de un curso específico según el `id` en la URL (ej. `descripcionDeCurso.html?id=3`). Se cargaron 10 cursos reales, organizados en categorías (Programación, Inteligencia Artificial, Bases de Datos, Ofimática, Hardware/Electrónica). Cada curso muestra su foto real si está disponible; si no, se muestra un ícono de color de respaldo según su categoría.(Creado por Giovanna)
--"beca.html": Se describen las becas y/o descuentos que ofrece el sitio para beneficio de los cursos. Se incorporó una sección explicativa sobre el sistema de becas. Se agregaron los tipos de becas, requisitos y beneficios. Se creó un apartado para solicitar una beca. Se incorporó un formulario utilizando componentes de Bootstrap, con campos para nombre, correo electrónico, curso de interés, tipo de beca y motivo de la solicitud. Se revisó la estructura HTML y se corrigieron errores en los div para que el formulario quedara correctamente dentro de la tarjeta. (Creado por Anny)
+### El menú contiene:
+- acercaDe.html: Dónde se describirá el por qué de la página y la información de los creadores, público al que va dirigido y qué cursos contiene. (Creado por Walter)
+- "catalogo.html": Se muestra la lista de cursos que se ofrecen y una breve descripción de cada uno. con la opción "ver detalle del curso" que te llevará a la pagina descripcionDeCurso.html". Muestra los cursos disponibles trayéndolos dinámicamente desde la base de datos (ya no están escritos a mano en el HTML).(Creado por Giovanna)
+- "descripcionDeCurso.html": Dónde se detallará específicamente cada curso que se ofrece, su descripción, precio, duración, contenidos, etc. Muestra el detalle de un curso específico según el `id` en la URL (ej. `descripcionDeCurso.html?id=3`). Se cargaron 10 cursos reales, organizados en categorías (Programación, Inteligencia Artificial, Bases de Datos, Ofimática, Hardware/Electrónica). Cada curso muestra su foto real si está disponible; si no, se muestra un ícono de color de respaldo según su categoría.(Creado por Giovanna)
+- "beca.html": Se describen las becas y/o descuentos que ofrece el sitio para beneficio de los cursos. Se incorporó una sección explicativa sobre el sistema de becas. Se agregaron los tipos de becas, requisitos y beneficios. Se creó un apartado para solicitar una beca. Se incorporó un formulario utilizando componentes de Bootstrap, con campos para nombre, correo electrónico, curso de interés, tipo de beca y motivo de la solicitud. Se revisó la estructura HTML y se corrigieron errores en los div para que el formulario quedara correctamente dentro de la tarjeta. (Creado por Anny)
 Se verificó la presentación visual y la adaptación de la página al diseño general del sitio.
--"contacto.html": Aparece la información para consultas: se brinda un número de whatsapp, los días y horarios de atención y la dirección de las oficinas administrativas donde sólo se brinda información de los cursos. Además esta página cuenta con un formulario de contacto, dónde se ingresa el nombre y apellido, un correo electrónico y el mensaje o consulta que se desea enviar. (Creado por Marilina)
+- "contacto.html": Aparece la información para consultas: se brinda un número de whatsapp, los días y horarios de atención y la dirección de las oficinas administrativas donde sólo se brinda información de los cursos. Además esta página cuenta con un formulario de contacto, dónde se ingresa el nombre y apellido, un correo electrónico y el mensaje o consulta que se desea enviar. (Creado por Marilina)
 
-Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro, se ingresa con tipo de usuario docente/admin o estudiante.
+- Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro, se ingresa con tipo de usuario docente/admin o estudiante.
 
-Botón "registrarse.html": Formulario de registro, por defecto crea los usuario de tipo "estudiante". Por otro lado, os docente/admin que van a administrar la página ya deberían estar creados por defecto.
+- Botón "registrarse.html": Formulario de registro, por defecto crea los usuario de tipo "estudiante". Por otro lado, os docente/admin que van a administrar la página ya deberían estar creados por defecto.
 
-"politicaDePrivacidad": Políticas de privacidad que se utilizan para tratar datos personales, imágenes agregadas y el propio contenido de los cursos.
-
- ## Desarrollo Frontend – Anny
- ### Página de becas
+### Desarrollo Frontend – Anny
+### Página de becas
 Se desarrolló y ajustó la página beca.html, destinada a informar a los usuarios sobre las becas y beneficios disponibles para los cursos.
+
 ### Se incorporó información sobre el sistema de becas.
 Se agregaron los diferentes tipos de becas, requisitos y beneficios.
 Se creó una sección para solicitar una beca.
@@ -74,31 +72,31 @@ Revisión de la estructura HTML y corrección de errores.
 ### Pendiente
 - Carrito de compras y flujo de pago (se implementará más adelante según sprint).
 
-#Formspree
+### Formspree
 Para los formularios de contacto y becas se utiliza Formspree, el cuál es un servicio en línea que permite recibir los datos de un formulario web directamente en un correo electrónico o panel sin necesidad de programar un servidor.
 
-#Correo electrónico
+### Correo electrónico
 Para que todo el grupo pueda probar y tener acceso a los formulario se creó un correo electrónico grupal: tallercerpsalto@gmail.com. 
 Este correo fue registrado en la cuenta de formspree y además se utilizará más adelante para la cuenta de Firebase.
 
-#Firebase (con el correo electrónico creado anteriormente)
+### Firebase (con el correo electrónico creado anteriormente)
 Se crea un proyecto en Firebase que se llama BDCursos dónde contendrá toda la información de los cursos, tipos de usuarios y todo lo que se necesite guardar sobre los cursos. En este caso Firebase es una base de datos NoSQL alojada en la nube que almacena y sincroniza datos en tiempo real. 
 Por el momento se utilizan dos extensiones Firestore que es donde se crean las colecciones, que simulan las tablas y authentication donde se registran los usuarios creados.
 
-##Antes de finalizar el sprint 1 (Implementación del formulario de registro y conexión con Firebase)
-#Registrarse (registrarse.html) - Marilina
+### Antes de finalizar el sprint 1 (Implementación del formulario de registro y conexión con Firebase)
+### Registrarse (registrarse.html) - Marilina
 Cuando se completa el formulario con los datos se guardan en la base de datos de Firestore database. Todos los campos son obligatorios. La contraseña tiene información de qué datos debe contener cuando se crea. Además permite adjuntar una imagen de perfil desde el navegador que por el momento sólo se guarda de forma temporal. Otra cosa que se implementó en este caso es que el tipo de usuario que se registra en la página en este caso siempre va a ser el estudiante. El otro tipo de usuario que contendrá la página será docente/admin que se detallará su implementación cuando se desarrolle en el sprint determinado. Además en el formulario se implementan algunas restricciones: el correo debe ser válido y no se puede repetir para 2 o más usuarios. La cédula se debe ingresar sin puntos ni guiones y deben ser sólo números. La contraseña debe contener letras mayúsculas, minúsculas y al menos un número. Contraseña y repetir contraseña deben coincidir. Luego de registrarse exitosamente el usuario queda logueado.
 
-##Sprint 2 (31/08/2026 al 20/09/2026)
-#iniciar sesión (ingresar.html) (Walter)
+## Sprint 2 (31/08/2026 al 20/09/2026)
+### iniciar sesión (ingresar.html) (Walter)
 
-#Cerrar Sesión (Giovanna)
+### Cerrar Sesión (Giovanna)
 
-#Ver perfil/modificar perfil (perfil.html) (Silvana)
+### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
-#Recuperar contraseña (recuperar_password) (Anny)
+### Recuperar contraseña (recuperar_password) (Anny)
 
 
-##Sprint 3 (28/09/2026 al 11/10/2026)
+## Sprint 3 (28/09/2026 al 11/10/2026)
 
-##Sprint 4 (12/10/2026 al 23/10/2026)
+## Sprint 4 (12/10/2026 al 23/10/2026)

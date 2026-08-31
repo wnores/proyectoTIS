@@ -1,5 +1,13 @@
 # proyectoTIS
 PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
+Sitio web de gestión de cursos sobre ciencias de la computación.
+Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Techera Marilina
+Estudiantes de tercer año del profesorado semipresencial especialidad informática
+CERP Salto - Uruguay
+================================================
+El nombre seleccionado para el sitio fue Cursos CC
+Se crea el logo correspondiente
+<img width="200" height="200" alt="Logo" src="https://github.com/marilina/MarilinaDesarrolloWeb/blob/main/assets/logo/logoFC.png"/>
 ================================================
 Creación de la base del proyecto.
 En el index.html se crea el menú y botón de ingreso.

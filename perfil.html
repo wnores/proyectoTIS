@@ -6,12 +6,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Perfil de Uuario</title>
+    <title>Cursos CC | Perfil de Usuario</title>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="perfil.html">
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Logo</a>
+            <a class="navbar-brand" href="index.html">
+                <img src="recursos/imagenes/logo.jpg"
+                    alt="Cursos de Ciencias de la Computación"
+                    class="logo">
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
                     class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="mainNav">
@@ -32,7 +36,7 @@
             
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                     <li><a class="dropdown-item" href="perfil.html">Perfil</a></li>
-                    <li><a class="dropdown-item" href="recuperar_password.html">Recuperar Acceso</a></li>
+                    <li><a class="dropdown-item" href="recuperar_password.html">Recuperar contraseña</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
                 </ul>
@@ -42,101 +46,282 @@
             </div>
         </div>
     </nav>
-     <main class='flex-grow-1'>
-        <section class="hero"> 
+<main class="flex-grow-1">
 
-<!-- Contenido principal del perfil -->
-<div class="container py-5">
-    <div class="row">
-        
-        <!-- Columna Izquierda: Información del Perfil -->
-        <div class="col-lg-8">
-            
-            <!-- Encabezado -->
-            <div class="d-flex align-items-center mb-4">
-                <h2 class="fw-bold me-3 mb-0">Perfil</h2>
-                <p class="mb-0 text-secondary">Información del perfil</p>
-            </div>
+    <div class="container py-4">
 
-            <!-- Lista de datos del usuario con botones de edición -->
-<div style="max-width: 600px;">
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Nombre:</label>
-        <span class="flex-grow-1">Jorge</span>
-        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar nombre"></i>
-    </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Apellido:</label>
-        <span class="flex-grow-1">Gonzalez</span>
-        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar apellido"></i>
-    </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Email:</label>
-        <span class="flex-grow-1">jgonzalez@gmail.com</span>
-        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar email"></i>
-    </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Departamento:</label>
-        <span class="flex-grow-1">Paysandú</span>
-        <i class="bi bi-pencil-square text-secondary ms-2" style="cursor: pointer; font-size: 1.2rem;" title="Editar departamento"></i>
-    </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Tipo de documento:</label>
-        <span class="flex-grow-1">Cédula Uruguaya</span>
-        </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Nro de Documento:</label>
-        <span class="flex-grow-1">99999999</span>
-        </div>
-    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-        <label class="fw-bold mb-0" style="width: 180px;">Rol:</label>
-        <span class="flex-grow-1">Docente</span>
-    </div>
-</div>
-            <!-- Botón Ir a Inicio -->
-            <div class="mt-5">
-                 <a href="index.html" class="btn btn-primary">Volver al inicio <img src="recursos/iconos/atras.png" alt="atrás"></a>
-            </div>
+        <div class="row justify-content-center">
 
-        </div>
+            <div class="col-12 col-lg-10 col-xl-9">
 
-        <!-- Columna Derecha: Avatar y Botones -->
-        <div class="col-lg-4">
-            
-            <!-- Avatar (CSS mínimo para el tamaño y posicionamiento de la cámara) -->
-            <div class="d-flex justify-content-center mb-4">
-                <!-- Contenedor del círculo -->
-                <div class="position-relative" style="width: 200px; height: 200px;">
-                    <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
-                        <i class="bi bi-person-fill text-secondary" style="font-size: 80px;"></i>
+                <div class="perfil-card">
+
+                    <h2 class="text-center fw-bold mb-4">
+                        Perfil
+                    </h2>
+
+                    <div class="row g-4">
+
+                        <!-- FOTO -->
+                        <div class="col-12 col-md-5 order-1 order-md-2">
+
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
+
+                                <div class="avatar-wrapper">
+
+                                    <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
+
+                                        <i class="bi bi-person-fill text-secondary"></i>
+
+                                    </div>
+
+                                    <button type="button"
+                                        class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute"
+                                        title="Cambiar foto">
+
+                                        <i class="bi bi-camera-fill text-dark"></i>
+
+                                    </button>
+
+                                </div>
+
+                                <h5 class="fw-bold mt-3 mb-1">
+                                    Jorge Gonzalez
+                                </h5>
+
+                                <span class="text-secondary">
+                                    Docente
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- INFORMACIÓN -->
+                        <div class="col-12 col-md-7 order-2 order-md-1">
+
+                            <h5 class="fw-bold mb-4">
+                                Información del perfil
+                            </h5>
+
+
+                            <div class="perfil-dato">
+                                <label>Nombre</label>
+
+                                <div>
+                                    <span>Jorge</span>
+
+                                    <button class="btn-editar"
+                                        title="Editar nombre">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Apellido</label>
+
+                                <div>
+                                    <span>Gonzalez</span>
+
+                                    <button class="btn-editar"
+                                        title="Editar apellido">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Dirección de correo</label>
+
+                                <div>
+                                    <span>jgonzalez@gmail.com</span>
+
+                                    <button class="btn-editar"
+                                        title="Editar correo">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Departamento</label>
+
+                                <div>
+                                    <span>Paysandú</span>
+
+                                    <button class="btn-editar"
+                                        title="Editar departamento">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Tipo de documento</label>
+
+                                <span>
+                                    Cédula Uruguaya
+                                </span>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Nro. de documento</label>
+
+                                <span>
+                                    99999999
+                                </span>
+                            </div>
+
+
+                            <div class="perfil-dato">
+                                <label>Rol</label>
+
+                                <span>
+                                    Docente
+                                </span>
+                            </div>
+
+                        </div>
+
                     </div>
-                    <!-- Botón de la cámara -->
-                    <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm position-absolute" 
-                            style="width: 45px; height: 45px; bottom: 10px; right: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-camera-fill text-dark"></i>
-                    </button>
-                </div>
-            </div>
 
-            <!-- Botones de acción -->
-            <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-primary">Modificar Contraseña</button>
-                <button class="btn btn-primary">Servicios adquiridos</button>
-                <button class="btn btn-primary">Eliminar cuenta</button>
+
+                    <!-- BOTONES -->
+                    <div class="perfil-botones mt-4 pt-4">
+
+                        <button class="btn btn-primary">
+                            Modificar contraseña
+                        </button>
+
+                        <button class="btn btn-primary">
+                            Servicios adquiridos
+                        </button>
+
+                         <button class="btn btn-outline-danger">
+                            <i class="bi bi-trash3"></i>
+                            Eliminar cuenta
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
 
-    </div>
-</div>
 
-        </section>
-     </main>
-     <footer>
-        <div>
-    <p><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
+        <!-- VOLVER -->
+        <div class="text-center mt-4">
+
+            <a href="index.html" class="btn btn-primary">
+                Volver al inicio
+                <img src="recursos/iconos/atras.png" alt="atrás">
+            </a>
+
+        </div>
+
     </div>
-</footer>
+
+</main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <div class="row">
+
+
+                <!-- Información -->
+                <div class="col-lg-5">
+
+                    <h5>Cursos de Ciencias de la Computación</h5>
+
+                    <p>
+                        Desarrollá nuevas habilidades
+                        y preparate para el mundo digital.
+                    </p>
+
+                </div>
+
+
+                <!-- Enlaces -->
+                <div class="col-lg-3">
+
+                    <h5>Enlaces</h5>
+
+                    <a href="politicaDePrivacidad.html">
+                        Política de privacidad
+                    </a>
+
+                </div>
+
+
+                <!-- Contacto -->
+                <div class="col-lg-4">
+
+                    <h5>Contacto</h5>
+
+                    <p>
+                        Seguinos en nuestras redes
+                    </p>
+
+                    <div class="footer-social">
+
+                        <a href="https://www.facebook.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+
+                        <a href="https://www.instagram.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+
+                        <a href="https://www.youtube.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+
+                        <a href="https://www.linkedin.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr>
+
+
+            <p class="footer-copy">
+                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+            </p>
+        
+
+        </div>
+
+    </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

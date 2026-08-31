@@ -13,7 +13,7 @@
 
     <link rel="stylesheet" href="styles/estilos.css">
 
-    <title>Sitio Web Taller</title>
+    <title>Cursos CC</title>
 </head>
 
 <body>
@@ -90,23 +90,6 @@
 
                 <div class="d-flex align-items-center gap-2">
 
-                    <form class="d-flex" id="formBuscador" role="search">
-
-                        <input
-                            class="form-control form-control-sm"
-                            type="search"
-                            id="inputBuscador"
-                            placeholder="Buscar"
-                            aria-label="Buscar en el sitio">
-
-                        <button
-                            class="btn btn-light btn-sm ms-1"
-                            type="submit">
-                            Buscar
-                        </button>
-
-                    </form>
-
                     <a href="ingresar.html"
                         class="btn btn-outline-light btn-sm">
                         Ingresar<img src="recursos/iconos/ingresar.png" alt="Ingresar">
@@ -130,7 +113,35 @@
 
             <div class="container">
 
-                <div class="row align-items-center">
+                <div class="row g-4 align-items-center">
+
+                    <!-- Buscador del hero -->
+                    <div class="buscador-hero mb-4">
+
+                        <form class="row mb-0"
+                            id="formBuscador"
+                            role="search">
+
+                            <div class="col-12 col-md-6 d-flex">
+
+                                <input
+                                    class="form-control form-control-sm"
+                                    type="search"
+                                    id="inputBuscador"
+                                    placeholder="Buscar"
+                                    aria-label="Buscar en el sitio">
+
+                                <button
+                                    class="btn btn-primary btn-sm ms-1"
+                                    type="submit">
+                                    Buscar
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
 
                     <!-- Texto del hero -->
                     <div class="col-lg-6 hero-content">

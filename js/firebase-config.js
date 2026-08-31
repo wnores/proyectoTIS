@@ -17,6 +17,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Exportamos auth y db para poder usarlos desde otros archivos (registro.js, login.js, etc.)
 export const auth = getAuth(app);
 export const db = getFirestore(app);

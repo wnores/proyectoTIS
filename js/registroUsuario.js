@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js"; 
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
@@ -6,12 +6,16 @@ const form = document.getElementById("registerForm");
 const errorBox = document.getElementById("registerError");
 const submitBtn = form.querySelector('button[type="submit"]');
 
+// Alternar visibilidad de contraseña
 function activarToggleContraseña(inputId, botonId, iconoId) {
   const input = document.getElementById(inputId);
   const boton = document.getElementById(botonId);
   const icono = document.getElementById(iconoId);
 
-  boton.addEventListener("click", () => {
+  if (!input || !boton || !icono) return;
+
+  boton.addEventListener("click", (e) => {
+    e.preventDefault();
     const oculto = input.type === "password";
     input.type = oculto ? "text" : "password";
     icono.classList.toggle("bi-eye", !oculto);
@@ -22,29 +26,33 @@ function activarToggleContraseña(inputId, botonId, iconoId) {
 activarToggleContraseña("password", "togglePassword", "togglePasswordIcon");
 activarToggleContraseña("repetirPassword", "toggleRepetirPassword", "toggleRepetirPasswordIcon");
 
+// Manejo del Avatar
 const avatarBtn = document.getElementById("avatarBtn");
 const avatarInput = document.getElementById("avatarInput");
 const avatarImg = document.getElementById("avatarImg");
 const avatarIcon = document.getElementById("avatarIcon");
 let avatarFile = null; 
 
-avatarBtn.addEventListener("click", () => avatarInput.click());
+if (avatarBtn && avatarInput) {
+  avatarBtn.addEventListener("click", () => avatarInput.click());
 
-avatarInput.addEventListener("change", () => {
-  const archivo = avatarInput.files[0];
-  if (!archivo) return;
+  avatarInput.addEventListener("change", () => {
+    const archivo = avatarInput.files[0];
+    if (!archivo) return;
 
-  avatarFile = archivo;
+    avatarFile = archivo;
 
-  const lector = new FileReader();
-  lector.onload = (e) => {
-    avatarImg.src = e.target.result;
-    avatarImg.classList.remove("d-none");
-    avatarIcon.classList.add("d-none");
-  };
-  lector.readAsDataURL(archivo);
-});
+    const lector = new FileReader();
+    lector.onload = (e) => {
+      avatarImg.src = e.target.result;
+      avatarImg.classList.remove("d-none");
+      avatarIcon.classList.add("d-none");
+    };
+    lector.readAsDataURL(archivo);
+  });
+}
 
+// Envío del Formulario
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -65,34 +73,70 @@ form.addEventListener("submit", async (event) => {
 
   ocultarError();
 
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!regexEmail.test(email)) {
+    mostrarError("Ingresá un correo electrónico válido (ejemplo: usuario@dominio.com).");
+    return;
+  }
+
+  const regexDocumento = /^\d{6,9}$/;
+  if (!regexDocumento.test(nroDocumento)) {
+    mostrarError("El número de documento debe contener solo números, sin puntos ni guiones.");
+    return;
+  }
+
   if (password !== repetirPassword) {
     mostrarError("Las contraseñas no coinciden.");
+    return;
+  }
+
+  const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!regexPassword.test(password)) {
+    mostrarError("La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.");
     return;
   }
 
   deshabilitarBoton(true);
 
   try {
+    // 1. Crear usuario en Firebase Auth
     const credenciales = await createUserWithEmailAndPassword(auth, email, password);
     const uid = credenciales.user.uid;
 
+    // 2. Guardar datos en Firestore
     await setDoc(doc(db, "usuarios", uid), {
       nombre,
       apellido,
       email,
       departamento,
       tipoDocumento,
-      Documento,
+      nroDocumento,
       tipoUsuario: "estudiante",
+      creadoEn: new Date()
     });
 
-    window.location.href = "index.html";
+    mostrarRegistroExitoso();
+
+    // Redirección con sintaxis corregida
+    setTimeout(() => {
+      window.location.href = "index.html"; 
+    }, 1500);
 
   } catch (error) {
-    mostrarError(traducirError(error.code));
+    console.error("Error al registrar:", error);
+    mostrarError(traducirError(error?.code));
     deshabilitarBoton(false);
   }
 });
+
+// Función para disparar la microinteracción con Bootstrap Toast
+function mostrarRegistroExitoso() {
+  const toastElement = document.getElementById("successToast");
+  if (toastElement) {
+    const toast = new bootstrap.Toast(toastElement, { delay: 2000 });
+    toast.show();
+  }
+}
 
 function mostrarError(mensaje) {
   errorBox.textContent = mensaje;
@@ -117,7 +161,9 @@ function traducirError(codigo) {
       return "La contraseña es demasiado débil (mínimo 6 caracteres).";
     case "auth/invalid-email":
       return "El correo electrónico no es válido.";
+    case "permission-denied":
+      return "Error de permisos en Firestore. Revisa las reglas de seguridad.";
     default:
-      return "Ocurrió un error al crear la cuenta. Intentá de nuevo.";
+      return "Ocurrió un error al crear la cuenta. Revisa la consola F12.";
   }
 }

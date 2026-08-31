@@ -90,7 +90,6 @@ form.addEventListener("submit", async (event) => {
 
   } catch (error) {
     mostrarError(traducirError(error.code));
-  } finally {
     deshabilitarBoton(false);
   }
 });

@@ -6,11 +6,11 @@ Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Te
 Estudiantes de tercer año del profesorado semipresencial especialidad informática
 CERP Salto - Uruguay
 
+# Nombre
 El nombre seleccionado para el sitio fue Cursos CC
 Se crea el logo correspondiente
 <img width="200" height="200" alt="Logo" src="https://github.com/wnores/proyectoTIS/blob/main/recursos/imagenes/logo.jpg"/>
 
-##Sprint 1 (10/08/2026 al 30/08/2026)
 ## Sprint 1 (10/08/2026 al 30/08/2026)
 
 12/08 Creación de la base del proyecto.

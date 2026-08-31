@@ -24,21 +24,29 @@
                     class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
 
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-                        Ingresar
-                        <img src="recursos/iconos/ingresar.png" alt="">
-                        </a>
-                    </li>
-                </ul>
+                <div class="d-flex align-items-center gap-2">
+
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+        Iniciar sesión
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar">
+    </a>
+
+</div>
+
+<div class="d-flex align-items-center gap-2 ms-2">
+
+    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+        Registrarse
+        <img src="recursos/iconos/registrarse.png" alt="Registro">
+    </a>
+
+</div>
             <div>
         </div>
     </nav>
@@ -307,7 +315,7 @@
                                 Formulario de solicitud
                             </h3>
 
-                            <form action="https://formspree.io/f/maewvbnw" method="POST" autocomplete="off">
+                            <form id="formularioBeca" action="https://formspree.io/f/maewvbnw" method="POST" autocomplete="off">
 
                                 <!-- NOMBRE -->
                                 <div class="mb-3">
@@ -592,5 +600,14 @@
 
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+window.addEventListener("pageshow", function () {
+    const formulario = document.getElementById("formularioBeca");
+
+    if (formulario) {
+        formulario.reset();
+    }
+});
+</script>
 </body>
 </html>

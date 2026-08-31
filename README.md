@@ -1,6 +1,6 @@
 # proyectoTIS
 PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
-================================================
+
 Sitio web de gestión de cursos sobre ciencias de la computación.
 Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Techera Marilina
 Estudiantes de tercer año del profesorado semipresencial especialidad informática

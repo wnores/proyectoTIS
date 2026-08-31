@@ -1,4 +1,5 @@
 proyectoTIS
+==================================================================
 PROYECTO DE TALLER INTEGRADOR DE SISTEMAS
 
 Sitio web de gestión de cursos sobre ciencias de la computación.
@@ -6,14 +7,14 @@ Integrantes: Ercila Giovanna, Nores Walter, Ottonelli Silvana, Rosales Anny y Te
 Estudiantes de tercer año del profesorado semipresencial especialidad informática
 CERP Salto - Uruguay
 
-## Nombre
+### Nombre
 El nombre seleccionado para el sitio fue Cursos CC
 
-## Logo
+### Logo
 Se crea el logo correspondiente
 <img width="200" height="200" alt="Logo" src="https://github.com/wnores/proyectoTIS/blob/main/recursos/imagenes/logo.jpg"/>
 
-# Sprint 1 (10/08/2026 al 30/08/2026)
+## Sprint 1 (10/08/2026 al 30/08/2026)
 
 12/08 Creación de la base del proyecto.
 En el index.html se crea el menú y botón de ingreso.

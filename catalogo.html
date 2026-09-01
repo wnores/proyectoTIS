@@ -54,28 +54,28 @@
     </nav>
     </header>
      <main class="flex-grow-1">
-        <section class="hero text-center" aria-labelledby="tituloCatalogo">
-            <h1 id="tituloCatalogo"> Catálogo de cursos</h1>
-             <p class="fs-5 fw-bold">
-                Explora nuestra propuesta de cursos de Ciencias de la Computación
-            </p>
-        </section>
-        <section class="container py-4">
-    <form class="row justify-content-center mb-4" id="formBuscarCursos" role="search">
-        <div class="col-12 col-md-6 d-flex">
+<section class="hero text-center" aria-labelledby="tituloCatalogo">
+    <h1 id="tituloCatalogo">Catálogo de cursos</h1>
+    <p class="fs-5 fw-bold">
+        Explora nuestra propuesta de cursos de Ciencias de la Computación
+    </p>
+    <form class="row justify-content-center mt-4" id="formBuscarCursos" role="search">
+        <div class="col-12 col-md-6 d-flex mx-auto">
             <input
-                class="form-control form-control-sm"
+                class="form-control"
                 type="search"
                 id="inputBuscarCursos"
                 placeholder="Buscar cursos"
                 aria-label="Buscar cursos">
             <button
-                class="btn btn-primary btn-sm ms-1"
+                class="btn btn-primary ms-1"
                 type="submit">
                 Buscar
             </button>
         </div>
     </form>
+</section>
+<section class="container py-4">
     <p id="estadoCarga" class="text-center text-muted">Cargando cursos...</p>
     <div class="row" id="listaCursos"></div>
 </section>

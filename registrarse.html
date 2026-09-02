@@ -18,7 +18,6 @@
                 <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
@@ -28,7 +27,7 @@
 
                         <a href="ingresar.html"
                             class="btn btn-outline-light btn-sm">
-                            Ingresar<img src="recursos/iconos/ingresar.png" alt="Ingresar">
+                            Iniciar sesión<img src="recursos/iconos/ingresar.png" alt="Ingresar">
                         </a>
                 </div>  
         </div>
@@ -46,9 +45,7 @@
                     <form id="registerForm" class="needs-validation" novalidate>
   <div class="row g-4">
     
-    <!-- COLUMNA IZQUIERDA -->
     <div class="col-md-6">
-      <!-- Avatar (solo una vez) -->
       <div class="d-flex justify-content-center mb-4">
         <div class="avatar-wrapper">
           <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100 overflow-hidden" id="avatarPreview">
@@ -75,6 +72,7 @@
       <div class="mb-3">
         <label class="form-label fw-bold small text-uppercase" for="email">Dirección de correo <span class="text-danger">*</span></label>
         <input type="email" class="form-control" id="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required>
+        <div id="emailFeedback" class="invalid-feedback">Ingresá un correo electrónico válido (ejemplo: usuario@dominio.com).</div>
       </div>
 
       <div class="mb-3">
@@ -97,13 +95,12 @@
           <option value="rocha">Rocha</option>
           <option value="salto">Salto</option>
           <option value="san_jose">San José</option>
-          <option value="tacuarembo">Tacuarambó</option>
+          <option value="tacuarembo">Tacuarembó</option>
           <option value="treinta_y_tres">Treinta y Tres</option>
         </select>
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA -->
     <div class="col-md-6">
       <div class="mb-3">
         <label class="form-label fw-bold small text-uppercase" for="tipoDocumento">Tipo de Documento <span class="text-danger">*</span></label>
@@ -127,37 +124,43 @@
         </label>
         <input type="text" class="form-control" id="nroDocumento" pattern="[0-9]{6,9}" inputmode="numeric" 
             maxlength="9" placeholder="12345678" required>
+        <div id="documentoFeedback" class="invalid-feedback">Debe contener solo números, sin puntos ni guiones (6 a 9 dígitos).</div>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label fw-bold small text-uppercase" for="password">
-          Contraseña <span class="text-danger">*</span>
-          <i class="bi bi-info-circle-fill text-dark ms-1" 
-             role="button" 
-             tabindex="0"
-             data-bs-toggle="popover" 
-             data-bs-trigger="hover focus click" 
-             data-bs-container="body"
-             data-bs-placement="right"
-             data-bs-content="Debe tener al menos 8 caracteres (incluir mayúsculas, minúsculas, y un número)."></i>
-        </label>
-        <div class="input-group">
-          <input type="password" class="form-control" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
-          <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
-            <i class="bi bi-eye" id="togglePasswordIcon"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label fw-bold small text-uppercase" for="repetirPassword">Repetir Contraseña <span class="text-danger">*</span></label>
-        <div class="input-group">
-          <input type="password" class="form-control" id="repetirPassword" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
-          <button class="btn btn-outline-secondary" type="button" id="toggleRepetirPassword" tabindex="-1">
-            <i class="bi bi-eye" id="toggleRepetirPasswordIcon"></i>
-          </button>
-        </div>
-      </div>
+<div class="mb-3">
+  <label class="form-label fw-bold small text-uppercase" for="password">
+    Contraseña <span class="text-danger">*</span>
+    <i class="bi bi-info-circle-fill text-dark ms-1" 
+       role="button" 
+       tabindex="0"
+       data-bs-toggle="popover" 
+       data-bs-trigger="hover focus click" 
+       data-bs-container="body"
+       data-bs-placement="right"
+       data-bs-content="Debe tener al menos 8 caracteres (incluir mayúsculas, minúsculas, y un número)."></i>
+  </label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+    <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+      <i class="bi bi-eye" id="togglePasswordIcon"></i>
+    </button>
+  </div>
+  <div id="passwordFeedback" class="invalid-feedback d-block-when-invalid">
+    Debe tener al menos 8 caracteres, con mayúscula, minúscula y un número.
+  </div>
+</div>
+<div class="mb-3">
+  <label class="form-label fw-bold small text-uppercase" for="repetirPassword">Repetir Contraseña <span class="text-danger">*</span></label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="repetirPassword" required>
+    <button class="btn btn-outline-secondary" type="button" id="toggleRepetirPassword" tabindex="-1">
+      <i class="bi bi-eye" id="toggleRepetirPasswordIcon"></i>
+    </button>
+  </div>
+  <div id="repetirPasswordFeedback" class="invalid-feedback">
+    Las contraseñas no coinciden o no cumplen los requisitos.
+  </div>
+</div>
 
       <div class="form-check mb-4 mt-4">
         <input class="form-check-input" type="checkbox" id="termsCheck" required>
@@ -167,18 +170,16 @@
       </div>
 
       <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-3">Registrarme</button>
-      <button type="button" class="btn btn-outline-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
+      <button type="button" class="btn btn-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
         Registrarme con Google <img src="recursos/iconos/google.png" alt="Registro con Google" style="height:20px;">
       </button>
     </div>
-
   </div>
 </form>
                 </div>
             </div>
         </div>
     </div>
-
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
@@ -189,106 +190,80 @@
             </script>
 
         </div>
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex p-2 align-items-center">
-      <div class="toast-body d-flex align-items-center gap-2 fs-6 fw-bold">
-        <i class="bi bi-check-circle-fill fs-4 animated-check"></i>
-        <span>¡Registro exitoso!</span>
-      </div>
-    </div>
-  </div>
-</div>
+
+        <div id="successOverlay" class="success-overlay d-none">
+
+            <div class="success-header d-flex justify-content-end align-items-center px-3 py-3 border-bottom">
+                <button type="button" id="cerrarOverlayBtn" class="btn btn-link text-dark text-decoration-none fw-semibold">
+                    Cerrar
+                </button>
+            </div>
+
+            <div class="success-content d-flex flex-column align-items-center justify-content-center text-center px-4">
+                <div class="success-circle d-flex align-items-center justify-content-center mb-4">
+                    <i class="bi bi-check-lg success-check-icon animated-check"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Registro exitoso</h2>
+                <p class="text-muted">Ya podés empezar a explorar los cursos disponibles</p>
+            </div>
+
+        </div>
+
     </main>
-        <!-- FOOTER -->
     <footer class="footer">
 
         <div class="container">
 
             <div class="row">
-
-
-                <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
                     <p>
                         Desarrollá nuevas habilidades
                         y preparate para el mundo digital.
                     </p>
-
                 </div>
-
-
-                <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
                     </a>
-
                 </div>
-
-
-                <!-- Contacto -->
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
-                    <p>
-                        Seguinos en nuestras redes
-                    </p>
-
+                    <p>Seguinos en nuestras redes</p>
                     <div class="footer-social">
-
                         <a href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
-
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr>
-
-
             <p class="footer-copy">
                 <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
             </p>
-        
-
         </div>
-
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="/js/registroUsuario.js"></script>

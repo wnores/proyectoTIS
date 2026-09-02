@@ -5,8 +5,20 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase
 const form = document.getElementById("registerForm");
 const errorBox = document.getElementById("registerError");
 const submitBtn = form.querySelector('button[type="submit"]');
+const passwordInput = document.getElementById("password");
+const repetirPasswordInput = document.getElementById("repetirPassword");
 
-// Alternar visibilidad de contraseña
+function validarCoincidenciaContraseñas() {
+  if (repetirPasswordInput.value !== passwordInput.value) {
+    repetirPasswordInput.setCustomValidity("Las contraseñas no coinciden.");
+  } else {
+    repetirPasswordInput.setCustomValidity("");
+  }
+}
+
+passwordInput.addEventListener("input", validarCoincidenciaContraseñas);
+repetirPasswordInput.addEventListener("input", validarCoincidenciaContraseñas);
+
 function activarToggleContraseña(inputId, botonId, iconoId) {
   const input = document.getElementById(inputId);
   const boton = document.getElementById(botonId);
@@ -26,7 +38,6 @@ function activarToggleContraseña(inputId, botonId, iconoId) {
 activarToggleContraseña("password", "togglePassword", "togglePasswordIcon");
 activarToggleContraseña("repetirPassword", "toggleRepetirPassword", "toggleRepetirPasswordIcon");
 
-// Manejo del Avatar
 const avatarBtn = document.getElementById("avatarBtn");
 const avatarInput = document.getElementById("avatarInput");
 const avatarImg = document.getElementById("avatarImg");
@@ -52,13 +63,19 @@ if (avatarBtn && avatarInput) {
   });
 }
 
-// Envío del Formulario
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   event.stopPropagation();
 
+  validarCoincidenciaContraseñas();
+
   if (!form.checkValidity()) {
     form.classList.add("was-validated");
+    if (passwordInput.validity.patternMismatch) {
+      mostrarError("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
+    } else if (repetirPasswordInput.validity.customError) {
+      mostrarError("Las contraseñas ingresadas no coinciden.");
+    }
     return;
   }
 
@@ -66,44 +83,17 @@ form.addEventListener("submit", async (event) => {
   const apellido = document.getElementById("apellido").value.trim();
   const email = document.getElementById("email").value.trim();
   const departamento = document.getElementById("departamento").value;
-  const password = document.getElementById("password").value;
-  const repetirPassword = document.getElementById("repetirPassword").value;
+  const password = passwordInput.value;
   const tipoDocumento = document.getElementById("tipoDocumento").value;
   const nroDocumento = document.getElementById("nroDocumento").value.trim();
 
   ocultarError();
 
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  if (!regexEmail.test(email)) {
-    mostrarError("Ingresá un correo electrónico válido (ejemplo: usuario@dominio.com).");
-    return;
-  }
-
-  const regexDocumento = /^\d{6,9}$/;
-  if (!regexDocumento.test(nroDocumento)) {
-    mostrarError("El número de documento debe contener solo números, sin puntos ni guiones.");
-    return;
-  }
-
-  if (password !== repetirPassword) {
-    mostrarError("Las contraseñas no coinciden.");
-    return;
-  }
-
-  const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  if (!regexPassword.test(password)) {
-    mostrarError("La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.");
-    return;
-  }
-
   deshabilitarBoton(true);
 
   try {
-    // 1. Crear usuario en Firebase Auth
     const credenciales = await createUserWithEmailAndPassword(auth, email, password);
     const uid = credenciales.user.uid;
-
-    // 2. Guardar datos en Firestore
     await setDoc(doc(db, "usuarios", uid), {
       nombre,
       apellido,
@@ -117,7 +107,6 @@ form.addEventListener("submit", async (event) => {
 
     mostrarRegistroExitoso();
 
-    // Redirección con sintaxis corregida
     setTimeout(() => {
       window.location.href = "index.html"; 
     }, 1500);
@@ -129,12 +118,26 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-// Función para disparar la microinteracción con Bootstrap Toast
+let timerOverlay = null;
+
 function mostrarRegistroExitoso() {
-  const toastElement = document.getElementById("successToast");
-  if (toastElement) {
-    const toast = new bootstrap.Toast(toastElement, { delay: 2000 });
-    toast.show();
+  const overlay = document.getElementById("successOverlay");
+  const cerrarBtn = document.getElementById("cerrarOverlayBtn");
+
+  if (overlay) {
+    overlay.classList.remove("d-none");
+    const ocultarOverlay = () => {
+      overlay.classList.add("d-none");
+      if (timerOverlay) clearTimeout(timerOverlay);
+    };
+
+    if (cerrarBtn) {
+      cerrarBtn.addEventListener("click", ocultarOverlay, { once: true });
+    }
+
+    timerOverlay = setTimeout(() => {
+      ocultarOverlay();
+    }, 5000);
   }
 }
 

@@ -67,11 +67,15 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-                <div class="d-flex align-items-center gap-2">
-                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-                            Ingresar
-                        </a>
-                </div>  
+                <!-- Botón cuando NO hay sesión (oculto inicialmente) -->
+<div class="d-flex align-items-center gap-2 logged-out d-none">
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar</a>
+</div>
+
+<!-- Botón cuando SÍ hay sesión (oculto inicialmente) -->
+<div class="d-flex align-items-center gap-2 logged-in d-none">
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+</div>
         </div>
     </nav>
     <main class='flex-grow-1'>
@@ -251,7 +255,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Tus archivos JS, TODOS con type="module" -->
 <script src="js/app.js" type="module"></script>
 <script src="js/registerForm.js" type="module"></script>
 </body>

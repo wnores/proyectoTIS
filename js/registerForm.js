@@ -24,7 +24,7 @@
             showMessage("Usuario registrado exitosamente: " + userCredential.user.email, "success");
             setTimeout(() => {
                 window.location.href = "../index.html";
-            }, 1500); // 1500 milisegundos = 1.5 segundos
+            }, 2500);
 
         } catch (error) {
             if(error.code === 'auth/email-already-in-use') {

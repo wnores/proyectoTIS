@@ -11,7 +11,7 @@ function ensureToastElement() {
         toastContainer.innerHTML = `
             <div id="appToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
-                    <strong class="me-auto">ferriStore</strong>
+                    <strong class="me-auto">Atención</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
                 </div>
                 <div class="toast-body" id="toastMessage"></div>

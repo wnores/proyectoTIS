@@ -21,9 +21,15 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-        <div>
-                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar<img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
-            </div>
+        <!-- Botón cuando NO hay sesión (oculto inicialmente) -->
+<div class="d-flex align-items-center gap-2 logged-out d-none">
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar</a>
+</div>
+
+<!-- Botón cuando SÍ hay sesión (oculto inicialmente) -->
+<div class="d-flex align-items-center gap-2 logged-in d-none">
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+</div>
             </div>
         </div>
     </nav>

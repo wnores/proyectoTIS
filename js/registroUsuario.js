@@ -68,10 +68,14 @@ form.addEventListener("submit", async (event) => {
   event.stopPropagation();
 
   validarCoincidenciaContraseñas();
+  validarEmail();
+
+  form.classList.add("was-validated");
 
   if (!form.checkValidity()) {
-    form.classList.add("was-validated");
-    if (passwordInput.validity.patternMismatch) {
+    if (emailInput.validity.customError) {
+      mostrarError("Ingresá un correo electrónico válido (ejemplo: usuario@dominio.com).");
+    } else if (passwordInput.validity.patternMismatch) {
       mostrarError("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
     } else if (repetirPasswordInput.validity.customError) {
       mostrarError("Las contraseñas ingresadas no coinciden.");
@@ -117,6 +121,18 @@ form.addEventListener("submit", async (event) => {
     deshabilitarBoton(false);
   }
 });
+
+const emailInput = document.getElementById("email");
+function validarEmail() {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const valor = emailInput.value.trim();
+  if (!emailRegex.test(valor)) {
+    emailInput.setCustomValidity("Correo no válido");
+  } else {
+    emailInput.setCustomValidity("");
+  }
+}
+emailInput.addEventListener("input", validarEmail);
 
 let timerOverlay = null;
 

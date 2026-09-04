@@ -70,7 +70,8 @@
                     class="logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span></button>
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
@@ -78,17 +79,25 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-                <div class="d-flex align-items-center gap-2">
-
-
-<div class="d-flex align-items-center gap-2 ms-2">
+<!-- Opciones visibles cuando NO hay sesión -->
+<div class="d-flex align-items-center gap-2 logged-out d-none">
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+        Iniciar sesión
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
+    </a>
 
     <a href="registrarse.html" class="btn btn-outline-light btn-sm">
         Registrarse
-        <img src="recursos/iconos/registrarse.png" alt="Registro">
+        <img src="recursos/iconos/registrarse.png" alt="Registro" aria-hidden="true">
     </a>
+</div>
 
-</div>    
+<!-- Opción visible cuando SÍ hay sesión -->
+<div class="d-flex align-items-center gap-2 logged-in d-none">
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+    </button>
+</div>
         </div>
     </nav>
    
@@ -110,26 +119,25 @@
                         </div>
                     </div>
 
-                    <form>
+                    <form id="loginForm" >
                         <!-- Correo -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-uppercase">Dirección de correo</label>
-                            <input type="email" class="form-control" placeholder="usuario@correo.com" required>
+                            <label class="form-label fw-bold small text-uppercase" for="correoInput">Dirección de correo</label>
+                            <input type="email" class="form-control" id="correoInput" placeholder="usuario@correo.com" required>
                         </div>
 
                         <!-- Contraseña -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase">Contraseña</label>
+                            <label class="form-label fw-bold small text-uppercase" for="passwordInput">Contraseña</label>
                             <div class="password-wrapper">
-                                <input type="password" class="form-control" id="passwordInput" required>
+                                <input type="password" class="form-control" id="passwordInput"  placeholder="Ingresa tu contraseña" required>
 <i class="bi bi-eye-slash-fill password-toggle" id="togglePassword" style="cursor: pointer;"></i>
                             </div>
                         </div>
 
                         <!-- Botones Acceder y Registrarme -->
-                        <div class="d-flex gap-3">
+                        <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary flex-grow-1 rounded-10">Acceder</button>
-                            <!-- Si tienes la página de registro, cambia '#' por 'registro.html' -->
                             <a href="registrarse.html" class="btn btn-primary flex-grow-1 rounded-10 text-center text-decoration-none">Registrarme <img src="recursos/iconos/registrarse.png" alt="registro"></a>
                         </div>
 
@@ -282,5 +290,8 @@
         });
 
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+    <script src="js/logginForm.js" type="module"></script>
 </body>
 </html>

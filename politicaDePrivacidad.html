@@ -10,43 +10,66 @@
     <title>Cursos CC | Política de privacidad</title>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-            <div class="container">
-                 <a class="navbar-brand" href="index.html">
-                    <img src="recursos/imagenes/logo.jpg"
-                        alt="Cursos de Ciencias de la Computación"
-                        class="logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                        class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
-                    </ul>
-                <div class="d-flex align-items-center gap-2">
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="recursos/imagenes/logo.jpg"
+                    alt="Cursos de Ciencias de la Computación"
+                    class="logo">
+            </a>
 
-    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-        Iniciar sesión
-        <img src="recursos/iconos/ingresar.png" alt="Ingresar">
-    </a>
+            <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Mostrar menú de navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-</div>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="inicio" href="index.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a>
+                    </li>
+                </ul>
 
-<div class="d-flex align-items-center gap-2 ms-2">
+                <div class="d-flex align-items-center gap-2 logged-out d-none">
+                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+                        Iniciar sesión
+                        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
+                    </a>
 
-    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
-        Registrarse
-        <img src="recursos/iconos/registrarse.png" alt="Registro">
-    </a>
+                    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+                        Registrarse
+                        <img src="recursos/iconos/registrarse.png" alt="Registro" aria-hidden="true">
+                    </a>
+                </div>
 
-</div>     
-        </nav>
-    </header>
-     <main class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2 logged-in d-none">
+                    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
+                        Cerrar sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="flex-grow-1">
         <section class="hero">
             <div class="container">
                 <h1> Política de privacidad - Cursos de Informática</h1> 

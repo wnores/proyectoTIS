@@ -26,22 +26,25 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-        <div class="d-flex align-items-center gap-2">
-
+<!-- Opciones visibles cuando NO hay sesión -->
+<div class="d-flex align-items-center gap-2 logged-out d-none">
     <a href="ingresar.html" class="btn btn-outline-light btn-sm">
         Iniciar sesión
-        <img src="recursos/iconos/ingresar.png" alt="Ingresar">
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
     </a>
-
-</div>
-
-<div class="d-flex align-items-center gap-2 ms-2">
 
     <a href="registrarse.html" class="btn btn-outline-light btn-sm">
         Registrarse
-        <img src="recursos/iconos/registrarse.png" alt="Registro">
+        <img src="recursos/iconos/registrarse.png" alt="Registro" aria-hidden="true">
     </a>
+</div>
 
+<!-- Opción visible cuando SÍ hay sesión -->
+<div class="d-flex align-items-center gap-2 logged-in d-none">
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+    </button>
+</div>
 </div>
         </div>
     </nav>
@@ -142,6 +145,8 @@
 
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/api.js"></script> <script src="js/descripcionDeCurso.js"></script>
+<script src="js/api.js"></script>
+<script src="js/descripcionDeCurso.js"></script>
+<script src="js/app.js" type="module"></script>
 </body>
 </html>

@@ -4,45 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
-    <title> Becas | Cursos de Informática</title>
+    <title>Cursos CC | Becas</title>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="beca.html">
+<header>    
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Logo</a>
+
+             <a class="navbar-brand" href="index.html">
+                <img src="recursos/imagenes/logo.jpg"
+                    alt="Cursos de Ciencias de la Computación"
+                    class="logo">
+            </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
                     class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-        <!-- Botón cuando NO hay sesión (oculto inicialmente) -->
+<!-- Opciones visibles cuando NO hay sesión -->
 <div class="d-flex align-items-center gap-2 logged-out d-none">
-    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar</a>
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+        Iniciar sesión
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
+    </a>
+
+    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+        Registrarse
+        <img src="recursos/iconos/registrarse.png" alt="Registro" aria-hidden="true">
+    </a>
 </div>
 
-<!-- Botón cuando SÍ hay sesión (oculto inicialmente) -->
+<!-- Opción visible cuando SÍ hay sesión -->
 <div class="d-flex align-items-center gap-2 logged-in d-none">
-    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+    </button>
 </div>
         </div>
     </nav>
-     <main class='flex-grow-1'>
+</header>
+     <main class= "flex-grow-1">
         <section class="hero"> 
             <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-10 text-center">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 text-center">
 
-                    <h1 class="mb-4">Sistema de Becas</h1>
+                        <h1 class="mb-4">Sistema de Becas</h1>
 
-                    <p class="lead">
+                        <p class="fs-5 fw-bold">
                         Accedé a oportunidades de formación en informática
                         mediante nuestro sistema de becas educativas.</p>
+                    </div>
                 </div>
             </div>
         
@@ -92,42 +112,61 @@
             <div class="row g-4">
 
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
+                    <article class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h3 class="card-title">Beca de acceso</h3>
 
-                            <p class="card-text">Pensada para estudiantes que necesitan apoyo
-                                para acceder a cursos de informática.</p>
+                            <p class="card-text">Pensada para estudiantes que desean comenzar su formación en informática y necesitan apoyo
+                                económico para acceder a un curso.</p>
+                            <p class="card-text"> <strong>¿Cómo se obtiene?</strong> El estudiante deberá completar y proporcionar la información requerida y para evaluar su situación.</p>
 
-                            <p><strong>Cobertura:</strong> 100% del curso.</p>
+                            <p class="card-text"> <strong>Porcentaje según el resultado obtenido:</strong> </p>    
+
+                            <ul> <li>Menos de 40%: 50% de beca.</li> <li>Entre 40% y 59%: 60% de beca.</li> <li>Entre 60% y 79%: 75% de beca.</li> <li>80% o más: 90% de beca.</li> </ul>
+                            
+                            <p> <strong>Cobertura:</strong> hasta 90% del valor del curso. </p>    
                         </div>
-                    </div>
+                    </article>
                 </div>
 
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
+                    <article class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h3 class="card-title">Beca de rendimiento</h3>
 
-                            <p class="card-text">. Dirigida a estudiantes que demuestren un buen
-                                desempeño académico y compromiso con su formación.</p>
+                            <p class="card-text">Dirigida a estudiantes que demuestren un buen
+                                desempeño académico, compromiso y constancia durante su formación.</p>
+                            
+                            <p class="card-text"> <strong>¿Cómo se obtiene?</strong> El porcentaje de la beca se determinará teniendo en cuenta el promedio de calificaciones y el cumplimiento de las actividades del curso. </p>
 
-                            <p><strong>Cobertura:</strong> hasta 75% del curso.</p>
+                            <p class="card-text"> <strong>Porcentaje según el rendimiento:</strong> </p>
+
+                            <ul> <li>Promedio de 7 a 7,9: 25% de beca.</li> <li>Promedio de 8 a 8,9: 50% de beca.</li> <li>Promedio de 9 a 9,5: 75% de beca.</li> <li>Promedio de 9,6 a 10: 90% de beca.</li> </ul>
+                            
+                            <p><strong>Cobertura:</strong> hasta 90% del valor del curso.</p>
                         </div>
-                    </div>
+                    </article>
                 </div>
 
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
+                    <article class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h3 class="card-title">Beca de inclusión digital</h3>
 
-                            <p class="card-text">Busca facilitar el acceso a la formación
-                                tecnológica a personas que lo necesiten.</p>
+                            <p class="card-text">Destinada a personas que necesitan apoyo para realizar cursos
+                            de formación tecnológica.</p>
+                            
+                            <p class="card-text"> <strong>¿Cómo se obtiene?</strong> El estudiante deberá completar una solicitud explicando su situación y las dificultades que presenta para acceder y sostener una formación virtual. </p>
 
-                            <p><strong>Cobertura:</strong> hasta 100% del curso.</p>
+                            <p class="card-text"> Se tendrán en cuenta aspectos como la situación económica, el acceso a Internet y la disponibilidad de los recursos necesarios para realizar el curso. </p>
+
+                            <p class="card-text"> <strong>Porcentaje según la situación:</strong> </p>
+
+                            <ul> <li>Necesidad de apoyo moderada: 50% de beca.</li> <li>Necesidad de apoyo alta: 75% de beca.</li> <li>Necesidad de apoyo muy alta: 90% de beca.</li> </ul>
+
+                            <p><strong>Cobertura:</strong> hasta 90 % del valor del curso.</p>
                         </div>
-                    </div>
+                    </article>
                 </div>
 
             </div>
@@ -276,7 +315,7 @@
                                 Formulario de solicitud
                             </h3>
 
-                            <form>
+                            <form id="formularioBeca" action="https://formspree.io/f/maewvbnw" method="POST" autocomplete="off">
 
                                 <!-- NOMBRE -->
                                 <div class="mb-3">
@@ -331,68 +370,78 @@
                                             Seleccioná un curso
                                         </option>
 
-                                        <option value="desarrollo-web-full-stack">
-                                            Desarrollo Web Full Stack
-                                        </option>
-
-                                        <option value="introduccion-programacion">
+                                        <option value="Introduccion-programacion con Python">
                                             Introducción a la programación
                                         </option>
 
-                                        <option value="programacion-python">
-                                            Programación con Python
+                                        <option value="Logica de programacion y algoritmos">
+                                            Logica de programación y algoritmos
                                         </option>
 
-                                        <option value="inteligencia-artificial">
+                                        <option value="Introducción a la Inteligencia Artificial">
                                             Introducción a la Inteligencia Artificial
                                         </option>
 
-                                        <option value="bases-datos-mysql">
+                                        <option value="Bases-datos-MYSQL">
                                             Bases de datos con MySQL
                                         </option>
 
-                                        <option value="logica-programacion">
-                                            Lógica de programación y algoritmos
+                                        <option value="Machine learning aplicado">
+                                            Machine learning aplicado
+                                        </option>
+
+                                        <option value="Desarrollo Web Full Statck">
+                                            Desarrollo Web Full Stack
+                                        </option>
+
+                                        <option value="Programación Scratch">
+                                            Programación con Scratch
+                                        </option>
+
+                                        <option value="Excel para el trabajo y estudio">
+                                            Excel para el trabajo y estudio
+                                        </option>
+
+                                        <option value="Word documentos profesionales">
+                                            Word documentos profesionales   
+                                        </option>
+
+                                        <option value="Introducción a Micro:bit">
+                                            Programación con Makecode
                                         </option>
 
     </select>
 
-</div>
-
-            </div>
-
-
-            
+    </div>            
                                 <!-- TIPO DE BECA -->
-                                <div class="mb-3">
-                                    <label for="tipo-beca" class="form-label">
-                                        Tipo de beca
-                                    </label>
+                <div class="mb-3">
+                    <label for="tipo-beca" class="form-label">
+                        Tipo de beca
+                        </label>
 
-                                    <select
-                                        class="form-select"
-                                        id="tipo-beca"
-                                        name="tipo-beca"
-                                        required>
+    <select
+        class="form-select"
+        id="tipo-beca"
+        name="tipo-beca"
+        required>
 
-                                        <option value="">
-                                            Seleccioná el tipo de beca
-                                        </option>
+    <option value="">
+        Seleccioná el tipo de beca
+    </option>
 
-                                        <option value="acceso">
-                                            Beca de acceso
-                                        </option>
+    <option value="acceso">
+        Beca de acceso
+    </option>
 
-                                        <option value="rendimiento">
-                                            Beca de rendimiento
-                                        </option>
-
-                                        <option value="inclusion">
-                                            Beca de inclusión digital
-                                        </option>
-
-                                    </select>
-                                </div>
+    <option value="rendimiento">
+        Beca de rendimiento
+    </option>
+                                    
+    <option value="inclusion">
+        Beca de inclusión digital
+    </option>
+</select>
+        </div>
 
 
                                 <!-- MOTIVO -->
@@ -418,6 +467,7 @@
                                         class="form-check-input"
                                         type="checkbox"
                                         id="confirmacion"
+                                        name="confirmacion"
                                         required>
 
                                     <label
@@ -437,7 +487,7 @@
 
                                     <button
                                         type="submit"
-                                        class="btn btn-primary btn-lg">
+                                        class="btn btn-primary btn-lg text-white fw-bold">
 
                                         Enviar solicitud
 
@@ -447,23 +497,118 @@
 
                             </form>
 
+                 
+
                         </div>
 
+                    </div>
+
+                </div>
+            
+            </div>    
+        
+        </div>    
+    </section>
+     </main>
+     <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <div class="row">
+
+
+                <!-- Información -->
+                <div class="col-lg-5">
+
+                    <h5>Cursos de Ciencias de la Computación</h5>
+
+                    <p>
+                        Desarrollá nuevas habilidades
+                        y preparate para el mundo digital.
+                    </p>
+
+                </div>
+
+
+                <!-- Enlaces -->
+                <div class="col-lg-3">
+
+                    <h5>Enlaces</h5>
+
+                    <a href="politicaDePrivacidad.html">
+                        Política de privacidad
+                    </a>
+
+                </div>
+
+
+                <!-- Contacto -->
+                <div class="col-lg-4">
+
+                    <h5>Contacto</h5>
+
+                    <p>
+                        Seguinos en nuestras redes
+                    </p>
+
+                    <div class="footer-social">
+
+                        <a href="https://www.facebook.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+
+                        <a href="https://www.instagram.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+
+                        <a href="https://www.youtube.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+
+                        <a href="https://www.linkedin.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                                           
                     </div>
 
                 </div>
 
             </div>
 
+
+            <hr>
+
+
+           <p class="footer-copy">
+                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+            </p>
+
         </div>
-    </section>
-     </main>
-     <footer>
-        <div>
-    <p><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
-    </div>
-</footer>
+
+    </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js" type="module"></script>
+<script>
+window.addEventListener("pageshow", function () {
+    const formulario = document.getElementById("formularioBeca");
+
+    if (formulario) {
+        formulario.reset();
+    }
+});
+</script>
 </body>
 </html>

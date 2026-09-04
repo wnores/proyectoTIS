@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ejemplo",
+    "apellido": "Alumno",
+    "email": "alumno@ejemplo.com",
+    "contrasena": "1234",
+    "rol": "alumno",
+    "fecha_registro": "2026-08-01"
+  }
+]

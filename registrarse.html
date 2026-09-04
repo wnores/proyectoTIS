@@ -5,51 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
      <link rel="stylesheet" href="styles/estilos.css">
+<style>
+    .register-card {
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
 
-    <style>
-        .register-card { background-color: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .form-control, .form-select { border: 1px solid #444; }
-        .form-control:focus, .form-select:focus { box-shadow: none; border-color: #000; }
-        .avatar-wrapper { width: 140px; height: 140px; position: relative; }
-        .camera-btn { width: 38px; height: 38px; bottom: 0; right: 0; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .btn-outline-custom { border-radius: 50px; border: 1px solid #444; color: #444; padding: 8px 24px; }
-        .btn-outline-custom:hover { background-color: #444; color: #fff; }
-        
-        /* Estilo extra para que el cursor se vuelva una manita al pasar sobre el ícono */
-        .info-icon { cursor: pointer; }
-         
-        /* Icono de ojo flotando dentro del input */
-        .password-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .password-group .form-control {
-            flex-grow: 1;
-        }
-        
-        .password-toggle {
-            background-color: #000;
-            color: #fff;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: opacity 0.2s;
-        }
-        .password-toggle:hover {
-            opacity: 0.8;
-        }        
-    </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    .form-control,
+    .form-select {
+        border: 1px solid #444;
+    }
 
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: none;
+        border-color: #000;
+    }
 
-<title> - | Registrarse</title>
+    .avatar-wrapper {
+        width: 140px;
+        height: 140px;
+        position: relative;
+    }
+
+    .camera-btn {
+        width: 38px;
+        height: 38px;
+        bottom: 0;
+        right: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .btn-outline-custom {
+        border-radius: 50px;
+        border: 1px solid #444;
+        color: #444;
+        padding: 8px 24px;
+    }
+
+    .btn-outline-custom:hover {
+        background-color: #444;
+        color: #fff;
+    }
+
+    .info-icon {
+        cursor: pointer;
+    }
+
+    .password-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .password-group .form-control {
+        flex-grow: 1;
+    }
+
+    .password-toggle {
+        background-color: #000;
+        color: #fff;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: opacity 0.2s;
+    }
+
+    .password-toggle:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<title>Cursos CC | Registrarse</title>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="registrarse.html">
      <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
@@ -61,159 +103,176 @@
                 <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-                <!-- Botón cuando NO hay sesión (oculto inicialmente) -->
+<!-- Opción visible cuando NO hay sesión -->
 <div class="d-flex align-items-center gap-2 logged-out d-none">
-    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar</a>
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+        Iniciar sesión
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
+    </a>
 </div>
 
-<!-- Botón cuando SÍ hay sesión (oculto inicialmente) -->
+<!-- Opción visible cuando SÍ hay sesión -->
 <div class="d-flex align-items-center gap-2 logged-in d-none">
-    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+    </button>
 </div>
         </div>
     </nav>
     <main class='flex-grow-1'>
     <div class="text-left">
-        <p></p>
         <div class="container">
         <div class="row justify-content-center">
+            <section class="hero text-center" aria-labelledby="tituloRegistro">
+            <h1 id="Registro">Registrarse</h1></section>
             <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                 <div class="register-card">
-                    
-                    <h2 class="text-center fw-bold mb-4">Registrarse</h2>
+                    <div id="registerError" class="alert alert-danger d-none" role="alert"></div>
 
-                    <form id="registerForm">
-                        <div class="row g-4">
-                            
-                            <!-- COLUMNA IZQUIERDA -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">Nombre <span class="text-danger">*</span></label>
-                                    <input type="text" id="nombre" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">Apellido <span class="text-danger">*</span></label>
-                                    <input type="text" id="apellido" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">Dirección de correo <span class="text-danger">*</span></label>
-                                    <input type="email" id="correo" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">Departamento <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="departamento" required>
-                                        <option value="" selected disabled>Seleccione...</option>
-                                        <option value="montevideo">Montevideo</option>
-                                        <option value="canelones">Canelones</option>
-                                        <option value="maldonado">Maldonado</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">
-                                        Contraseña <span class="text-danger">*</span>
-                                        <!-- Ícono de información estándar -->
-                                       <i class="bi bi-info-circle-fill text-dark ms-1" 
-                                           role="button" 
-                                           tabindex="0"
-                                           data-bs-toggle="popover" 
-                                           data-bs-trigger="hover focus click" 
-                                           data-bs-container="body"
-                                           data-bs-placement="right"
-                                           data-bs-content="Debe tener al menos 8 caracteres, incluir mayúscula y un número."></i>
-                                    </label>
-                                    <div class="password-group">
-                                            <input type="password" class="form-control" id="password" required>
-                                            <i class="bi bi-eye-slash-fill password-toggle" id="togglePassword"></i>
-                                    </div>
-                                </div>
-                                                                    <div class="mb-3">
-                                <label class="form-label fw-bold small text-uppercase">Repetir Contraseña <span class="text-danger">*</span></label>
-                                <div class="password-group">
-                                    <input type="password" id="confirmPassword" class="form-control" required>
-                                    <i class="bi bi-eye-slash-fill password-toggle" id="toggleConfirmPassword"></i>
-                                </div>
-                            </div>
-
-                            </div>
-
-                            <!-- COLUMNA DERECHA -->
-                            <div class="col-md-6">
-                                
-                                <br>
-                                <br>
-
-                                <!-- Avatar y cámara (usando solo clases de Bootstrap e iconos) -->
-                                <div class="d-flex justify-content-center mb-4">
-                                    <div class="avatar-wrapper">
-                                        <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
-                                            <i class="bi bi-person-fill text-secondary"></i>
-                                        </div>
-                                        <!-- Botón cámara flotante -->
-                                        <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute">
-                                            <i class="bi bi-camera-fill text-dark"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small text-uppercase">Tipo de Documento <span class="text-danger">*</span></label>
-                                    <select id="tipoDocumento" class="form-select" required>
-                                        <option value="" selected disabled>Seleccione...</option>
-                                        <option value="ci">Cédula de Identidad (CI)</option>
-                                        <option value="pasaporte">Pasaporte</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold small text-uppercase">
-                                        Nro Documento <span class="text-danger">*</span>
-                                        <!-- Ícono de información estándar -->
-                                        <i class="bi bi-info-circle-fill text-dark ms-1 info-icon" 
-                                           tabindex="0"
-                                           data-bs-toggle="popover" 
-                                           data-bs-trigger="click"
-                                           data-bs-container="body"
-                                           data-bs-placement="right" 
-                                           data-bs-content="Ingrese su número sin puntos ni guiones."></i>
-                                    </label>
-                                    <input type="text" id="nroDocumento" class="form-control" required>
-                                </div>
-
-                                <!-- Checkbox de términos -->
-                                <div class="form-check mb-4">
-                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                                    <label class="form-check-label small" for="termsCheck">
-                                        Acepto los términos y condiciones de la política de privacidad
-                                    </label>
-                                </div>
-
-                                <!-- Botón Crear Cuenta -->
-                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Crear Cuenta</button>
-                                <br><br>
-                                <a class="btn btn-primary">Registrarse con Google <img src="recursos/iconos/google.png" alt="Registro con Google"></a>
+                    <form id="registerForm" class="needs-validation" novalidate>
+  <div class="row g-4">
     
-                            </div>
+    <div class="col-md-6">
+      <div class="d-flex justify-content-center mb-4">
+        <div class="avatar-wrapper">
+          <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100 overflow-hidden" id="avatarPreview">
+            <i class="bi bi-person-fill text-secondary" id="avatarIcon"></i>
+            <img id="avatarImg" class="w-100 h-100 d-none" style="object-fit: cover;" alt="Foto de perfil seleccionada">
+          </div>
+          <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute" id="avatarBtn">
+            <i class="bi bi-camera-fill text-dark"></i>
+          </button>
+          <input type="file" id="avatarInput" accept="image/*" class="d-none">
+        </div>
+      </div>
 
-                        </div>
-                    </form>
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="nombre">Nombre <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nombre" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="apellido">Apellido <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="apellido" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="email">Dirección de correo <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required>
+        <div id="emailFeedback" class="invalid-feedback">Ingresá un correo electrónico válido (ejemplo: usuario@dominio.com).</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="departamento">Departamento <span class="text-danger">*</span></label>
+        <select class="form-select" id="departamento" required>
+          <option value="" selected disabled>Seleccione...</option>
+          <option value="artigas">Artigas</option>
+          <option value="canelones">Canelones</option>
+          <option value="cerro_largo">Cerro Largo</option>
+          <option value="colonia">Colonia</option>
+          <option value="durazno">Durazno</option>
+          <option value="flores">Flores</option>
+          <option value="florida">Florida</option>
+          <option value="lavalleja">Lavalleja</option>
+          <option value="maldonado">Maldonado</option>
+          <option value="montevideo">Montevideo</option>
+          <option value="paysandu">Paysandú</option>
+          <option value="rio_negro">Río Negro</option>
+          <option value="rivera">Rivera</option>
+          <option value="rocha">Rocha</option>
+          <option value="salto">Salto</option>
+          <option value="san_jose">San José</option>
+          <option value="tacuarembo">Tacuarembó</option>
+          <option value="treinta_y_tres">Treinta y Tres</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="tipoDocumento">Tipo de Documento <span class="text-danger">*</span></label>
+        <select class="form-select" id="tipoDocumento" required>
+          <option value="" selected disabled>Seleccione...</option>
+          <option value="ci">Cédula de Identidad (CI)</option>
+          <option value="pasaporte">Pasaporte</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold small text-uppercase" for="nroDocumento">
+          Nro Documento <span class="text-danger">*</span>
+          <i class="bi bi-info-circle-fill text-dark ms-1 info-icon" 
+             tabindex="0"
+             data-bs-toggle="popover" 
+             data-bs-trigger="click"
+             data-bs-container="body"
+             data-bs-placement="right" 
+             data-bs-content="Ingrese número sin puntos ni guiones"></i>
+        </label>
+        <input type="text" class="form-control" id="nroDocumento" pattern="[0-9]{6,9}" inputmode="numeric" 
+            maxlength="9" placeholder="12345678" required>
+        <div id="documentoFeedback" class="invalid-feedback">Debe contener solo números, sin puntos ni guiones (6 a 9 dígitos).</div>
+      </div>
+
+<div class="mb-3">
+  <label class="form-label fw-bold small text-uppercase" for="password">
+    Contraseña <span class="text-danger">*</span>
+    <i class="bi bi-info-circle-fill text-dark ms-1" 
+       role="button" 
+       tabindex="0"
+       data-bs-toggle="popover" 
+       data-bs-trigger="hover focus click" 
+       data-bs-container="body"
+       data-bs-placement="right"
+       data-bs-content="Debe tener al menos 8 caracteres (incluir mayúsculas, minúsculas, y un número)."></i>
+  </label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+    <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+      <i class="bi bi-eye" id="togglePasswordIcon"></i>
+    </button>
+  </div>
+  <div id="passwordFeedback" class="invalid-feedback d-block-when-invalid">
+    Debe tener al menos 8 caracteres, con mayúscula, minúscula y un número.
+  </div>
+</div>
+<div class="mb-3">
+  <label class="form-label fw-bold small text-uppercase" for="repetirPassword">Repetir Contraseña <span class="text-danger">*</span></label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="repetirPassword" required>
+    <button class="btn btn-outline-secondary" type="button" id="toggleRepetirPassword" tabindex="-1">
+      <i class="bi bi-eye" id="toggleRepetirPasswordIcon"></i>
+    </button>
+  </div>
+  <div id="repetirPasswordFeedback" class="invalid-feedback">
+    Las contraseñas no coinciden o no cumplen los requisitos.
+  </div>
+</div>
+
+      <div class="form-check mb-4 mt-4">
+        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+        <label class="form-check-label small" for="termsCheck">
+          Acepto los términos y condiciones de la política de privacidad
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-3">Registrarme</button>
+      <button type="button" class="btn btn-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
+        Registrarme con Google <img src="recursos/iconos/google.png" alt="Registro con Google" style="height:20px;">
+      </button>
+    </div>
+  </div>
+</form>
                 </div>
             </div>
         </div>
     </div>
-
-            <!-- Script para activar los Popovers -->
             <script>
-            // Función que inicializa los popovers cuando la página termina de cargar
                 document.addEventListener('DOMContentLoaded', function() {
                     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                     popoverTriggerList.map(function (popoverTriggerEl) {
@@ -244,17 +303,83 @@
             </script>
 
         </div>
+
+        <div id="successOverlay" class="success-overlay d-none">
+
+            <div class="success-header d-flex justify-content-end align-items-center px-3 py-3 border-bottom">
+                <button type="button" id="cerrarOverlayBtn" class="btn btn-link text-dark text-decoration-none fw-semibold">
+                    Cerrar
+                </button>
+            </div>
+
+            <div class="success-content d-flex flex-column align-items-center justify-content-center text-center px-4">
+                <div class="success-circle d-flex align-items-center justify-content-center mb-4">
+                    <i class="bi bi-check-lg success-check-icon animated-check"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Registro exitoso</h2>
+                <p class="text-muted">Ya podés empezar a explorar los cursos disponibles</p>
+            </div>
+
+        </div>
+
     </main>
-    <footer class="footer py-4 w-100">
+    <footer class="footer">
+
         <div class="container">
-            <p class="mb-2">
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <h5>Cursos de Ciencias de la Computación</h5>
+                    <p>
+                        Desarrollá nuevas habilidades
+                        y preparate para el mundo digital.
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Enlaces</h5>
+                    <a href="politicaDePrivacidad.html">
+                        Política de privacidad
+                    </a>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Contacto</h5>
+                    <p>Seguinos en nuestras redes</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="https://www.instagram.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="https://www.youtube.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <p class="footer-copy">
                 <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="js/app.js" type="module"></script>
 <script src="js/registerForm.js" type="module"></script>
 </body>

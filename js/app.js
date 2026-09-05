@@ -38,3 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const formBuscador = document.getElementById("formBuscador");
+  const inputBuscador = document.getElementById("inputBuscador");
+
+  if (formBuscador && inputBuscador) {
+    formBuscador.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const texto = inputBuscador.value.trim();
+
+      if (texto) {
+        window.location.href =
+          `resultados.html?buscar=${encodeURIComponent(texto)}`;
+      }
+    });
+  }
+});

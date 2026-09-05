@@ -81,25 +81,34 @@
 
                     </ul>
 
-<!-- Opciones visibles cuando NO hay sesión -->
-<div class="d-flex align-items-center gap-2 logged-out d-none">
-    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-        Iniciar sesión
-        <img src="recursos/iconos/ingresar.png" alt="Ingresar" aria-hidden="true">
-    </a>
+            <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
+                <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
+            </div>
 
-    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
-        Registrarse
-        <img src="recursos/iconos/registrarse.png" alt="Registro" aria-hidden="true">
-    </a>
-</div>
+            <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
+                <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
+            </div>
 
-<!-- Opción visible cuando SÍ hay sesión -->
-<div class="d-flex align-items-center gap-2 logged-in d-none">
-    <button id="btnCerrarSesion" class="btn btn-outline-light btn-sm">
-        Cerrar sesión
-    </button>
-</div>
+            <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true"aria-expanded="false">
+                <i class="bi bi-person-circle fs-5"></i>
+                <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
+    
+                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
+                    </li>
+                </ul>
+            </div>
 
                 </div>
 

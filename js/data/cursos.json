@@ -1,6 +1,6 @@
 [
   {
-    "id": 4,
+    "id": 1,
     "titulo": "Introducción a la Programación con Python",
     "descripcion": "Aprendé los fundamentos de la programación desde cero: variables, condicionales, bucles y funciones, usando Python como lenguaje base.",
     "precio": 1500.00,
@@ -9,16 +9,16 @@
     "imagen_url": "recursos/imagenes/Programacion_Python.jpg"
   },
   {
-    "id": 5,
+    "id": 2,
     "titulo": "Lógica de Programación y Algoritmos",
     "descripcion": "Desarrollá el pensamiento lógico necesario para programar: resolución de problemas, diagramas de flujo y diseño de algoritmos.",
     "precio": 1200.00,
     "duracion_horas": 30,
     "cupos_disponibles": 25,
-    "imagen_url": "recursos/imagenes/Introduccion_programacion.jpg"
+    "imagen_url": "recursos/imagenes/logica.png"
   },
   {
-    "id": 6,
+    "id": 3,
     "titulo": "Introducción a la Inteligencia Artificial",
     "descripcion": "Un primer acercamiento a la IA: qué es, cómo funciona y sus aplicaciones actuales, sin necesidad de conocimientos previos avanzados.",
     "precio": 2200.00,
@@ -27,7 +27,7 @@
     "imagen_url": "recursos/imagenes/Introduccion_IA.jpg"
   },
   {
-    "id": 7,
+    "id": 4,
     "titulo": "Machine Learning Aplicado",
     "descripcion": "Introducción práctica a machine learning: tipos de aprendizaje, modelos básicos y su implementación con herramientas actuales.",
     "precio": 2800.00,
@@ -36,7 +36,7 @@
     "imagen_url": "recursos/imagenes/Machine.jpg"
   },
   {
-    "id": 8,
+    "id": 5,
     "titulo": "Desarrollo Web Full Stack",
     "descripcion": "HTML, CSS, JavaScript y conexión con bases de datos: todo lo necesario para construir una página web funcional de principio a fin.",
     "precio": 3200.00,
@@ -45,7 +45,7 @@
     "imagen_url": "recursos/imagenes/Desarrollo_webFS.jpg"
   },
   {
-    "id": 9,
+    "id": 6,
     "titulo": "Bases de Datos con MySQL",
     "descripcion": "Diseño de bases de datos relacionales, consultas SQL y administración de datos aplicados a proyectos reales.",
     "precio": 2000.00,
@@ -54,7 +54,7 @@
     "imagen_url": "recursos/imagenes/Base.jpg"
   },
   {
-    "id": 10,
+    "id": 7,
     "titulo": "Excel para el trabajo y el estudio",
     "descripcion": "Aprendé a usar Excel desde cero: fórmulas, tablas, gráficos y funciones básicas para organizar y analizar información.",
     "precio": 1000.00,
@@ -63,7 +63,7 @@
     "imagen_url": "recursos/imagenes/Excel.jpg"
   },
   {
-    "id": 11,
+    "id": 8,
     "titulo": "Word: documentos profesionales",
     "descripcion": "Manejo completo de Word: formato de textos, tablas, índices automáticos y plantillas para informes y trabajos.",
     "precio": 900.00,
@@ -72,7 +72,7 @@
     "imagen_url": "recursos/imagenes/Word.jpg"
   },
   {
-    "id": 12,
+    "id": 9,
     "titulo": "Introducción a Micro:bit",
     "descripcion": "Primeros pasos con la placa Micro:bit: programación por bloques, sensores y proyectos simples de electrónica.",
     "precio": 1400.00,
@@ -81,7 +81,7 @@
     "imagen_url": "recursos/imagenes/Microbit.png"
   },
   {
-    "id": 13,
+    "id": 10,
     "titulo": "Programación con Scratch",
     "descripcion": "Iniciación a la programación para principiantes usando Scratch: lógica, secuencias, bucles y creación de videojuegos simples.",
     "precio": 1100.00,

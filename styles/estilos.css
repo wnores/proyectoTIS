@@ -16,17 +16,17 @@ body {
 } 
 
 .navbar .nav-link {
-  color: wheat;
+  color: white;
   font-weight: 600;
   font-size: 20px;
 }
 .navbar .nav-link.active {
-  color: white;
+  color: wheat;
   font-weight: 600;
 }
 
 .navbar .nav-link:hover {
-  color: white;
+  color: wheat;
   font-weight: 600;
   font-size: 20px;
 }
@@ -182,12 +182,15 @@ body {
     display: block;
 }
 
+/* Imagen en la página de detalle */
+
 #detalleCurso .curso-thumb-container {
     aspect-ratio: 3 / 2;
     border-radius: 14px;
     overflow: hidden;
 }
 
+/* Carrusel del hero */
 #carouselCursos {
     width: 100%;
     border-radius: 16px;
@@ -205,6 +208,7 @@ body {
     object-fit: cover;
 }
 
+/* Controles del carrusel */
 #carouselCursos .carousel-control-prev,
 #carouselCursos .carousel-control-next {
     width: 10%;
@@ -240,6 +244,7 @@ body {
     transform: translate(-65%, -50%) rotate(45deg);
 }
 
+/* Indicadores del carrusel */
 #carouselCursos .carousel-indicators button {
     width: 10px;
     height: 10px;
@@ -255,6 +260,7 @@ body {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
+/* Footer */
 .footer {
     background-color: #2b7575;
     color: white;
@@ -319,6 +325,7 @@ body {
     text-decoration: none;
 }
 
+/* Áreas de aprendizaje */
 .areas-aprendizaje {
     background-color: #eef7f6;
 }
@@ -364,6 +371,7 @@ body {
     margin-bottom: 0;
 }
 
+/* Beneficios */
 .beneficios {
     background-color: white;
 }
@@ -406,6 +414,7 @@ body {
     margin-bottom: 0;
 }
 
+/* Llamada a la acción */
 .cta-final {
     background-color: #eef7f6;
     padding: 60px 20px !important;
@@ -441,6 +450,7 @@ body {
     background-color: #eef7f6;
 }
 
+/* Página de registro (registrarse.html) */
 .register-card {
     background-color: #fff;
     padding: 40px;
@@ -489,10 +499,12 @@ body {
     color: #fff;
 }
 
+/* Estilo extra para que el cursor se vuelva una manita al pasar sobre el ícono */
 .info-icon {
     cursor: pointer;
 }
 
+/* Microinteracción de éxito (registrarse.html) - pantalla completa */
 .success-overlay {
     position: fixed;
     inset: 0;
@@ -535,4 +547,63 @@ body {
     100% {
         transform: scale(1);
     }
+}
+
+/* Estilos que estaban inline en registrarse.html */
+#avatarImg {
+    object-fit: cover;
+}
+
+.google-icon {
+    height: 20px;
+}
+
+/* Tarjeta blanca del formulario */
+.login-card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+        /* Inputs con borde negro grueso */
+.form-control {
+    border: 2px solid #000000;
+    border-radius: 4px;
+    padding: 10px 12px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #000000;
+    outline: none;
+}
+
+/* Círculo del candado */
+.lock-circle {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #000000;
+}
+
+.lock-circle i {
+    font-size: 45px;
+}
+
+/* Icono de ojo flotando dentro del input */
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Icono de aviso de cookies (círculo negro) */
+.cookie-icon {
+    cursor: pointer;
 }

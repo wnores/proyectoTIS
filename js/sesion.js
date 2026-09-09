@@ -8,12 +8,9 @@ const grupoUsuario = document.getElementById("grupoUsuario");
 const nombreUsuarioSpan = document.getElementById("nombreUsuario");
 const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 
-// Se ejecuta automáticamente cada vez que cambia el estado de sesión
-// (al cargar la página, al iniciar sesión, al cerrar sesión, etc.)
 onAuthStateChanged(auth, async (usuario) => {
   if (usuario) {
-    // Hay una sesión activa: ocultar "Iniciar sesión" / "Registrarse"
-    // y mostrar el saludo con el nombre + botón de cerrar sesión.
+    // Hay sesión: mostrar el nombre del usuario y ocultar los botones de ingresar/registrarse
     if (grupoIngresar) grupoIngresar.classList.add("d-none");
     if (grupoRegistrarse) grupoRegistrarse.classList.add("d-none");
     if (grupoUsuario) grupoUsuario.classList.remove("d-none");

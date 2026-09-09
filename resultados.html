@@ -2,23 +2,12 @@
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <link rel="stylesheet"
-        href="styles/estilos.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="styles/estilos.css">
     <title>Cursos CC | Resultados de búsqueda</title>
-
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -56,7 +45,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link" href="acercaDe.html">
-                                Acerca De
+                                Acerca de
                             </a>
                         </li>
 
@@ -80,7 +69,7 @@
 
                     </ul>
 
-                 <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
 
     <a href="ingresar.html" class="btn btn-outline-light btn-sm">
         Iniciar sesión
@@ -89,13 +78,39 @@
 
 </div>
 
-<div class="d-flex align-items-center gap-2 ms-2">
+<div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
 
     <a href="registrarse.html" class="btn btn-outline-light btn-sm">
         Registrarse
         <img src="recursos/iconos/registrarse.png" alt="Registro">
     </a>
 
+</div>
+
+<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+            type="button" 
+            id="dropdownUsuario" 
+            data-bs-toggle="dropdown" 
+            data-bs-auto-close="true"
+            aria-expanded="false">
+        <i class="bi bi-person-circle fs-5"></i>
+        <span class="fs-6" id="nombreUsuario" class="fw-bold"></span>
+    </button>
+    
+    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                <i class="bi bi-person fs-5"></i> Ver perfil
+            </a>
+        </li>
+        <li><hr class="dropdown-divider my-1"></li>
+        <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
+            </button>
+        </li>
+    </ul>
 </div>
                 </div>
 
@@ -263,7 +278,7 @@
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
     </script>
-
+    <script src="js/app.js" type="module"></script>
     <script src="js/buscadorResultados.js"></script>
 
 </body>

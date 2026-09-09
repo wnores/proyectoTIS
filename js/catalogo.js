@@ -1,3 +1,4 @@
+
 // js/catalogo.js
 // Trae los cursos desde cursos.json y arma las tarjetas de catalogo.html
 // clonando la plantilla <template id="plantillaTarjetaCurso"> del HTML.

@@ -4,15 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
-
     <title>Cursos CC</title>
 </head>
 
@@ -41,12 +35,6 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNav">
-
-                <li class="nav-item">
-    <a class="nav-link active" data-page="inicio" href="index.html" aria-current="page">
-        Inicio
-    </a>
-</li>
 
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -83,7 +71,7 @@
 
                 </ul>
 
-                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupoIngresar">
+                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
 
     <a href="ingresar.html" class="btn btn-outline-light btn-sm">
         Iniciar sesión
@@ -101,26 +89,28 @@
 
 </div>
 
-<div class="dropdown ms-2 logged-in d-none" id="grupoUsuario">
-    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" 
+<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
             type="button" 
             id="dropdownUsuario" 
             data-bs-toggle="dropdown" 
+            data-bs-auto-close="true"
             aria-expanded="false">
-        <i class="bi bi-person-circle"></i>
-        <span>Hola, <span id="nombreUsuario" class="fw-bold"></span></span>
+        <i class="bi bi-person-circle fs-5"></i>
+        <span class="fs-6" id="nombreUsuario" class="fw-bold"></span>
     </button>
     
-    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUsuario">
+    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
         <li>
-            <a class="dropdown-item d-flex align-items-center gap-2" href="perfil.html">
-                <i class="bi bi-person"></i> Ver perfil
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                <i class="bi bi-person fs-5"></i> Ver perfil
             </a>
         </li>
-        <li><hr class="dropdown-divider"></li>
+        <li><hr class="dropdown-divider my-1"></li>
         <li>
-            <button class="dropdown-item text-danger d-flex align-items-center gap-2" type="button" id="btnCerrarSesion">
-                <i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
+            </button>
         </li>
     </ul>
 </div>
@@ -272,7 +262,7 @@
                 <div class="row g-4">
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-code-slash area-icon"></i>
+                            <i class="bi bi-code-slash fs-1 text-primary"></i>
                             <h3>Programación</h3>
                             <p>
                                 Aprendé a resolver problemas y desarrollar tus
@@ -282,7 +272,7 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-globe2 area-icon"></i>
+                            <i class="bi bi-globe2 fs-1 text-warning"></i>
                             <h3>Desarrollo web</h3>
                             <p>
                                 Creá sitios y aplicaciones para la web utilizando
@@ -292,28 +282,28 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-database area-icon"></i>
+                            <i class="bi bi-database fs-1 text-danger"></i>
                             <h3>Bases de datos</h3>
                             <p>Conocé cómo organizar, gestionar y trabajar con información.</p>
                         </article>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-robot area-icon"></i>
+                            <i class="bi bi-robot fs-1 text-success"></i>
                             <h3>Inteligencia artificial</h3>
                             <p>Descubrí los fundamentos y las aplicaciones de la inteligencia artificial.</p>
                         </article>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-cpu area-icon"></i>
+                            <i class="bi bi-cpu fs-1 text-primary"></i>
                             <h3>Robótica</h3>
                             <p>Explorá la programación, los sensores y el funcionamiento de sistemas robóticos.</p>
                         </article>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="area-card text-center">
-                            <i class="bi bi-file-earmark-text area-icon"></i>
+                            <i class="bi bi-file-earmark-text fs-1 text-dark"></i>
                             <h3>Herramientas de oficina</h3>
                             <p>Desarrollá habilidades para trabajar con documentos, planillas y otras herramientas digitales.</p>
                         </article>
@@ -330,19 +320,18 @@
                     <div class="col-12 col-md-6">
                         <article class="card curso-card h-100 shadow-sm">
                             <img
-                                src="recursos/imagenes/Introduccion_programacion.jpg"
+                                src="recursos/imagenes/Logica.png"
                                 class="card-img-top"
-                                alt="Introducción a la programación">
+                                alt="Lógica de programación y algoritmos">
                             <div class="card-body">
                                 <span class="curso-categoria">PROGRAMACIÓN</span>
-                                <h2 class="card-title h5">Introducción a la programación</h2>
+                                <h2 class="card-title h5">Lógica de programación y algoritmos</h2>
                                 <p class="curso-nivel">Nivel básico · 6 semanas</p>
                                 <p class="curso-descripcion">
-                                    Conocé los conceptos fundamentales de la
-                                    programación y comenzá a desarrollar tus
-                                    primeras soluciones.
+                                    Pensamiento lógico necesario para resolver problemas 
+                                    y desarrollar algoritmos.
                                 </p>
-                                <a href="catalogo.html" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=2" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -362,7 +351,7 @@
                                     trabajando tanto en el frontend como
                                     en el backend.
                                 </p>
-                                <a href="catalogo.html" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=5" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -381,7 +370,7 @@
                                     Aprendé los fundamentos de Python y desarrollá
                                     tus primeros programas.
                                 </p>
-                                <a href="catalogo.html" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=1" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -401,7 +390,7 @@
                                     inteligencia artificial y sus principales
                                     aplicaciones.
                                 </p>
-                                <a href="catalogo.html" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=3" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -422,7 +411,7 @@
                 <div class="row g-4">
                     <div class="col-12 col-md-6 col-lg-3">
                         <article class="beneficio text-center">
-                            <i class="bi bi-lightbulb beneficio-icon"></i>
+                            <i class="bi bi-lightbulb fs-1 text-primary"></i>
                             <h3>Contenido práctico</h3>
                             <p>
                                 Aprendé mediante ejemplos y actividades
@@ -432,7 +421,7 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
                         <article class="beneficio text-center">
-                            <i class="bi bi-bar-chart beneficio-icon"></i>
+                            <i class="bi bi-bar-chart fs-1 text-danger"></i>
                             <h3>Diferentes niveles</h3>
                             <p>
                                 Encontrá propuestas para comenzar desde cero
@@ -442,7 +431,7 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
                         <article class="beneficio text-center">
-                            <i class="bi bi-cpu beneficio-icon"></i>
+                            <i class="bi bi-cpu fs-1 text-success"></i>
                             <h3>Tecnologías actuales</h3>
                             <p>
                                 Explorá programación, desarrollo web,
@@ -452,7 +441,7 @@
                     </div>
                     <div class="col-12 col-md-6 col-lg-3">
                         <article class="beneficio text-center">
-                            <i class="bi bi-clock beneficio-icon"></i>
+                            <i class="bi bi-clock fs-1 text-warning"></i>
                             <h3>Aprendé a tu ritmo</h3>
                             <p>
                                 Organizá tu aprendizaje de acuerdo con
@@ -529,7 +518,6 @@
         </div>
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/usuarios.js"></script>
 <script src="js/app.js" type="module"></script>
 </body>
 </html>

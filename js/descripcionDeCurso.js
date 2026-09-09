@@ -1,5 +1,4 @@
-// js/descripcionDeCurso.js
-// Lee el "id" del curso desde la URL (?id=3) y trae sus datos desde el backend.
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('detalleCurso');
@@ -77,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedor.innerHTML = '';
   }
 
-  // Misma lógica de categorías que catalogo.js, para mantener consistencia visual.
   function obtenerCategoria(titulo) {
     const t = titulo.toLowerCase();
 
@@ -90,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 
-  // Misma lógica que catalogo.js: foto real si existe, ícono de color si no.
   function crearThumb(curso, claseCategoria, icono) {
     if (curso.imagen_url) {
       return `

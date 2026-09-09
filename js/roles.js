@@ -1,39 +1,28 @@
 // js/roles.js
-// Modelo de roles de usuario. Se basa en el campo "tipoUsuario" que ya se
-// guarda en Firestore (colección "usuarios").
-//
-// Tipos de usuario del proyecto:
-// - Visitante: no tiene sesión iniciada. No se guarda como valor en la base,
-//   es simplemente la ausencia de sesión (usuario === null).
-// - Estudiante: usuario registrado. Compra cursos, accede a sus contenidos
-//   y obtiene certificados.
-// - Administrador: gestiona y supervisa toda la plataforma (alta, edición y
-//   baja de cursos; habilitar/deshabilitar cuentas de estudiantes; control
-//   general del sistema).
+// Modelo de roles de usuario. Se basa en el campo "tipoUsuario" guardado en Firestore.
 
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// Los roles posibles en el sistema (no incluye "visitante": eso es null).
+// Mapeo exacto con los valores guardados en la base de datos
 export const ROLES = {
   ESTUDIANTE: "estudiante",
-  ADMINISTRADOR: "administrador"
+  DOCENTE_ADMIN: "docente/admin" 
 };
 
-// Qué puede hacer cada rol. Cada clave es un permiso; el valor, los roles que lo tienen.
+// Permisos del sistema
 const PERMISOS = {
   comprarCursos: [ROLES.ESTUDIANTE],
-  accederContenidoCurso: [ROLES.ESTUDIANTE],
+  accederContenidoCurso: [ROLES.ESTUDIANTE, ROLES.DOCENTE_ADMIN],
   obtenerCertificado: [ROLES.ESTUDIANTE],
-  crearCursos: [ROLES.ADMINISTRADOR],
-  editarCursos: [ROLES.ADMINISTRADOR],
-  eliminarCursos: [ROLES.ADMINISTRADOR],
-  gestionarCuentasEstudiantes: [ROLES.ADMINISTRADOR],
-  verPanelAdmin: [ROLES.ADMINISTRADOR]
+  crearCursos: [ROLES.DOCENTE_ADMIN],
+  editarCursos: [ROLES.DOCENTE_ADMIN],
+  eliminarCursos: [ROLES.DOCENTE_ADMIN],
+  gestionarCuentasEstudiantes: [ROLES.DOCENTE_ADMIN],
+  verPanelAdmin: [ROLES.DOCENTE_ADMIN]
 };
 
-// ¿El rol dado tiene este permiso? (rol === null significa visitante: nunca tiene permisos)
 export function tienePermiso(rol, permiso) {
   const rolesConPermiso = PERMISOS[permiso];
   if (!rolesConPermiso) {
@@ -51,12 +40,10 @@ export function esEstudiante(rol) {
   return rol === ROLES.ESTUDIANTE;
 }
 
-export function esAdministrador(rol) {
-  return rol === ROLES.ADMINISTRADOR;
+export function esDocenteAdmin(rol) {
+  return rol === ROLES.DOCENTE_ADMIN;
 }
 
-// Trae el rol (tipoUsuario) del usuario logueado actualmente, leyendo Firestore.
-// Devuelve null si no hay sesión iniciada (visitante).
 export function obtenerRolActual() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (usuario) => {
@@ -79,8 +66,6 @@ export function obtenerRolActual() {
   });
 }
 
-// Oculta cualquier elemento con data-requiere-permiso="nombreDelPermiso"
-// si el usuario actual (o un visitante sin sesión) no tiene ese permiso.
 export async function aplicarVisibilidadPorRol() {
   const rol = await obtenerRolActual();
   document.querySelectorAll("[data-requiere-permiso]").forEach((el) => {

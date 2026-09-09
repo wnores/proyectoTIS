@@ -1,30 +1,28 @@
 // js/roles.js
-// Modelo de roles de usuario: define qué roles existen y qué puede hacer cada uno.
-// Se basa en el campo "tipoUsuario" que ya se guarda en Firestore (colección "usuarios").
+// Modelo de roles de usuario. Se basa en el campo "tipoUsuario" guardado en Firestore.
 
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// Roles.
+// Mapeo exacto con los valores guardados en la base de datos
 export const ROLES = {
   ESTUDIANTE: "estudiante",
-  DOCENTE: "docente",
-  ADMINISTRADOR: "administrador"
+  DOCENTE_ADMIN: "docente/admin" 
 };
 
-// Permisos de cada rol. Cada clave es un permiso; el valor, los roles que lo tienen.
+// Permisos del sistema
 const PERMISOS = {
-  inscribirseCursos: [ROLES.ESTUDIANTE],
-  crearCursos: [ROLES.DOCENTE, ROLES.ADMINISTRADOR],
-  editarCursos: [ROLES.DOCENTE, ROLES.ADMINISTRADOR],
-  eliminarCursos: [ROLES.ADMINISTRADOR],
-  gestionarUsuarios: [ROLES.ADMINISTRADOR],
-  verPanelDocente: [ROLES.DOCENTE, ROLES.ADMINISTRADOR],
-  verPanelAdmin: [ROLES.ADMINISTRADOR]
+  comprarCursos: [ROLES.ESTUDIANTE],
+  accederContenidoCurso: [ROLES.ESTUDIANTE, ROLES.DOCENTE_ADMIN],
+  obtenerCertificado: [ROLES.ESTUDIANTE],
+  crearCursos: [ROLES.DOCENTE_ADMIN],
+  editarCursos: [ROLES.DOCENTE_ADMIN],
+  eliminarCursos: [ROLES.DOCENTE_ADMIN],
+  gestionarCuentasEstudiantes: [ROLES.DOCENTE_ADMIN],
+  verPanelAdmin: [ROLES.DOCENTE_ADMIN]
 };
 
-// ¿El rol dado tiene este permiso?
 export function tienePermiso(rol, permiso) {
   const rolesConPermiso = PERMISOS[permiso];
   if (!rolesConPermiso) {
@@ -34,20 +32,18 @@ export function tienePermiso(rol, permiso) {
   return rolesConPermiso.includes(rol);
 }
 
+export function esVisitante(rol) {
+  return rol === null;
+}
+
 export function esEstudiante(rol) {
   return rol === ROLES.ESTUDIANTE;
 }
 
-export function esDocente(rol) {
-  return rol === ROLES.DOCENTE;
+export function esDocenteAdmin(rol) {
+  return rol === ROLES.DOCENTE_ADMIN;
 }
 
-export function esAdministrador(rol) {
-  return rol === ROLES.ADMINISTRADOR;
-}
-
-// Trae el rol (tipoUsuario) del usuario logueado actualmente, leyendo Firestore.
-// Devuelve null si no hay sesión iniciada.
 export function obtenerRolActual() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (usuario) => {
@@ -70,13 +66,10 @@ export function obtenerRolActual() {
   });
 }
 
-// Oculta cualquier elemento con data-requiere-permiso="nombreDelPermiso"
-// si el usuario actual no tiene ese permiso. Útil para botones o secciones que solo deben verse para ciertos roles (ej: "Crear curso", panel de admin).
 export async function aplicarVisibilidadPorRol() {
   const rol = await obtenerRolActual();
   document.querySelectorAll("[data-requiere-permiso]").forEach((el) => {
-    const permiso = el.dataset.requierePermiso;
-    if (!rol || !tienePermiso(rol, permiso)) {
+    if (!tienePermiso(rol, el.dataset.requierePermiso)) {
       el.classList.add("d-none");
     }
   });

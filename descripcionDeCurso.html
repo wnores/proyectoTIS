@@ -155,5 +155,30 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/descripcionDeCurso.js"></script>
 <script src="js/app.js" type="module"></script>
+<template id="plantillaDetalleCurso">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="curso-thumb-container js-thumb-container">
+                <img class="curso-thumb-real js-thumb-img" alt="">
+            </div>
+            <div class="curso-thumb js-thumb-icono d-none"></div>
+        </div>
+        <div class="col-12 col-md-6">
+            <h1 class="js-titulo"></h1>
+            <p class="lead js-descripcion"></p>
+            <ul class="list-unstyled">
+                <li><strong>Precio:</strong> <span class="js-precio"></span></li>
+                <li><strong>Duración:</strong> <span class="js-duracion"></span> horas</li>
+                <li><strong>Cupos disponibles:</strong> <span class="js-cupos"></span></li>
+            </ul>
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+                <button class="btn btn-primary" disabled>
+                    Inscribirme (próximamente)
+                </button>
+                <a class="btn btn-outline-secondary js-beca">Solicitar beca para este curso</a>
+            </div>
+        </div>
+    </div>
+</template>
 </body>
 </html>

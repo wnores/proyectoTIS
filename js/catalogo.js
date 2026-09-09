@@ -1,9 +1,14 @@
 
+// js/catalogo.js
+// Trae los cursos desde cursos.json y arma las tarjetas de catalogo.html
+// clonando la plantilla <template id="plantillaTarjetaCurso"> del HTML.
+
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('listaCursos');
   const mensajeEstado = document.getElementById('estadoCarga');
   const formBuscar = document.getElementById('formBuscarCursos');
   const inputBuscar = document.getElementById('inputBuscarCursos');
+  const plantilla = document.getElementById('plantillaTarjetaCurso');
 
   let todosLosCursos = [];
 
@@ -46,18 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mostrarCursos(cursos) {
-    contenedor.innerHTML = cursos.map(crearTarjetaCurso).join('');
+    const fragmento = document.createDocumentFragment();
+    cursos.forEach((curso) => fragmento.appendChild(crearTarjetaCurso(curso)));
+    contenedor.replaceChildren(fragmento);
   }
 
   function filtrarCursos() {
     const texto = inputBuscar.value.trim().toLowerCase();
-    const filtrados = todosLosCursos.filter(curso =>
+    const filtrados = todosLosCursos.filter((curso) =>
       curso.titulo.toLowerCase().includes(texto) ||
       (curso.descripcion ?? '').toLowerCase().includes(texto)
     );
 
     if (filtrados.length === 0) {
-      contenedor.innerHTML = '';
+      contenedor.replaceChildren();
       mensajeEstado.textContent = 'No se encontraron cursos que coincidan con la búsqueda.';
       mensajeEstado.classList.remove('d-none');
     } else {
@@ -73,20 +80,36 @@ document.addEventListener('DOMContentLoaded', () => {
       currency: 'UYU'
     });
 
-    return `
-      <div class="col-12 col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
-          ${crearThumb(curso, claseCategoria, icono)}
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">${curso.titulo}</h5>
-            <p class="card-text flex-grow-1">${curso.descripcion ?? ''}</p>
-            <p class="card-text precio-curso">${precioFormateado}</p>
-            <p class="card-text"><small class="text-muted">${curso.cupos_disponibles} cupos disponibles</small></p>
-            <a href="descripcionDeCurso.html?id=${curso.id}" class="btn btn-primary mt-auto">Ver más</a>
-          </div>
-        </div>
-      </div>
-    `;
+    const tarjeta = plantilla.content.cloneNode(true);
+
+    const thumbContainer = tarjeta.querySelector('.js-thumb-container');
+    const thumbImg = tarjeta.querySelector('.js-thumb-img');
+    const thumbIcono = tarjeta.querySelector('.js-thumb-icono');
+
+    function mostrarIcono() {
+      thumbContainer.classList.add('d-none');
+      thumbIcono.classList.remove('d-none');
+      thumbIcono.classList.add(claseCategoria);
+      thumbIcono.textContent = icono;
+    }
+
+    if (curso.imagen_url) {
+      thumbImg.src = curso.imagen_url;
+      thumbImg.alt = curso.titulo;
+      thumbImg.addEventListener('error', mostrarIcono, { once: true });
+    } else {
+      mostrarIcono();
+    }
+
+    tarjeta.querySelector('.js-titulo').textContent = curso.titulo;
+    tarjeta.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
+    tarjeta.querySelector('.js-precio').textContent = precioFormateado;
+    tarjeta.querySelector('.js-cupos').textContent = curso.cupos_disponibles;
+
+    const btnVerMas = tarjeta.querySelector('.js-ver-mas');
+    btnVerMas.href = `descripcionDeCurso.html?id=${curso.id}`;
+
+    return tarjeta;
   }
 
   function obtenerCategoria(titulo) {
@@ -100,24 +123,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (t.includes('base de datos') || t.includes('mysql') || t.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
-
-  function crearThumb(curso, claseCategoria, icono) {
-    if (curso.imagen_url) {
-      return `
-        <div class="curso-thumb-container">
-          <img src="${curso.imagen_url}" class="curso-thumb-real" alt="${curso.titulo}"
-               data-clase="${claseCategoria}" data-icono="${icono}"
-               onerror="handleThumbError(this)">
-        </div>
-      `;
-    }
-    return `<div class="curso-thumb ${claseCategoria}">${icono}</div>`;
-  }
 });
-
-function handleThumbError(imgEl) {
-  const clase = imgEl.dataset.clase;
-  const icono = imgEl.dataset.icono;
-  const contenedor = imgEl.parentElement;
-  contenedor.outerHTML = `<div class="curso-thumb ${clase}">${icono}</div>`;
-}

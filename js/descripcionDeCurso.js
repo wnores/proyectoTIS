@@ -99,25 +99,3 @@ document.addEventListener('DOMContentLoaded', () => {
     return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 });
-
-
-  function crearThumb(curso, claseCategoria, icono) {
-    if (curso.imagen_url) {
-      return `
-        <div class="curso-thumb-container">
-          <img src="${curso.imagen_url}" class="curso-thumb-real" alt="${curso.titulo}"
-               data-clase="${claseCategoria}" data-icono="${icono}"
-               onerror="handleThumbError(this)">
-        </div>
-      `;
-    }
-    return `<div class="curso-thumb ${claseCategoria}">${icono}</div>`;
-  }
-});
-
-function handleThumbError(imgEl) {
-  const clase = imgEl.dataset.clase;
-  const icono = imgEl.dataset.icono;
-  const contenedor = imgEl.parentElement;
-  contenedor.outerHTML = `<div class="curso-thumb ${clase}">${icono}</div>`;
-}

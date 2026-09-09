@@ -1,5 +1,3 @@
-// js/catalogo.js
-// Trae los cursos desde cursos.json y arma las tarjetas de catalogo.html
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('listaCursos');

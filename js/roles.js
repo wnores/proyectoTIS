@@ -68,9 +68,11 @@ export function obtenerRolActual() {
 
 export async function aplicarVisibilidadPorRol() {
   const rol = await obtenerRolActual();
-  document.querySelectorAll("[data-requiere-permiso]").forEach((el) => {
-    if (!tienePermiso(rol, el.dataset.requierePermiso)) {
-      el.classList.add("d-none");
-    }
+  document.querySelectorAll("[data-requiere-permiso]").forEach((elemento) => {
+    const permiso = elemento.dataset.requierePermiso;
+    const autorizado = rol && tienePermiso(rol, permiso);
+
+    elemento.classList.toggle("d-none", !autorizado);
+
   });
 }

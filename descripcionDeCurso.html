@@ -12,12 +12,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <img src="recursos/imagenes/logo.jpg"
-                    alt="Cursos de Ciencias de la Computación"
-                    class="logo">
+                <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                    class="navbar-toggler-icon"></span></button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
@@ -25,136 +24,91 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-<div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
-                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
-                <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
-            </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-                <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
-                <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
-            </div>
+                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
+                    <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
+                </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
-                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true"aria-expanded="false">
-                <i class="bi bi-person-circle fs-5"></i>
-                <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
-    
-                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
-                    </li>
-                </ul>
+                <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                    <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
+                    <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+                    type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                    <i class="bi bi-person-circle fs-5"></i>
+                    <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
+        
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                                <i class="bi bi-person fs-5"></i> Ver perfil</a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                            <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
-</div>
         </div>
     </nav>
-     <main class='flex-grow-1'>
+
+    <main class="flex-grow-1">
         <section class="hero text-center">
             <h1>Detalle del curso</h1>
         </section>
-        <section class="container py-4"> <div id="estadoCarga" class="aviso-curso d-none" role="alert"></div> <div id="detalleCurso"></div> </section>
-     </main>
-      <!-- FOOTER -->
+        <section class="container py-4">
+            <div id="estadoCarga" class="aviso-curso d-none" role="alert"></div>
+            <div id="detalleCurso"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
-
-
                 <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
-                    <p>
-                        Desarrollá nuevas habilidades
-                        y preparate para el mundo digital.
-                    </p>
-
+                    <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
                 </div>
-
 
                 <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
-                    <a href="politicaDePrivacidad.html">
-                        Política de privacidad
-                    </a>
-
+                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
                 </div>
-
 
                 <!-- Contacto -->
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
-                    <p>
-                        Seguinos en nuestras redes
-                    </p>
-
+                    <p>Seguinos en nuestras redes</p>
                     <div class="footer-social">
-
-                        <a href="https://www.facebook.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Facebook">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-
-                        <a href="https://www.instagram.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-
-                        <a href="https://www.youtube.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="YouTube">
-                            <i class="bi bi-youtube"></i>
-                        </a>
-
-                        <a href="https://www.linkedin.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="LinkedIn">
-                            <i class="bi bi-linkedin"></i>
-                        </a>
-
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
                     </div>
-
                 </div>
-
             </div>
-
 
             <hr>
 
-
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
             </p>
-        
-
         </div>
-
     </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/descripcionDeCurso.js"></script>
-<script src="js/app.js" type="module"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/descripcionDeCurso.js" type="module"></script>
+    <script src="js/app.js" type="module"></script>
+
+    <!-- PLANTILLA DE DETALLE DEL CURSO -->
 <template id="plantillaDetalleCurso">
     <div class="row">
         <div class="col-12 col-md-6">
@@ -169,16 +123,56 @@
             <ul class="list-unstyled">
                 <li><strong>Precio:</strong> <span class="js-precio"></span></li>
                 <li><strong>Duración:</strong> <span class="js-duracion"></span> horas</li>
+                <li><strong>Modalidad:</strong> <span class="js-modalidad"></span></li>
                 <li><strong>Cupos disponibles:</strong> <span class="js-cupos"></span></li>
             </ul>
             <div class="d-flex gap-2 mt-3 flex-wrap">
-                <button class="btn btn-primary" disabled>
-                    Inscribirme (próximamente)
-                </button>
-                <a class="btn btn-outline-secondary js-beca">Solicitar beca para este curso</a>
+                <!-- Se le agrega clase 'js-btn-inscribirme-superior' para poder ocultarlo con JS al loguearse -->
+                <a class="btn btn-primary js-btn-inscribirme-superior" href="ingresar.html">Inscribirse</a>
             </div>
         </div>
     </div>
-</template>
+
+    <!-- SECCIÓN TABLA DE MÓDULOS + BOTONES DE ACCIÓN INFERIORES -->
+    <div class="row mt-5 js-seccion-modulos d-none">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="bi bi-journal-bookmark me-2"></i>Contenido del Curso</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col" style="width: 20%;">MÓDULOS</th>
+                        <th scope="col" style="width: 80%;">TEMAS</th>
+                    </tr>
+                </thead>
+                <tbody class="js-tabla-modulos-body">
+                    <!-- Filas inyectadas por JS mediante Firebase -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de acción y contenedor de microinteracción -->
+        <div class="mt-4 js-acciones-estudiante d-none">
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <button type="button" class="btn btn-primary btn-lg js-btn-inscribirme-inferior d-inline-flex align-items-center gap-2" id="btnInscribirmeFinal">
+                    <i class="bi bi-check-circle-fill js-icono-btn d-none"></i>
+                    <span class="spinner-border spinner-border-sm js-spinner d-none" role="status" aria-hidden="true"></span>
+                    <span class="js-texto-btn">Inscribirme a este curso</span>
+                </button>
+                <a class="btn btn-primary btn-lg js-btn-beca" href="#">Solicitar una beca</a>
+            </div>
+
+            <!-- Alerta animada de microinteracción de registro exitoso -->
+            <div class="alert alert-success d-flex align-items-center gap-3 mt-3 d-none shadow-sm border-0 fade show js-alerta-exito" role="alert">
+                <i class="bi bi-patch-check-fill fs-2 text-success"></i>
+                <div>
+                    <h5 class="alert-heading mb-1 fw-bold">¡Inscripción confirmada!</h5>
+                    <p class="mb-0">Este mensaje es de prueba. Próximamente este botón llevará al carrito o sistema de pago.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</template> 
 </body>
 </html>

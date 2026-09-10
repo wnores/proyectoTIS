@@ -8,210 +8,101 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>Cursos CC | Perfil de Usuario</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100" data-page="perfil.html">
+
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+
         <div class="container">
+
             <a class="navbar-brand" href="index.html">
                 <img src="recursos/imagenes/logo.jpg"
                     alt="Cursos de Ciencias de la Computación"
                     class="logo">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                    class="navbar-toggler-icon"></span></button>
+
+            <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
             <div class="collapse navbar-collapse" id="mainNav">
+
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            data-page="producto"
+                            href="acercaDe.html">
+                            Acerca De
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            data-page="catalogo"
+                            href="catalogo.html">
+                            Catálogo de cursos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            data-page="admin"
+                            href="beca.html">
+                            Becas
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            data-page="carrito"
+                            href="contacto.html">
+                            Contacto
+                        </a>
+                    </li>
+
                 </ul>
 
-<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
-            type="button" 
-            id="dropdownUsuario" 
-            data-bs-toggle="dropdown" 
-            data-bs-auto-close="true"
-            aria-expanded="false">
-        <i class="bi bi-person-circle fs-5"></i>
-        <span class="fs-6" id="nombreUsuario" class="fw-bold"></span>
-    </button>
-    
-    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-        <li>
-            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
-            </button>
-        </li>
-    </ul>
-</div>
-            </div>
-            </div>
-    </nav>
-<main class="flex-grow-1">
 
-    <div class="container py-4">
+                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none"
+                    id="grupoUsuario">
 
-        <div class="row justify-content-center">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                        type="button"
+                        id="dropdownUsuario"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="true"
+                        aria-expanded="false">
 
-            <div class="col-12 col-lg-10 col-xl-9">
+                        <i class="bi bi-person-circle fs-5"></i>
 
-                <div class="perfil-card">
+                        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
 
-                    <h2 class="text-center fw-bold mb-4">
-                        Perfil
-                    </h2>
-
-                    <div class="row g-4">
-
-                        <!-- FOTO -->
-                        <div class="col-12 col-md-5 order-1 order-md-2">
-
-                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-
-                                <div class="avatar-wrapper">
-
-                                    <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
-
-                                        <i class="bi bi-person-fill text-secondary"></i>
-
-                                    </div>
-
-                                    <button type="button"
-                                        class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute"
-                                        title="Cambiar foto">
-
-                                        <i class="bi bi-camera-fill text-dark"></i>
-
-                                    </button>
-
-                                </div>
-
-                                <h5 class="fw-bold mt-3 mb-1">
-                                    Jorge Gonzalez
-                                </h5>
-
-                                <span class="text-secondary">
-                                    Docente
-                                </span>
-
-                            </div>
-
-                        </div>
+                    </button>
 
 
-                        <!-- INFORMACIÓN -->
-                        <div class="col-12 col-md-7 order-2 order-md-1">
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2"
+                        aria-labelledby="dropdownUsuario">
 
-                            <h5 class="fw-bold mb-4">
-                                Información del perfil
-                            </h5>
+                        <li>
 
+                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2"
+                                type="button"
+                                id="btnCerrarSesion">
 
-                            <div class="perfil-dato">
-                                <label>Nombre</label>
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                Cerrar sesión
 
-                                <div>
-                                    <span>Jorge</span>
+                            </button>
 
-                                    <button class="btn-editar"
-                                        title="Editar nombre">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
+                        </li>
 
-
-                            <div class="perfil-dato">
-                                <label>Apellido</label>
-
-                                <div>
-                                    <span>Gonzalez</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar apellido">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Dirección de correo</label>
-
-                                <div>
-                                    <span>jgonzalez@gmail.com</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar correo">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Departamento</label>
-
-                                <div>
-                                    <span>Paysandú</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar departamento">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Tipo de documento</label>
-
-                                <span>
-                                    Cédula Uruguaya
-                                </span>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Nro. de documento</label>
-
-                                <span>
-                                    99999999
-                                </span>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Rol</label>
-
-                                <span>
-                                    Docente
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- BOTONES -->
-                    <div class="perfil-botones mt-4 pt-4">
-
-                        <button class="btn btn-primary">
-                            Modificar contraseña
-                        </button>
-
-                        <button class="btn btn-primary">
-                            Servicios adquiridos
-                        </button>
-
-                         <button class="btn btn-outline-danger">
-                            <i class="bi bi-trash3"></i>
-                            Eliminar cuenta
-                        </button>
-
-                    </div>
+                    </ul>
 
                 </div>
 
@@ -219,22 +110,273 @@
 
         </div>
 
+    </nav>
 
-        <!-- VOLVER -->
-        <div class="text-center mt-4">
 
-            <a href="index.html" class="btn btn-primary">
-                Volver al inicio
-                <img src="recursos/iconos/atras.png" alt="atrás">
-            </a>
+    <main class="flex-grow-1">
+
+        <div class="container py-4">
+
+            <div class="row justify-content-center">
+
+                <div class="col-12 col-lg-10 col-xl-9">
+
+                    <div class="perfil-card">
+
+                        <h2 class="text-center fw-bold mb-4">
+                            Perfil
+                        </h2>
+
+
+                        <div class="row g-4">
+
+
+                            <!-- FOTO -->
+
+                            <div class="col-12 col-md-5 order-1 order-md-2">
+
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+
+                                    <div class="avatar-wrapper">
+
+                                        <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
+
+                                            <i class="bi bi-person-fill text-secondary"></i>
+
+                                        </div>
+
+
+                                        <button type="button"
+                                            class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute"
+                                            title="Cambiar foto">
+
+                                            <i class="bi bi-camera-fill text-dark"></i>
+
+                                        </button>
+
+                                    </div>
+
+
+                                    <h5 class="fw-bold mt-3 mb-1">
+                                        Jorge Gonzalez
+                                    </h5>
+
+
+                                    <span class="text-secondary">
+                                        Docente
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- INFORMACIÓN -->
+
+                            <div class="col-12 col-md-7 order-2 order-md-1">
+
+                                <h5 class="fw-bold mb-4">
+                                    Información del perfil
+                                </h5>
+
+
+                                <!-- NOMBRE -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Nombre
+                                    </label>
+
+                                    <div>
+
+                                        <span id="perfilNombre">
+                                            Jorge
+                                        </span>
+
+                                        <button class="btn-editar"
+                                            title="Editar nombre">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- APELLIDO -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Apellido
+                                    </label>
+
+                                    <div>
+
+                                        <span id="perfilApellido">
+                                            Gonzalez
+                                        </span>
+
+                                        <button class="btn-editar"
+                                            title="Editar apellido">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- CORREO - NO EDITABLE -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Dirección de correo
+                                    </label>
+
+                                    <div>
+
+                                        <span id="perfilEmail">
+                                            jgonzalez@gmail.com
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- DEPARTAMENTO -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Departamento
+                                    </label>
+
+                                    <div>
+
+                                        <span id="perfilDepartamento">
+                                            Paysandú
+                                        </span>
+
+                                        <button class="btn-editar"
+                                            title="Editar departamento">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- TIPO DE DOCUMENTO - NO EDITABLE -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Tipo de documento
+                                    </label>
+
+                                    <span id="perfilTipoDocumento">
+                                        Cédula Uruguaya
+                                    </span>
+
+                                </div>
+
+
+                                <!-- NÚMERO DE DOCUMENTO - NO EDITABLE -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Nro. de documento
+                                    </label>
+
+                                    <span id="perfilNroDocumento">
+                                        99999999
+                                    </span>
+
+                                </div>
+
+
+                                <!-- ROL - NO EDITABLE -->
+
+                                <div class="perfil-dato">
+
+                                    <label>
+                                        Rol
+                                    </label>
+
+                                    <span id="perfilRol">
+                                        Docente
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BOTONES -->
+
+                        <div class="perfil-botones mt-4 pt-4">
+
+                            <button class="btn btn-primary">
+                                Modificar contraseña
+                            </button>
+
+                            <button class="btn btn-primary">
+                                Servicios adquiridos
+                            </button>
+
+                            <button class="btn btn-outline-danger">
+
+                                <i class="bi bi-trash3"></i>
+                                Eliminar cuenta
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- VOLVER -->
+
+            <div class="text-center mt-4">
+
+                <a href="index.html" class="btn btn-primary">
+
+                    Volver al inicio
+
+                    <img src="recursos/iconos/atras.png"
+                        alt="atrás">
+
+                </a>
+
+            </div>
 
         </div>
 
-    </div>
+    </main>
 
-</main>
 
     <!-- FOOTER -->
+
     <footer class="footer">
 
         <div class="container">
@@ -243,9 +385,12 @@
 
 
                 <!-- Información -->
+
                 <div class="col-lg-5">
 
-                    <h5>Cursos de Ciencias de la Computación</h5>
+                    <h5>
+                        Cursos de Ciencias de la Computación
+                    </h5>
 
                     <p>
                         Desarrollá nuevas habilidades
@@ -256,9 +401,12 @@
 
 
                 <!-- Enlaces -->
+
                 <div class="col-lg-3">
 
-                    <h5>Enlaces</h5>
+                    <h5>
+                        Enlaces
+                    </h5>
 
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
@@ -268,13 +416,17 @@
 
 
                 <!-- Contacto -->
+
                 <div class="col-lg-4">
 
-                    <h5>Contacto</h5>
+                    <h5>
+                        Contacto
+                    </h5>
 
                     <p>
                         Seguinos en nuestras redes
                     </p>
+
 
                     <div class="footer-social">
 
@@ -282,28 +434,39 @@
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
+
                             <i class="bi bi-facebook"></i>
+
                         </a>
+
 
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
+
                             <i class="bi bi-instagram"></i>
+
                         </a>
+
 
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
+
                             <i class="bi bi-youtube"></i>
+
                         </a>
+
 
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
+
                             <i class="bi bi-linkedin"></i>
+
                         </a>
 
                     </div>
@@ -317,15 +480,25 @@
 
 
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+
+                <img src="recursos/iconos/derechosAutor.png"
+                    alt="copyrihgt">
+
+                2026 - Taller Integrador de Sistemas
+
             </p>
-        
 
         </div>
 
     </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/usuarios.js"></script>
-<script src="js/app.js" type="module"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="js/app.js" type="module"></script>
+
+    <script src="js/perfil.js" type="module"></script>
+
 </body>
+
 </html>

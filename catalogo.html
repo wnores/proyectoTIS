@@ -56,6 +56,19 @@
                 <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
     
                 <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                    <li
+                        class="d-none"
+                        data-requiere-permiso="verPanelAdmin">
+
+                    <a
+                        class="dropdown-item d-flex align-items-center gap-2 py-2"
+                        href="administrarCursos.html">
+
+                    <i class="bi bi-gear-fill fs-5"></i>
+                        Administrar cursos
+                    </a>
+
+                    </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
                             <i class="bi bi-person fs-5"></i> Ver perfil</a>
@@ -65,6 +78,15 @@
                         <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
                         <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
                     </li>
+                    
+
+<li
+    class="d-none"
+    data-requiere-permiso="verPanelAdmin">
+
+    <hr class="dropdown-divider my-1">
+
+</li>
                 </ul>
             </div>
     </div>
@@ -74,18 +96,7 @@
      <main class="flex-grow-1">
 <section class="hero text-center" aria-labelledby="tituloCatalogo">
     <h1 id="tituloCatalogo">Catálogo de cursos</h1>
-        <a
-        href="publicarCurso.html"
-        class="btn btn-primary d-none"
-        id="btnPublicarCurso"
-        data-requiere-permiso="crearCursos">
-
-      <i class="bi bi-plus-circle me-2"></i>
-        
-        Publicar curso
-    </a>
-
-    
+            
     <p class="fs-5 fw-bold">
         Explora nuestra propuesta de cursos de Ciencias de la Computación
     </p>

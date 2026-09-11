@@ -13,7 +13,7 @@ El nombre seleccionado para el sitio fue Cursos CC
 Se crea el logo correspondiente
 <img width="200" height="200" alt="Logo" src="https://github.com/wnores/proyectoTIS/blob/main/recursos/imagenes/logo.jpg"/>
 
-## Sprint 1 (10/08/2026 al 30/08/2026)
+## Sprint 1 (10/08/2026 al 30/08/2026) - Semanas 4 a 6 Base del Sistema
 
 - 12/08 Creación de la base del proyecto.
 - En el index.html se crea el menú y botón de ingreso.
@@ -32,11 +32,11 @@ mostrará en las páginas ingresar.html y registrarse.html.
 Se verificó la presentación visual y la adaptación de la página al diseño general del sitio.
 - "contacto.html": Aparece la información para consultas: se brinda un número de whatsapp, los días y horarios de atención y la dirección de las oficinas administrativas donde sólo se brinda información de los cursos. Además esta página cuenta con un formulario de contacto, dónde se ingresa el nombre y apellido, un correo electrónico y el mensaje o consulta que se desea enviar. (Creado por Marilina)
 
-- Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro, se ingresa con tipo de usuario docente/admin o estudiante.
+- Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro), se ingresa con los tipo de usuario "docente/admin" o "estudiante".
 
-- Botón "registrarse.html": Formulario de registro, por defecto crea los usuario de tipo "estudiante". Por otro lado, os docente/admin que van a administrar la página ya deberían estar creados por defecto.
+- Botón "registrarse.html": Formulario de registro, por defecto crea los usuario de tipo "estudiante". Por otro lado, los "docente/admin" que van a administrar la página ya están estar creados por defecto.
 
-### Desarrollo Frontend – Anny
+### Desarrollo Frontend – (Anny)
 ### Página de becas
 Se desarrolló y ajustó la página beca.html, destinada a informar a los usuarios sobre las becas y beneficios disponibles para los cursos.
 
@@ -72,29 +72,37 @@ Revisión de la estructura HTML y corrección de errores.
 ### Pendiente
 - Carrito de compras y flujo de pago (se implementará más adelante según sprint).
 
-### Formspree
+### Formspree (Marilina)
 Para los formularios de contacto y becas se utiliza Formspree, el cuál es un servicio en línea que permite recibir los datos de un formulario web directamente en un correo electrónico o panel sin necesidad de programar un servidor.
 
 ### Correo electrónico
 Para que todo el grupo pueda probar y tener acceso a los formulario se creó un correo electrónico grupal: tallercerpsalto@gmail.com. 
 Este correo fue registrado en la cuenta de formspree y además se utilizará más adelante para la cuenta de Firebase.
 
-### Firebase (con el correo electrónico creado anteriormente)
+### Firebase (con el correo electrónico creado anteriormente) (Marilina)
 Se crea un proyecto en Firebase que se llama BDCursos dónde contendrá toda la información de los cursos, tipos de usuarios y todo lo que se necesite guardar sobre los cursos. En este caso Firebase es una base de datos NoSQL alojada en la nube que almacena y sincroniza datos en tiempo real. 
 Por el momento se utilizan dos extensiones Firestore que es donde se crean las colecciones, que simulan las tablas y authentication donde se registran los usuarios creados.
 
 ### Antes de finalizar el sprint 1 (Implementación del formulario de registro y conexión con Firebase)
-### Registrarse (registrarse.html) - Marilina
+### Registrarse (registrarse.html) - (Marilina)
 Cuando se completa el formulario con los datos se guardan en la base de datos de Firestore database. Todos los campos son obligatorios. La contraseña tiene información de qué datos debe contener cuando se crea. Además permite adjuntar una imagen de perfil desde el navegador que por el momento sólo se guarda de forma temporal. Otra cosa que se implementó en este caso es que el tipo de usuario que se registra en la página en este caso siempre va a ser el estudiante. El otro tipo de usuario que contendrá la página será docente/admin que se detallará su implementación cuando se desarrolle en el sprint determinado. Además en el formulario se implementan algunas restricciones: el correo debe ser válido y no se puede repetir para 2 o más usuarios. La cédula se debe ingresar sin puntos ni guiones y deben ser sólo números. La contraseña debe contener letras mayúsculas, minúsculas y al menos un número. Contraseña y repetir contraseña deben coincidir. Luego de registrarse exitosamente el usuario queda logueado.
 
-## Sprint 2 (31/08/2026 al 20/09/2026)
+Se publica una primera versión del sitio en Firebase Hosting luego de completado el sprint 1: 
+https://bdcursoscc.web.app/
+
+## Sprint 2 (31/08/2026 al 20/09/2026) - Semanas 7 a 9 Funcionalidades dinámicas
 ### iniciar sesión (ingresar.html) (Walter)
 
-### Cerrar Sesión (Giovanna)
+### Cerrar Sesión (Walter)
 
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
-### Recuperar contraseña (recuperar_password) (Anny)
+### Recuperar contraseña (recuperarContrasenia.html) (Anny)
+
+## Perfiles de usuario (Giovanna)
+
+## Detalle del curso con usuario logueado (Marilina)
+Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
 
 
 ## Sprint 3 (28/09/2026 al 11/10/2026)

@@ -95,6 +95,47 @@ Cuando se completa el formulario con los datos se guardan en la base de datos de
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
 ### Recuperar contraseña (recuperar_password) (Anny)
+Se desarrolló la funcionalidad para recuperar la contraseña mediante Firebase Authentication. El usuario ingresa el correo electrónico asociado a su cuenta y recibe un enlace para establecer una nueva contraseña.
+
+Se incorporaron mensajes para informar si el correo fue enviado correctamente o si ocurrió un error. También se configuró en Firebase una política de seguridad para exigir contraseñas de al menos 8 caracteres, con letras mayúsculas, minúsculas y números.
+
+#### Mejoras en la página de becas (beca.html) - 
+
+Se realizaron mejoras visuales y de validación en el formulario de solicitud de becas. Se agregaron asteriscos para identificar los campos obligatorios y se mantuvo el atributo `required` para impedir el envío de formularios incompletos.
+
+También se incorporaron íconos de Bootstrap Icons con diferentes colores en los tres tipos de becas y en la sección de beneficios, manteniendo la identidad visual y el diseño responsive de la plataforma.
+
+#### Publicación de cursos (publicarCurso.html) - 
+
+Se creó un formulario para que los usuarios con rol `docente/admin` puedan publicar nuevos cursos en la plataforma.
+
+El formulario permite ingresar:
+
+- Título del curso.
+- Descripción.
+- Categoría.
+- Precio.
+- Duración en horas.
+- Cupos disponibles.
+- URL o ruta de la imagen.
+
+Se incorporaron campos obligatorios, validaciones numéricas y mensajes de éxito o error. El precio debe ser igual o superior a 1.
+
+Los datos ingresados se almacenan en la colección `cursos` de Cloud Firestore. Cada curso guarda también el identificador del usuario que realizó la publicación y la fecha de creación mediante `serverTimestamp()`.
+
+#### Control de acceso según el rol -
+
+Se implementó la verificación de permisos para que el formulario de publicación solamente pueda ser visualizado y utilizado por usuarios autenticados con el rol `docente/admin`.
+
+Los visitantes son redirigidos a la página de inicio de sesión y los estudiantes que intentan ingresar directamente son redirigidos al catálogo. También se configuró la visibilidad de las opciones administrativas mediante los permisos definidos en `roles.js`.
+
+#### Panel de administración de cursos (administrarCursos.html) - 
+
+Se creó una página destinada a centralizar las funcionalidades administrativas relacionadas con los cursos.
+
+Desde este panel, el usuario con rol `docente/admin` puede acceder al formulario para publicar cursos. También se prepararon las opciones para modificar y eliminar cursos, que serán implementadas progresivamente.
+
+El acceso “Administrar cursos” se incorporó en el menú desplegable del usuario y solamente se muestra cuando la cuenta autenticada posee permisos administrativos.
 
 
 ## Sprint 3 (28/09/2026 al 11/10/2026)

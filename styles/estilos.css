@@ -607,3 +607,140 @@ body {
 .cookie-icon {
     cursor: pointer;
 }
+
+/* =====================================================
+   DATOS DEL PERFIL
+===================================================== */
+
+.perfil-dato {
+    padding: 10px 0;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.perfil-dato:last-child {
+    border-bottom: none;
+}
+
+.perfil-dato label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.perfil-dato > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.perfil-dato > span,
+.perfil-dato > div > span {
+    font-size: 1rem;
+    color: #212529;
+}
+
+
+/* =====================================================
+   BOTONES DE EDITAR
+===================================================== */
+
+.btn-editar {
+    border: none;
+    background: transparent;
+    padding: 2px 5px;
+    color: #2b7575;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.btn-editar:hover {
+    color: #1f5c5c;
+    transform: scale(1.1);
+}
+
+
+/* =====================================================
+   BOTONES INFERIORES
+===================================================== */
+
+.perfil-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.perfil-botones .btn {
+    padding: 8px 14px;
+}
+
+
+/* =====================================================
+   FOTO
+===================================================== */
+
+.avatar-wrapper {
+    width: 140px;
+    height: 140px;
+    position: relative;
+}
+
+.avatar-wrapper > div {
+    overflow: hidden;
+}
+
+.avatar-wrapper i {
+    font-size: 2rem;
+}
+
+.camera-btn {
+    width: 40px;
+    height: 40px;
+    bottom: 0;
+    right: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =====================================================
+   TÍTULO DE INFORMACIÓN
+===================================================== */
+
+.perfil-card h5.fw-bold {
+    margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   ADAPTACIÓN PARA CELULAR
+===================================================== */
+
+@media (max-width: 767px) {
+
+    .perfil-dato {
+        padding: 9px 0;
+    }
+
+    .perfil-dato label {
+        font-size: 0.85rem;
+    }
+
+    .perfil-dato > span,
+    .perfil-dato > div > span {
+        font-size: 0.95rem;
+    }
+
+    .perfil-botones {
+        flex-direction: column;
+    }
+
+    .perfil-botones .btn {
+        width: 100%;
+    }
+}

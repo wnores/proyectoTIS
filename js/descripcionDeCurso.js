@@ -1,7 +1,12 @@
 // js/descripcionDeCurso.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('detalleCurso');
@@ -44,13 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function mostrarCursoBase(curso) {
     const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
+
     const precioFormateado = Number(curso.precio).toLocaleString('es-UY', {
       style: 'currency',
       currency: 'UYU'
     });
 
     document.title = `${curso.titulo} | Detalle de curso`;
-    if (mensajeEstado) mensajeEstado.classList.add('d-none');
+
+    if (mensajeEstado) {
+      mensajeEstado.classList.add('d-none');
+    }
 
     const detalle = plantilla.content.cloneNode(true);
 
@@ -62,13 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbContainer?.classList.add('d-none');
       thumbIcono?.classList.remove('d-none');
       thumbIcono?.classList.add(claseCategoria);
-      if (thumbIcono) thumbIcono.textContent = icono;
+
+      if (thumbIcono) {
+        thumbIcono.textContent = icono;
+      }
     }
 
     if (curso.imagen_url) {
       thumbImg.src = curso.imagen_url;
       thumbImg.alt = curso.titulo;
-      thumbImg.addEventListener('error', mostrarIcono, { once: true });
+
+      thumbImg.addEventListener('error', mostrarIcono, {
+        once: true
+      });
     } else {
       mostrarIcono();
     }
@@ -79,84 +94,156 @@ document.addEventListener('DOMContentLoaded', () => {
     detalle.querySelector('.js-duracion').textContent = curso.duracion_horas ?? '-';
     detalle.querySelector('.js-modalidad').textContent = curso.modalidad ?? 'No especificada';
     detalle.querySelector('.js-cupos').textContent = curso.cupos_disponibles;
-    
+
     const btnBeca = detalle.querySelector('.js-beca');
-    if (btnBeca) btnBeca.href = `beca.html?curso=${curso.id}`;
+
+    if (btnBeca) {
+      btnBeca.href = `beca.html?curso=${curso.id}`;
+    }
 
     contenedor.replaceChildren(detalle);
   }
 
   function verificarUsuarioYMostrarModulos(curso) {
     onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
+      if (!user) return;
 
-    try {
-      const docRef = doc(db, "usuarios", user.uid);
-      const docSnap = await getDoc(docRef);
+      try {
+        const docRef = doc(db, "usuarios", user.uid);
+        const docSnap = await getDoc(docRef);
 
-      if (!docSnap.exists()) return;
+        if (!docSnap.exists()) return;
 
-      const datosUsuario = docSnap.data();
-      const tipo = (datosUsuario.tipoUsuario || '').toString().trim().toLowerCase();
+        const datosUsuario = docSnap.data();
 
-      // Ocultar botón superior al estar logueado
-      const btnInscribirmeSuperior = document.querySelector('.js-btn-inscribirme-superior');
-      if (btnInscribirmeSuperior) {
-        btnInscribirmeSuperior.classList.add('d-none');
-      }
+        const tipo = (datosUsuario.tipoUsuario || '')
+          .toString()
+          .trim()
+          .toLowerCase();
 
-      // SOLO para usuarios con rol 'estudiante'
-      if (tipo === 'estudiante') {
-        renderizarTablaModulos(curso);
+        // Ocultar botón superior al estar logueado
+        const btnInscribirmeSuperior = document.querySelector(
+          '.js-btn-inscribirme-superior'
+        );
 
-        const contenedorAcciones = document.querySelector('.js-acciones-estudiante');
-        const btnInscribirmeInferior = document.querySelector('.js-btn-inscribirme-inferior');
-        const btnBeca = document.querySelector('.js-btn-beca');
-        const alertaExito = document.querySelector('.js-alerta-exito');
-        const textoBtn = btnInscribirmeInferior?.querySelector('.js-texto-btn');
-        const spinnerBtn = btnInscribirmeInferior?.querySelector('.js-spinner');
-        const iconoBtn = btnInscribirmeInferior?.querySelector('.js-icono-btn');
-
-        if (btnBeca) {
-          btnBeca.href = `beca.html?curso=${curso.id}`;
+        if (btnInscribirmeSuperior) {
+          btnInscribirmeSuperior.classList.add('d-none');
         }
 
-        if (contenedorAcciones) {
-          contenedorAcciones.classList.remove('d-none');
-        }
+        // SOLO para usuarios con rol 'estudiante'
+        if (tipo === 'estudiante') {
+          renderizarTablaModulos(curso);
 
-        // Listener para la microinteracción de inscripción
-        if (btnInscribirmeInferior) {
-          btnInscribirmeInferior.addEventListener('click', (e) => {
-            e.preventDefault();
+          const contenedorAcciones = document.querySelector(
+            '.js-acciones-estudiante'
+          );
 
-            // 1. Estado de carga en el botón
-            btnInscribirmeInferior.disabled = true;
-            if (spinnerBtn) spinnerBtn.classList.remove('d-none');
-            if (textoBtn) textoBtn.textContent = 'Procesando registro...';
+          const btnInscribirmeInferior = document.querySelector(
+            '.js-btn-inscribirme-inferior'
+          );
 
-            // 2. Simulación de respuesta interactiva (800ms)
-            setTimeout(() => {
-              if (spinnerBtn) spinnerBtn.classList.add('d-none');
-              if (iconoBtn) iconoBtn.classList.remove('d-none');
-              if (textoBtn) textoBtn.textContent = '¡Inscripto!';
+          const btnBeca = document.querySelector('.js-btn-beca');
 
-              // Cambiar estilo del botón a estado completado
-              btnInscribirmeInferior.classList.remove('btn-success');
-              btnInscribirmeInferior.classList.add('btn-secondary');
+          const alertaExito = document.querySelector(
+            '.js-alerta-exito'
+          );
 
-              // Mostrar banner de éxito con animación
-              if (alertaExito) {
-                alertaExito.classList.remove('d-none');
+          const textoBtn = btnInscribirmeInferior?.querySelector(
+            '.js-texto-btn'
+          );
+
+          const spinnerBtn = btnInscribirmeInferior?.querySelector(
+            '.js-spinner'
+          );
+
+          const iconoBtn = btnInscribirmeInferior?.querySelector(
+            '.js-icono-btn'
+          );
+
+          if (btnBeca) {
+            btnBeca.href = `beca.html?curso=${curso.id}`;
+          }
+
+          if (contenedorAcciones) {
+            contenedorAcciones.classList.remove('d-none');
+          }
+
+          // Listener para la inscripción
+          if (btnInscribirmeInferior) {
+            btnInscribirmeInferior.addEventListener('click', async (e) => {
+              e.preventDefault();
+
+              // Estado de carga
+              btnInscribirmeInferior.disabled = true;
+
+              if (spinnerBtn) {
+                spinnerBtn.classList.remove('d-none');
               }
-            }, 800);
-          });
+
+              if (textoBtn) {
+                textoBtn.textContent = 'Procesando registro...';
+              }
+
+              try {
+                // Guardar el curso adquirido en Firestore
+                await updateDoc(docRef, {
+                  serviciosAdquiridos: arrayUnion(curso.titulo)
+                });
+
+                // Mostrar resultado
+                if (spinnerBtn) {
+                  spinnerBtn.classList.add('d-none');
+                }
+
+                if (iconoBtn) {
+                  iconoBtn.classList.remove('d-none');
+                }
+
+                if (textoBtn) {
+                  textoBtn.textContent = '¡Inscripto!';
+                }
+
+                // Cambiar estilo del botón a estado completado
+                btnInscribirmeInferior.classList.remove('btn-success');
+                btnInscribirmeInferior.classList.add('btn-secondary');
+
+                // Mostrar banner de éxito
+                if (alertaExito) {
+                  alertaExito.classList.remove('d-none');
+                }
+
+              } catch (error) {
+                console.error(
+                  "Error al guardar la inscripción:",
+                  error
+                );
+
+                // Restaurar botón si hubo un error
+                btnInscribirmeInferior.disabled = false;
+
+                if (spinnerBtn) {
+                  spinnerBtn.classList.add('d-none');
+                }
+
+                if (textoBtn) {
+                  textoBtn.textContent = 'Inscribirme a este curso';
+                }
+
+                alert(
+                  'No se pudo guardar la inscripción. Intentá nuevamente.'
+                );
+              }
+            });
+          }
         }
+
+      } catch (error) {
+        console.error(
+          "Error al consultar el usuario en Firestore:",
+          error
+        );
       }
-    } catch (error) {
-      console.error("Error al consultar el usuario en Firestore:", error);
-    }
-  });
+    });
   }
 
   function renderizarTablaModulos(curso) {
@@ -164,11 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tablaBody = document.querySelector('.js-tabla-modulos-body');
 
     if (!seccionModulos || !tablaBody) {
-      console.error("No se encontraron los elementos .js-seccion-modulos o .js-tabla-modulos-body en el DOM.");
+      console.error(
+        "No se encontraron los elementos .js-seccion-modulos o .js-tabla-modulos-body en el DOM."
+      );
       return;
     }
 
-    // Filtrar claves que comiencen con "modulo" (ej: modulo1, modulo2, etc.)
+    // Filtrar claves que comiencen con "modulo"
     const clavesModulos = Object.keys(curso)
       .filter((clave) => clave.startsWith('modulo'))
       .sort();
@@ -193,9 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Mostrar la tabla
       seccionModulos.classList.remove('d-none');
+
       console.log("Tabla de módulos renderizada exitosamente.");
     } else {
-      console.log("Este curso no tiene campos 'modulo' definidos en el JSON.");
+      console.log(
+        "Este curso no tiene campos 'modulo' definidos en el JSON."
+      );
     }
   }
 
@@ -204,17 +296,65 @@ document.addEventListener('DOMContentLoaded', () => {
       mensajeEstado.textContent = texto;
       mensajeEstado.classList.remove('d-none');
     }
+
     contenedor.replaceChildren();
   }
 
   function obtenerCategoria(titulo) {
     const t = titulo.toLowerCase();
-    if (t.includes('excel')) return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
-    if (t.includes('word')) return { claseCategoria: 'categoria-ofimatica', icono: '📝' };
-    if (t.includes('micro:bit') || t.includes('microbit')) return { claseCategoria: 'categoria-hardware', icono: '🔌' };
-    if (t.includes('scratch')) return { claseCategoria: 'categoria-hardware', icono: '🧩' };
-    if (t.includes('inteligencia artificial') || t.includes('machine learning')) return { claseCategoria: 'categoria-ia', icono: '🤖' };
-    if (t.includes('base de datos') || t.includes('mysql') || t.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
-    return { claseCategoria: 'categoria-programacion', icono: '💻' };
+
+    if (t.includes('excel')) {
+      return {
+        claseCategoria: 'categoria-ofimatica',
+        icono: '📊'
+      };
+    }
+
+    if (t.includes('word')) {
+      return {
+        claseCategoria: 'categoria-ofimatica',
+        icono: '📝'
+      };
+    }
+
+    if (t.includes('micro:bit') || t.includes('microbit')) {
+      return {
+        claseCategoria: 'categoria-hardware',
+        icono: '🔌'
+      };
+    }
+
+    if (t.includes('scratch')) {
+      return {
+        claseCategoria: 'categoria-hardware',
+        icono: '🧩'
+      };
+    }
+
+    if (
+      t.includes('inteligencia artificial') ||
+      t.includes('machine learning')
+    ) {
+      return {
+        claseCategoria: 'categoria-ia',
+        icono: '🤖'
+      };
+    }
+
+    if (
+      t.includes('base de datos') ||
+      t.includes('mysql') ||
+      t.includes('datos')
+    ) {
+      return {
+        claseCategoria: 'categoria-datos',
+        icono: '🗄️'
+      };
+    }
+
+    return {
+      claseCategoria: 'categoria-programacion',
+      icono: '💻'
+    };
   }
 });

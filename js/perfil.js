@@ -1,12 +1,17 @@
 import { auth, db } from "./firebase-config.js";
 import {
     onAuthStateChanged,
-    updateProfile
+    updateProfile,
+    updatePassword,
+    deleteUser,
+    reauthenticateWithCredential,
+    EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
     doc,
     getDoc,
-    updateDoc
+    updateDoc,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 // ======================================================
@@ -251,9 +256,6 @@ function editarDepartamento(referenciaUsuario) {
 // ======================================================
 // EDITAR FOTO DE PERFIL
 // ======================================================
-// ======================================================
-// EDITAR FOTO DE PERFIL
-// ======================================================
 async function editarFotoPerfil(user, referenciaUsuario) {
     const CLOUDINARY_CLOUD_NAME = "fd9bzuxj"; 
     const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller"; 
@@ -322,6 +324,497 @@ async function editarFotoPerfil(user, referenciaUsuario) {
     });
 }
 
+
+// ======================================================
+// MODIFICAR CONTRASEÑA
+// ======================================================
+function configurarModificarPassword(user) {
+    const boton = document.getElementById("btnModificarPassword");
+
+    if (!boton) return;
+
+    boton.addEventListener("click", () => {
+        const modalElemento = document.getElementById("modalPassword");
+
+        if (!modalElemento) return;
+
+        const modal = new bootstrap.Modal(modalElemento);
+
+        document.getElementById("nuevaPassword").value = "";
+        document.getElementById("confirmarPassword").value = "";
+
+        const mensaje = document.getElementById("mensajePassword");
+        mensaje.textContent = "";
+        mensaje.className = "small";
+
+        modal.show();
+    });
+
+    const botonGuardar = document.getElementById("btnGuardarPassword");
+
+    if (!botonGuardar) return;
+
+    botonGuardar.addEventListener("click", async () => {
+        const nuevaPassword =
+            document.getElementById("nuevaPassword").value.trim();
+
+        const confirmarPassword =
+            document.getElementById("confirmarPassword").value.trim();
+
+        const mensaje =
+            document.getElementById("mensajePassword");
+
+        mensaje.textContent = "";
+        mensaje.className = "small";
+
+        if (nuevaPassword.length < 6) {
+            mensaje.textContent =
+                "La contraseña debe tener al menos 6 caracteres.";
+            mensaje.classList.add("text-danger");
+            return;
+        }
+
+        if (nuevaPassword !== confirmarPassword) {
+            mensaje.textContent =
+                "Las contraseñas no coinciden.";
+            mensaje.classList.add("text-danger");
+            return;
+        }
+
+        try {
+            await updatePassword(user, nuevaPassword);
+
+            mensaje.textContent =
+                "Contraseña actualizada correctamente.";
+            mensaje.classList.add("text-success");
+
+            setTimeout(() => {
+                const modalElemento =
+                    document.getElementById("modalPassword");
+
+                const modal =
+                    bootstrap.Modal.getInstance(modalElemento);
+
+                if (modal) {
+                    modal.hide();
+                }
+            }, 1200);
+
+        } catch (error) {
+            console.error(
+                "Error al modificar la contraseña:",
+                error
+            );
+
+            if (error.code === "auth/requires-recent-login") {
+                abrirModalReautenticarPassword(
+                    user,
+                    nuevaPassword
+                );
+            } else {
+                mensaje.textContent =
+                    "No se pudo modificar la contraseña.";
+                mensaje.classList.add("text-danger");
+            }
+        }
+    });
+}
+
+// ======================================================
+// REAUTENTICAR PARA MODIFICAR CONTRASEÑA
+// ======================================================
+function abrirModalReautenticarPassword(user, nuevaPassword) {
+    const modalElemento =
+        document.getElementById("modalReautenticarPassword");
+
+    const campoPassword =
+        document.getElementById("passwordActualReautenticar");
+
+    const mensaje =
+        document.getElementById("mensajeReautenticarPassword");
+
+    const boton =
+        document.getElementById("btnReautenticarPassword");
+
+    if (!modalElemento || !campoPassword || !mensaje || !boton) {
+        return;
+    }
+
+    campoPassword.value = "";
+    campoPassword.classList.remove("is-invalid");
+
+    mensaje.textContent = "";
+    mensaje.className = "small mt-2";
+
+    boton.disabled = false;
+    boton.textContent = "Continuar";
+
+    const modalPasswordElemento =
+    document.getElementById("modalPassword");
+
+    const modalPassword =
+        bootstrap.Modal.getInstance(modalPasswordElemento);
+
+    if (modalPassword) {
+        modalPassword.hide();
+    }
+
+    setTimeout(() => {
+        const modal = new bootstrap.Modal(modalElemento);
+        modal.show();
+    }, 300);
+
+    boton.onclick = async () => {
+        const passwordActual = campoPassword.value.trim();
+
+        if (!passwordActual) {
+            mensaje.textContent =
+                "Ingresá tu contraseña actual.";
+
+            mensaje.classList.add("text-danger");
+
+            campoPassword.classList.add("is-invalid");
+
+            return;
+        }
+
+        boton.disabled = true;
+        boton.textContent = "Verificando...";
+
+        mensaje.textContent = "";
+        mensaje.className = "small mt-2";
+
+        campoPassword.classList.remove("is-invalid");
+
+        try {
+            const credencial =
+                EmailAuthProvider.credential(
+                    user.email,
+                    passwordActual
+                );
+
+            await reauthenticateWithCredential(
+                user,
+                credencial
+            );
+
+            await updatePassword(
+                user,
+                nuevaPassword
+            );
+
+            mensaje.textContent =
+                "Contraseña actualizada correctamente.";
+
+            mensaje.classList.add("text-success");
+
+            campoPassword.classList.remove("is-invalid");
+
+            boton.disabled = false;
+            boton.textContent = "Continuar";
+
+            setTimeout(() => {
+                modal.hide();
+
+                const modalPassword =
+                    document.getElementById("modalPassword");
+
+                const instanciaPassword =
+                    bootstrap.Modal.getInstance(modalPassword);
+
+                if (instanciaPassword) {
+                    instanciaPassword.hide();
+                }
+            }, 1000);
+
+        } catch (error) {
+            console.error(
+                "Error durante la reautenticación:",
+                error
+            );
+
+            boton.disabled = false;
+            boton.textContent = "Continuar";
+
+            if (
+                error.code === "auth/wrong-password" ||
+                error.code === "auth/invalid-credential"
+            ) {
+                mensaje.textContent =
+                    "La contraseña actual es incorrecta.";
+
+                campoPassword.classList.add("is-invalid");
+            } else {
+                mensaje.textContent =
+                    "No se pudo verificar tu identidad. Intentá nuevamente.";
+            }
+
+            mensaje.classList.add("text-danger");
+        }
+    };
+}
+
+// ======================================================
+// MOSTRAR / OCULTAR CONTRASEÑA
+// ======================================================
+document.querySelectorAll(".btn-toggle-password").forEach((boton) => {
+    boton.addEventListener("click", () => {
+        const idCampo = boton.dataset.target;
+        const campo = document.getElementById(idCampo);
+        const icono = boton.querySelector("i");
+
+        if (!campo || !icono) return;
+
+        if (campo.type === "password") {
+            campo.type = "text";
+            icono.classList.remove("bi-eye");
+            icono.classList.add("bi-eye-slash");
+            boton.setAttribute("aria-label", "Ocultar contraseña");
+        } else {
+            campo.type = "password";
+            icono.classList.remove("bi-eye-slash");
+            icono.classList.add("bi-eye");
+            boton.setAttribute("aria-label", "Mostrar contraseña");
+        }
+    });
+});
+
+// ======================================================
+// SERVICIOS ADQUIRIDOS
+// ======================================================
+function configurarServiciosAdquiridos(datosUsuario) {
+    const boton = document.getElementById("btnServiciosAdquiridos");
+
+    if (!boton) return;
+
+    boton.addEventListener("click", () => {
+        const contenedor = document.getElementById("listaServiciosAdquiridos");
+
+        if (!contenedor) return;
+
+        contenedor.innerHTML = "";
+
+        
+
+        const servicios = datosUsuario.serviciosAdquiridos;
+
+        
+        if (!Array.isArray(servicios) || servicios.length === 0) {
+            contenedor.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="bi bi-mortarboard fs-1 text-secondary"></i>
+                    <p class="mt-3 mb-0">
+                        No tenés servicios adquiridos.
+                    </p>
+                </div>
+            `;
+        } else {
+            const lista = document.createElement("div");
+            lista.className = "list-group";
+
+            servicios.forEach((servicio) => {
+                const elemento = document.createElement("div");
+
+                elemento.className =
+                    "list-group-item d-flex align-items-center gap-2";
+
+                elemento.innerHTML = `
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span>${servicio}</span>
+                `;
+
+                lista.appendChild(elemento);
+            });
+
+            contenedor.appendChild(lista);
+        }
+
+        const modalElemento = document.getElementById("modalServicios");
+
+        if (modalElemento) {
+            const modal = new bootstrap.Modal(modalElemento);
+            modal.show();
+        }
+    });
+}
+
+// ======================================================
+// ELIMINAR CUENTA
+// ======================================================
+function configurarEliminarCuenta(user, referenciaUsuario) {
+    const boton = document.getElementById("btnEliminarCuenta");
+
+    if (!boton) return;
+
+    boton.addEventListener("click", () => {
+        const modalElemento = document.getElementById("modalEliminarCuenta");
+
+        if (!modalElemento) return;
+
+        const modal = new bootstrap.Modal(modalElemento);
+        modal.show();
+    });
+
+    const botonConfirmar =
+        document.getElementById("btnConfirmarEliminarCuenta");
+
+    const botonReautenticar =
+        document.getElementById("btnReautenticarEliminar");
+
+    const inputPassword =
+        document.getElementById("passwordEliminarCuenta");
+
+    const errorPassword =
+        document.getElementById("errorPasswordEliminar");
+
+    if (!botonConfirmar || !botonReautenticar || !inputPassword) return;
+
+    botonConfirmar.addEventListener("click", async () => {
+
+        botonConfirmar.disabled = true;
+        botonConfirmar.textContent = "Comprobando...";
+
+        try {
+
+            // Intentamos eliminar la cuenta.
+            // Si Firebase requiere una autenticación reciente,
+            // se mostrará el modal para ingresar la contraseña.
+            await deleteUser(user);
+
+            // Si llegó hasta acá, Authentication se eliminó correctamente.
+            // Luego eliminamos el documento de Firestore.
+            await deleteDoc(referenciaUsuario);
+
+            alert("Tu cuenta fue eliminada correctamente.");
+
+            window.location.href = "index.html";
+
+        } catch (error) {
+
+            console.error("Error al eliminar la cuenta:", error);
+
+            if (error.code === "auth/requires-recent-login") {
+
+                // Restaurar botón de confirmación
+                botonConfirmar.disabled = false;
+                botonConfirmar.textContent = "Sí, eliminar mi cuenta";
+
+                // Cerrar modal de confirmación
+                const modalConfirmacion =
+                    document.getElementById("modalEliminarCuenta");
+
+                if (modalConfirmacion) {
+                    const instancia =
+                        bootstrap.Modal.getInstance(modalConfirmacion);
+
+                    if (instancia) {
+                        instancia.hide();
+                    }
+                }
+
+                // Limpiar campos
+                inputPassword.value = "";
+
+                if (errorPassword) {
+                    errorPassword.textContent = "";
+                    errorPassword.style.display = "none";
+                }
+
+                // Mostrar modal de reautenticación
+                const modalReautenticar =
+                    document.getElementById("modalReautenticarEliminar");
+
+                if (modalReautenticar) {
+                    const modal = new bootstrap.Modal(modalReautenticar);
+                    modal.show();
+                }
+
+            } else {
+
+                botonConfirmar.disabled = false;
+                botonConfirmar.textContent = "Sí, eliminar mi cuenta";
+
+                alert(
+                    "No se pudo eliminar la cuenta. Revisá la consola para obtener más información."
+                );
+            }
+        }
+    });
+
+    botonReautenticar.addEventListener("click", async () => {
+
+        const password = inputPassword.value.trim();
+
+        if (!password) {
+
+            if (errorPassword) {
+                errorPassword.textContent =
+                    "Ingresá tu contraseña actual.";
+                errorPassword.style.display = "block";
+            }
+
+            return;
+        }
+
+        botonReautenticar.disabled = true;
+        botonReautenticar.textContent = "Verificando...";
+
+        if (errorPassword) {
+            errorPassword.textContent = "";
+            errorPassword.style.display = "none";
+        }
+
+        try {
+
+            // Crear las credenciales con correo y contraseña
+            const credencial = EmailAuthProvider.credential(
+                user.email,
+                password
+            );
+
+            // Reautenticar al usuario
+            await reauthenticateWithCredential(user, credencial);
+
+            // La sesión ahora es reciente.
+            // Podemos eliminar la cuenta de Authentication.
+            await deleteUser(user);
+
+            // Luego eliminar el documento de Firestore.
+            await deleteDoc(referenciaUsuario);
+
+            alert("Tu cuenta fue eliminada correctamente.");
+
+            window.location.href = "index.html";
+
+        } catch (error) {
+
+            console.error("Error durante la reautenticación:", error);
+
+            botonReautenticar.disabled = false;
+            botonReautenticar.textContent = "Continuar";
+
+            if (error.code === "auth/wrong-password" ||
+                error.code === "auth/invalid-credential") {
+
+                if (errorPassword) {
+                    errorPassword.textContent =
+                        "La contraseña ingresada no es correcta.";
+                    errorPassword.style.display = "block";
+                }
+
+            } else {
+
+                if (errorPassword) {
+                    errorPassword.textContent =
+                        "No se pudo verificar tu identidad. Intentá nuevamente.";
+                    errorPassword.style.display = "block";
+                }
+            }
+        }
+    });
+}
+
+
 // ======================================================
 // CONFIGURAR BOTONES DE EDICIÓN
 // ======================================================
@@ -359,8 +852,16 @@ onAuthStateChanged(auth, async (user) => {
 
         if (docSnap.exists()) {
             const datosUsuario = docSnap.data();
+
             cargarDatosEnPerfil(datosUsuario, user);
+
             configurarBotonesEdicion(user, referenciaUsuario);
+
+            configurarModificarPassword(user);
+
+            configurarServiciosAdquiridos(datosUsuario);
+
+            configurarEliminarCuenta(user, referenciaUsuario);
         } else {
             console.warn("No se encontraron datos adicionales en Firestore para este usuario.");
         }

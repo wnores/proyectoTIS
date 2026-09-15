@@ -334,23 +334,11 @@ function configurarModificarPassword(user) {
     if (!boton) return;
 
     boton.addEventListener("click", () => {
-        const modalElemento = document.getElementById("modalPassword");
-
-        if (!modalElemento) return;
-
-        const modal = new bootstrap.Modal(modalElemento);
-
-        document.getElementById("nuevaPassword").value = "";
-        document.getElementById("confirmarPassword").value = "";
-
-        const mensaje = document.getElementById("mensajePassword");
-        mensaje.textContent = "";
-        mensaje.className = "small";
-
-        modal.show();
+        abrirModalReautenticarPassword(user);
     });
 
-    const botonGuardar = document.getElementById("btnGuardarPassword");
+    const botonGuardar =
+        document.getElementById("btnGuardarPassword");
 
     if (!botonGuardar) return;
 
@@ -367,13 +355,39 @@ function configurarModificarPassword(user) {
         mensaje.textContent = "";
         mensaje.className = "small";
 
-        if (nuevaPassword.length < 6) {
+        // Validar longitud mínima
+        if (nuevaPassword.length < 8) {
             mensaje.textContent =
-                "La contraseña debe tener al menos 6 caracteres.";
+                "La contraseña debe tener al menos 8 caracteres.";
             mensaje.classList.add("text-danger");
             return;
         }
 
+        // Validar longitud máxima
+        if (nuevaPassword.length > 20) {
+            mensaje.textContent =
+                "La contraseña no puede tener más de 20 caracteres.";
+            mensaje.classList.add("text-danger");
+            return;
+        }
+
+        // Validar mayúscula
+        if (!/[A-Z]/.test(nuevaPassword)) {
+            mensaje.textContent =
+                "La contraseña debe contener al menos una letra mayúscula.";
+            mensaje.classList.add("text-danger");
+            return;
+        }
+
+        // Validar número
+        if (!/[0-9]/.test(nuevaPassword)) {
+            mensaje.textContent =
+                "La contraseña debe contener al menos un número.";
+            mensaje.classList.add("text-danger");
+            return;
+        }
+
+        // Validar coincidencia
         if (nuevaPassword !== confirmarPassword) {
             mensaje.textContent =
                 "Las contraseñas no coinciden.";
@@ -381,12 +395,20 @@ function configurarModificarPassword(user) {
             return;
         }
 
+        const boton = document.getElementById("btnGuardarPassword");
+
+        boton.disabled = true;
+        boton.textContent = "Guardando...";
+
         try {
             await updatePassword(user, nuevaPassword);
 
             mensaje.textContent =
                 "Contraseña actualizada correctamente.";
+
             mensaje.classList.add("text-success");
+
+            boton.textContent = "Listo";
 
             setTimeout(() => {
                 const modalElemento =
@@ -398,7 +420,11 @@ function configurarModificarPassword(user) {
                 if (modal) {
                     modal.hide();
                 }
-            }, 1200);
+
+                boton.disabled = false;
+                boton.textContent = "Guardar contraseña";
+
+            }, 1000);
 
         } catch (error) {
             console.error(
@@ -406,16 +432,13 @@ function configurarModificarPassword(user) {
                 error
             );
 
-            if (error.code === "auth/requires-recent-login") {
-                abrirModalReautenticarPassword(
-                    user,
-                    nuevaPassword
-                );
-            } else {
-                mensaje.textContent =
-                    "No se pudo modificar la contraseña.";
-                mensaje.classList.add("text-danger");
-            }
+            boton.disabled = false;
+            boton.textContent = "Guardar contraseña";
+
+            mensaje.textContent =
+                "No se pudo modificar la contraseña.";
+
+            mensaje.classList.add("text-danger");
         }
     });
 }
@@ -423,7 +446,7 @@ function configurarModificarPassword(user) {
 // ======================================================
 // REAUTENTICAR PARA MODIFICAR CONTRASEÑA
 // ======================================================
-function abrirModalReautenticarPassword(user, nuevaPassword) {
+function abrirModalReautenticarPassword(user) {
     const modalElemento =
         document.getElementById("modalReautenticarPassword");
 
@@ -449,29 +472,21 @@ function abrirModalReautenticarPassword(user, nuevaPassword) {
     boton.disabled = false;
     boton.textContent = "Continuar";
 
-    const modalPasswordElemento =
-    document.getElementById("modalPassword");
+    const modal =
+        new bootstrap.Modal(modalElemento);
 
-    const modalPassword =
-        bootstrap.Modal.getInstance(modalPasswordElemento);
-
-    if (modalPassword) {
-        modalPassword.hide();
-    }
-
-    setTimeout(() => {
-        const modal = new bootstrap.Modal(modalElemento);
-        modal.show();
-    }, 300);
+    modal.show();
 
     boton.onclick = async () => {
-        const passwordActual = campoPassword.value.trim();
+        const passwordActual =
+            campoPassword.value.trim();
 
         if (!passwordActual) {
             mensaje.textContent =
                 "Ingresá tu contraseña actual.";
 
-            mensaje.classList.add("text-danger");
+            mensaje.className =
+                "small mt-2 text-danger";
 
             campoPassword.classList.add("is-invalid");
 
@@ -493,38 +508,45 @@ function abrirModalReautenticarPassword(user, nuevaPassword) {
                     passwordActual
                 );
 
+            // Verificar SIEMPRE la contraseña actual
             await reauthenticateWithCredential(
                 user,
                 credencial
             );
 
-            await updatePassword(
-                user,
-                nuevaPassword
-            );
-
+            // Reautenticación exitosa
             mensaje.textContent =
-                "Contraseña actualizada correctamente.";
+                "Identidad verificada correctamente.";
 
-            mensaje.classList.add("text-success");
+            mensaje.className =
+                "small mt-2 text-success";
 
-            campoPassword.classList.remove("is-invalid");
-
-            boton.disabled = false;
-            boton.textContent = "Continuar";
+            boton.textContent = "Verificado";
 
             setTimeout(() => {
                 modal.hide();
 
-                const modalPassword =
+                // Abrir el modal para establecer
+                // la nueva contraseña
+                const modalPasswordElemento =
                     document.getElementById("modalPassword");
 
-                const instanciaPassword =
-                    bootstrap.Modal.getInstance(modalPassword);
+                const modalPassword =
+                    new bootstrap.Modal(
+                        modalPasswordElemento
+                    );
 
-                if (instanciaPassword) {
-                    instanciaPassword.hide();
-                }
+                document.getElementById("nuevaPassword").value = "";
+                document.getElementById("confirmarPassword").value = "";
+
+                const mensajePassword =
+                    document.getElementById("mensajePassword");
+
+                mensajePassword.textContent = "";
+                mensajePassword.className = "small";
+
+                modalPassword.show();
+
             }, 1000);
 
         } catch (error) {
@@ -543,13 +565,18 @@ function abrirModalReautenticarPassword(user, nuevaPassword) {
                 mensaje.textContent =
                     "La contraseña actual es incorrecta.";
 
+                mensaje.className =
+                    "small mt-2 text-danger";
+
                 campoPassword.classList.add("is-invalid");
+
             } else {
                 mensaje.textContent =
                     "No se pudo verificar tu identidad. Intentá nuevamente.";
-            }
 
-            mensaje.classList.add("text-danger");
+                mensaje.className =
+                    "small mt-2 text-danger";
+            }
         }
     };
 }
@@ -647,11 +674,14 @@ function configurarEliminarCuenta(user, referenciaUsuario) {
     if (!boton) return;
 
     boton.addEventListener("click", () => {
-        const modalElemento = document.getElementById("modalEliminarCuenta");
+        const modalElemento =
+            document.getElementById("modalEliminarCuenta");
 
         if (!modalElemento) return;
 
-        const modal = new bootstrap.Modal(modalElemento);
+        const modal =
+            new bootstrap.Modal(modalElemento);
+
         modal.show();
     });
 
@@ -664,154 +694,182 @@ function configurarEliminarCuenta(user, referenciaUsuario) {
     const inputPassword =
         document.getElementById("passwordEliminarCuenta");
 
-    const errorPassword =
-        document.getElementById("errorPasswordEliminar");
+    const mensajeEliminar =
+        document.getElementById("mensajeEliminarCuenta");
 
-    if (!botonConfirmar || !botonReautenticar || !inputPassword) return;
+    if (!botonConfirmar || !botonReautenticar || !inputPassword) {
+        return;
+    }
 
-    botonConfirmar.addEventListener("click", async () => {
+    // ==================================================
+    // PASAR DE CONFIRMACIÓN A REAUTENTICACIÓN
+    // ==================================================
+    botonConfirmar.addEventListener("click", () => {
 
-        botonConfirmar.disabled = true;
-        botonConfirmar.textContent = "Comprobando...";
+        inputPassword.value = "";
+        inputPassword.classList.remove("is-invalid");
 
-        try {
+        if (mensajeEliminar) {
+            mensajeEliminar.textContent = "";
+            mensajeEliminar.className = "small mt-2";
+        }
 
-            // Intentamos eliminar la cuenta.
-            // Si Firebase requiere una autenticación reciente,
-            // se mostrará el modal para ingresar la contraseña.
-            await deleteUser(user);
+        botonReautenticar.disabled = false;
+        botonReautenticar.textContent = "Continuar";
 
-            // Si llegó hasta acá, Authentication se eliminó correctamente.
-            // Luego eliminamos el documento de Firestore.
-            await deleteDoc(referenciaUsuario);
+        const modalConfirmacion =
+            document.getElementById("modalEliminarCuenta");
 
-            alert("Tu cuenta fue eliminada correctamente.");
+        if (modalConfirmacion) {
+            const instancia =
+                bootstrap.Modal.getInstance(modalConfirmacion);
 
-            window.location.href = "index.html";
-
-        } catch (error) {
-
-            console.error("Error al eliminar la cuenta:", error);
-
-            if (error.code === "auth/requires-recent-login") {
-
-                // Restaurar botón de confirmación
-                botonConfirmar.disabled = false;
-                botonConfirmar.textContent = "Sí, eliminar mi cuenta";
-
-                // Cerrar modal de confirmación
-                const modalConfirmacion =
-                    document.getElementById("modalEliminarCuenta");
-
-                if (modalConfirmacion) {
-                    const instancia =
-                        bootstrap.Modal.getInstance(modalConfirmacion);
-
-                    if (instancia) {
-                        instancia.hide();
-                    }
-                }
-
-                // Limpiar campos
-                inputPassword.value = "";
-
-                if (errorPassword) {
-                    errorPassword.textContent = "";
-                    errorPassword.style.display = "none";
-                }
-
-                // Mostrar modal de reautenticación
-                const modalReautenticar =
-                    document.getElementById("modalReautenticarEliminar");
-
-                if (modalReautenticar) {
-                    const modal = new bootstrap.Modal(modalReautenticar);
-                    modal.show();
-                }
-
-            } else {
-
-                botonConfirmar.disabled = false;
-                botonConfirmar.textContent = "Sí, eliminar mi cuenta";
-
-                alert(
-                    "No se pudo eliminar la cuenta. Revisá la consola para obtener más información."
-                );
+            if (instancia) {
+                instancia.hide();
             }
         }
+
+        setTimeout(() => {
+
+            const modalReautenticar =
+                document.getElementById(
+                    "modalReautenticarEliminar"
+                );
+
+            if (modalReautenticar) {
+                const modal =
+                    new bootstrap.Modal(
+                        modalReautenticar
+                    );
+
+                modal.show();
+            }
+
+        }, 300);
     });
 
-    botonReautenticar.addEventListener("click", async () => {
+    // ==================================================
+    // REAUTENTICAR Y ELIMINAR CUENTA
+    // ==================================================
+    botonReautenticar.addEventListener(
+        "click",
+        async () => {
 
-        const password = inputPassword.value.trim();
+            const password =
+                inputPassword.value.trim();
 
-        if (!password) {
+            if (!password) {
 
-            if (errorPassword) {
-                errorPassword.textContent =
-                    "Ingresá tu contraseña actual.";
-                errorPassword.style.display = "block";
+                if (mensajeEliminar) {
+                    mensajeEliminar.textContent =
+                        "Ingresá tu contraseña actual.";
+
+                    mensajeEliminar.className =
+                        "small mt-2 text-danger";
+                }
+
+                inputPassword.classList.add(
+                    "is-invalid"
+                );
+
+                return;
             }
 
-            return;
-        }
+            botonReautenticar.disabled = true;
+            botonReautenticar.textContent =
+                "Verificando...";
 
-        botonReautenticar.disabled = true;
-        botonReautenticar.textContent = "Verificando...";
+            if (mensajeEliminar) {
+                mensajeEliminar.textContent = "";
+                mensajeEliminar.className =
+                    "small mt-2";
+            }
 
-        if (errorPassword) {
-            errorPassword.textContent = "";
-            errorPassword.style.display = "none";
-        }
-
-        try {
-
-            // Crear las credenciales con correo y contraseña
-            const credencial = EmailAuthProvider.credential(
-                user.email,
-                password
+            inputPassword.classList.remove(
+                "is-invalid"
             );
 
-            // Reautenticar al usuario
-            await reauthenticateWithCredential(user, credencial);
+            try {
 
-            // La sesión ahora es reciente.
-            // Podemos eliminar la cuenta de Authentication.
-            await deleteUser(user);
+                const credencial =
+                    EmailAuthProvider.credential(
+                        user.email,
+                        password
+                    );
 
-            // Luego eliminar el documento de Firestore.
-            await deleteDoc(referenciaUsuario);
+                // Verificar identidad
+                await reauthenticateWithCredential(
+                    user,
+                    credencial
+                );
 
-            alert("Tu cuenta fue eliminada correctamente.");
+                // Eliminar documento de Firestore
+                await deleteDoc(referenciaUsuario);
 
-            window.location.href = "index.html";
+                // Eliminar cuenta de Firebase Authentication
+                await deleteUser(user);
 
-        } catch (error) {
+                // La cuenta ya fue eliminada correctamente
+                if (mensajeEliminar) {
+                    mensajeEliminar.textContent =
+                        "Tu cuenta fue eliminada correctamente.";
 
-            console.error("Error durante la reautenticación:", error);
-
-            botonReautenticar.disabled = false;
-            botonReautenticar.textContent = "Continuar";
-
-            if (error.code === "auth/wrong-password" ||
-                error.code === "auth/invalid-credential") {
-
-                if (errorPassword) {
-                    errorPassword.textContent =
-                        "La contraseña ingresada no es correcta.";
-                    errorPassword.style.display = "block";
+                    mensajeEliminar.className =
+                        "small mt-2 text-success";
                 }
 
-            } else {
+                botonReautenticar.textContent =
+                    "Cuenta eliminada";
 
-                if (errorPassword) {
-                    errorPassword.textContent =
-                        "No se pudo verificar tu identidad. Intentá nuevamente.";
-                    errorPassword.style.display = "block";
+                // Esperar para que el usuario pueda leer el mensaje
+                await new Promise(resolve => {
+                    setTimeout(resolve, 2000);
+                });
+
+                // Ir al inicio
+                window.location.href = "index.html";
+
+            } catch (error) {
+
+                console.error(
+                    "Error durante la eliminación:",
+                    error
+                );
+
+                botonReautenticar.disabled = false;
+                botonReautenticar.textContent =
+                    "Continuar";
+
+                if (
+                    error.code === "auth/wrong-password" ||
+                    error.code === "auth/invalid-credential"
+                ) {
+
+                    if (mensajeEliminar) {
+                        mensajeEliminar.textContent =
+                            "La contraseña ingresada no es correcta.";
+
+                        mensajeEliminar.className =
+                            "small mt-2 text-danger";
+                    }
+
+                    inputPassword.classList.add(
+                        "is-invalid"
+                    );
+
+                } else {
+
+                    if (mensajeEliminar) {
+                        mensajeEliminar.textContent =
+                            "No se pudo eliminar la cuenta. Intentá nuevamente.";
+
+                        mensajeEliminar.className =
+                            "small mt-2 text-danger";
+                    }
                 }
-            }
-        }
-    });
+            } 
+       }
+    );
 }
 
 

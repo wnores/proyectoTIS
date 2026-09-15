@@ -1,39 +1,520 @@
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="Información y formulario de contacto de la plataforma.">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
-    <title> - | Contacto</title>
+    <title>Cursos CC | Contacto</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100" data-page="contacto.html">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Logo</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                    class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
-                </ul>
-        <div>
-               <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar<img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
+
+    <!-- NAVBAR -->
+    <header>
+
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+            aria-label="Navegación principal">
+
+            <div class="container">
+
+                <a class="navbar-brand" href="index.html">
+
+                    <img src="recursos/imagenes/logo.jpg"
+                        alt="Cursos de Ciencias de la Computación"
+                        class="logo">
+
+                </a>
+
+
+                <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNav"
+                    aria-controls="mainNav"
+                    aria-expanded="false"
+                    aria-label="Mostrar menú de navegación">
+
+                    <span class="navbar-toggler-icon"></span>
+
+                </button>
+
+
+                <div class="collapse navbar-collapse" id="mainNav">
+
+                    <ul class="navbar-nav me-auto">
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                data-page="producto"
+                                href="acercaDe.html">
+                                Acerca De
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                data-page="catalogo"
+                                href="catalogo.html">
+                                Catálogo de cursos
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                data-page="admin"
+                                href="beca.html">
+                                Becas
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active"
+                                data-page="carrito"
+                                href="contacto.html">
+                                Contacto
+                            </a>
+                        </li>
+
+                    </ul>
+
+            <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
+                <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
             </div>
+
+            <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
+                <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true"aria-expanded="false">
+                <i class="bi bi-person-circle fs-5"></i>
+                <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
+    
+                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                    <li>
+                         <li
+        class="d-none"
+        data-requiere-permiso="verPanelAdmin">
+
+        <a
+            class="dropdown-item d-flex align-items-center gap-2 py-2"
+            href="administrarCursos.html">
+
+            <i class="bi bi-gear-fill fs-5"></i>
+            Administrar cursos
+        </a>
+    </li>
+
+    <li
+        class="d-none"
+        data-requiere-permiso="verPanelAdmin">
+
+        <hr class="dropdown-divider my-1">
+    </li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
+                    </li>
+                </ul>
+            </div>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow-1">
+
+        <section class="hero"
+            aria-labelledby="tituloContacto">
+
+            <div class="container py-5">
+
+                <div class="row justify-content-center">
+
+                    <div class="col-lg-10 text-center">
+
+                        <h1 id="tituloContacto"
+                        class="mb-4">
+                            ¡Ponete en contacto con nosotros!
+                        </h1>
+
+
+                        <p class="fs-5 fw-bold">
+                            Si tenés alguna consulta o necesitás asistencia,
+                            no dudes en ponerte en contacto con nosotros.
+                        </p>
+
+
+                        <img class="img-fluid my-4"
+                            src="recursos/imagenes/portadaContacto.png"
+                            alt="Contacto"
+                            width="500">
+
+
+                        <p>
+                            Utilizá la información de contacto proporcionada
+                            o completá el formulario, te responderemos a la brevedad.
+                        </p>
+
+
+                        <!-- INFORMACIÓN Y FORMULARIO -->
+                        <div class="row g-0 shadow-lg rounded-3 overflow-hidden text-start">
+
+
+                            <!-- INFORMACIÓN DE CONTACTO -->
+                            <div class="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+
+                                <div class="mb-4">
+
+                                    <h5>
+
+                                        <img src="recursos/iconos/whatsapp.png"
+                                            alt=""
+                                            aria-hidden="true">
+
+                                    </h5>
+
+                                    <p class="text-muted mb-0">
+                                        (+598) 099 123 456
+                                    </p>
+
+                                </div>
+
+
+                                <div class="mb-4">
+
+                                    <h5>
+
+                                        <img src="recursos/iconos/horario.png"
+                                            alt="Horario">
+
+                                        Días y horarios de atención
+
+                                    </h5>
+
+
+                                    <p class="text-muted mb-0">
+                                        De lunes a viernes de 08:00 a 18:00
+                                    </p>
+
+                                    <p class="text-muted mb-0">
+                                        Sábados de 08:00 a 13:00
+                                    </p>
+
+                                    <p class="text-muted mb-0">
+                                        Domingos cerrado
+                                    </p>
+
+                                </div>
+
+
+                                <div class="mb-4">
+
+                                    <h5>
+
+                                        <img src="recursos/iconos/ubicacion.png"
+                                            alt="Ubicación">
+
+                                        Oficinas administrativas
+
+                                    </h5>
+
+
+                                    <p class="text-muted mb-0">
+                                        Bulevar 123, Montevideo, Uruguay
+                                    </p>
+
+
+                                    <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+
+                                        <iframe
+                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3272.032158888299!2d-56.1645318!3d-34.9011124!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x959f802d334582f3%3A0x6a2c2b3c12345678!2sMontevideo%2C%20Uruguay!5e0!3m2!1ses!2suy!4v1620000000000!5m2!1ses!2suy"
+                                            title="Ubicación de las oficinas administrativas."
+                                            style="border:0;"
+                                            allowfullscreen
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer-when-downgrade">
+                                        </iframe>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- FORMULARIO -->
+                            <section 
+                                class="col-md-6 bg-secondary-subtle p-5"
+                                aria-labelledby="tituloFormularioContacto">
+
+                                <h2 id="tituloFromularioContacto"
+                                    class="text-center fw-bold mb-4">
+                                    Formulario de Contacto
+                                </h2>
+
+
+                                <form
+                                    action="https://formspree.io/f/maewvbnw"
+                                    method="POST"
+                                    autocomplete="off">
+
+
+                                    <div class="mb-3">
+
+                                        <label for="nombre"
+                                            class="form-label fw-bold">
+
+                                            Nombre y apellido
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
+                                        </label>
+
+
+                                        <input
+                                            type="text"
+                                            id="nombre"
+                                            name="nombre"
+                                            class="form-control form-control-lg"
+                                            placeholder="Nombre y apellido"
+                                            required>
+
+                                    </div>
+
+
+                                    <div class="mb-3">
+
+                                        <label for="email"
+                                            class="form-label fw-bold">
+
+                                            Correo electrónico
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
+                                        </label>
+
+
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            class="form-control form-control-lg"
+                                            placeholder="Correo electrónico"
+                                            required>
+
+                                    </div>
+
+
+                                    <div class="mb-3">
+
+                                        <label for="mensaje"
+                                            class="form-label fw-bold">
+
+                                            Mensaje
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
+                                        </label>
+
+
+                                        <textarea
+                                            id="mensaje"
+                                            name="mensaje"
+                                            class="form-control form-control-lg"
+                                            rows="4"
+                                            placeholder="Mensaje"
+                                            required></textarea>
+
+                                    </div>
+
+
+                                    <!-- BOTÓN ENVIAR -->
+
+                                     <div class="text-center">
+                                        <button type="submit" class="btn btn-success w-50 btn-lg text-white fw-bold">
+                                            ENVIAR
+                                        </button>
+                                    </div>
+
+
+
+                                </form>
+
+                            </section>
+
+
+                        </div>
+                        <!-- FIN INFORMACIÓN Y FORMULARIO -->
+
+
+                    </div>
+                    <!-- FIN col-lg-10 -->
+
+
+                </div>
+                <!-- FIN row -->
+
+
+            </div>
+      
+  </section>
+</main>
+
+    <footer class="footer">  <!-- FOOTER -->
+
+        <div class="container">
+
+            <div class="row">
+
+
+                <!-- Información -->
+                <section class="col-lg-5"
+                    aria-labelledby="footerInfo">
+
+                    <h5 id="footerInfo">
+                        Cursos de Ciencias de la Computación
+                    </h5>
+
+                    <p>
+                        Desarrollá nuevas habilidades
+                        y preparate para el mundo digital.
+                    </p>
+
+                </section>
+
+
+                <!-- Enlaces -->
+                <nav class="col-lg-3"
+                    aria-labelledby="footerEnlaces">
+
+                    <h5 id="footerEnlaces">
+                        Enlaces
+                    </h5>
+
+                    <a href="politicaDePrivacidad.html">
+                        Política de privacidad
+                    </a>
+
+                </nav>
+
+
+                <!-- Contacto -->
+                <section class="col-lg-4"
+                    aria-labelledby="footerContacto">
+
+                    <h5 id="footerContacto">
+                        Contacto
+                    </h5>
+
+                    <p>
+                        Seguinos en nuestras redes
+                    </p>
+
+
+                    <nav class="footer-social"
+                        aria-label="Redes sociales">
+
+                        <a href="#"
+                            aria-label="Facebook">
+
+                            <i class="bi bi-facebook"
+                                aria-hidden="true">
+                            </i>
+
+                        </a>
+
+
+                        <a href="#"
+                            aria-label="Instagram">
+
+                            <i class="bi bi-instagram"
+                                aria-hidden="true">
+                            </i>
+
+                        </a>
+
+
+                        <a href="#"
+                            aria-label="YouTube">
+
+                            <i class="bi bi-youtube"
+                                aria-hidden="true">
+                            </i>
+
+                        </a>
+
+
+                        <a href="#"
+                            aria-label="LinkedIn">
+
+                            <i class="bi bi-linkedin"
+                                aria-hidden="true">
+                            </i>
+
+                        </a>
+
+                    </nav>
+
+                </section>
+
+
+            </div>
+
+
+            <hr>
+
+
+            <p class="footer-copy">
+
+                <img src="recursos/iconos/derechosAutor.png"
+                    alt=""
+                    aria-hidden="true">
+
+                2026 - Taller Integrador de Sistemas
+
+            </p>
+
         </div>
-    </nav>
-     <main class='flex-grow-1'>
-        <section class="hero"> <p><br>Página - Contactos</p></section>
-     </main>
-     <footer>
-        <div>
-    <p><img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas</p>
-    </div>
+        
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js" type="module"></script>
+<script src="js/visibilidadRoles.js" type="module"></script>
+<script>
+window.addEventListener("pageshow", function () {
+    document.getElementById("nombre").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("mensaje").value = "";
+});
+</script>
 </body>
+
 </html>
+```

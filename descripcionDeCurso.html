@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="Información detallada de los cursos disponibles."
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
     <title>Cursos CC | Detalle de curso</title>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="descripcionDeCurso.html">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+    
+<header>    
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+        aria-label="Navegación principal">
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <button class="navbar-toggler" type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Mostrar menú de navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNav">
@@ -56,12 +67,15 @@
             </div>
         </div>
     </nav>
+    </header>
 
     <main class="flex-grow-1">
-        <section class="hero text-center">
-            <h1>Detalle del curso</h1>
+        <section class="hero text-center"
+        aria-labelledby="tituloDetalleCurso">
+            <h1 id="tituloDetalleCurso">Detalle del curso</h1>
         </section>
-        <section class="container py-4">
+        <section class="container py-4"
+            aria-label="Información del curso">
             <div id="estadoCarga" class="aviso-curso d-none" role="alert"></div>
             <div id="detalleCurso"></div>
         </section>
@@ -118,7 +132,7 @@
             <div class="curso-thumb js-thumb-icono d-none"></div>
         </div>
         <div class="col-12 col-md-6">
-            <h1 class="js-titulo"></h1>
+            <h2 class="js-titulo"></h2>
             <p class="lead js-descripcion"></p>
             <ul class="list-unstyled">
                 <li><strong>Precio:</strong> <span class="js-precio"></span></li>

@@ -1,4 +1,3 @@
-// js/catalogo.js
 import { db } from "./firebase-config.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       mostrarMensaje('Cargando cursos...');
 
-      // Obtener cursos directamente desde Firebase Firestore
       const resultado = await getDocs(collection(db, 'cursos'));
       
       todosLosCursos = resultado.docs.map(documento => ({
@@ -124,10 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbIcono.textContent = categoriaVisual.icono;
     }
 
-    const urlImagen = curso.imagen_url || curso.imagen || curso.portada;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
 
-    if (urlImagen) {
-      thumbImg.src = urlImagen;
+    if (rutaImagen) {
+      thumbImg.src = rutaImagen;
       thumbImg.alt = curso.titulo ?? 'Curso';
       thumbImg.addEventListener('error', mostrarIcono, { once: true });
     } else {

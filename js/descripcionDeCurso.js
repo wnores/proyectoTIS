@@ -1,4 +1,3 @@
-// js/descripcionDeCurso.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cargarCurso(cursoId);
 
-  // NUEVA FUNCIÓN: Obtiene el curso directamente desde Firestore
   async function cargarCurso(id) {
     try {
         const docRef = doc(db, 'cursos', id);
@@ -34,11 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Una sola declaración de la constante
-        const curso = {
-            id: docSnap.id,
-            ...docSnap.data()
-        };
+      const curso = {
+        id: docSnap.id,
+        ...docSnap.data()
+      };
 
         mostrarCursoBase(curso);
         verificarUsuarioYMostrarModulos(curso);
@@ -78,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (curso.imagen_url) {
-      thumbImg.src = curso.imagen_url;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+    if (rutaImagen && thumbImg) {
+      thumbImg.src = rutaImagen;
       thumbImg.alt = curso.titulo || 'Imagen del curso';
 
       thumbImg.addEventListener('error', mostrarIcono, {

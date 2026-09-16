@@ -122,7 +122,6 @@
     <script src="js/descripcionDeCurso.js" type="module"></script>
     <script src="js/app.js" type="module"></script>
 
-    <!-- PLANTILLA DE DETALLE DEL CURSO -->
 <template id="plantillaDetalleCurso">
     <div class="row">
         <div class="col-12 col-md-6">
@@ -142,13 +141,11 @@
                 <li><strong>Cupos disponibles:</strong> <span class="js-cupos"></span></li><li><strong>Categoría:</strong> <span class="js-categoria"></span></li>
             </ul>
             <div class="d-flex gap-2 mt-3 flex-wrap">
-                <!-- Se le agrega clase 'js-btn-inscribirme-superior' para poder ocultarlo con JS al loguearse -->
                 <a class="btn btn-primary js-btn-inscribirme-superior" href="ingresar.html">Inscribirse</a>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN TABLA DE MÓDULOS + BOTONES DE ACCIÓN INFERIORES -->
     <div class="row mt-5 js-seccion-modulos d-none">
     <div class="col-12">
         <h3 class="mb-3"><i class="bi bi-journal-bookmark me-2"></i>Contenido del Curso</h3>
@@ -161,12 +158,12 @@
                     </tr>
                 </thead>
                 <tbody class="js-tabla-modulos-body">
-                    <!-- Filas inyectadas por JS mediante Firebase -->
+            
                 </tbody>
             </table>
         </div>
 
-        <!-- Botones de acción y contenedor de microinteracción -->
+
         <div class="mt-4 js-acciones-estudiante d-none">
             <div class="d-flex gap-2 flex-wrap align-items-center">
                 <button type="button" class="btn btn-primary btn-lg js-btn-inscribirme-inferior d-inline-flex align-items-center gap-2" id="btnInscribirmeFinal">
@@ -177,7 +174,7 @@
                 <a class="btn btn-primary btn-lg js-btn-beca" href="#">Solicitar una beca</a>
             </div>
 
-            <!-- Alerta animada de microinteracción de registro exitoso -->
+        
             <div class="alert alert-success d-flex align-items-center gap-3 mt-3 d-none shadow-sm border-0 fade show js-alerta-exito" role="alert">
                 <i class="bi bi-patch-check-fill fs-2 text-success"></i>
                 <div>

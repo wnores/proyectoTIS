@@ -607,6 +607,19 @@ document.querySelectorAll(".btn-toggle-password").forEach((boton) => {
 });
 
 // ======================================================
+// NOMBRE DEL TIPO DE BECA
+// ======================================================
+function obtenerNombreTipoBeca(tipoBeca) {
+    const nombres = {
+        acceso: "Beca de acceso",
+        rendimiento: "Beca por rendimiento",
+        inclusion: "Beca de inclusión"
+    };
+
+    return nombres[tipoBeca] || "Beca";
+}
+
+// ======================================================
 // SERVICIOS ADQUIRIDOS
 // ======================================================
 function configurarServiciosAdquiridos(datosUsuario) {
@@ -615,29 +628,34 @@ function configurarServiciosAdquiridos(datosUsuario) {
     if (!boton) return;
 
     boton.addEventListener("click", () => {
-        const contenedor = document.getElementById("listaServiciosAdquiridos");
+        const contenedor =
+            document.getElementById("listaServiciosAdquiridos");
 
         if (!contenedor) return;
 
         contenedor.innerHTML = "";
 
-        
 
         const servicios = datosUsuario.serviciosAdquiridos;
 
-        
+        const tituloServicios = document.createElement("h6");
+        tituloServicios.className = "fw-bold mb-3";
+        tituloServicios.textContent = "Cursos adquiridos";
+
+        contenedor.appendChild(tituloServicios);
+
         if (!Array.isArray(servicios) || servicios.length === 0) {
-            contenedor.innerHTML = `
+            contenedor.innerHTML += `
                 <div class="text-center py-3">
                     <i class="bi bi-mortarboard fs-1 text-secondary"></i>
                     <p class="mt-3 mb-0">
-                        No tenés servicios adquiridos.
+                        No tenés cursos adquiridos.
                     </p>
                 </div>
             `;
         } else {
             const lista = document.createElement("div");
-            lista.className = "list-group";
+            lista.className = "list-group mb-4";
 
             servicios.forEach((servicio) => {
                 const elemento = document.createElement("div");
@@ -656,10 +674,65 @@ function configurarServiciosAdquiridos(datosUsuario) {
             contenedor.appendChild(lista);
         }
 
-        const modalElemento = document.getElementById("modalServicios");
+        // ======================================================
+        // BECAS ADQUIRIDAS
+        // ======================================================
+        const becas = datosUsuario.becasAdquiridas;
+
+        if (Array.isArray(becas) && becas.length > 0) {
+
+            const separador = document.createElement("hr");
+            separador.className = "my-4";
+
+            contenedor.appendChild(separador);
+
+            const tituloBecas = document.createElement("h6");
+            tituloBecas.className = "fw-bold mb-3";
+            tituloBecas.textContent = "Becas otorgadas";
+
+            contenedor.appendChild(tituloBecas);
+
+            const listaBecas = document.createElement("div");
+            listaBecas.className = "list-group";
+
+            becas.forEach((beca) => {
+                const elemento = document.createElement("div");
+
+                elemento.className =
+                    "list-group-item";
+
+                elemento.innerHTML = `
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-award-fill text-warning"></i>
+
+                        <div>
+                            <div class="fw-semibold">
+                                ${beca.curso}
+                            </div>
+
+                            <small class="text-secondary">
+                                ${obtenerNombreTipoBeca(beca.tipoBeca)}
+                            </small>
+                        </div>
+                    </div>
+                `;
+
+                listaBecas.appendChild(elemento);
+            });
+
+            contenedor.appendChild(listaBecas);
+        }
+
+        // ======================================================
+        // MOSTRAR MODAL
+        // ======================================================
+        const modalElemento =
+            document.getElementById("modalServicios");
 
         if (modalElemento) {
-            const modal = new bootstrap.Modal(modalElemento);
+            const modal =
+                new bootstrap.Modal(modalElemento);
+
             modal.show();
         }
     });

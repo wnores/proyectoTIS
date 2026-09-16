@@ -356,7 +356,7 @@
                                 Los campos marcados con <span class="text-danger">*</span> son obligatorios.
                             </p>
 
-                            <form id="formularioBeca" action="https://formspree.io/f/maewvbnw" method="POST" autocomplete="off">
+                            <form id="formularioBeca" autocomplete="off">
 
                                 <!-- NOMBRE -->
                                 <div class="mb-3">
@@ -649,6 +649,104 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js" type="module"></script>
 <script src="js/visibilidadRoles.js" type="module"></script>
+
+<script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+
+    import {
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+    import {
+        collection,
+        addDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+
+    const formulario =
+        document.getElementById("formularioBeca");
+
+
+    if (formulario) {
+
+        formulario.addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+
+            const usuario = auth.currentUser;
+
+
+            // Verificar que haya un usuario autenticado
+            if (!usuario) {
+
+                alert(
+                    "Debés iniciar sesión para solicitar una beca."
+                );
+
+                return;
+            }
+
+
+            const nombre =
+                document.getElementById("nombre").value.trim();
+
+            const correo =
+                document.getElementById("correo").value.trim();
+
+            const curso =
+                document.getElementById("curso").value;
+
+            const tipoBeca =
+                document.getElementById("tipo-beca").value;
+
+            const motivo =
+                document.getElementById("motivo").value.trim();
+
+
+            try {
+
+                await addDoc(
+                    collection(db, "solicitudesBecas"),
+                    {
+                        uid: usuario.uid,
+                        nombre: nombre,
+                        correo: correo,
+                        curso: curso,
+                        tipoBeca: tipoBeca,
+                        motivo: motivo,
+                        estado: "pendiente",
+                        fechaSolicitud: serverTimestamp()
+                    }
+                );
+
+
+                alert(
+                    "Tu solicitud de beca fue enviada correctamente."
+                );
+
+
+                formulario.reset();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error al guardar la solicitud de beca:",
+                    error
+                );
+
+                alert(
+                    "No se pudo enviar la solicitud. Intentá nuevamente."
+                );
+            }
+
+        });
+
+    }
+</script>
+
 <script>
 window.addEventListener("pageshow", function () {
     const formulario = document.getElementById("formularioBeca");

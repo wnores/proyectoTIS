@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo de cursos de Ciencias de la Computación disponibles.">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
@@ -98,27 +99,149 @@
     <h1 id="tituloCatalogo">Catálogo de cursos</h1>
             
     <p class="fs-5 fw-bold">
-        Explora nuestra propuesta de cursos de Ciencias de la Computación
+        Explorá nuestra propuesta de cursos de Ciencias de la Computación
     </p>
-    <form class="row justify-content-center mt-4" id="formBuscarCursos" role="search">
-        <div class="col-12 col-md-6 d-flex mx-auto">
-            <input
-                class="form-control"
-                type="search"
-                id="inputBuscarCursos"
-                placeholder="Buscar cursos"
-                aria-label="Buscar cursos">
-            <button
-                class="btn btn-primary ms-1"
-                type="submit">
-                Buscar
-            </button>
-        </div>
+    <form 
+    id="formBuscarCursos"
+    class="row g-3 justify-content-center mt-4"
+    role="search">
+
+    <!-- BUSCAR -->
+    <div class="col-12 col-md-6 col-lg-4">
+
+        <label
+            for="inputBuscarCursos"
+            class="visually-hidden">
+
+            Buscar cursos
+        </label>
+
+        <input
+            type="search"
+            class="form-control"
+            id="inputBuscarCursos"
+            placeholder="Buscar cursos"
+            aria-label="Buscar por título o descripción">
+
+    </div>
+
+    <!-- CATEGORÍA -->
+    <div class="col-12 col-md-6 col-lg-3">
+
+        <label
+            for="categoriaFiltro"
+            class="visually-hidden">
+
+            Filtrar por categoría
+        </label>
+
+        <select
+            class="form-select"
+            id="categoriaFiltro"
+            aria-label="Filtrar por categoría">
+
+            <option value="">
+                Todas las categorías
+            </option>
+
+            <option value="programacion">
+                Programación
+            </option>
+
+            <option value="desarrollo-web">
+                Desarrollo web
+            </option>
+
+            <option value="inteligencia-artificial">
+                Inteligencia Artificial
+            </option>
+
+            <option value="base-datos">
+                Bases de Datos
+            </option>
+
+            <option value="ofimatica">
+                Ofimática
+            </option>
+
+            <option value="hardware-electronica">
+                Hardware y Electrónica
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- ORDENAR -->
+    <div class="col-12 col-md-6 col-lg-3">
+
+        <label
+            for="ordenCursos"
+            class="visually-hidden">
+
+            Ordenar cursos
+        </label>
+
+        <select
+            class="form-select"
+            id="ordenCursos"
+            aria-label="Ordenar cursos">
+
+            <option value="">
+                Orden predeterminado
+            </option>
+
+            <option value="precio-menor">
+                Precio: menor a mayor
+            </option>
+
+            <option value="precio-mayor">
+                Precio: mayor a menor
+            </option>
+
+            <option value="nombre-az">
+                Nombre: A–Z
+            </option>
+
+            <option value="nombre-za">
+                Nombre: Z–A
+            </option>
+
+            <option value="cupos-mayor">
+                Mayor cantidad de cupos
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- LIMPIAR -->
+    <div class="col-12 col-md-6 col-lg-2 d-grid">
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            id="btnLimpiarFiltros">
+
+            <i class="bi bi-arrow-counterclockwise me-1"></i>
+            Limpiar
+        </button>
+
+    </div>
+
     </form>
 </section>
-<section class="container py-4">
+<section class="container py-4"
+aria-labelledby="tituloCursosDisponibles">
+<h2 
+id="tituloCursosDisponibles" 
+class="text-center mb-4">
+Cursos disponibles</h2>   
+
     <p id="estadoCarga" class="text-center text-muted">Cargando cursos...</p>
-    <div class="row" id="listaCursos"></div>
+    <div class="row" 
+    id="listaCursos"
+    aria-live="polite"></div>
 </section>
      </main>
      <!-- FOOTER -->
@@ -211,24 +334,24 @@
         </div>
 
     </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>s
-<script src="js/catalogo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/catalogo.js" type="module"></script>
 <script src="js/app.js" type="module"></script>
 <template id="plantillaTarjetaCurso">
     <div class="col-12 col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
+        <article class="card h-100">
             <div class="curso-thumb-container js-thumb-container">
                 <img class="curso-thumb-real js-thumb-img" alt="">
             </div>
             <div class="curso-thumb js-thumb-icono d-none"></div>
             <div class="card-body d-flex flex-column">
-                <h5 class="card-title js-titulo"></h5>
+                <h3 class="card-title js-titulo"></h3>
                 <p class="card-text flex-grow-1 js-descripcion"></p>
                 <p class="card-text precio-curso js-precio"></p>
                 <p class="card-text"><small class="text-muted"><span class="js-cupos"></span> cupos disponibles</small></p>
                 <a class="btn btn-primary mt-auto js-ver-mas">Ver más</a>
             </div>
-        </div>
+        </article>
     </div>
 </template>
 <script src="js/visibilidadRoles.js" type="module"></script>

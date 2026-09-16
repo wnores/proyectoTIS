@@ -1,4 +1,3 @@
-// js/descripcionDeCurso.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cargarCurso(cursoId);
 
-  // NUEVA FUNCIÓN: Obtiene el curso directamente desde Firestore
   async function cargarCurso(id) {
     try {
       const docRef = doc(db, "cursos", id);
@@ -34,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Combinamos el ID del documento con sus datos
       const curso = {
         id: docSnap.id,
         ...docSnap.data()
@@ -78,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (curso.imagen_url) {
-      thumbImg.src = curso.imagen_url;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+    if (rutaImagen && thumbImg) {
+      thumbImg.src = rutaImagen;
       thumbImg.alt = curso.titulo || 'Imagen del curso';
 
       thumbImg.addEventListener('error', mostrarIcono, {
@@ -122,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .trim()
           .toLowerCase();
 
-        // Ocultar botón superior al estar logueado
         const btnInscribirmeSuperior = document.querySelector(
           '.js-btn-inscribirme-superior'
         );
@@ -131,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
           btnInscribirmeSuperior.classList.add('d-none');
         }
 
-        // SOLO para usuarios con rol 'estudiante'
         if (tipo === 'estudiante') {
           renderizarTablaModulos(curso);
 
@@ -169,12 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
             contenedorAcciones.classList.remove('d-none');
           }
 
-          // Listener para la inscripción
           if (btnInscribirmeInferior) {
             btnInscribirmeInferior.addEventListener('click', async (e) => {
               e.preventDefault();
 
-              // Estado de carga
               btnInscribirmeInferior.disabled = true;
 
               if (spinnerBtn) {
@@ -186,12 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
               }
 
               try {
-                // Guardar el curso adquirido en Firestore
                 await updateDoc(docRef, {
                   serviciosAdquiridos: arrayUnion(curso.titulo)
                 });
 
-                // Mostrar resultado
                 if (spinnerBtn) {
                   spinnerBtn.classList.add('d-none');
                 }
@@ -204,11 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   textoBtn.textContent = '¡Inscripto!';
                 }
 
-                // Cambiar estilo del botón a estado completado
                 btnInscribirmeInferior.classList.remove('btn-success');
                 btnInscribirmeInferior.classList.add('btn-secondary');
 
-                // Mostrar banner de éxito
                 if (alertaExito) {
                   alertaExito.classList.remove('d-none');
                 }
@@ -219,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
                   error
                 );
 
-                // Restaurar botón si hubo un error
                 btnInscribirmeInferior.disabled = false;
 
                 if (spinnerBtn) {
@@ -258,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Filtrar claves que comiencen con "modulo"
     const clavesModulos = Object.keys(curso)
       .filter((clave) => clave.startsWith('modulo'))
       .sort();
@@ -281,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tablaBody.appendChild(tr);
       });
 
-      // Mostrar la tabla
       seccionModulos.classList.remove('d-none');
 
       console.log("Tabla de módulos renderizada exitosamente.");

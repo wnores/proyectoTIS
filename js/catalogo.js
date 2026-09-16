@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }   
   }
     
-  function actualizarCatalogo() {
+ function actualizarCatalogo() {
     const texto = normalizarTexto(inputBuscar.value.trim());
     const categoriaSeleccionada = categoriaFiltro.value;
     const ordenSeleccionado = ordenCursos.value;
@@ -60,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const descripcion = normalizarTexto(curso.descripcion ?? "");
       const coincideTexto = titulo.includes(texto) || descripcion.includes(texto);
       const categoriaCurso = obtenerCategoria(curso);
-      const coincideCategoria = !categoriaSeleccionada || categoriaCurso === categoriaSeleccionada;
+
+      // Una sola variable para validar si es vacía, "todas" o coincide con el filtro
+      const coincideCategoria = !categoriaSeleccionada || categoriaSeleccionada === "todas" || categoriaCurso === categoriaSeleccionada;
 
       return coincideTexto && coincideCategoria;
     });

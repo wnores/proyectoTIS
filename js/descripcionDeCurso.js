@@ -23,49 +23,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cargarCurso(cursoId);
 
+  // NUEVA FUNCIÓN: Obtiene el curso directamente desde Firestore
   async function cargarCurso(id) {
     try {
-      // Intento 1: buscar en cursos.json (los cursos "viejos" del catálogo estático)
-      const respuesta = await fetch('js/data/cursos.json');
+        const docRef = doc(db, 'cursos', id);
+        const docSnap = await getDoc(docRef);
 
-      if (!respuesta.ok) {
-        throw new Error('No se pudo obtener la información de los cursos.');
-      }
-
-      const cursos = await respuesta.json();
-      let curso = cursos.find((item) => item.id == id);
-
-      // Intento 2: si no está en el JSON, buscarlo en Firestore
-      // (cursos publicados/modificados desde publicarCurso.html / modificarCurso.html)
-      if (!curso) {
-        const snap = await getDoc(doc(db, 'cursos', id));
-        if (snap.exists()) {
-          curso = { ...snap.data(), id: snap.id };
+        if (!docSnap.exists()) {
+            mostrarError('El curso solicitado no existe.');
+            return;
         }
-      }
 
-      if (!curso) {
-        mostrarError('El curso solicitado no existe.');
-        return;
-      }
+        // Una sola declaración de la constante
+        const curso = {
+            id: docSnap.id,
+            ...docSnap.data()
+        };
 
-      mostrarCursoBase(curso);
-      verificarUsuarioYMostrarModulos(curso);
+        mostrarCursoBase(curso);
+        verificarUsuarioYMostrarModulos(curso);
     } catch (error) {
-      console.error('Error al cargar el curso:', error);
-      mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
+        console.error('Error al cargar el curso desde Firestore:', error);
+        mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
     }
-  }
+}
 
   function mostrarCursoBase(curso) {
-    const { claseCategoria, icono } = obtenerCategoria(curso);
+    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
 
-    const precioFormateado = Number(curso.precio).toLocaleString('es-UY', {
+    const precioFormateado = Number(curso.precio || 0).toLocaleString('es-UY', {
       style: 'currency',
       currency: 'UYU'
     });
 
-    document.title = `${curso.titulo} | Detalle de curso`;
+    document.title = `${curso.titulo || 'Curso'} | Detalle de curso`;
 
     if (mensajeEstado) {
       mensajeEstado.classList.add('d-none');
@@ -89,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (curso.imagen_url) {
       thumbImg.src = curso.imagen_url;
-      thumbImg.alt = curso.titulo;
+      thumbImg.alt = curso.titulo || 'Imagen del curso';
 
       thumbImg.addEventListener('error', mostrarIcono, {
         once: true
@@ -98,13 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
       mostrarIcono();
     }
 
-    detalle.querySelector('.js-titulo').textContent = curso.titulo;
+    detalle.querySelector('.js-titulo').textContent = curso.titulo || '';
     detalle.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
     detalle.querySelector('.js-precio').textContent = precioFormateado;
     detalle.querySelector('.js-categoria').textContent = curso.categoria ?? 'Sin categoría';
     detalle.querySelector('.js-duracion').textContent = curso.duracion_horas ?? '-';
     detalle.querySelector('.js-modalidad').textContent = curso.modalidad ?? 'No especificada';
-    detalle.querySelector('.js-cupos').textContent = curso.cupos_disponibles;
+    detalle.querySelector('.js-cupos').textContent = curso.cupos_disponibles ?? '-';
 
     const btnBeca = detalle.querySelector('.js-beca');
 
@@ -285,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("Tabla de módulos renderizada exitosamente.");
     } else {
       console.log(
-        "Este curso no tiene campos 'modulo' definidos en el JSON."
+        "Este curso no tiene campos 'modulo' definidos en Firestore."
       );
     }
   }

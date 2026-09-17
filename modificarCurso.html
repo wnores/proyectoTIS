@@ -240,19 +240,34 @@
 
                                 <!-- IMAGEN -->
                                 <div class="mb-4">
-                                    <label for="imagen" class="form-label">
-                                        URL o ruta de la imagen
+                                    <label class="form-label">
+                                        Imagen del curso
                                     </label>
 
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="imagen"
-                                        name="imagen">
+                                    <div>
+                                        <label
+                                            for="imagenCurso"
+                                            class="btn btn-outline-primary">
 
-                                    <div class="form-text">
-                                        Este campo puede quedar vacío.
+                                            <i class="bi bi-folder2-open me-2"></i>
+                                            Seleccionar imagen
+                                        </label>
+                                    <input
+                                        type="file"
+                                        id="imagenCurso"
+                                        class="d-none"
+                                        accept="image/*">
                                     </div>
+                                    <p id="nombreImagenCurso"
+                                        class="form-text mb-2">
+                                        No se seleccionó ninguna imagen nueva.
+                                    </p>
+
+                                    <img
+                                        id="vistaPreviaCurso"
+                                        class="img-fluid rounded d-none"
+                                        style="max-height: 220px;"
+                                        alt="Vista previa de la imagen del curso">
                                 </div>
 
                                 <!-- BOTONES -->
@@ -266,7 +281,7 @@
                                         Guardar cambios
                                     </button>
 
-                                    
+                                    <a
                                         href="administrarCursos.html"
                                         class="btn btn-outline-secondary">
                                         Cancelar

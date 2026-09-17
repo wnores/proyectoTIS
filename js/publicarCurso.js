@@ -55,10 +55,20 @@ btnAgregarModulo.addEventListener("click", () => {
     nuevoModulo.className = "modulo-item mb-3";
 
     nuevoModulo.innerHTML = `
-        <label class="form-label">
-            Módulo ${cantidadModulos}
-            <span class="text-danger">*</span>
-        </label>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label mb-0">
+                Módulo ${cantidadModulos}
+                <span class="text-danger">*</span>
+            </label>
+
+            <button
+                type="button"
+                class="btn btn-outline-danger btn-sm btnEliminarModulo">
+
+                <i class="bi bi-trash3 me-1"></i>
+                Eliminar
+            </button>
+        </div>
 
         <textarea
             class="form-control moduloCurso"
@@ -69,6 +79,34 @@ btnAgregarModulo.addEventListener("click", () => {
 
     contenedorModulos.appendChild(nuevoModulo);
 });
+
+contenedorModulos.addEventListener("click", (event) => {
+    const botonEliminar = event.target.closest(".btnEliminarModulo");
+
+    if (!botonEliminar) {
+        return;
+    }
+
+    const modulo = botonEliminar.closest(".modulo-item");
+    modulo.remove();
+
+    renumerarModulos();
+});
+
+function renumerarModulos() {
+    const modulos = contenedorModulos.querySelectorAll(".modulo-item");
+
+    modulos.forEach((modulo, indice) => {
+        const etiqueta = modulo.querySelector("label");
+
+        etiqueta.innerHTML = `
+            Módulo ${indice + 1}
+            <span class="text-danger">*</span>
+        `;
+    });
+
+    cantidadModulos = modulos.length;
+}
 
 async function iniciarPagina() {
     const rol = await obtenerRolActual();
@@ -178,6 +216,11 @@ async function iniciarPagina() {
         nombreImagenCurso.textContent = "No se seleccionó ninguna imagen.";
         vistaPreviaCurso.classList.add("d-none");
         vistaPreviaCurso.removeAttribute("src");
+
+        const modulosAgregados =
+            contenedorModulos.querySelectorAll(".modulo-item:not(:first-child)");
+
+        modulosAgregados.forEach((modulo) => modulo.remove());
 
         cantidadModulos = 1;
 

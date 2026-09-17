@@ -98,6 +98,82 @@ https://bdcursoscc.web.app/
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
 ### Recuperar contraseña (recuperarContrasenia.html) (Anny)
+Se implementó la recuperación de contraseña mediante Firebase Authentication. El usuario puede ingresar el correo electrónico asociado a su cuenta y se solicita el envío de un enlace para restablecer su contraseña.
+
+Se incorporaron validaciones para comprobar que el campo no esté vacío y que el correo tenga un formato válido. También se agregaron mensajes para informar si la solicitud se realizó correctamente o si ocurrió un error durante el proceso.
+
+La página mantiene la identidad visual del sitio, incluye navegación, contenido principal y pie de página, y presenta un enlace para volver al inicio.
+
+### Administración de cursos (administrarCursos.html) (Anny)
+
+Se desarrolló un panel de administración disponible únicamente para usuarios con rol docente/admin. El acceso se controla mediante el sistema de roles y permisos implementado en el proyecto.
+
+Desde este panel, el administrador puede acceder a las funcionalidades relacionadas con la gestión de cursos:
+
+- Crear un nuevo curso.
+- Modificar un curso existente.
+- Dar de baja un curso.
+La opción “Administrar cursos” se incorporó al menú desplegable del usuario y solamente se muestra cuando la persona autenticada posee el permiso correspondiente.
+
+### Crear cursos (publicarCurso.html) (Anny)
+
+Se desarrolló el formulario para crear cursos, disponible únicamente para usuarios con rol docente/admin y permiso `crearCursos`.
+
+El formulario permite ingresar:
+
+- Título del curso.
+- Descripción.
+- Categoría.
+- Precio.
+- Duración en horas.
+- Cupos disponibles.
+- Imagen del curso.
+- Contenidos organizados en módulos.
+
+Se agregaron validaciones para comprobar que los campos obligatorios estén completos y que los valores numéricos sean correctos.
+
+Al confirmar la creación, la información se guarda como un nuevo documento dentro de la colección `cursos` de Cloud Firestore. También se registra el identificador del usuario que creó el curso y la fecha de creación mediante `serverTimestamp()`.
+
+Durante el proceso, el botón muestra el mensaje “Creando...” y queda temporalmente deshabilitado para evitar que el formulario sea enviado varias veces.
+
+### Módulos dinámicos de los cursos (Anny)
+
+Se incorporó al formulario de creación de cursos la posibilidad de agregar una cantidad variable de módulos.
+
+El formulario comienza mostrando el módulo 1. Mediante el botón “Agregar módulo”, el administrador puede generar nuevos campos para ingresar los contenidos de cada módulo.
+
+Los módulos se guardan en Firestore utilizando los campos `modulo1`, `modulo2`, `modulo3` y así sucesivamente. Esto permite que cada curso tenga una cantidad diferente de módulos.
+
+La página de detalle del curso identifica estos campos y presenta sus contenidos dinámicamente en una tabla para los estudiantes autenticados.
+
+### Carga de imágenes de los cursos con Cloudinary (Anny)
+
+Se reemplazó el ingreso manual de la dirección de una imagen por un selector de archivos que permite elegir una imagen almacenada en el ordenador.
+
+Al seleccionar el archivo:
+
+- Se muestra el nombre de la imagen.
+- Se presenta una vista previa.
+- La imagen se sube a Cloudinary.
+- La URL segura generada por Cloudinary se guarda en el campo `imagen_url` del documento del curso en Firestore.
+
+De esta manera, los administradores pueden seleccionar la imagen desde su computadora sin tener que escribir o buscar previamente una URL.
+
+### HTML semántico y accesibilidad (Anny)
+
+Se revisó y mejoró la estructura HTML de diferentes páginas del sitio mediante el uso de etiquetas semánticas como `header`, `nav`, `main`, `section`, `article` y `footer`.
+
+También se incorporaron mejoras de accesibilidad:
+
+- Asociación entre etiquetas `label` y campos de formulario.
+- Textos alternativos en las imágenes.
+- Uso de `aria-label` y `aria-labelledby`.
+- Identificación de la navegación principal.
+- Organización jerárquica de los encabezados.
+- Mensajes con `role="alert"`.
+- Uso de botones con tipos correctamente definidos.
+
+Estas modificaciones se realizaron procurando conservar la apariencia, las clases de Bootstrap, la navegación y los elementos comunes utilizados en todas las páginas.
 
 ## Perfiles de usuario (Giovanna)
 Se definieron dos roles: estudiante y docente/admin, guardados en el campo tipoUsuario de cada usuario en Firestone. 

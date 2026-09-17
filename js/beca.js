@@ -3,7 +3,7 @@ import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/
 
 async function cargarCursosEnSelect() {
     const selectCurso = document.getElementById("curso");
-    
+
     if (!selectCurso) return;
 
     try {
@@ -16,12 +16,24 @@ async function cargarCursosEnSelect() {
 
             const option = document.createElement("option");
 
-            option.value = doc.id; 
-    
-            option.textContent = curso.nombre || curso.titulo || curso.nombreCurso || "Curso sin nombre";
+            option.value = doc.id;
+
+            option.textContent =
+                curso.nombre ||
+                curso.titulo ||
+                curso.nombreCurso ||
+                "Curso sin nombre";
 
             selectCurso.appendChild(option);
         });
+
+        // Seleccionar automáticamente el curso recibido por URL
+        const parametros = new URLSearchParams(window.location.search);
+        const cursoId = parametros.get("curso");
+
+        if (cursoId) {
+            selectCurso.value = cursoId;
+        }
 
     } catch (error) {
         console.error("Error al obtener los cursos desde Firestore:", error);

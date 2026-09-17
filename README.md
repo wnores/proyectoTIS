@@ -97,6 +97,56 @@ https://bdcursoscc.web.app/
 
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
+## Perfil de usuario y gestión de servicios
+
+Se actualizó el módulo de perfil de usuario, incorporando funcionalidades para la gestión de los datos personales, la imagen de perfil, la contraseña, los servicios adquiridos y la eliminación de la cuenta.
+
+### Funcionalidades implementadas
+
+* **Edición de datos personales**
+
+  * Nombre.
+  * Apellido.
+  * Departamento.
+
+* **Cambio de contraseña**
+
+  * Reautenticación mediante la contraseña actual.
+  * Validación de la nueva contraseña.
+  * Actualización mediante Firebase Authentication.
+
+* **Imagen de perfil**
+
+  * Selección de una imagen desde el ordenador.
+  * Carga de la imagen mediante Cloudinary.
+  * Almacenamiento de la URL de la imagen en Firestore y Firebase Authentication.
+
+* **Servicios adquiridos**
+
+  * Visualización de los cursos adquiridos.
+  * Visualización de las becas otorgadas al usuario.
+  * La información se obtiene desde la base de datos.
+
+* **Eliminación de cuenta**
+
+  * Confirmación de la acción.
+  * Reautenticación del usuario.
+  * Eliminación de las solicitudes de beca asociadas.
+  * Eliminación de los datos del usuario en Firestore.
+  * Eliminación de la cuenta en Firebase Authentication.
+
+### Cambios técnicos
+
+* Se implementó y actualizó **`perfil.js`** para centralizar la gestión del perfil y las operaciones relacionadas con los datos del usuario.
+* Se creó **`beca.js`** para gestionar funcionalidades relacionadas con cursos y becas.
+* Se dejó de utilizar **Freeform** para cargar la información de estas funcionalidades.
+* Los datos del usuario, cursos y becas se obtienen directamente desde **Firestore**, permitiendo trabajar con información almacenada en la base de datos y actualizada dinámicamente.
+* Se integró **Firebase Authentication** para la gestión de la sesión, contraseña y eliminación de cuentas.
+* Se integró **Cloudinary** para el almacenamiento de las imágenes de perfil.
+
+En conjunto, las modificaciones permiten gestionar el perfil de forma dinámica y conectar las funcionalidades de usuario, cursos y becas directamente con los servicios de Firebase y la base de datos.
+
+
 ### Recuperar contraseña (recuperarContrasenia.html) (Anny)
 Se implementó la recuperación de contraseña mediante Firebase Authentication. El usuario puede ingresar el correo electrónico asociado a su cuenta y se solicita el envío de un enlace para restablecer su contraseña.
 

@@ -1,4 +1,3 @@
-// js/descripcionDeCurso.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
@@ -23,33 +22,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cargarCurso(cursoId);
 
-  // NUEVA FUNCIÓN: Obtiene el curso directamente desde Firestore
   async function cargarCurso(id) {
     try {
-      const docRef = doc(db, "cursos", id);
-      const docSnap = await getDoc(docRef);
+        const docRef = doc(db, 'cursos', id);
+        const docSnap = await getDoc(docRef);
 
-      if (!docSnap.exists()) {
-        mostrarError('El curso solicitado no existe.');
-        return;
-      }
+        if (!docSnap.exists()) {
+            mostrarError('El curso solicitado no existe.');
+            return;
+        }
 
-      // Combinamos el ID del documento con sus datos
       const curso = {
         id: docSnap.id,
         ...docSnap.data()
       };
 
-      mostrarCursoBase(curso);
-      verificarUsuarioYMostrarModulos(curso);
+        mostrarCursoBase(curso);
+        verificarUsuarioYMostrarModulos(curso);
     } catch (error) {
-      console.error('Error al cargar el curso desde Firestore:', error);
-      mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
+        console.error('Error al cargar el curso desde Firestore:', error);
+        mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
     }
-  }
+}
 
   function mostrarCursoBase(curso) {
-    const { claseCategoria, icono } = obtenerCategoria(curso.titulo || '');
+    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
 
     const precioFormateado = Number(curso.precio || 0).toLocaleString('es-UY', {
       style: 'currency',
@@ -78,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (curso.imagen_url) {
-      thumbImg.src = curso.imagen_url;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+    if (rutaImagen && thumbImg) {
+      thumbImg.src = rutaImagen;
       thumbImg.alt = curso.titulo || 'Imagen del curso';
 
       thumbImg.addEventListener('error', mostrarIcono, {
@@ -92,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     detalle.querySelector('.js-titulo').textContent = curso.titulo || '';
     detalle.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
     detalle.querySelector('.js-precio').textContent = precioFormateado;
+    detalle.querySelector('.js-categoria').textContent = curso.categoria ?? 'Sin categoría';
     detalle.querySelector('.js-duracion').textContent = curso.duracion_horas ?? '-';
     detalle.querySelector('.js-modalidad').textContent = curso.modalidad ?? 'No especificada';
     detalle.querySelector('.js-cupos').textContent = curso.cupos_disponibles ?? '-';
@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .trim()
           .toLowerCase();
 
-        // Ocultar botón superior al estar logueado
         const btnInscribirmeSuperior = document.querySelector(
           '.js-btn-inscribirme-superior'
         );
@@ -131,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
           btnInscribirmeSuperior.classList.add('d-none');
         }
 
-        // SOLO para usuarios con rol 'estudiante'
         if (tipo === 'estudiante') {
           renderizarTablaModulos(curso);
 
@@ -169,12 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
             contenedorAcciones.classList.remove('d-none');
           }
 
-          // Listener para la inscripción
           if (btnInscribirmeInferior) {
             btnInscribirmeInferior.addEventListener('click', async (e) => {
               e.preventDefault();
 
-              // Estado de carga
               btnInscribirmeInferior.disabled = true;
 
               if (spinnerBtn) {
@@ -186,12 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
               }
 
               try {
-                // Guardar el curso adquirido en Firestore
                 await updateDoc(docRef, {
                   serviciosAdquiridos: arrayUnion(curso.titulo)
                 });
 
-                // Mostrar resultado
                 if (spinnerBtn) {
                   spinnerBtn.classList.add('d-none');
                 }
@@ -204,22 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
                   textoBtn.textContent = '¡Inscripto!';
                 }
 
-                // Cambiar estilo del botón a estado completado
                 btnInscribirmeInferior.classList.remove('btn-success');
                 btnInscribirmeInferior.classList.add('btn-secondary');
 
-                // Mostrar banner de éxito
                 if (alertaExito) {
                   alertaExito.classList.remove('d-none');
                 }
-
               } catch (error) {
                 console.error(
                   "Error al guardar la inscripción:",
                   error
                 );
 
-                // Restaurar botón si hubo un error
                 btnInscribirmeInferior.disabled = false;
 
                 if (spinnerBtn) {
@@ -258,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Filtrar claves que comiencen con "modulo"
     const clavesModulos = Object.keys(curso)
       .filter((clave) => clave.startsWith('modulo'))
       .sort();
@@ -281,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tablaBody.appendChild(tr);
       });
 
-      // Mostrar la tabla
       seccionModulos.classList.remove('d-none');
 
       console.log("Tabla de módulos renderizada exitosamente.");
@@ -301,61 +289,46 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedor.replaceChildren();
   }
 
-  function obtenerCategoria(titulo) {
-    const t = titulo.toLowerCase();
+  function obtenerCategoria(curso) {
+    const categoria = (curso.categoria ?? '').toLowerCase();
+    const titulo = (curso.titulo ?? '').toLowerCase();
 
-    if (t.includes('excel')) {
-      return {
-        claseCategoria: 'categoria-ofimatica',
-        icono: '📊'
-      };
+    if (categoria.includes('desarrollo web') || titulo.includes('desarrollo web')) {
+      return { claseCategoria: 'categoria-web', icono: '🌐' };
     }
 
-    if (t.includes('word')) {
-      return {
-        claseCategoria: 'categoria-ofimatica',
-        icono: '📝'
-      };
+    if (categoria.includes('excel') || titulo.includes('excel')) {
+      return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
     }
 
-    if (t.includes('micro:bit') || t.includes('microbit')) {
-      return {
-        claseCategoria: 'categoria-hardware',
-        icono: '🔌'
-      };
+    if (categoria.includes('word') || titulo.includes('word')) {
+      return { claseCategoria: 'categoria-ofimatica', icono: '📝' };
     }
 
-    if (t.includes('scratch')) {
-      return {
-        claseCategoria: 'categoria-hardware',
-        icono: '🧩'
-      };
+    if (categoria.includes('hardware') || titulo.includes('micro:bit') || titulo.includes('microbit')) {
+      return { claseCategoria: 'categoria-hardware', icono: '🔌' };
+    }
+
+    if (titulo.includes('scratch')) {
+      return { claseCategoria: 'categoria-hardware', icono: '🧩' };
     }
 
     if (
-      t.includes('inteligencia artificial') ||
-      t.includes('machine learning')
+      categoria.includes('inteligencia artificial') ||
+      titulo.includes('inteligencia artificial') ||
+      titulo.includes('machine learning')
     ) {
-      return {
-        claseCategoria: 'categoria-ia',
-        icono: '🤖'
-      };
+      return { claseCategoria: 'categoria-ia', icono: '🤖' };
     }
 
     if (
-      t.includes('base de datos') ||
-      t.includes('mysql') ||
-      t.includes('datos')
+      categoria.includes('base de datos') ||
+      titulo.includes('base de datos') ||
+      titulo.includes('mysql')
     ) {
-      return {
-        claseCategoria: 'categoria-datos',
-        icono: '🗄️'
-      };
+      return { claseCategoria: 'categoria-datos', icono: '🗄️' };
     }
 
-    return {
-      claseCategoria: 'categoria-programacion',
-      icono: '💻'
-    };
+    return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 });

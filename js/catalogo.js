@@ -1,4 +1,3 @@
-// js/catalogo.js
 import { db } from "./firebase-config.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       mostrarMensaje('Cargando cursos...');
 
-      // Obtener cursos directamente desde Firebase Firestore
       const resultado = await getDocs(collection(db, 'cursos'));
       
       todosLosCursos = resultado.docs.map(documento => ({
@@ -52,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }   
   }
     
-  function actualizarCatalogo() {
+ function actualizarCatalogo() {
     const texto = normalizarTexto(inputBuscar.value.trim());
     const categoriaSeleccionada = categoriaFiltro.value;
     const ordenSeleccionado = ordenCursos.value;
@@ -62,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const descripcion = normalizarTexto(curso.descripcion ?? "");
       const coincideTexto = titulo.includes(texto) || descripcion.includes(texto);
       const categoriaCurso = obtenerCategoria(curso);
-      const coincideCategoria = !categoriaSeleccionada || categoriaCurso === categoriaSeleccionada;
+
+      // Una sola variable para validar si es vacía, "todas" o coincide con el filtro
+      const coincideCategoria = !categoriaSeleccionada || categoriaSeleccionada === "todas" || categoriaCurso === categoriaSeleccionada;
 
       return coincideTexto && coincideCategoria;
     });
@@ -122,14 +122,19 @@ document.addEventListener('DOMContentLoaded', () => {
       thumbIcono.textContent = categoriaVisual.icono;
     }
 
-    if (curso.imagen_url) {
-      thumbImg.src = curso.imagen_url;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+    if (rutaImagen) {
+      thumbImg.src = rutaImagen;
       thumbImg.alt = curso.titulo ?? 'Curso';
       thumbImg.addEventListener('error', mostrarIcono, { once: true });
     } else {
       mostrarIcono();
     }
-
+    const categoriaEl = tarjeta.querySelector('.js-categoria');
+    if (categoriaEl) {
+    categoriaEl.textContent = curso.categoria ?? 'Sin categoría';
+}
     tarjeta.querySelector('.js-titulo').textContent = curso.titulo ?? 'Sin título';
     tarjeta.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
     tarjeta.querySelector('.js-precio').textContent = precioFormateado;

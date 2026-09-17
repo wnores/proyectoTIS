@@ -158,7 +158,8 @@ async function iniciarPagina() {
             precio: precio,
             duracion_horas: duracionHoras,
             cupos_disponibles: cuposDisponibles,
-            imagen_url: imagenUrl,
+            URL_imagen: imagenUrl,
+            modalidad: "Virtual",
 
             ...modulos,
 

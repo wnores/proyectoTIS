@@ -11,7 +11,12 @@ import {
     doc,
     getDoc,
     updateDoc,
-    deleteDoc
+    deleteDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 // ======================================================
@@ -663,9 +668,9 @@ function configurarServiciosAdquiridos(datosUsuario) {
                 elemento.className =
                     "list-group-item d-flex align-items-center gap-2";
 
-                elemento.innerHTML = `
+               elemento.innerHTML = `
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <span>${servicio}</span>
+                    <span>${servicio.curso || servicio}</span>
                 `;
 
                 lista.appendChild(elemento);
@@ -736,6 +741,30 @@ function configurarServiciosAdquiridos(datosUsuario) {
             modal.show();
         }
     });
+}
+
+// ======================================================
+// ELIMINAR SOLICITUDES DE BECAS DEL USUARIO
+// ======================================================
+async function eliminarBecasUsuario(uid) {
+    const referenciaBecas = collection(db, "solicitudesBecas");
+
+    const consulta = query(
+        referenciaBecas,
+        where("uid", "==", uid)
+    );
+
+    const resultado = await getDocs(consulta);
+
+    if (resultado.empty) return;
+
+    const batch = writeBatch(db);
+
+    resultado.forEach((documento) => {
+        batch.delete(documento.ref);
+    });
+
+    await batch.commit();
 }
 
 // ======================================================
@@ -876,12 +905,14 @@ function configurarEliminarCuenta(user, referenciaUsuario) {
                     credencial
                 );
 
+                // Eliminar solicitudes de beca del usuario
+                await eliminarBecasUsuario(user.uid);
+
                 // Eliminar documento de Firestore
                 await deleteDoc(referenciaUsuario);
 
                 // Eliminar cuenta de Firebase Authentication
                 await deleteUser(user);
-
                 // La cuenta ya fue eliminada correctamente
                 if (mensajeEliminar) {
                     mensajeEliminar.textContent =

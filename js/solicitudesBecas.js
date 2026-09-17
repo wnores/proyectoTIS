@@ -1,13 +1,14 @@
 import { db } from "./firebase-config.js";
 
 import {
-    collection,
+   collection,
     getDocs,
     query,
     where,
     doc,
     writeBatch,
-    arrayUnion
+    arrayUnion,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const contenedor =
@@ -45,9 +46,51 @@ async function cargarSolicitudes() {
             return;
         }
 
-        resultado.forEach((documento) => {
+        resultado.forEach(async (documento) => {
 
             const solicitud = documento.data();
+
+            let nombreCurso = solicitud.curso;
+
+            // Si tenemos el ID del curso, buscar su nombre
+            const cursoId = solicitud.cursoId || solicitud.curso;
+
+            if (cursoId) {
+
+                try {
+
+                    const referenciaCurso =
+                        doc(
+                            db,
+                            "cursos",
+                            cursoId
+                        );
+
+                    const resultadoCurso =
+                        await getDoc(referenciaCurso);
+
+                    if (resultadoCurso.exists()) {
+
+                        const datosCurso =
+                            resultadoCurso.data();
+
+                        nombreCurso =
+                            datosCurso.titulo ||
+                            datosCurso.nombre ||
+                            datosCurso.nombreCurso ||
+                            solicitud.curso;
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Error al obtener el nombre del curso:",
+                        error
+                    );
+
+                }
+            }
 
             const tarjeta =
                 document.createElement("div");
@@ -72,7 +115,7 @@ async function cargarSolicitudes() {
 
                         <p class="mb-2">
                             <strong>Curso:</strong>
-                            ${solicitud.curso}
+                            ${nombreCurso}
                         </p>
 
                         <p class="mb-2">
@@ -121,7 +164,11 @@ async function cargarSolicitudes() {
                 "click",
                 () => aprobarSolicitud(
                     documento.id,
-                    solicitud
+                    {
+                        ...solicitud,
+                        cursoId: cursoId,
+                        curso: nombreCurso
+                    }
                 )
             );
 
@@ -158,6 +205,10 @@ async function cargarSolicitudes() {
 // APROBAR SOLICITUD
 // ======================================================
 
+// ======================================================
+// APROBAR SOLICITUD
+// ======================================================
+
 async function aprobarSolicitud(idSolicitud, solicitud) {
 
     const confirmar =
@@ -168,6 +219,40 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
     if (!confirmar) return;
 
     try {
+
+        // El ID del curso puede venir en cursoId
+        // o, en solicitudes anteriores, directamente en curso
+        const cursoId =
+            solicitud.cursoId || solicitud.curso;
+
+        if (!cursoId) {
+            alert("No se encontró el curso asociado a la solicitud.");
+            return;
+        }
+
+        // Obtener los datos reales del curso
+        const referenciaCurso =
+            doc(
+                db,
+                "cursos",
+                cursoId
+            );
+
+        const resultadoCurso =
+            await getDoc(referenciaCurso);
+
+        if (!resultadoCurso.exists()) {
+            alert("No se encontró el curso asociado a la solicitud.");
+            return;
+        }
+
+        const datosCurso = resultadoCurso.data();
+
+        const nombreCurso =
+            datosCurso.titulo ||
+            datosCurso.nombre ||
+            datosCurso.nombreCurso ||
+            "Curso sin nombre";
 
         const batch = writeBatch(db);
 
@@ -185,22 +270,26 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
                 solicitud.uid
             );
 
+        // Marcar solicitud como aprobada
         batch.update(
             referenciaSolicitud,
             {
-                estado: "aprobada"
+                estado: "aprobada",
+                cursoId: cursoId,
+                curso: nombreCurso
             }
         );
 
+        // Agregar curso y beca al usuario
         batch.update(
             referenciaUsuario,
             {
                 serviciosAdquiridos:
-                    arrayUnion(solicitud.curso),
+                    arrayUnion(nombreCurso),
 
                 becasAdquiridas:
                     arrayUnion({
-                        curso: solicitud.curso,
+                        curso: nombreCurso,
                         tipoBeca: solicitud.tipoBeca
                     })
             }

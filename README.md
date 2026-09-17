@@ -32,7 +32,7 @@ mostrará en las páginas ingresar.html y registrarse.html.
 Se verificó la presentación visual y la adaptación de la página al diseño general del sitio.
 - "contacto.html": Aparece la información para consultas: se brinda un número de whatsapp, los días y horarios de atención y la dirección de las oficinas administrativas donde sólo se brinda información de los cursos. Además esta página cuenta con un formulario de contacto, dónde se ingresa el nombre y apellido, un correo electrónico y el mensaje o consulta que se desea enviar. (Creado por Marilina)
 
-- Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro), se ingresa con los tipo de usuario "docente/admin" o "estudiante".
+- Botón "ingresar.html": Formulario de ingreso mediante correo electrónico y contraseña (Previo registro), se ingresa con los tipo de usuario "docente/admin" o "estudiante", dependiendo de los permisos que posea cada usuario.
 
 - Botón "registrarse.html": Formulario de registro, por defecto crea los usuario de tipo "estudiante". Por otro lado, los "docente/admin" que van a administrar la página ya están estar creados por defecto.
 
@@ -107,10 +107,9 @@ Se creó js/roles.js con las reglas de permisos de cada rol:
 Se agregó una función (aplicarVisibilidadPorRol) que oculta u muestra elementos de la interfaz según el rol del usuario logueado (o de un visitante sin sesión).
 
 ## Detalle del curso con usuario logueado (Marilina)
+Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
 
 ## Dar de baja cursos (eliminación lógica) (Walter)
-
-Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
 
 ## Modificar curso (Giovanna)
 Se creó la página modificarCurso.html y su lógica en js/modificarCurso.js disponible sólo para usuarios con rol docente/admin.
@@ -121,6 +120,7 @@ Se habilitó el acceso a esta funcionalidad desde administrarCursos.html, reempl
 Se agregó la visualización de la categoría del curso tanto en las tarjetas del catálogo (catalogo.html) cómo en la página de detalle (descripcionDeCurso.html).
 Se corrigió descripcionDeCurso.js para que también busque los cursos en Firestore (antes sólo buscaba en cursos.json, por lo que los cursos nuevos no se podían ver en detalle).
 Se completó manualmente el campo categoria en Firestore para los cursos que no lo tenían cargado.
+
 ## Sprint 3 (28/09/2026 al 11/10/2026)
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)

@@ -100,6 +100,11 @@ https://bdcursoscc.web.app/
 ### Recuperar contraseña (recuperarContrasenia.html) (Anny)
 
 ## Perfiles de usuario (Giovanna)
+Se definieron dos roles: estudiante y docente/admin, guardados en el campo tipoUsuario de cada usuario en Firestone. 
+Se creó js/roles.js con las reglas de permisos de cada rol:
+- Estudiante: puede comprar cursos, acceder a sus contenidos y obtener certificado.
+- Docente/admin: puede crear, editar y eliminar cursos, y gestionar las cuentas de los estudiantes.
+Se agregó una función (aplicarVisibilidadPorRol) que oculta u muestra elementos de la interfaz según el rol del usuario logueado (o de un visitante sin sesión).
 
 ## Detalle del curso con usuario logueado (Marilina)
 
@@ -107,7 +112,15 @@ https://bdcursoscc.web.app/
 
 Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
 
+## Modificar curso (Giovanna)
+Se creó la página modificarCurso.html y su lógica en js/modificarCurso.js disponible sólo para usuarios con rol docente/admin.
+Permite elegir un curso existente desde un desplegable (cargado desde Firestore), completar automáticamente el formulario con sus datos actuales y guardar los cambios (título, descripción, categoría, precio, duración, cupos, imagen) directamente en la base de datos.
+Se habilitó el acceso a esta funcionalidad desde administrarCursos.html, reemplazando el botón "Próximamente".
 
+## Categoría de los cursos (Giovanna)
+Se agregó la visualización de la categoría del curso tanto en las tarjetas del catálogo (catalogo.html) cómo en la página de detalle (descripcionDeCurso.html).
+Se corrigió descripcionDeCurso.js para que también busque los cursos en Firestore (antes sólo buscaba en cursos.json, por lo que los cursos nuevos no se podían ver en detalle).
+Se completó manualmente el campo categoria en Firestore para los cursos que no lo tenían cargado.
 ## Sprint 3 (28/09/2026 al 11/10/2026)
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)

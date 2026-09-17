@@ -131,7 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       mostrarIcono();
     }
-
+    const categoriaEl = tarjeta.querySelector('.js-categoria');
+    if (categoriaEl) {
+    categoriaEl.textContent = curso.categoria ?? 'Sin categoría';
+}
     tarjeta.querySelector('.js-titulo').textContent = curso.titulo ?? 'Sin título';
     tarjeta.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
     tarjeta.querySelector('.js-precio').textContent = precioFormateado;

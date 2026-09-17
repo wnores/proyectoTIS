@@ -175,6 +175,20 @@ También se incorporaron mejoras de accesibilidad:
 
 Estas modificaciones se realizaron procurando conservar la apariencia, las clases de Bootstrap, la navegación y los elementos comunes utilizados en todas las páginas.
 
+### Búsqueda, filtrado y ordenamiento del catálogo (Anny)
+
+Se mejoró el catálogo incorporando herramientas para buscar y organizar los cursos obtenidos desde Cloud Firestore.
+
+El usuario puede:
+- Buscar cursos por título o descripción.
+- Filtrar por categoría.
+- Ordenar por precio de menor a mayor o de mayor a menor.
+- Ordenar alfabéticamente de A a Z o de Z a A.
+- Ordenar por cantidad de cupos disponibles.
+- Limpiar todos los filtros aplicados.
+
+El catálogo muestra la cantidad de cursos encontrados y presenta un mensaje cuando no existen resultados que coincidan con la búsqueda.
+
 ## Perfiles de usuario (Giovanna)
 Se definieron dos roles: estudiante y docente/admin, guardados en el campo tipoUsuario de cada usuario en Firestone. 
 Se creó js/roles.js con las reglas de permisos de cada rol:

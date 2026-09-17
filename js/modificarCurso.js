@@ -13,19 +13,44 @@ import {
     tienePermiso
 } from "./roles.js";
 
+const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
+const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
+
 const contenidoAdministrador = document.getElementById("contenidoAdministrador");
 const selectorCurso = document.getElementById("selectorCurso");
 const formModificarCurso = document.getElementById("formModificarCurso");
 const mensajeCurso = document.getElementById("mensajeCurso");
 const btnGuardarCambios = document.getElementById("btnGuardarCambios");
 
+const imagenCurso = document.getElementById("imagenCurso");
+const nombreImagenCurso = document.getElementById("nombreImagenCurso");
+const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
+
 let cursoSeleccionadoId = null;
+let archivoImagenCurso = null;
+let urlImagenActual = "";
 
 iniciarPagina();
 
+imagenCurso.addEventListener("change", (event) => {
+    const archivo = event.target.files[0];
+
+    if (!archivo) {
+        archivoImagenCurso = null;
+        nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
+        return;
+    }
+
+    archivoImagenCurso = archivo;
+    nombreImagenCurso.textContent = archivo.name;
+
+    vistaPreviaCurso.src = URL.createObjectURL(archivo);
+    vistaPreviaCurso.classList.remove("d-none");
+});
+
 async function iniciarPagina() {
     const rol = await obtenerRolActual();
-console.log('Rol detectado:', rol);
+
     if (!rol) {
         window.location.href = "ingresar.html";
         return;
@@ -60,9 +85,17 @@ async function cargarListaCursos() {
 selectorCurso.addEventListener("change", async () => {
     const id = selectorCurso.value;
 
+    // Reiniciar el estado de la imagen cada vez que se cambia de curso
+    archivoImagenCurso = null;
+    imagenCurso.value = "";
+    nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
+    vistaPreviaCurso.classList.add("d-none");
+    vistaPreviaCurso.removeAttribute("src");
+
     if (!id) {
         formModificarCurso.classList.add("d-none");
         cursoSeleccionadoId = null;
+        urlImagenActual = "";
         return;
     }
 
@@ -77,6 +110,7 @@ selectorCurso.addEventListener("change", async () => {
 
         const curso = snap.data();
         cursoSeleccionadoId = id;
+        urlImagenActual = curso.URL_imagen ?? curso.imagen_url ?? "";
 
         document.getElementById("titulo").value = curso.titulo ?? "";
         document.getElementById("descripcion").value = curso.descripcion ?? "";
@@ -84,7 +118,12 @@ selectorCurso.addEventListener("change", async () => {
         document.getElementById("precio").value = curso.precio ?? "";
         document.getElementById("duracion").value = curso.duracion_horas ?? "";
         document.getElementById("cupos").value = curso.cupos_disponibles ?? "";
-        document.getElementById("imagen").value = curso.imagen_url ?? "";
+
+        if (urlImagenActual) {
+            vistaPreviaCurso.src = urlImagenActual;
+            vistaPreviaCurso.classList.remove("d-none");
+            nombreImagenCurso.textContent = "Imagen actual del curso (elegí un archivo para reemplazarla).";
+        }
 
         formModificarCurso.classList.remove("d-none");
         mensajeCurso.classList.add("d-none");
@@ -120,7 +159,6 @@ formModificarCurso.addEventListener("submit", async (event) => {
     const precio = Number(document.getElementById("precio").value);
     const duracionHoras = Number(document.getElementById("duracion").value);
     const cuposDisponibles = Number(document.getElementById("cupos").value);
-    const imagenUrl = document.getElementById("imagen").value.trim();
 
     if (
         !titulo ||
@@ -144,6 +182,12 @@ formModificarCurso.addEventListener("submit", async (event) => {
     `;
 
     try {
+        let urlImagenFinal = urlImagenActual;
+
+        if (archivoImagenCurso) {
+            urlImagenFinal = await subirImagenACloudinary(archivoImagenCurso);
+        }
+
         await updateDoc(doc(db, "cursos", cursoSeleccionadoId), {
             titulo: titulo,
             descripcion: descripcion,
@@ -151,8 +195,13 @@ formModificarCurso.addEventListener("submit", async (event) => {
             precio: precio,
             duracion_horas: duracionHoras,
             cupos_disponibles: cuposDisponibles,
-            imagen_url: imagenUrl
+            URL_imagen: urlImagenFinal
         });
+
+        urlImagenActual = urlImagenFinal;
+        archivoImagenCurso = null;
+        imagenCurso.value = "";
+        nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
 
         mostrarMensaje(
             "El curso fue modificado correctamente.",
@@ -179,4 +228,27 @@ formModificarCurso.addEventListener("submit", async (event) => {
 function mostrarMensaje(texto, tipo) {
     mensajeCurso.textContent = texto;
     mensajeCurso.className = `alert alert-${tipo}`;
+}
+
+async function subirImagenACloudinary(archivo) {
+    const datosFormulario = new FormData();
+
+    datosFormulario.append("file", archivo);
+    datosFormulario.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const respuesta = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+            method: "POST",
+            body: datosFormulario
+        }
+    );
+
+    if (!respuesta.ok) {
+        throw new Error("No se pudo subir la imagen.");
+    }
+
+    const datos = await respuesta.json();
+
+    return datos.secure_url;
 }

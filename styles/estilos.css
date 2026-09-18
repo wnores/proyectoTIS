@@ -608,6 +608,28 @@ body {
     cursor: pointer;
 }
 
+/* Paginación personalizada - Color de fondo del número activo */
+.pagination .page-item.active .page-link {
+    background-color: #2b7575;   /* Cambiá este color por el que quieras */
+    border-color: #2b7575;
+    color: white;
+}
+
+/* Hover sobre los números (los no activos) */
+.pagination .page-item .page-link {
+    color: #2b7575;              /* Color del texto */
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #e0f0f0;   /* Fondo al pasar el mouse */
+    color: #2b7575;
+}
+
+/* Botones deshabilitados (Anterior/Siguiente cuando no aplican) */
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd;
+}
+
 /* =====================================================
    DATOS DEL PERFIL
 ===================================================== */
@@ -742,5 +764,57 @@ body {
 
     .perfil-botones .btn {
         width: 100%;
+    }
+}
+
+/* ============================================
+   TABLA RESPONSIVE APILADA (STACKED)
+   En pantallas grandes: tabla normal
+   En pantallas chicas: cada fila es una tarjeta
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Ocultamos los encabezados de la tabla */
+    .tabla-cursos thead {
+        display: none;
+    }
+
+    /* Cada fila se convierte en una tarjeta */
+    .tabla-cursos tbody tr {
+        display: block;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 15px;
+        padding: 12px;
+        border: 1px solid #eee;
+    }
+
+    /* Cada celda ocupa toda la fila */
+    .tabla-cursos tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right !important;
+    }
+
+    /* Quitamos el borde de la última celda */
+    .tabla-cursos tbody td:last-child {
+        border-bottom: none;
+    }
+
+    /*  Etiqueta a la izquierda (viene del atributo data-label) */
+    .tabla-cursos tbody td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #2b7575;
+        text-align: left;
+        flex-shrink: 0;
+        margin-right: 15px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
     }
 }

@@ -1,52 +1,99 @@
-
-// js/catalogo.js
-// Trae los cursos desde cursos.json y arma las tarjetas de catalogo.html
-// clonando la plantilla <template id="plantillaTarjetaCurso"> del HTML.
+import { db } from "./firebase-config.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('listaCursos');
   const mensajeEstado = document.getElementById('estadoCarga');
   const formBuscar = document.getElementById('formBuscarCursos');
   const inputBuscar = document.getElementById('inputBuscarCursos');
+  const categoriaFiltro = document.getElementById('categoriaFiltro');
+  const ordenCursos = document.getElementById('ordenCursos');
+  const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros'); 
   const plantilla = document.getElementById('plantillaTarjetaCurso');
 
   let todosLosCursos = [];
 
   cargarCursos();
 
-  if (formBuscar) {
-    formBuscar.addEventListener('submit', (e) => {
-      e.preventDefault();
-      filtrarCursos();
-    });
-  }
+  formBuscar.addEventListener('submit', (event) => {
+    event.preventDefault();
+    actualizarCatalogo();
+  });
 
-  if (inputBuscar) {
-    inputBuscar.addEventListener('input', filtrarCursos);
-  }
+  inputBuscar.addEventListener("input", actualizarCatalogo);
+  categoriaFiltro.addEventListener("change", actualizarCatalogo);
+  ordenCursos.addEventListener("change", actualizarCatalogo);
+
+  btnLimpiarFiltros.addEventListener('click', () => {
+    formBuscar.reset();
+    actualizarCatalogo();
+    inputBuscar.focus();
+  });
 
   async function cargarCursos() {
     try {
-      const respuesta = await fetch('js/data/cursos.json');
+      mostrarMensaje('Cargando cursos...');
 
-      if (!respuesta.ok) {
-        throw new Error('No se pudo obtener el catálogo de cursos.');
-      }
+      const resultado = await getDocs(collection(db, 'cursos'));
+      
+      todosLosCursos = resultado.docs.map(documento => ({
+        ...documento.data(),
+        id: documento.id
+      }));
 
-      const cursos = await respuesta.json();
-      todosLosCursos = cursos;
-
-      if (cursos.length === 0) {
-        mensajeEstado.textContent = 'Todavía no hay cursos cargados.';
-        return;
-      }
-
-      mensajeEstado.classList.add('d-none');
-      mostrarCursos(cursos);
+      actualizarCatalogo();
+      console.log("Cursos cargados desde Firebase:", todosLosCursos);
     } catch (error) {
-      console.error('Error al cargar cursos:', error);
-      mensajeEstado.textContent = 'Ocurrió un error al cargar los cursos. Intentá nuevamente más tarde.';
-      mensajeEstado.classList.remove('d-none');
+      console.error("Error al cargar cursos desde Firebase:", error);
+      contenedor.replaceChildren();
+      mostrarMensaje("Ocurrió un error al cargar los cursos. Intenta nuevamente.");
+    }   
+  }
+    
+ function actualizarCatalogo() {
+    const texto = normalizarTexto(inputBuscar.value.trim());
+    const categoriaSeleccionada = categoriaFiltro.value;
+    const ordenSeleccionado = ordenCursos.value;
+    
+    let cursosFiltrados = todosLosCursos.filter(curso => {
+      const titulo = normalizarTexto(curso.titulo ?? "");
+      const descripcion = normalizarTexto(curso.descripcion ?? "");
+      const coincideTexto = titulo.includes(texto) || descripcion.includes(texto);
+      const categoriaCurso = obtenerCategoria(curso);
+
+      // Una sola variable para validar si es vacía, "todas" o coincide con el filtro
+      const coincideCategoria = !categoriaSeleccionada || categoriaSeleccionada === "todas" || categoriaCurso === categoriaSeleccionada;
+
+      return coincideTexto && coincideCategoria;
+    });
+
+    cursosFiltrados = ordenarCursos(cursosFiltrados, ordenSeleccionado);
+
+    if (cursosFiltrados.length === 0) {
+      contenedor.replaceChildren();
+      mostrarMensaje('No se encontraron cursos que coincidan con la búsqueda.');
+      return;
+    }
+    
+    ocultarMensaje();
+    mostrarCursos(cursosFiltrados);
+  }
+
+  function ordenarCursos(cursos, orden) {
+    const cursosOrdenados = [...cursos];
+    switch (orden) {
+      case "precio-menor":
+        return cursosOrdenados.sort((a, b) => Number(a.precio) - Number(b.precio));
+      case "precio-mayor":
+        return cursosOrdenados.sort((a, b) => Number(b.precio) - Number(a.precio));
+      case "nombre-az":
+        return cursosOrdenados.sort((a, b) => (a.titulo ?? "").localeCompare(b.titulo ?? "", "es"));
+      case "nombre-za":
+        return cursosOrdenados.sort((a, b) => (b.titulo ?? "").localeCompare(a.titulo ?? "", "es"));
+      case "cupos-mayor":
+        return cursosOrdenados.sort((a, b) => Number(b.cupos_disponibles) - Number(a.cupos_disponibles));
+      default:
+        return cursosOrdenados;
     }
   }
 
@@ -56,25 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedor.replaceChildren(fragmento);
   }
 
-  function filtrarCursos() {
-    const texto = inputBuscar.value.trim().toLowerCase();
-    const filtrados = todosLosCursos.filter((curso) =>
-      curso.titulo.toLowerCase().includes(texto) ||
-      (curso.descripcion ?? '').toLowerCase().includes(texto)
-    );
-
-    if (filtrados.length === 0) {
-      contenedor.replaceChildren();
-      mensajeEstado.textContent = 'No se encontraron cursos que coincidan con la búsqueda.';
-      mensajeEstado.classList.remove('d-none');
-    } else {
-      mensajeEstado.classList.add('d-none');
-      mostrarCursos(filtrados);
-    }
-  }
-
   function crearTarjetaCurso(curso) {
-    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
+    const categoriaVisual = obtenerCategoriaVisual(curso);
     const precioFormateado = Number(curso.precio).toLocaleString('es-UY', {
       style: 'currency',
       currency: 'UYU'
@@ -82,45 +112,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tarjeta = plantilla.content.cloneNode(true);
 
-    const thumbContainer = tarjeta.querySelector('.js-thumb-container');
     const thumbImg = tarjeta.querySelector('.js-thumb-img');
     const thumbIcono = tarjeta.querySelector('.js-thumb-icono');
 
     function mostrarIcono() {
-      thumbContainer.classList.add('d-none');
+      thumbImg.classList.add('d-none');
       thumbIcono.classList.remove('d-none');
-      thumbIcono.classList.add(claseCategoria);
-      thumbIcono.textContent = icono;
+      thumbIcono.classList.add(categoriaVisual.claseCategoria);
+      thumbIcono.textContent = categoriaVisual.icono;
     }
 
-    if (curso.imagen_url) {
-      thumbImg.src = curso.imagen_url;
-      thumbImg.alt = curso.titulo;
+    const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+    if (rutaImagen) {
+      thumbImg.src = rutaImagen;
+      thumbImg.alt = curso.titulo ?? 'Curso';
       thumbImg.addEventListener('error', mostrarIcono, { once: true });
     } else {
       mostrarIcono();
     }
-
-    tarjeta.querySelector('.js-titulo').textContent = curso.titulo;
+    const categoriaEl = tarjeta.querySelector('.js-categoria');
+    if (categoriaEl) {
+    categoriaEl.textContent = curso.categoria ?? 'Sin categoría';
+}
+    tarjeta.querySelector('.js-titulo').textContent = curso.titulo ?? 'Sin título';
     tarjeta.querySelector('.js-descripcion').textContent = curso.descripcion ?? '';
     tarjeta.querySelector('.js-precio').textContent = precioFormateado;
-    tarjeta.querySelector('.js-cupos').textContent = curso.cupos_disponibles;
-
+    tarjeta.querySelector('.js-cupos').textContent = curso.cupos_disponibles ?? 0;
+    
     const btnVerMas = tarjeta.querySelector('.js-ver-mas');
     btnVerMas.href = `descripcionDeCurso.html?id=${curso.id}`;
 
     return tarjeta;
   }
 
-  function obtenerCategoria(titulo) {
-    const t = titulo.toLowerCase();
+  function obtenerCategoria(curso) {
+    const categoria = normalizarTexto(curso.categoria ?? "");
+    const titulo = normalizarTexto(curso.titulo ?? "");
 
-    if (t.includes('excel')) return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
-    if (t.includes('word')) return { claseCategoria: 'categoria-ofimatica', icono: '📝' };
-    if (t.includes('micro:bit') || t.includes('microbit')) return { claseCategoria: 'categoria-hardware', icono: '🔌' };
-    if (t.includes('scratch')) return { claseCategoria: 'categoria-hardware', icono: '🧩' };
-    if (t.includes('inteligencia artificial') || t.includes('machine learning')) return { claseCategoria: 'categoria-ia', icono: '🤖' };
-    if (t.includes('base de datos') || t.includes('mysql') || t.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
-    return { claseCategoria: 'categoria-programacion', icono: '💻' };
+    if (categoria.includes('desarrollo web') || titulo.includes('desarrollo web')) return "desarrollo-web";
+    if (categoria.includes('inteligencia artificial') || titulo.includes("inteligencia artificial") || titulo.includes("machine learning")) return "inteligencia-artificial";
+    if (categoria.includes('base de datos') || titulo.includes("base de datos") || titulo.includes('mysql')) return "base-datos";
+    if (categoria.includes('ofimatica') || titulo.includes('excel') || titulo.includes('word')) return "ofimatica";
+    if (categoria.includes('hardware') || titulo.includes('electronica') || titulo.includes('micro:bit') || titulo.includes('scratch')) return "hardware-electronica";
+    
+    return "programacion";
+  }
+
+  function obtenerCategoriaVisual(curso) {
+    const categoria = obtenerCategoria(curso);
+    const configuraciones = {
+      "programacion": { claseCategoria: 'categoria-programacion', icono: '💻' },
+      "desarrollo-web": { claseCategoria: 'categoria-web', icono: '🌐' },
+      "inteligencia-artificial": { claseCategoria: 'categoria-ia', icono: '🤖' },
+      "base-datos": { claseCategoria: 'categoria-datos', icono: '🗄️' },
+      "ofimatica": { claseCategoria: 'categoria-ofimatica', icono: '📊' },
+      "hardware-electronica": { claseCategoria: 'categoria-hardware', icono: '🔌' }
+    };
+    return configuraciones[categoria] || configuraciones["programacion"];
+  }
+
+  function normalizarTexto(texto) {
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function mostrarMensaje(texto) {
+    mensajeEstado.textContent = texto;
+    mensajeEstado.classList.remove('d-none');
+  }
+
+  function ocultarMensaje() {
+    mensajeEstado.classList.add('d-none');
   }
 });

@@ -2,6 +2,10 @@ import { auth, db } from "./firebase-config.js";
 import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+// Configuración de Cloudinary (reemplazá con tus datos)
+const CLOUDINARY_CLOUD_NAME = "fd9bzuxj"; 
+const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller"; 
+
 const form = document.getElementById("registerForm");
 const passwordInput = document.getElementById("password");
 const repetirPasswordInput = document.getElementById("repetirPassword");
@@ -16,59 +20,42 @@ const avatarPreview = document.getElementById("avatarPreview");
 const avatarIcon = document.getElementById("avatarIcon");
 const avatarImg = document.getElementById("avatarImg");
 
-let fotoBase64 = "";
+let archivoImagen = null;
 let timerOverlay = null;
 
-// --- Convierte la imagen a BASE64 para guardarla como texto ---
-function procesarImagenBase64(file, maxWidth = 200, maxHeight = 200) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height *= maxWidth / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width *= maxHeight / height;
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        resolve(canvas.toDataURL("image/jpeg", 0.7));
-      };
-    };
-  });
-}
-
+// --- PREVISUALIZACIÓN LOCAL ---
 if (avatarBtn && avatarInput) {
   avatarBtn.addEventListener("click", () => avatarInput.click());
   if (avatarPreview) avatarPreview.addEventListener("click", () => avatarInput.click());
 
-  avatarInput.addEventListener("change", async (e) => {
+  avatarInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (file) {
-      fotoBase64 = await procesarImagenBase64(file);
-      avatarImg.src = fotoBase64;
+      archivoImagen = file;
+      avatarImg.src = URL.createObjectURL(file);
       avatarImg.classList.remove("d-none");
       if (avatarIcon) avatarIcon.classList.add("d-none");
     }
   });
+}
+
+// --- FUNCIÓN PARA SUBIR A CLOUDINARY ---
+async function subirACloudinary(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (!res.ok) {
+    throw new Error("Error al subir la imagen a Cloudinary");
+  }
+
+  const data = await res.json();
+  return data.secure_url; // Devuelve la URL HTTPS de la imagen
 }
 
 const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -183,6 +170,7 @@ function mostrarRegistroExitoso(onComplete) {
   }
 }
 
+// --- SUBMIT DEL FORMULARIO ---
 if (form) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -211,13 +199,24 @@ if (form) {
     deshabilitarBoton(true);
 
     try {
+      let photoURL = null;
+
+      // 1. Si el usuario adjuntó una imagen, se sube a Cloudinary
+      if (archivoImagen) {
+        photoURL = await subirACloudinary(archivoImagen);
+      }
+
+      // 2. Crear usuario en Auth
       const credenciales = await createUserWithEmailAndPassword(auth, email, password);
       const uid = credenciales.user.uid;
 
+      // 3. Actualizar perfil de Auth con la URL de la imagen si existe
       await updateProfile(credenciales.user, {
-        displayName: `${nombre} ${apellido}`
+        displayName: `${nombre} ${apellido}`,
+        photoURL: photoURL
       });
-      
+
+      // 4. Guardar datos en Firestore incluyendo la URL de Cloudinary
       await setDoc(doc(db, "usuarios", uid), {
         nombre,
         apellido,
@@ -225,7 +224,7 @@ if (form) {
         departamento,
         tipoDocumento,
         nroDocumento,
-        photoURL: fotoBase64 || null,
+        photoURL: photoURL,
         tipoUsuario: "estudiante",
         creadoEn: new Date()
       });

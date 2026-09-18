@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
-    <title> Cursos CC | Publicar Curso</title>
+    <title> Cursos CC | Crear Curso</title>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="catalogo.html">
     <header>
@@ -83,7 +83,7 @@
                         <div class="card-body p-4 p-md-5">
 
                             <h1 class="text-center mb-3">
-                                Publicar un curso
+                                Crear un curso
                             </h1>
 
                             <p class="text-center text-muted mb-4">
@@ -238,21 +238,65 @@
 
                                 <!-- IMAGEN -->
                                 <div class="mb-4">
-                                    <label for="imagen" class="form-label">
-                                        URL o ruta de la imagen
+                                    <label class="form-label">
+                                        Imagen del curso
                                     </label>
+                                    
+                                    <div>
+                                        <label
+                                            for="imagenCurso"
+                                            class="btn btn-outline-primary">
 
+                                            <i class="bi bi-folder2-open me-2"></i>
+                                            Seleccionar imagen
+                                        </label>
                                     <input
-                                        type="text"
-                                        class="form-control"
-                                        id="imagen"
-                                        name="imagen"
-                                        placeholder="Ej.: recursos/imagenes/curso.jpg">
-
-                                    <div class="form-text">
-                                        Este campo puede quedar vacío.
+                                        type="file"
+                                        id="imagenCurso"
+                                        class="d-none"
+                                        accept="image/*">
                                     </div>
-                                </div>
+                                    <p id="nombreImagenCurso"
+                                        class="form-text mb-2">
+                                        No se seleccionó ninguna imagen.
+                                    </p>
+
+                                    <img
+                                        id="vistaPreviaCurso"
+                                        class="img-fluid rounded d-none"
+                                        style="max-height: 220px;"
+                                        alt="Vista previa de la imagen del curso">
+                                </div>                          
+
+                                    
+                 <!-- MÓDULOS -->
+<div class="mb-4">
+    <h2 class="h5">Módulos del curso</h2>
+
+    <div id="contenedorModulos">
+        <div class="modulo-item mb-3">
+            <label class="form-label">
+                Módulo 1
+                <span class="text-danger">*</span>
+            </label>
+
+            <textarea
+                class="form-control moduloCurso"
+                rows="3"
+                placeholder="Ingresá los temas del módulo"
+                required></textarea>
+        </div>
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-outline-primary btn-sm"
+        id="btnAgregarModulo">
+
+        <i class="bi bi-plus-circle me-1"></i>
+        Agregar módulo
+    </button>
+</div>
 
                                 <!-- BOTONES -->
                                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
@@ -262,7 +306,7 @@
                                         class="btn btn-primary"
                                         id="btnPublicarCurso">
                                         <i class="bi bi-cloud-arrow-up-fill me-2"></i>
-                                        Publicar curso
+                                        Crear curso
                                     </button>
 
                                     <a

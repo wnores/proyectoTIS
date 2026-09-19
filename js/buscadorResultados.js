@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
 
-        const respuesta = await fetch('cursos.json');
+        const respuesta = await fetch('js/data/cursos.json');
 
         if (respuesta.ok) {
 

@@ -3,325 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="Perfil de usuario registrado en la plataforma">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>Cursos CC | Perfil de Usuario</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100" data-page="perfil.html">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+    aria-label="Navegación principal">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <img src="recursos/imagenes/logo.jpg"
-                    alt="Cursos de Ciencias de la Computación"
-                    class="logo">
+                <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                    class="navbar-toggler-icon"></span></button>
+
+            <button class="navbar-toggler" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Mostrar menú de navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            data-page="producto"
+                            href="acercaDe.html">
+                            Acerca de
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a>
+                    </li>
                 </ul>
-        <div>
-                
-           
-            <div class="dropdown">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> Usuario
-                </button>
-            
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
-                    <li><a class="dropdown-item" href="perfil.html">Perfil</a></li>
-                    <li><a class="dropdown-item" href="recuperar_password.html">Recuperar contraseña</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
-                </ul>
-            </div>
-           
-            </div>
+
+                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                        <li>
+                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                Cerrar sesión
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
-<main class="flex-grow-1">
+</header>    
 
-    <div class="container py-4">
+    <main class="flex-grow-1">
+        <section class="container py-4"
+        aria-labelledby="tituloPerfil">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-9">
+                    <div class="perfil-card">
+                        <h1 id="tituloPerfil" class="text-center fw-bold mb-4">Perfil</h1>
 
-        <div class="row justify-content-center">
-
-            <div class="col-12 col-lg-10 col-xl-9">
-
-                <div class="perfil-card">
-
-                    <h2 class="text-center fw-bold mb-4">
-                        Perfil
-                    </h2>
-
-                    <div class="row g-4">
-
-                        <!-- FOTO -->
-                        <div class="col-12 col-md-5 order-1 order-md-2">
-
-                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-
-                                <div class="avatar-wrapper">
-
-                                    <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
-
-                                        <i class="bi bi-person-fill text-secondary"></i>
-
+                        <div class="row g-4">
+                            <!-- FOTO -->
+                            <div class="col-12 col-md-5 order-1 order-md-2">
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                    <div class="avatar-wrapper">
+                                        <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
+                                            <i class="bi bi-person-fill text-secondary"></i>
+                                        </div>
+                                        <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute" title="Cambiar foto">
+                                            <i class="bi bi-camera-fill text-dark"></i>
+                                        </button>
                                     </div>
-
-                                    <button type="button"
-                                        class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute"
-                                        title="Cambiar foto">
-
-                                        <i class="bi bi-camera-fill text-dark"></i>
-
-                                    </button>
-
+                                    <h5 class="fw-bold mt-3 mb-1">Cargando...</h5>
+                                    <span class="text-secondary">-</span>
                                 </div>
-
-                                <h5 class="fw-bold mt-3 mb-1">
-                                    Jorge Gonzalez
-                                </h5>
-
-                                <span class="text-secondary">
-                                    Docente
-                                </span>
-
                             </div>
 
+                            <div class="col-12 col-md-7 order-2 order-md-1">
+                                <h2 class="h5 fw-bold mb-4">Información del perfil</h2>
+
+                                <div class="perfil-dato">
+                                    <label>Nombre</label>
+                                    <div>
+                                        <span id="perfilNombre">-</span>
+                                        <button class="btn-editar" title="Editar nombre">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Apellido</label>
+                                    <div>
+                                        <span id="perfilApellido">-</span>
+                                        <button class="btn-editar" title="Editar apellido">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Dirección de correo</label>
+                                    <div>
+                                        <span id="perfilEmail">-</span>
+                                    </div>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Departamento</label>
+                                    <div>
+                                        <span id="perfilDepartamento">-</span>
+                                        <button class="btn-editar" title="Editar departamento">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Tipo de documento</label>
+                                    <span id="perfilTipoDocumento">-</span>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Nro. de documento</label>
+                                    <span id="perfilNroDocumento">-</span>
+                                </div>
+
+                                <div class="perfil-dato">
+                                    <label>Rol</label>
+                                    <span id="perfilRol">-</span>
+                                </div>
+                            </div>
                         </div>
 
+                        <div class="perfil-botones mt-4 pt-4">
+                            <button type="button" class="btn btn-primary" id="btnModificarPassword">
+                                <i class="bi bi-key"></i>
+                                Modificar contraseña
+                            </button>
 
-                        <!-- INFORMACIÓN -->
-                        <div class="col-12 col-md-7 order-2 order-md-1">
+                            <button type="button" class="btn btn-primary d-none" id="btnServiciosAdquiridos">
+                                <i class="bi bi-mortarboard"></i>Servicios adquiridos
+                            </button>
 
-                            <h5 class="fw-bold mb-4">
-                                Información del perfil
-                            </h5>
-
-
-                            <div class="perfil-dato">
-                                <label>Nombre</label>
-
-                                <div>
-                                    <span>Jorge</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar nombre">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Apellido</label>
-
-                                <div>
-                                    <span>Gonzalez</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar apellido">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Dirección de correo</label>
-
-                                <div>
-                                    <span>jgonzalez@gmail.com</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar correo">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Departamento</label>
-
-                                <div>
-                                    <span>Paysandú</span>
-
-                                    <button class="btn-editar"
-                                        title="Editar departamento">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Tipo de documento</label>
-
-                                <span>
-                                    Cédula Uruguaya
-                                </span>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Nro. de documento</label>
-
-                                <span>
-                                    99999999
-                                </span>
-                            </div>
-
-
-                            <div class="perfil-dato">
-                                <label>Rol</label>
-
-                                <span>
-                                    Docente
-                                </span>
-                            </div>
-
+                            <button type="button" class="btn btn-outline-danger" id="btnEliminarCuenta">
+                                <i class="bi bi-trash3"></i>
+                                Eliminar cuenta
+                            </button>
                         </div>
 
                     </div>
-
-
-                    <!-- BOTONES -->
-                    <div class="perfil-botones mt-4 pt-4">
-
-                        <button class="btn btn-primary">
-                            Modificar contraseña
-                        </button>
-
-                        <button class="btn btn-primary">
-                            Servicios adquiridos
-                        </button>
-
-                         <button class="btn btn-outline-danger">
-                            <i class="bi bi-trash3"></i>
-                            Eliminar cuenta
-                        </button>
-
-                    </div>
-
                 </div>
-
             </div>
 
-        </div>
-
-
-        <!-- VOLVER -->
-        <div class="text-center mt-4">
-
-            <a href="index.html" class="btn btn-primary">
-                Volver al inicio
-                <img src="recursos/iconos/atras.png" alt="atrás">
-            </a>
-
-        </div>
-
-    </div>
-
-</main>
+            <div class="text-center mt-4">
+                <a href="index.html" class="btn btn-primary">
+                    Volver al inicio
+                    <img src="recursos/iconos/atras.png" alt="atrás">
+                </a>
+            </div>
+        </section>
+    </main>
 
     <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
-
-
-                <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
-                    <p>
-                        Desarrollá nuevas habilidades
-                        y preparate para el mundo digital.
-                    </p>
-
+                    <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
                 </div>
-
-
-                <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
+                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Contacto</h5>
+                    <p>Seguinos en nuestras redes</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <p class="footer-copy">
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright">
+                2026 - Taller Integrador de Sistemas
+            </p>
+        </div>
+    </footer>
 
-                    <a href="politicaDePrivacidad.html">
-                        Política de privacidad
-                    </a>
-
+    <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPasswordLabel">
+                        Modificar contraseña
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
+                <div class="modal-body">
 
-                <!-- Contacto -->
-                <div class="col-lg-4">
+                    <div class="mb-3">
+                        <label for="nuevaPassword" class="form-label">
+                            Nueva contraseña
+                        </label>
 
-                    <h5>Contacto</h5>
+                        <div class="input-group">
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="nuevaPassword"
+                                minlength="8"
+                                maxlength="20"
+                                placeholder="Entre 8 y 20 caracteres">
 
-                    <p>
-                        Seguinos en nuestras redes
-                    </p>
-
-                    <div class="footer-social">
-
-                        <a href="https://www.facebook.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Facebook">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-
-                        <a href="https://www.instagram.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-
-                        <a href="https://www.youtube.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="YouTube">
-                            <i class="bi bi-youtube"></i>
-                        </a>
-
-                        <a href="https://www.linkedin.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="LinkedIn">
-                            <i class="bi bi-linkedin"></i>
-                        </a>
-
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-toggle-password"
+                                data-target="nuevaPassword"
+                                aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="confirmarPassword" class="form-label">
+                            Confirmar contraseña
+                        </label>
+
+                        <div class="input-group">
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="confirmarPassword"
+                                minlength="8"
+                                maxlength="20"
+                                placeholder="Repetí la nueva contraseña">
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-toggle-password"
+                                data-target="confirmarPassword"
+                                aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="mensajePassword" class="small"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">
+                        Guardar contraseña
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="modalReautenticarPassword" tabindex="-1" aria-labelledby="modalReautenticarPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalReautenticarPasswordLabel">
+                        Verificación de seguridad
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-3">
+                        Por seguridad, ingresá tu contraseña actual para continuar.
+                    </p>
+
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="passwordActualReautenticar"
+                            placeholder="Contraseña actual">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-toggle-password"
+                            data-target="passwordActualReautenticar"
+                            aria-label="Mostrar contraseña">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+
+                    <div id="mensajeReautenticarPassword" class="small mt-2"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="btnReautenticarPassword">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalServicios" tabindex="-1" aria-labelledby="modalServiciosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalServiciosLabel">
+                        Servicios adquiridos
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="listaServiciosAdquiridos">
+                        <p class="text-secondary mb-0">
+                            Cargando servicios...
+                        </p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-labelledby="modalEliminarCuentaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="modalEliminarCuentaLabel">
+                        Eliminar cuenta
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        ¿Estás segura de que querés eliminar tu cuenta?
+                    </p>
+
+                    <p class="text-danger fw-bold mb-0">
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminarCuenta">
+                        Sí, eliminar mi cuenta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="modalReautenticarEliminar" tabindex="-1"
+    aria-labelledby="modalReautenticarEliminarLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalReautenticarEliminarLabel">
+                    Confirmar identidad
+                </h5>
+
+                <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    Por seguridad, ingresá tu contraseña actual para continuar.
+                </p>
+
+                <div class="mb-3">
+                    <label for="passwordEliminarCuenta" class="form-label">
+                        Contraseña actual
+                    </label>
+
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="passwordEliminarCuenta"
+                            autocomplete="current-password"
+                            placeholder="Ingresá tu contraseña">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-toggle-password"
+                            data-target="passwordEliminarCuenta"
+                            aria-label="Mostrar contraseña">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mensajeEliminarCuenta"
+                    class="small mt-2">
                 </div>
 
             </div>
 
+            <div class="modal-footer">
 
-            <hr>
+                <button type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                </button>
 
+                <button type="button"
+                    class="btn btn-danger"
+                    id="btnReautenticarEliminar">
+                    Continuar
+                </button>
 
-            <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
-            </p>
-        
+            </div>
 
         </div>
+    </div>
+</div>
 
-    </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="modalEditarNombre" tabindex="-1" aria-labelledby="modalEditarNombreLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarNombreLabel">
+                        Modificar nombre
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="inputNuevoNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="inputNuevoNombre" placeholder="Ingresá tu nombre">
+                        <div id="mensajeErrorNombre" class="invalid-feedback">El nombre no puede quedar vacío.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarNombre">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditarApellido" tabindex="-1" aria-labelledby="modalEditarApellidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarApellidoLabel">
+                        Modificar apellido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="inputNuevoApellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="inputNuevoApellido" placeholder="Ingresá tu apellido">
+                        <div id="mensajeErrorApellido" class="invalid-feedback">El apellido no puede quedar vacío.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarApellido">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+    <script src="js/perfil.js" type="module"></script>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <i id="toastIcono" class="bi bi-check-circle-fill fs-5"></i>
+                <span id="toastMensaje">Cambio realizado con éxito.</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

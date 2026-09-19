@@ -10,33 +10,101 @@
     <title>Cursos CC | Política de privacidad</title>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-            <div class="container">
-                 <a class="navbar-brand" href="index.html">
-                    <img src="recursos/imagenes/logo.jpg"
-                        alt="Cursos de Ciencias de la Computación"
-                        class="logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span
-                        class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link" data-page="inicio" href="index.html">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca De</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
-                    </ul>
-                </div>
-                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Ingresar
-                        <img src="recursos/iconos/ingresar.png" alt="" aria-hidden="true"></a>
-            </div>       
-        </nav>
-    </header>
-     <main class="flex-grow-1">
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="recursos/imagenes/logo.jpg"
+                    alt="Cursos de Ciencias de la Computación"
+                    class="logo">
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Mostrar menú de navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="inicio" href="index.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a>
+                    </li>
+                </ul>
+ <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+
+    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+        Iniciar sesión
+        <img src="recursos/iconos/ingresar.png" alt="Ingresar">
+    </a>
+
+</div>
+
+<div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+
+    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+        Registrarse
+        <img src="recursos/iconos/registrarse.png" alt="Registro">
+    </a>
+
+</div>
+<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+        <i class="bi bi-person-circle fs-5"></i>
+        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+   
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                <i class="bi bi-person fs-5"></i>
+                Mi perfil
+            </a>
+        </li>
+
+        <li id="menuAdminCursos" class="d-none">
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
+                Administrar cursos
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                <i class="bi bi-box-arrow-right fs-5"></i>
+                Cerrar sesión
+            </button>
+        </li>
+    </ul>
+</div>
+              
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="flex-grow-1">
         <section class="hero">
-            <div class="container">
+            <div class="container text-center">
                 <h1> Política de privacidad - Cursos de Informática</h1> 
                 <p>Conoce cómo protegemos y utilizamos tus datos personales.</p>
             </div>
@@ -288,93 +356,63 @@
      </main>
      <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
-
-
-                <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
                     <p>
                         Desarrollá nuevas habilidades
                         y preparate para el mundo digital.
                     </p>
-
                 </div>
 
-
-                <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
                     </a>
-
                 </div>
 
-
-                <!-- Contacto -->
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
                     <p>
                         Seguinos en nuestras redes
                     </p>
-
                     <div class="footer-social">
-
                         <a href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
-
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr>
-
-
             <p class="footer-copy">
                 <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
             </p>
-
         </div>
-
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js" type="module"></script>
 </body>
 </html>

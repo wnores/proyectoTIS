@@ -775,5 +775,12 @@ body {
         transform: translateY(0) scale(1);
     }
 }
+@media (max-width: 576px) {
+    #carouselCursos .carousel-item img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+}
 
 }

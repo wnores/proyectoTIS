@@ -206,6 +206,7 @@ El formulario comienza mostrando el módulo 1. Mediante el botón “Agregar mó
 Los módulos se guardan en Firestore utilizando los campos `modulo1`, `modulo2`, `modulo3` y así sucesivamente. Esto permite que cada curso tenga una cantidad diferente de módulos.
 
 La página de detalle del curso identifica estos campos y presenta sus contenidos dinámicamente en una tabla para los estudiantes autenticados.
+Los módulos agregados también pueden eliminarse antes de crear el curso. El módulo 1 permanece como obligatorio y los módulos restantes se renumeran automáticamente después de una eliminación. Una vez creado correctamente el curso, el formulario elimina los módulos adicionales y vuelve a mostrar únicamente el módulo 1.
 
 ### Carga de imágenes de los cursos con Cloudinary (Anny)
 
@@ -258,7 +259,7 @@ Se creó js/roles.js con las reglas de permisos de cada rol:
 Se agregó una función (aplicarVisibilidadPorRol) que oculta u muestra elementos de la interfaz según el rol del usuario logueado (o de un visitante sin sesión).
 
 ## Detalle del curso con usuario logueado (Marilina)
-Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
+Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implementará más adelante para realizar el pago del curso. Internamente se está guardando en la base de datos, usuarios, para que registre para ese usuario los servicios adquiridos.
 
 ## Habilitar y deshabilitar cursos (eliminación lógica) (Walter)
 

@@ -40,38 +40,37 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
-                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true"aria-expanded="false">
-                <i class="bi bi-person-circle fs-5"></i>
-                <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
-    
-                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                    <li
-                        class="d-none"
-                        data-requiere-permiso="verPanelAdmin">
+    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+        <i class="bi bi-person-circle fs-5"></i>
+        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+    </button>
 
-                    <a
-                        class="dropdown-item d-flex align-items-center gap-2 py-2"
-                        href="administrarCursos.html">
+    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                <i class="bi bi-person fs-5"></i>
+                Mi perfil
+            </a>
+        </li>
 
-                    <i class="bi bi-gear-fill fs-5"></i>
-                        Administrar cursos
-                    </a>
+        <li id="menuAdminCursos" class="d-none">
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
+                Administrar cursos
+            </a>
+        </li>
 
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        
-                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
-                    </li>
-                    
-                </ul>
-            </div>
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                <i class="bi bi-box-arrow-right fs-5"></i>
+                Cerrar sesión
+            </button>
+        </li>
+    </ul>
+</div>
         </div>
     </div>
 </nav>
@@ -96,7 +95,6 @@
             </div>
         
         </section>
-          <!-- INFORMACIÓN SOBRE LAS BECAS -->
         <section class="py-5"
         aria-labelledby="tituloQueSonBecas">
             
@@ -137,7 +135,6 @@
         </div>
     </section>
 
-     <!-- TIPOS DE BECAS -->
     <section class="py-5"
     aria-labelledby="tituloTiposBecas">
         <div class="container">
@@ -222,8 +219,6 @@
         </div>
     </section>
 
-
-    <!-- REQUISITOS -->
     <section class="py-5"
     aria-labelledby="tituloRequisitosBecas">
         <div class="container">
@@ -265,29 +260,20 @@
                                     del resultado de la solicitud.
                                 </li>
                             </ol>
-
                         </div>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </section>
-
-
 
     <section class="py-5"
     aria-labelledby="tituloBeneficiosBecas">
         <div class="container">
-
             <h2 
             id="tituloBeneficiosBecas"
             class="text-center mb-5">Beneficios de las becas</h2>
-
             <div class="row g-4">
-
                 <div class="col-md-4">
                     <article class="card h-100 shadow-sm">
                         <div class="card-body text-center">
@@ -300,7 +286,6 @@
                         </div>
                     </article>
                 </div>
-
                 <div class="col-md-4">
                     <article class="card h-100 shadow-sm">
                         <div class="card-body text-center">
@@ -313,7 +298,6 @@
                         </div>
                     </article>
                 </div>
-
                 <div class="col-md-4">
                     <article class="card h-100 shadow-sm">
                         <div class="card-body text-center">
@@ -326,100 +310,56 @@
                         </div>
                     </article>
                 </div>
-
             </div>
-
         </div>
     </section>
-    <!-- SOLICITAR BECA -->
     <section class="py-5"
     aria-labelledby="tituloSolicitarBeca">
         <div class="container">
-
             <div class="text-center mb-4">
-
                 <h2 id="tituloSolicitarBeca">Solicitá tu beca</h2>
-
                 <p class="lead">
                     Completá el formulario para solicitar una beca
                     para el curso que te interesa.</p>
-
-                <!-- BOTÓN PARA MOSTRAR EL FORMULARIO -->
-            <button
-                class="btn btn-primary btn-lg"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#formulario-beca"
-                aria-expanded="false"
-                aria-controls="formulario-beca">
-
-                Solicitar una beca
-
-            </button>
-
+                <button id="btnSolicitarBeca" class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#formulario-beca" aria-expanded="false" aria-controls="formulario-beca"
+                    disabled>Solicitar beca
+                </button>
         </div>
-        <!-- FORMULARIO OCULTO -->
+     
         <div class="collapse" id="formulario-beca">
-
             <div class="row justify-content-center">
-
                 <div class="col-lg-8">
-
                     <div class="card shadow-sm">
-
                         <div class="card-body p-4">
-
                             <h3 
-                            id="tituloFormularioBeca"
-                            class="text-center mb-4">
-                                Formulario de solicitud
+                            id="tituloFormularioBeca" class="text-center mb-4"> Formulario de solicitud
                             </h3>
-
                             <p class="text-muted text-center">
                                 Los campos marcados con <span class="text-danger">*</span> son obligatorios.
                             </p>
-
                             <form id="formularioBeca" autocomplete="off">
 
-                                <!-- NOMBRE -->
                                 <div class="mb-3">
-
                                     <label for="nombre" class="form-label">
                                         Nombre completo
                                         <span class="text-danger" aria-hidden="true">*</span>
                                     </label>
-
                                     <input
-                                        type="text"
-                                        class="form-control"
-                                        id="nombre"
-                                        name="nombre"
-                                        placeholder="Ingresá tu nombre completo"
-                                        required>
-
+                                        type="text" class="form-control" id="nombre"
+                                        name="nombre" placeholder="Ingresá tu nombre completo" required>
                                 </div>
 
-
-                                <!-- CORREO -->
                                 <div class="mb-3">
-
                                     <label for="correo" class="form-label">
                                         Correo electrónico
                                         <span class="text-danger" aria-hidden="true">*</span>
                                     </label>
 
                                     <input
-                                        type="email"
-                                        class="form-control"
-                                        id="correo"
-                                        name="correo"
-                                        placeholder="ejemplo@correo.com"
-                                        required>
-
+                                        type="email" class="form-control" id="correo" name="correo"
+                                        placeholder="ejemplo@correo.com" required>
                                 </div>
-
-
-    <!-- SELECCIONAR CURSO -->
 
     <div class="mb-3">
     <label for="curso" class="form-label">
@@ -432,297 +372,124 @@
     </select>
 </div>
          
-                                <!-- TIPO DE BECA -->
-                <div class="mb-3">
-                    <label for="tipo-beca" class="form-label">
-                        Tipo de beca
-                        <span class="text-danger" aria-hidden="true">*</span>
-                    </label>
-
+    <div class="mb-3">
+        <label for="tipo-beca" class="form-label">Tipo de beca
+        <span class="text-danger" aria-hidden="true">*</span>
+    </label>
     <select
-        class="form-select"
-        id="tipo-beca"
-        name="tipo-beca"
-        required>
+        class="form-select" id="tipo-beca" name="tipo-beca" required>
 
-    <option value="">
-        Seleccioná el tipo de beca
-    </option>
+        <option value="">
+            Seleccioná el tipo de beca
+        </option>
 
-    <option value="acceso">
-        Beca de acceso
-    </option>
+        <option value="acceso">
+            Beca de acceso
+        </option>
 
-    <option value="rendimiento">
-        Beca de rendimiento
-    </option>
+        <option value="rendimiento">
+            Beca de rendimiento
+        </option>
                                     
-    <option value="inclusion">
-        Beca de inclusión digital
-    </option>
+        <option value="inclusion">
+            Beca de inclusión digital
+        </option>
 </select>
         </div>
 
 
-                                <!-- MOTIVO -->
-                                <div class="mb-3">
-                                    <label for="motivo" class="form-label">
-                                        ¿Por qué solicitás la beca?
-                                        <span class="text-danger" aria-hidden="true">*</span>
-                                    </label>
+    <div class="mb-3">
+        <label for="motivo" class="form-label">
+            ¿Por qué solicitás la beca?
+            <span class="text-danger" aria-hidden="true">*</span>
+        </label>
 
-                                    <textarea
-                                        class="form-control"
-                                        id="motivo"
-                                        name="motivo"
-                                        rows="4"
-                                        placeholder="Contanos brevemente el motivo de tu solicitud"
-                                        required></textarea>
-                                </div>
+        <textarea class="form-control" id="motivo" name="motivo"
+                    rows="4" placeholder="Contanos brevemente el motivo de tu solicitud" required>
+        </textarea>
+    </div>
 
+    <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" id="confirmacion" name="confirmacion" required>
+        <label class="form-check-label" for="confirmacion">
+        <span class="text-danger" aria-hidden="true">*</span>
+            Confirmo que los datos ingresados son correctos.
+    </label>
+</div>
 
-                                <!-- CONFIRMACIÓN -->
-                                <div class="form-check mb-4">
+<div class="text-center">
+    <button type="submit" class="btn btn-primary btn-lg text-white fw-bold">
+        Enviar solicitud
+    </button>
+</div>
+</form>
+</div>
+</div></div></div>  
+</div></div>
+</section>
+</main>
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        id="confirmacion"
-                                        name="confirmacion"
-                                        required>
-
-                                    <label
-                                        class="form-check-label"
-                                        for="confirmacion">
-
-                                        <span class="text-danger" aria-hidden="true">*</span>
-                                        Confirmo que los datos ingresados
-                                        son correctos.
-
-                                    </label>
-
-                                </div>
-
-
-                                <!-- BOTÓN ENVIAR -->
-                                <div class="text-center">
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-primary btn-lg text-white fw-bold">
-
-                                        Enviar solicitud
-
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                 
-
-                        </div>
-
-                    </div>
-
-                </div>
-            
-            </div>  
-        </div>  
-        
-        </div>    
-    </section>
-     </main>
      <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
-
-
-                <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
                     <p>
                         Desarrollá nuevas habilidades
                         y preparate para el mundo digital.
                     </p>
-
                 </div>
 
-
-                <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
                     </a>
-
                 </div>
 
-
-                <!-- Contacto -->
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
                     <p>
                         Seguinos en nuestras redes
                     </p>
-
                     <div class="footer-social">
-
                         <a href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
-
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
-                        </a>
-                                           
+                        </a>                 
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr>
-
-
            <p class="footer-copy">
                 <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
             </p>
-
         </div>
-
     </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js" type="module"></script>
-<script src="js/visibilidadRoles.js" type="module"></script>
-
-<script type="module">
-    import { auth, db } from "./js/firebase-config.js";
-
-    import {
-        onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-    import {
-        collection,
-        addDoc,
-        serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-
-    const formulario =
-        document.getElementById("formularioBeca");
-
-
-    if (formulario) {
-
-        formulario.addEventListener("submit", async (evento) => {
-
-            evento.preventDefault();
-
-
-            const usuario = auth.currentUser;
-
-
-            // Verificar que haya un usuario autenticado
-            if (!usuario) {
-
-                alert(
-                    "Debés iniciar sesión para solicitar una beca."
-                );
-
-                return;
-            }
-
-
-            const nombre =
-                document.getElementById("nombre").value.trim();
-
-            const correo =
-                document.getElementById("correo").value.trim();
-
-            const curso =
-                document.getElementById("curso").value;
-
-            const tipoBeca =
-                document.getElementById("tipo-beca").value;
-
-            const motivo =
-                document.getElementById("motivo").value.trim();
-
-
-            try {
-
-                await addDoc(
-                    collection(db, "solicitudesBecas"),
-                    {
-                        uid: usuario.uid,
-                        nombre: nombre,
-                        correo: correo,
-                        curso: curso,
-                        tipoBeca: tipoBeca,
-                        motivo: motivo,
-                        estado: "pendiente",
-                        fechaSolicitud: serverTimestamp()
-                    }
-                );
-
-
-                alert(
-                    "Tu solicitud de beca fue enviada correctamente."
-                );
-
-
-                formulario.reset();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Error al guardar la solicitud de beca:",
-                    error
-                );
-
-                alert(
-                    "No se pudo enviar la solicitud. Intentá nuevamente."
-                );
-            }
-
-        });
-
-    }
-</script>
-
+<script src="js/beca.js" type="module"></script>
 <script>
 window.addEventListener("pageshow", function () {
     const formulario = document.getElementById("formularioBeca");

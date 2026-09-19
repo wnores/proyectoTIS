@@ -52,7 +52,6 @@ async function cargarSolicitudes() {
 
             let nombreCurso = solicitud.curso;
 
-            // Si tenemos el ID del curso, buscar su nombre
             const cursoId = solicitud.cursoId || solicitud.curso;
 
             if (cursoId) {
@@ -200,15 +199,6 @@ async function cargarSolicitudes() {
     }
 }
 
-
-// ======================================================
-// APROBAR SOLICITUD
-// ======================================================
-
-// ======================================================
-// APROBAR SOLICITUD
-// ======================================================
-
 async function aprobarSolicitud(idSolicitud, solicitud) {
 
     const confirmar =
@@ -220,8 +210,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
 
     try {
 
-        // El ID del curso puede venir en cursoId
-        // o, en solicitudes anteriores, directamente en curso
         const cursoId =
             solicitud.cursoId || solicitud.curso;
 
@@ -230,7 +218,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             return;
         }
 
-        // Obtener los datos reales del curso
         const referenciaCurso =
             doc(
                 db,
@@ -270,7 +257,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
                 solicitud.uid
             );
 
-        // Marcar solicitud como aprobada
         batch.update(
             referenciaSolicitud,
             {
@@ -280,7 +266,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             }
         );
 
-        // Agregar curso y beca al usuario
         batch.update(
             referenciaUsuario,
             {
@@ -315,11 +300,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
         );
     }
 }
-
-
-// ======================================================
-// RECHAZAR SOLICITUD
-// ======================================================
 
 async function rechazarSolicitud(idSolicitud) {
 

@@ -105,7 +105,6 @@
 
                             <form id="formPublicarCurso" autocomplete="off">
 
-                                <!-- TÍTULO -->
                                 <div class="mb-3">
                                     <label for="titulo" class="form-label">
                                         Título del curso
@@ -121,7 +120,6 @@
                                         required>
                                 </div>
 
-                                <!-- DESCRIPCIÓN -->
                                 <div class="mb-3">
                                     <label for="descripcion" class="form-label">
                                         Descripción
@@ -137,52 +135,18 @@
                                         required></textarea>
                                 </div>
 
-                                <!-- CATEGORÍA -->
-                                <div class="mb-3">
-                                    <label for="categoria" class="form-label">
-                                        Categoría
-                                        <span class="text-danger">*</span>
-                                    </label>
+                    <div class="mb-3">
+                        <label for="categoria" class="form-label">
+                            Categoría <span class="text-danger">*</span>
+                        </label>
 
-                                    <select
-                                        class="form-select"
-                                        id="categoria"
-                                        name="categoria"
-                                        required>
-
-                                        <option value="">
-                                            Seleccioná una categoría
-                                        </option>
-
-                                        <option value="Programación">
-                                            Programación
-                                        </option>
-
-                                        <option value="Desarrollo web">
-                                            Desarrollo web
-                                        </option>
-
-                                        <option value="Inteligencia Artificial">
-                                            Inteligencia Artificial
-                                        </option>
-
-                                        <option value="Bases de Datos">
-                                            Bases de Datos
-                                        </option>
-
-                                        <option value="Ofimática">
-                                            Ofimática
-                                        </option>
-
-                                        <option value="Hardware y Electrónica">
-                                            Hardware y Electrónica
-                                        </option>
-                                    </select>
-                                </div>
+                        <select class="form-select" id="categoria" name="categoria" required>
+                        <option value="">Cargando categorías...</option>
+                        </select>
+                    </div>
 
                                 <div class="row">
 
-                                    <!-- PRECIO -->
                                     <div class="col-12 col-md-6 mb-3">
                                         <label for="precio" class="form-label">
                                             Precio
@@ -200,7 +164,6 @@
                                             required>
                                     </div>
 
-                                    <!-- DURACIÓN -->
                                     <div class="col-12 col-md-6 mb-3">
                                         <label for="duracion" class="form-label">
                                             Duración en horas
@@ -219,7 +182,6 @@
 
                                 </div>
 
-                                <!-- CUPOS -->
                                 <div class="mb-3">
                                     <label for="cupos" class="form-label">
                                         Cupos disponibles
@@ -236,7 +198,6 @@
                                         required>
                                 </div>
 
-                                <!-- IMAGEN -->
                                 <div class="mb-4">
                                     <label class="form-label">
                                         Imagen del curso
@@ -268,8 +229,6 @@
                                         alt="Vista previa de la imagen del curso">
                                 </div>                          
 
-                                    
-                 <!-- MÓDULOS -->
 <div class="mb-4">
     <h2 class="h5">Módulos del curso</h2>
 
@@ -298,7 +257,6 @@
     </button>
 </div>
 
-                                <!-- BOTONES -->
                                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
 
                                     <button
@@ -310,116 +268,78 @@
                                     </button>
 
                                     <a
-                                        href="catalogo.html"
+                                        href="administrarCursos.html"
                                         class="btn btn-outline-secondary">
                                         Cancelar
                                     </a>
-
                                 </div>
-
                             </form>
-
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </section>
-
     </main>
      <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
 
-
-                <!-- Información -->
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
                     <p>
                         Desarrollá nuevas habilidades
                         y preparate para el mundo digital.
                     </p>
-
                 </div>
 
-
-                <!-- Enlaces -->
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
                     </a>
-
                 </div>
 
-
-                <!-- Contacto -->
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
                     <p>
                         Seguinos en nuestras redes
                     </p>
-
                     <div class="footer-social">
-
                         <a href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
-
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr>
-
-
             <p class="footer-copy">
                 <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
             </p>
-        
-
         </div>
-
     </footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js" type="module"></script>
 <script src="js/publicarCurso.js" type="module"></script>

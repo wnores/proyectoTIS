@@ -14,22 +14,16 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-
-    <!-- NAVBAR -->
     <header>
-
         <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
         aria-label="Navegación principal">
-
             <div class="container">
-
                 <a class="navbar-brand" href="index.html">
                     <img
                         src="recursos/imagenes/logo.jpg"
                         alt="Cursos de Ciencias de la Computación"
                         class="logo">
                 </a>
-
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -38,33 +32,25 @@
                     aria-controls="mainNav"
                     aria-expanded="false"
                     aria-label="Mostrar menú de navegación">
-
                     <span class="navbar-toggler-icon"></span>
-
                 </button>
-
                 <div class="collapse navbar-collapse" id="mainNav">
-
                     <ul class="navbar-nav me-auto">
-
                         <li class="nav-item">
                             <a class="nav-link" href="acercaDe.html">
                                 Acerca de
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" href="catalogo.html">
                                 Catálogo de cursos
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" href="beca.html">
                                 Becas
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" href="contacto.html">
                                 Contacto
@@ -79,18 +65,14 @@
         Iniciar sesión
         <img src="recursos/iconos/ingresar.png" alt="Ingresar">
     </a>
-
 </div>
 
 <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-
     <a href="registrarse.html" class="btn btn-outline-light btn-sm">
         Registrarse
         <img src="recursos/iconos/registrarse.png" alt="Registro">
     </a>
-
 </div>
-
 <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
     <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
             type="button" 
@@ -117,156 +99,99 @@
     </ul>
 </div>
                 </div>
-
             </div>
-
         </nav>
-
     </header>
 
-
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-grow-1 pagina-resultados">
-
         <section class="resultados-header"
         aria-labelledby="tituloResultados">
-
             <div class="container">
-
                 <div class="resultados-titulo">
-
                     <i class="bi bi-search"></i>
-
                     <div>
-
                         <h1 id="tituloReultados">
                             Resultados de búsqueda
                         </h1>
-
                         <p id="textoBusqueda">
                         </p>
-
                     </div>
-
                 </div>
-
             </div>
-
         </section>
-
 
         <section class="container resultados-contenido"
             aria-label="Cursos encotrados">
-
             <div id="resultadosBusqueda"
                 class="row g-4">
             </div>
-
             <div id="sinResultados"
                 class="mensaje-sin-resultados d-none">
-
                 <i class="bi bi-search"></i>
-
                 <h2>No encontramos resultados</h2>
-
                 <p>
                     Probá con otras palabras o revisá la búsqueda.
                 </p>
-
                 <a href="index.html"
                     class="btn btn-primary">
-
                     Volver al inicio
-
                 </a>
-
             </div>
-
         </section>
-
     </main>
-
 
     <!-- FOOTER -->
     <footer class="footer">
-
         <div class="container">
-
             <div class="row">
-
                 <div class="col-lg-5">
-
                     <h5>Cursos de Ciencias de la Computación</h5>
-
                     <p>
                         Desarrollá nuevas habilidades
                         y preparate para el mundo digital.
                     </p>
-
                 </div>
 
                 <div class="col-lg-3">
-
                     <h5>Enlaces</h5>
-
                     <a href="politicaDePrivacidad.html">
                         Política de privacidad
                     </a>
-
                 </div>
 
                 <div class="col-lg-4">
-
                     <h5>Contacto</h5>
-
                     <p>
                         Seguinos en nuestras redes
                     </p>
-
                     <div class="footer-social">
-
                         <a href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook">
-
                             <i class="bi bi-facebook"></i>
-
                         </a>
-
                         <a href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram">
-
                             <i class="bi bi-instagram"></i>
-
                         </a>
-
                         <a href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="YouTube">
-
                             <i class="bi bi-youtube"></i>
-
                         </a>
-
                         <a href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn">
-
                             <i class="bi bi-linkedin"></i>
-
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
             <hr>
 
             <p class="footer-copy">
@@ -275,18 +200,12 @@
                     alt="copyright">
                 2026 - Taller Integrador de Sistemas
             </p>
-
         </div>
-
     </footer>
-
-
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
     </script>
     <script src="js/app.js" type="module"></script>
     <script src="js/buscadorResultados.js"></script>
-
 </body>
-
 </html>

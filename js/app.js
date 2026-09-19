@@ -1,30 +1,63 @@
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   const grupoIngresar = document.getElementById("grupIngresar");
   const grupoRegistrarse = document.getElementById("grupoRegistrarse");
   const grupoUsuario = document.getElementById("grupoUsuario");
   const nombreUsuario = document.getElementById("nombreUsuario");
+  const menuAdminCursos = document.getElementById("menuAdminCursos");
 
   if (user) {
-    // Si hay usuario autenticado:
-    if (nombreUsuario) {
-      nombreUsuario.textContent = user.displayName || user.email.split("@")[0];
-    }
-
     if (grupoIngresar) grupoIngresar.classList.add("d-none");
     if (grupoRegistrarse) grupoRegistrarse.classList.add("d-none");
-
     if (grupoUsuario) grupoUsuario.classList.remove("d-none");
+
+    try {
+      const referenciaUsuario = doc(db, "usuarios", user.uid);
+      const docSnap = await getDoc(referenciaUsuario);
+
+      if (docSnap.exists()) {
+        const datosUsuario = docSnap.data();
+
+        if (nombreUsuario) {
+          const nombreCompleto = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
+          nombreUsuario.textContent = nombreCompleto || user.displayName || user.email.split("@")[0];
+        }
+
+        const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toLowerCase().trim();
+        const esAdminODocente = rol.includes("docente") || rol.includes("admin");
+
+        if (menuAdminCursos) {
+          if (esAdminODocente) {
+            menuAdminCursos.classList.remove("d-none");
+          } else {
+            menuAdminCursos.classList.add("d-none");
+          }
+        }
+      } else {
+        if (nombreUsuario) {
+          nombreUsuario.textContent = user.displayName || user.email.split("@")[0];
+        }
+      }
+    } catch (error) {
+      console.error("Error al obtener datos del usuario desde Firestore:", error);
+      if (nombreUsuario) {
+        nombreUsuario.textContent = user.displayName || user.email.split("@")[0];
+      }
+    }
 
   } else {
     if (grupoIngresar) grupoIngresar.classList.remove("d-none");
     if (grupoRegistrarse) grupoRegistrarse.classList.remove("d-none");
     if (grupoUsuario) grupoUsuario.classList.add("d-none");
+    if (menuAdminCursos) menuAdminCursos.classList.add("d-none");
   }
 });
+
 document.addEventListener("DOMContentLoaded", () => {
+  // CERRAR SESIÓN
   const btnCerrarSesion = document.getElementById("btnCerrarSesion");
   
   if (btnCerrarSesion) {
@@ -37,9 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
   const formBuscador = document.getElementById("formBuscador");
   const inputBuscador = document.getElementById("inputBuscador");
 
@@ -50,8 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const texto = inputBuscador.value.trim();
 
       if (texto) {
-        window.location.href =
-          `resultados.html?buscar=${encodeURIComponent(texto)}`;
+        window.location.href = `resultados.html?buscar=${encodeURIComponent(texto)}`;
       }
     });
   }

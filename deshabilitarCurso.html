@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
-    <title>Cursos CC | Deshabilitar curso</title>
+    <title>Cursos CC | Gestión de cursos</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100" data-page="acercaDe.html">
@@ -88,7 +88,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="h3 fw-bold mb-1">Deshabilitar Cursos</h1>
+                <h1 class="h3 fw-bold mb-1">Gestión de cursos</h1>
                 <p class="text-secondary mb-0">Selecciona la opción correspondiente para deshabilitar el curso, o bien para su habilitación.</p>
             </div>
             <span class="badge text-bg-light border px-3 py-2">
@@ -96,7 +96,6 @@
             </span>
         </div>
 
-        <!-- Mensaje de carga -->
         <div id="estadoCarga" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
@@ -111,9 +110,7 @@
         <thead class="table-dark">
             <tr>
                 <th scope="col">Título</th>
-                <th scope="col">Descripción</th>
                 <th scope="col">Categoría</th>
-                <th scope="col" class="text-end">Precio</th>
                 <th scope="col" class="text-center">Estado</th>
                 <th scope="col" class="text-center">Acciones</th>
             </tr>
@@ -122,7 +119,6 @@
     </table>
 </div>
 
-<!-- Paginación -->
 <nav aria-label="Paginación de cursos" class="mt-4">
     <ul id="paginacion" class="pagination justify-content-center"></ul>
 </nav>
@@ -131,6 +127,9 @@
         <div id="mensajeVacio" class="alert alert-info d-none">
             No hay cursos cargados en la base de datos.
         </div>
+        <a href="administrarCursos.html"
+            class="btn btn-primary">Atrás
+        </a>
   
 </main>
 
@@ -140,7 +139,6 @@
 <div class="container">
     <div class="row">
 
-        <!-- Información -->
         <section class="col-lg-5" aria-labelledby="footerInfo">
 
             <h5 id="footerInfo">Cursos de Ciencias de la Computación</h5>
@@ -151,8 +149,6 @@
             </p>
         </section>    
 
-    
-        <!-- Enlaces -->
         <nav class="col-lg-3" aria-labelledby="footerLinks">
 
             <h5 id="footerLinks">Enlaces</h5>
@@ -163,8 +159,6 @@
 
         </nav>
 
-
-        <!-- Contacto -->
         <section class="col-lg-4" aria-labelledby="footerContacto">
 
             <h5 id="footerContacto">Contacto</h5>
@@ -202,24 +196,16 @@
                     aria-label="LinkedIn">
                     <i class="bi bi-linkedin" aria-hidden="true"></i>
                 </a>
-
             </nav>
-
         </section>
-
     </div>
-
     <hr>
-
     <p class="footer-copy">
         <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
     </p>
-
 </div>
-
 </footer>
 
-<!-- Modal de confirmación -->
 <div class="modal fade" id="modalEliminar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

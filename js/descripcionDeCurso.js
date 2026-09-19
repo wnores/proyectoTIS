@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const cursoId = parametros.get('id');
 
   if (!cursoId) {
-    mostrarError('No se especificó qué curso mostrar. Volvé al catálogo y elegí un curso.');
-    return;
-  }
+  mostrarError('No se especificó qué curso mostrar. Volvé al <a href="catalogo.html" class="alert-link">catálogo</a> y elegí un curso.');
+  return;
+}
 
   cargarCurso(cursoId);
 
@@ -280,14 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function mostrarError(texto) {
-    if (mensajeEstado) {
-      mensajeEstado.textContent = texto;
-      mensajeEstado.classList.remove('d-none');
-    }
-
-    contenedor.replaceChildren();
+ function mostrarError(texto) {
+  if (mensajeEstado) {
+    mensajeEstado.innerHTML = texto; // Cambiado textContent por innerHTML
+    mensajeEstado.classList.remove('d-none');
   }
+
+  contenedor.replaceChildren();
+}
 
   function obtenerCategoria(curso) {
     const categoria = (curso.categoria ?? '').toLowerCase();

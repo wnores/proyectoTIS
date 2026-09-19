@@ -2,7 +2,6 @@ import { auth, db } from "./firebase-config.js";
 import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// Configuración de Cloudinary (reemplazá con tus datos)
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj"; 
 const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller"; 
 
@@ -23,7 +22,6 @@ const avatarImg = document.getElementById("avatarImg");
 let archivoImagen = null;
 let timerOverlay = null;
 
-// --- PREVISUALIZACIÓN LOCAL ---
 if (avatarBtn && avatarInput) {
   avatarBtn.addEventListener("click", () => avatarInput.click());
   if (avatarPreview) avatarPreview.addEventListener("click", () => avatarInput.click());
@@ -39,7 +37,6 @@ if (avatarBtn && avatarInput) {
   });
 }
 
-// --- FUNCIÓN PARA SUBIR A CLOUDINARY ---
 async function subirACloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -55,7 +52,7 @@ async function subirACloudinary(file) {
   }
 
   const data = await res.json();
-  return data.secure_url; // Devuelve la URL HTTPS de la imagen
+  return data.secure_url; 
 }
 
 const regexPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -170,7 +167,6 @@ function mostrarRegistroExitoso(onComplete) {
   }
 }
 
-// --- SUBMIT DEL FORMULARIO ---
 if (form) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -201,22 +197,18 @@ if (form) {
     try {
       let photoURL = null;
 
-      // 1. Si el usuario adjuntó una imagen, se sube a Cloudinary
       if (archivoImagen) {
         photoURL = await subirACloudinary(archivoImagen);
       }
 
-      // 2. Crear usuario en Auth
       const credenciales = await createUserWithEmailAndPassword(auth, email, password);
       const uid = credenciales.user.uid;
 
-      // 3. Actualizar perfil de Auth con la URL de la imagen si existe
       await updateProfile(credenciales.user, {
         displayName: `${nombre} ${apellido}`,
         photoURL: photoURL
       });
 
-      // 4. Guardar datos en Firestore incluyendo la URL de Cloudinary
       await setDoc(doc(db, "usuarios", uid), {
         nombre,
         apellido,

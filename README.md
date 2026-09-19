@@ -108,8 +108,6 @@ https://bdcursoscc.web.app/
 
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
-## Perfil de usuario y gestión de servicios
-
 Se actualizó el módulo de perfil de usuario, incorporando funcionalidades para la gestión de los datos personales, la imagen de perfil, la contraseña, los servicios adquiridos y la eliminación de la cuenta.
 
 ### Funcionalidades implementadas

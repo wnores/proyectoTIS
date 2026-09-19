@@ -12,7 +12,7 @@ body {
 }
 
 .navbar-nav {
-  gap: 20px; /* separación entre los elementos */
+  gap: 20px; 
 } 
 
 .navbar .nav-link {
@@ -182,15 +182,12 @@ body {
     display: block;
 }
 
-/* Imagen en la página de detalle */
-
 #detalleCurso .curso-thumb-container {
     aspect-ratio: 3 / 2;
     border-radius: 14px;
     overflow: hidden;
 }
 
-/* Carrusel del hero */
 #carouselCursos {
     width: 100%;
     border-radius: 16px;
@@ -244,7 +241,6 @@ body {
     transform: translate(-65%, -50%) rotate(45deg);
 }
 
-/* Indicadores del carrusel */
 #carouselCursos .carousel-indicators button {
     width: 10px;
     height: 10px;
@@ -260,7 +256,6 @@ body {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Footer */
 .footer {
     background-color: #2b7575;
     color: white;
@@ -325,7 +320,6 @@ body {
     text-decoration: none;
 }
 
-/* Áreas de aprendizaje */
 .areas-aprendizaje {
     background-color: #eef7f6;
 }
@@ -450,7 +444,6 @@ body {
     background-color: #eef7f6;
 }
 
-/* Página de registro (registrarse.html) */
 .register-card {
     background-color: #fff;
     padding: 40px;
@@ -499,12 +492,10 @@ body {
     color: #fff;
 }
 
-/* Estilo extra para que el cursor se vuelva una manita al pasar sobre el ícono */
 .info-icon {
     cursor: pointer;
 }
 
-/* Microinteracción de éxito (registrarse.html) - pantalla completa */
 .success-overlay {
     position: fixed;
     inset: 0;
@@ -549,7 +540,6 @@ body {
     }
 }
 
-/* Estilos que estaban inline en registrarse.html */
 #avatarImg {
     object-fit: cover;
 }
@@ -558,14 +548,13 @@ body {
     height: 20px;
 }
 
-/* Tarjeta blanca del formulario */
 .login-card {
     background-color: #ffffff;
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
-        /* Inputs con borde negro grueso */
+
 .form-control {
     border: 2px solid #000000;
     border-radius: 4px;
@@ -578,7 +567,6 @@ body {
     outline: none;
 }
 
-/* Círculo del candado */
 .lock-circle {
     width: 100px;
     height: 100px;
@@ -589,7 +577,6 @@ body {
     font-size: 45px;
 }
 
-/* Icono de ojo flotando dentro del input */
 .password-wrapper {
     position: relative;
 }
@@ -603,36 +590,28 @@ body {
     font-size: 1.2rem;
 }
 
-/* Icono de aviso de cookies (círculo negro) */
 .cookie-icon {
     cursor: pointer;
 }
 
-/* Paginación personalizada - Color de fondo del número activo */
 .pagination .page-item.active .page-link {
-    background-color: #2b7575;   /* Cambiá este color por el que quieras */
+    background-color: #2b7575; 
     border-color: #2b7575;
     color: white;
 }
 
-/* Hover sobre los números (los no activos) */
 .pagination .page-item .page-link {
-    color: #2b7575;              /* Color del texto */
+    color: #2b7575;        
 }
 
 .pagination .page-item .page-link:hover {
-    background-color: #e0f0f0;   /* Fondo al pasar el mouse */
+    background-color: #e0f0f0; 
     color: #2b7575;
 }
 
-/* Botones deshabilitados (Anterior/Siguiente cuando no aplican) */
 .pagination .page-item.disabled .page-link {
     color: #adb5bd;
 }
-
-/* =====================================================
-   DATOS DEL PERFIL
-===================================================== */
 
 .perfil-dato {
     padding: 10px 0;
@@ -664,11 +643,6 @@ body {
     color: #212529;
 }
 
-
-/* =====================================================
-   BOTONES DE EDITAR
-===================================================== */
-
 .btn-editar {
     border: none;
     background: transparent;
@@ -684,11 +658,6 @@ body {
     transform: scale(1.1);
 }
 
-
-/* =====================================================
-   BOTONES INFERIORES
-===================================================== */
-
 .perfil-botones {
     display: flex;
     flex-wrap: wrap;
@@ -699,11 +668,6 @@ body {
 .perfil-botones .btn {
     padding: 8px 14px;
 }
-
-
-/* =====================================================
-   FOTO
-===================================================== */
 
 .avatar-wrapper {
     width: 140px;
@@ -729,19 +693,9 @@ body {
     justify-content: center;
 }
 
-
-/* =====================================================
-   TÍTULO DE INFORMACIÓN
-===================================================== */
-
 .perfil-card h5.fw-bold {
     margin-bottom: 18px;
 }
-
-
-/* =====================================================
-   ADAPTACIÓN PARA CELULAR
-===================================================== */
 
 @media (max-width: 767px) {
 
@@ -767,19 +721,11 @@ body {
     }
 }
 
-/* ============================================
-   TABLA RESPONSIVE APILADA (STACKED)
-   En pantallas grandes: tabla normal
-   En pantallas chicas: cada fila es una tarjeta
-   ============================================ */
-
 @media (max-width: 768px) {
-    /* Ocultamos los encabezados de la tabla */
     .tabla-cursos thead {
         display: none;
     }
 
-    /* Cada fila se convierte en una tarjeta */
     .tabla-cursos tbody tr {
         display: block;
         background: #fff;
@@ -790,7 +736,6 @@ body {
         border: 1px solid #eee;
     }
 
-    /* Cada celda ocupa toda la fila */
     .tabla-cursos tbody td {
         display: flex;
         justify-content: space-between;
@@ -801,12 +746,10 @@ body {
         text-align: right !important;
     }
 
-    /* Quitamos el borde de la última celda */
     .tabla-cursos tbody td:last-child {
         border-bottom: none;
     }
 
-    /*  Etiqueta a la izquierda (viene del atributo data-label) */
     .tabla-cursos tbody td::before {
         content: attr(data-label);
         font-weight: bold;
@@ -817,4 +760,20 @@ body {
         text-transform: uppercase;
         font-size: 0.8rem;
     }
+
+    .toast.showing, .toast.show {
+    animation: toastPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes toastPopIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 }

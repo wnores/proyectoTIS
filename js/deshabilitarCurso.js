@@ -1,4 +1,3 @@
-
 import { db } from "./firebase-config.js";
 import {
     collection,
@@ -15,7 +14,6 @@ const mensajeVacio = document.querySelector("#mensajeVacio");
 const contadorCursos = document.querySelector("#contadorCursos");
 const paginacion = document.querySelector("#paginacion");
 
-// Modal
 const modalEl = document.getElementById("modalEliminar");
 const modal = new bootstrap.Modal(modalEl);
 const modalTitulo = document.querySelector("#modalTitulo");
@@ -30,9 +28,8 @@ let cursosFiltrados = [];
 let paginaActual = 1;
 const CURSOS_POR_PAGINA = 5;           
 
-// Acción pendiente
-let cursoSeleccionado = null;            // { id, nombre, activo }
-let accion = null;                        // "deshabilitar" | "habilitar"
+let cursoSeleccionado = null;           
+let accion = null;                        
 
 
 async function cargarCursos() {
@@ -53,22 +50,18 @@ async function cargarCursos() {
             return;
         }
 
-        // Convertimos la colección a un array
         todosLosCursos = [];
         snapshot.forEach((documento) => {
             const curso = documento.data();
             todosLosCursos.push({
                 id: documento.id,
                 ...curso,
-                // Si no existe el campo "activo", lo asumimos como activo
                 activo: curso.activo !== false
             });
         });
 
-        // Ordenamos por nombre
         todosLosCursos.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
 
-        // Inicializamos el filtro (por ahora, todos)
         cursosFiltrados = [...todosLosCursos];
         paginaActual = 1;
 
@@ -96,13 +89,10 @@ function renderizarPagina() {
     const fin = inicio + CURSOS_POR_PAGINA;
     const cursosPagina = cursosFiltrados.slice(inicio, fin);
 
-    // Contador
     contadorCursos.textContent = cursosFiltrados.length;
 
-    // Mostrar la tabla
     contenedorTabla.classList.remove("d-none");
 
-    // Renderizar filas
     listadoCursos.innerHTML = "";
 
     cursosPagina.forEach((curso) => {
@@ -127,11 +117,9 @@ function renderizarPagina() {
         listadoCursos.innerHTML += `
         <tr id="curso-${curso.id}">
             <td data-label="Título" class="fw-bold">${curso.titulo || "Sin título"}</td>
-            <td data-label="Descripción" class="text-secondary small">${curso.descripcion || "Sin descripción"}</td>
             <td data-label="Categoría">
                 <span class="badge text-bg-light border">${curso.categoria || "General"}</span>
             </td>
-            <td data-label="Precio" class="text-end">$${curso.precio || 0}</td>
             <td data-label="Estado" class="text-center">${badgeEstado}</td>
             <td data-label="Acciones" class="text-center">${botonAccion}</td>
         </tr>
@@ -148,14 +136,12 @@ function renderizarPaginacion(totalPaginas) {
 
     if (totalPaginas <= 1) return;
 
-    // Botón "Anterior"
     paginacion.innerHTML += `
         <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
             <a class="page-link" href="#" data-pagina="${paginaActual - 1}">Anterior</a>
         </li>
     `;
 
-    // Números de página
     for (let i = 1; i <= totalPaginas; i++) {
         paginacion.innerHTML += `
             <li class="page-item ${i === paginaActual ? 'active' : ''}">
@@ -164,14 +150,12 @@ function renderizarPaginacion(totalPaginas) {
         `;
     }
 
-    // Botón "Siguiente"
     paginacion.innerHTML += `
         <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
             <a class="page-link" href="#" data-pagina="${paginaActual + 1}">Siguiente</a>
         </li>
     `;
 
-    // Conectar clics
     paginacion.querySelectorAll("a.page-link").forEach((link) => {
         link.addEventListener("click", (e) => {
             e.preventDefault();
@@ -233,11 +217,9 @@ btnConfirmarEliminar.addEventListener("click", async () => {
 
         modal.hide();
 
-        // Actualizamos el objeto local sin recargar todo
         const cursoLocal = todosLosCursos.find(c => c.id === cursoSeleccionado.id);
         if (cursoLocal) cursoLocal.activo = nuevoEstado;
 
-        // Re-renderizamos la página actual
         renderizarPagina();
 
         cursoSeleccionado = null;
@@ -248,6 +230,5 @@ btnConfirmarEliminar.addEventListener("click", async () => {
         alert("No se pudo actualizar el curso: " + error.message);
     }
 });
-
 
 cargarCursos();

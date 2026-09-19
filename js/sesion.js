@@ -10,7 +10,6 @@ const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 
 onAuthStateChanged(auth, async (usuario) => {
   if (usuario) {
-    // Hay sesión: mostrar el nombre del usuario y ocultar los botones de ingresar/registrarse
     if (grupoIngresar) grupoIngresar.classList.add("d-none");
     if (grupoRegistrarse) grupoRegistrarse.classList.add("d-none");
     if (grupoUsuario) grupoUsuario.classList.remove("d-none");
@@ -25,7 +24,6 @@ onAuthStateChanged(auth, async (usuario) => {
     }
 
   } else {
-    // No hay sesión: mostrar los botones normales
     if (grupoIngresar) grupoIngresar.classList.remove("d-none");
     if (grupoRegistrarse) grupoRegistrarse.classList.remove("d-none");
     if (grupoUsuario) grupoUsuario.classList.add("d-none");

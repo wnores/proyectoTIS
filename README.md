@@ -91,9 +91,20 @@ Se publica una primera versión del sitio en Firebase Hosting luego de completad
 https://bdcursoscc.web.app/
 
 ## Sprint 2 (31/08/2026 al 20/09/2026) - Semanas 7 a 9 Funcionalidades dinámicas
+
 ### iniciar sesión (ingresar.html) (Walter)
 
+- Formulario 'ingresar.html' conectado a **Firebase Authentication** mediante 'signInWithEmailAndPassword'.
+- Validación de credenciales contra la base de usuarios registrados.
+- Manejo de errores específicos: usuario no encontrado ('auth/user-not-found'), contraseña incorrecta ('auth/wrong-password'), correo inválido, entre otros.
+- Al iniciar sesión correctamente, se muestra una notificación tipo **toast** y se redirige al usuario a la página de inicio ('index.html').
+- La sesión persiste automáticamente gracias a 'onAuthStateChanged', por lo que al recargar la página el usuario sigue logueado.
+
 ### Cerrar Sesión (Walter)
+
+- Botón **"Cerrar Sesión"** visible en el navbar solo cuando hay un usuario autenticado.
+- Al hacer clic, se ejecuta 'signOut(auth)' de Firebase, se muestra un toast de confirmación y se redirige al inicio.
+- El navbar se actualiza dinámicamente: al cerrar sesión vuelve a mostrar el botón **"Ingresar"**.
 
 ### Ver perfil/modificar perfil (perfil.html) (Silvana)
 
@@ -249,7 +260,16 @@ Se agregó una función (aplicarVisibilidadPorRol) que oculta u muestra elemento
 ## Detalle del curso con usuario logueado (Marilina)
 Si vamos a la página detalleDeCurso.html desde el catálogo, nos muestra la información del curso seleccionado: nombre, descripción, precio, duración, modalidad y precio, además del botón de "Inscribirse". En este primer caso como el usuario no está logueado, es sólo visitante, el botón te llevará a la página de iniciar sesión. Si iniciamos sesión con un usuario de tipo "docente/admin" muestra todo lo mismo menos el botón de "inscribirse" y si iniciamos sesión con un usuario de tipo "estudiante" muestra toda la información del curso y una tabla con los contenidos, diferenciados por módulos. En este último caso, debejo de la tabla muestra 2 botones: "Solicitar una beca" que lleva a la página de beca.html la cuál contiene el formulario de solicitud y "Inscribirme a este curso" que si hacemos clic, en este sprint sólo muestra un mensaje debajo que dice ¡Inscripción confirmada! y especifica que es solo un mensaje de prueba ya que su funcionalidad se implmentará más adelante para realizar el pago del curso.
 
-## Dar de baja cursos (eliminación lógica) (Walter)
+## Habilitar y deshabilitar cursos (eliminación lógica) (Walter)
+
+- Página 'deshabilitar_curso.html' que lista **todos** los cursos almacenados en Firestore (activos e inactivos).
+- Cada fila muestra: nombre, descripción, categoría, precio, estado (badge "Activo" / "Inactivo") y un botón de acción.
+- Eliminación lógica (soft delete): en lugar de borrar el documento de Firestore, se actualiza el campo booleano 'activo':
+  - Deshabilitar: 'activo: false' → el curso deja de mostrarse en el catálogo público, pero permanece en la base de datos.
+  - **Habilitar:** 'activo: true' → el curso vuelve a estar visible en el catálogo.
+- Confirmación mediante **modal** antes de ejecutar la acción, con textos dinámicos según corresponda.
+- El botón cambia de color y texto según el estado actual del curso (rojo para deshabilitar, verde para habilitar).
+- Listado paginado para manejar grandes volúmenes de cursos sin afectar el rendimiento.
 
 ## Modificar curso (Giovanna)
 Se creó la página modificarCurso.html y su lógica en js/modificarCurso.js disponible sólo para usuarios con rol docente/admin.

@@ -117,6 +117,7 @@ Se actualizó el módulo de perfil de usuario, incorporando funcionalidades para
   * Nombre.
   * Apellido.
   * Departamento.
+  * Foto de perfil.
 
 * **Cambio de contraseña**
 

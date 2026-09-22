@@ -2,9 +2,7 @@ import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
   doc,
-  getDoc,
-  updateDoc,
-  arrayUnion
+  getDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,37 +14,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const cursoId = parametros.get('id');
 
   if (!cursoId) {
-  mostrarError('No se especificó qué curso mostrar. Volvé al <a href="catalogo.html" class="alert-link">catálogo</a> y elegí un curso.');
-  return;
-}
+    mostrarError('No se especificó qué curso mostrar. Volvé al <a href="catalogo.html" class="alert-link">catálogo</a> y elegí un curso.');
+    return;
+  }
 
   cargarCurso(cursoId);
 
   async function cargarCurso(id) {
     try {
-        const docRef = doc(db, 'cursos', id);
-        const docSnap = await getDoc(docRef);
+      const docRef = doc(db, 'cursos', id);
+      const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) {
-            mostrarError('El curso solicitado no existe.');
-            return;
-        }
+      if (!docSnap.exists()) {
+        mostrarError('El curso solicitado no existe.');
+        return;
+      }
 
       const curso = {
         id: docSnap.id,
         ...docSnap.data()
       };
 
-        mostrarCursoBase(curso);
-        verificarUsuarioYMostrarModulos(curso);
+      mostrarCursoBase(curso);
+      verificarUsuarioYMostrarModulos(curso);
     } catch (error) {
-        console.error('Error al cargar el curso desde Firestore:', error);
-        mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
+      console.error('Error al cargar el curso desde Firestore:', error);
+      mostrarError('Ocurrió un error al cargar el curso. Intentá nuevamente más tarde.');
     }
-}
+  }
 
   function mostrarCursoBase(curso) {
-    const { claseCategoria, icono } = obtenerCategoria(curso.titulo);
+    const { claseCategoria, icono } = obtenerCategoria(curso);
 
     const precioFormateado = Number(curso.precio || 0).toLocaleString('es-UY', {
       style: 'currency',
@@ -116,16 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!docSnap.exists()) return;
 
         const datosUsuario = docSnap.data();
+        const tipo = (datosUsuario.tipoUsuario || '').toString().trim().toLowerCase();
 
-        const tipo = (datosUsuario.tipoUsuario || '')
-          .toString()
-          .trim()
-          .toLowerCase();
-
-        const btnInscribirmeSuperior = document.querySelector(
-          '.js-btn-inscribirme-superior'
-        );
-
+        // Ocultamos el botón superior 'Inscribirse' si hay sesión activa
+        const btnInscribirmeSuperior = document.querySelector('.js-btn-inscribirme-superior');
         if (btnInscribirmeSuperior) {
           btnInscribirmeSuperior.classList.add('d-none');
         }
@@ -133,31 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tipo === 'estudiante') {
           renderizarTablaModulos(curso);
 
-          const contenedorAcciones = document.querySelector(
-            '.js-acciones-estudiante'
-          );
-
-          const btnInscribirmeInferior = document.querySelector(
-            '.js-btn-inscribirme-inferior'
-          );
-
+          const contenedorAcciones = document.querySelector('.js-acciones-estudiante');
+          const btnInscribirmeInferior = document.querySelector('.js-btn-inscribirme-inferior');
           const btnBeca = document.querySelector('.js-btn-beca');
 
-          const alertaExito = document.querySelector(
-            '.js-alerta-exito'
-          );
-
-          const textoBtn = btnInscribirmeInferior?.querySelector(
-            '.js-texto-btn'
-          );
-
-          const spinnerBtn = btnInscribirmeInferior?.querySelector(
-            '.js-spinner'
-          );
-
-          const iconoBtn = btnInscribirmeInferior?.querySelector(
-            '.js-icono-btn'
-          );
+          if (btnInscribirmeInferior) {
+            btnInscribirmeInferior.href = `pasarelaDePago.html?curso=${curso.id}`;
+          }
 
           if (btnBeca) {
             btnBeca.href = `beca.html?curso=${curso.id}`;
@@ -166,73 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
           if (contenedorAcciones) {
             contenedorAcciones.classList.remove('d-none');
           }
-
-          if (btnInscribirmeInferior) {
-            btnInscribirmeInferior.addEventListener('click', async (e) => {
-              e.preventDefault();
-
-              btnInscribirmeInferior.disabled = true;
-
-              if (spinnerBtn) {
-                spinnerBtn.classList.remove('d-none');
-              }
-
-              if (textoBtn) {
-                textoBtn.textContent = 'Procesando registro...';
-              }
-
-              try {
-                await updateDoc(docRef, {
-                  serviciosAdquiridos: arrayUnion(curso.titulo)
-                });
-
-                if (spinnerBtn) {
-                  spinnerBtn.classList.add('d-none');
-                }
-
-                if (iconoBtn) {
-                  iconoBtn.classList.remove('d-none');
-                }
-
-                if (textoBtn) {
-                  textoBtn.textContent = '¡Inscripto!';
-                }
-
-                btnInscribirmeInferior.classList.remove('btn-success');
-                btnInscribirmeInferior.classList.add('btn-secondary');
-
-                if (alertaExito) {
-                  alertaExito.classList.remove('d-none');
-                }
-              } catch (error) {
-                console.error(
-                  "Error al guardar la inscripción:",
-                  error
-                );
-
-                btnInscribirmeInferior.disabled = false;
-
-                if (spinnerBtn) {
-                  spinnerBtn.classList.add('d-none');
-                }
-
-                if (textoBtn) {
-                  textoBtn.textContent = 'Inscribirme a este curso';
-                }
-
-                alert(
-                  'No se pudo guardar la inscripción. Intentá nuevamente.'
-                );
-              }
-            });
-          }
         }
-
       } catch (error) {
-        console.error(
-          "Error al consultar el usuario en Firestore:",
-          error
-        );
+        console.error("Error al consultar el usuario en Firestore:", error);
       }
     });
   }
@@ -271,23 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       seccionModulos.classList.remove('d-none');
-
-      console.log("Tabla de módulos renderizada exitosamente.");
-    } else {
-      console.log(
-        "Este curso no tiene campos 'modulo' definidos en Firestore."
-      );
     }
   }
 
- function mostrarError(texto) {
-  if (mensajeEstado) {
-    mensajeEstado.innerHTML = texto; // Cambiado textContent por innerHTML
-    mensajeEstado.classList.remove('d-none');
-  }
+  function mostrarError(texto) {
+    if (mensajeEstado) {
+      mensajeEstado.innerHTML = texto;
+      mensajeEstado.classList.remove('d-none');
+    }
 
-  contenedor.replaceChildren();
-}
+    contenedor.replaceChildren();
+  }
 
   function obtenerCategoria(curso) {
     const categoria = (curso.categoria ?? '').toLowerCase();

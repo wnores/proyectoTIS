@@ -14,9 +14,44 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-
 const contenedor =
     document.getElementById("contenedorPagosTransferencia");
+
+const botonMostrarPagos =
+    document.getElementById("btnMostrarPagosTransferencia");
+
+if (botonMostrarPagos) {
+
+    botonMostrarPagos.addEventListener(
+        "click",
+        () => {
+
+            const estaOculto =
+                contenedor.classList.contains("d-none");
+
+            if (estaOculto) {
+
+                contenedor.classList.remove("d-none");
+
+                botonMostrarPagos.innerHTML = `
+                    <i class="bi bi-chevron-up me-2"></i>
+                    Ocultar pagos
+                `;
+
+                cargarPagosPendientes();
+
+            } else {
+
+                contenedor.classList.add("d-none");
+
+                botonMostrarPagos.innerHTML = `
+                    <i class="bi bi-credit-card me-2"></i>
+                    Ver pagos pendientes
+                `;
+            }
+        }
+    );
+}
 
 
 onAuthStateChanged(auth, async (usuario) => {
@@ -74,8 +109,6 @@ onAuthStateChanged(auth, async (usuario) => {
         }
 
 
-        cargarPagosPendientes();
-
     } catch (error) {
 
         console.error(
@@ -132,20 +165,61 @@ async function cargarPagosPendientes() {
         contenedor.innerHTML = "";
 
 
-        resultado.forEach((documento) => {
+        for (const documento of resultado.docs) {
 
             const adquisicion =
                 documento.data();
 
+            let nombreUsuario = "Usuario no disponible";
+            let correoUsuario = "Correo no disponible";
+
+            if (adquisicion.usuarioId) {
+
+                try {
+
+                    const referenciaUsuario =
+                        doc(
+                            db,
+                            "usuarios",
+                            adquisicion.usuarioId
+                        );
+
+                    const resultadoUsuario =
+                        await getDoc(referenciaUsuario);
+
+                    if (resultadoUsuario.exists()) {
+
+                        const datosUsuario =
+                            resultadoUsuario.data();
+
+                        nombreUsuario =
+                            `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`
+                                .trim() || "Usuario sin nombre";
+
+                        correoUsuario =
+                            datosUsuario.email ||
+                            "Correo no disponible";
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Error al obtener los datos del usuario:",
+                        error
+                    );
+                }
+            }
+
             const tarjeta =
                 crearTarjetaPago(
                     documento.id,
-                    adquisicion
+                    adquisicion,
+                    nombreUsuario,
+                    correoUsuario
                 );
 
             contenedor.appendChild(tarjeta);
-
-        });
+        }
 
     } catch (error) {
 
@@ -163,7 +237,9 @@ async function cargarPagosPendientes() {
 
 function crearTarjetaPago(
     idAdquisicion,
-    adquisicion
+    adquisicion,
+    nombreUsuario,
+    correoUsuario
 ) {
 
     const columna =
@@ -213,8 +289,13 @@ function crearTarjetaPago(
 
 
         <p class="mb-2">
-            <strong>Usuario:</strong>
-            ${adquisicion.usuarioId || "No disponible"}
+            <strong>Estudiante:</strong>
+            ${nombreUsuario}
+        </p>
+
+        <p class="mb-2">
+            <strong>Correo:</strong>
+            ${correoUsuario}
         </p>
 
 
@@ -230,38 +311,46 @@ function crearTarjetaPago(
         </p>
 
 
-        <button
-            type="button"
-            class="btn btn-success w-100 btn-aprobar-transferencia">
+       <div class="d-flex gap-2">
+            <button
+                type="button"
+                class="btn btn-success flex-fill btn-aprobar-transferencia">
+                <i class="bi bi-check-circle me-2"></i>
+                Aprobar
+            </button>
 
-            <i class="bi bi-check-circle me-2"></i>
-            Aprobar pago
-
-        </button>
+            <button
+                type="button"
+                class="btn btn-danger flex-fill btn-rechazar-transferencia">
+                <i class="bi bi-x-circle me-2"></i>
+                Rechazar
+            </button>
+        </div>
     `;
 
+    const botonAprobar =
+        cuerpo.querySelector(".btn-aprobar-transferencia");
 
-    const boton =
-        cuerpo.querySelector(
-            ".btn-aprobar-transferencia"
-        );
+    const botonRechazar =
+        cuerpo.querySelector(".btn-rechazar-transferencia");
 
-
-    boton.addEventListener(
+    botonAprobar.addEventListener(
         "click",
-        () => aprobarPago(
-            idAdquisicion,
-            boton
-        )
+        () => aprobarPago(idAdquisicion, botonAprobar)
+    );
+
+    botonRechazar.addEventListener(
+        "click",
+        () => rechazarPago(idAdquisicion, botonRechazar)
     );
 
 
-    tarjeta.appendChild(cuerpo);
-    columna.appendChild(tarjeta);
+        tarjeta.appendChild(cuerpo);
+        columna.appendChild(tarjeta);
 
 
-    return columna;
-}
+        return columna;
+    }
 
 
 async function aprobarPago(
@@ -340,6 +429,54 @@ async function aprobarPago(
     }
 }
 
+async function rechazarPago(idAdquisicion, boton) {
+    const confirmar =
+        confirm(
+            "¿Confirmás que querés rechazar este pago por transferencia?"
+        );
+
+    if (!confirmar) return;
+
+    try {
+        boton.disabled = true;
+
+        boton.innerHTML = `
+            <span
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true">
+            </span>
+            Rechazando...
+        `;
+
+        const referenciaAdquisicion =
+            doc(db, "adquisiciones", idAdquisicion);
+
+        await updateDoc(
+            referenciaAdquisicion,
+            {
+                estado: "rechazada"
+            }
+        );
+
+        alert("El pago fue rechazado correctamente.");
+
+        cargarPagosPendientes();
+
+    } catch (error) {
+        console.error("Error al rechazar el pago:", error);
+
+        alert(
+            "No fue posible rechazar el pago. Intentá nuevamente."
+        );
+
+        boton.disabled = false;
+
+        boton.innerHTML = `
+            <i class="bi bi-x-circle me-2"></i>
+            Rechazar
+        `;
+    }
+}
 
 function formatearPrecio(precio) {
 

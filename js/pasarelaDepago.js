@@ -524,6 +524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               collection(db, "adquisiciones"),
               {
                 usuarioId: usuario.uid,
+                usuarioCorreo: usuario.email || "",
 
                 cursoId: cursoId,
 

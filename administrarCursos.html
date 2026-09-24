@@ -158,63 +158,129 @@
         </div>
     </section>
 
+    <!-- GESTIÓN DE ESTUDIANTES -->
     <section class="py-5">
         <div class="container">
 
             <div class="text-center mb-5">
 
-                <i class="bi bi-award-fill fs-1 text-warning"></i>
+                <i class="bi bi-people-fill fs-1 text-primary"></i>
 
                 <h2 class="mt-3">
-                    Solicitudes de becas
+                    Gestión de estudiantes
                 </h2>
 
                 <p class="text-muted">
-                    Revisá las solicitudes de becas realizadas por los estudiantes.
+                    Gestioná las solicitudes de becas y los pagos realizados por los estudiantes.
                 </p>
 
             </div>
 
-            <div id="contenedorSolicitudesBecas"
-                class="row justify-content-center g-4">
+            <div class="row justify-content-center g-4">
 
-                <div class="col-12 text-center">
-                    <p class="text-muted">
-                        Cargando solicitudes...
-                    </p>
+                <!-- SOLICITUDES DE BECAS -->
+                <div class="col-12 col-md-6 col-lg-5">
+
+                    <article class="card h-100 shadow-sm text-center">
+
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+
+                            <div>
+
+                                <i class="bi bi-award-fill fs-1 text-warning"
+                                    aria-hidden="true"></i>
+
+                                <h2 class="h4 mt-3">
+                                    Solicitudes de becas
+                                </h2>
+
+                                <p class="text-muted">
+                                    Revisá las solicitudes de becas realizadas por los estudiantes.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary w-100"
+                                    id="btnMostrarSolicitudesBecas">
+
+                                    <i class="bi bi-list-check me-2"
+                                        aria-hidden="true"></i>
+
+                                    Ver solicitudes
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- PAGOS POR TRANSFERENCIA -->
+                <div class="col-12 col-md-6 col-lg-5">
+
+                    <article class="card h-100 shadow-sm text-center">
+
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+
+                            <div>
+
+                                <i class="bi bi-bank fs-1 text-success"
+                                    aria-hidden="true"></i>
+
+                                <h2 class="h4 mt-3">
+                                    Pagos por transferencia
+                                </h2>
+
+                                <p class="text-muted">
+                                    Revisá y confirmá los pagos realizados mediante transferencia bancaria.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary w-100"
+                                    id="btnMostrarPagosTransferencia">
+
+                                    <i class="bi bi-credit-card me-2"
+                                        aria-hidden="true"></i>
+
+                                    Ver pagos pendientes
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
                 </div>
 
             </div>
 
-        </div>
-    </section>
 
-    <section class="py-5">
-        <div class="container">
-
-            <div class="text-center mb-5">
-
-                <i class="bi bi-bank fs-1 text-success"></i>
-
-                <h2 class="mt-3">
-                    Pagos por transferencia
-                </h2>
-
-                <p class="text-muted">
-                    Revisá y confirmá los pagos realizados mediante transferencia bancaria.
-                </p>
-
+            <!-- CONTENIDO DE SOLICITUDES -->
+            <div
+                id="contenedorSolicitudesBecas"
+                class="row justify-content-center g-4 mt-4 d-none">
             </div>
 
-            <div id="contenedorPagosTransferencia"
-                class="row justify-content-center g-4">
 
-                <div class="col-12 text-center">
-                    <p class="text-muted">
-                        Cargando pagos pendientes...
-                    </p>
-                </div>
-
+            <!-- CONTENIDO DE PAGOS -->
+            <div
+                id="contenedorPagosTransferencia"
+                class="row justify-content-center g-4 mt-4 d-none">
             </div>
 
         </div>

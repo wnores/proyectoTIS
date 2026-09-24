@@ -15,7 +15,41 @@ import {
 const contenedor =
     document.getElementById("contenedorSolicitudesBecas");
 
-cargarSolicitudes();
+const botonMostrarSolicitudes =
+    document.getElementById("btnMostrarSolicitudesBecas");
+
+if (botonMostrarSolicitudes) {
+
+    botonMostrarSolicitudes.addEventListener(
+        "click",
+        () => {
+
+            const estaOculto =
+                contenedor.classList.contains("d-none");
+
+            if (estaOculto) {
+
+                contenedor.classList.remove("d-none");
+
+                botonMostrarSolicitudes.innerHTML = `
+                    <i class="bi bi-chevron-up me-2"></i>
+                    Ocultar solicitudes
+                `;
+
+                cargarSolicitudes();
+
+            } else {
+
+                contenedor.classList.add("d-none");
+
+                botonMostrarSolicitudes.innerHTML = `
+                    <i class="bi bi-list-check me-2"></i>
+                    Ver solicitudes
+                `;
+            }
+        }
+    );
+}
 
 async function cargarSolicitudes() {
 

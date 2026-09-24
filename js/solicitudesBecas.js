@@ -8,13 +8,48 @@ import {
     doc,
     writeBatch,
     arrayUnion,
-    getDoc
+    getDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const contenedor =
     document.getElementById("contenedorSolicitudesBecas");
 
-cargarSolicitudes();
+const botonMostrarSolicitudes =
+    document.getElementById("btnMostrarSolicitudesBecas");
+
+if (botonMostrarSolicitudes) {
+
+    botonMostrarSolicitudes.addEventListener(
+        "click",
+        () => {
+
+            const estaOculto =
+                contenedor.classList.contains("d-none");
+
+            if (estaOculto) {
+
+                contenedor.classList.remove("d-none");
+
+                botonMostrarSolicitudes.innerHTML = `
+                    <i class="bi bi-chevron-up me-2"></i>
+                    Ocultar solicitudes
+                `;
+
+                cargarSolicitudes();
+
+            } else {
+
+                contenedor.classList.add("d-none");
+
+                botonMostrarSolicitudes.innerHTML = `
+                    <i class="bi bi-list-check me-2"></i>
+                    Ver solicitudes
+                `;
+            }
+        }
+    );
+}
 
 async function cargarSolicitudes() {
 
@@ -218,6 +253,10 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             return;
         }
 
+        // ==================================================
+        // OBTENER CURSO
+        // ==================================================
+
         const referenciaCurso =
             doc(
                 db,
@@ -233,7 +272,8 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             return;
         }
 
-        const datosCurso = resultadoCurso.data();
+        const datosCurso =
+            resultadoCurso.data();
 
         const nombreCurso =
             datosCurso.titulo ||
@@ -241,20 +281,24 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             datosCurso.nombreCurso ||
             "Curso sin nombre";
 
-        const batch = writeBatch(db);
+
+        // ==================================================
+        // CREAR BATCH
+        // ==================================================
+
+        const batch =
+            writeBatch(db);
+
+
+        // ==================================================
+        // ACTUALIZAR SOLICITUD DE BECA
+        // ==================================================
 
         const referenciaSolicitud =
             doc(
                 db,
                 "solicitudesBecas",
                 idSolicitud
-            );
-
-        const referenciaUsuario =
-            doc(
-                db,
-                "usuarios",
-                solicitud.uid
             );
 
         batch.update(
@@ -266,6 +310,18 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             }
         );
 
+
+        // ==================================================
+        // ACTUALIZAR USUARIO
+        // ==================================================
+
+        const referenciaUsuario =
+            doc(
+                db,
+                "usuarios",
+                solicitud.uid
+            );
+
         batch.update(
             referenciaUsuario,
             {
@@ -275,12 +331,43 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
                 becasAdquiridas:
                     arrayUnion({
                         curso: nombreCurso,
+                        cursoId: cursoId,
                         tipoBeca: solicitud.tipoBeca
                     })
             }
         );
 
+
+        // ==================================================
+        // REGISTRAR ADQUISICIÓN POR BECA
+        // ==================================================
+
+        const referenciaAdquisicion =
+            doc(
+                collection(db, "adquisiciones")
+            );
+
+        batch.set(
+            referenciaAdquisicion,
+            {
+                usuarioId: solicitud.uid,
+                cursoId: cursoId,
+                cursoTitulo: nombreCurso,
+                precio: 0,
+                metodoPago: "beca",
+                tipoBeca: solicitud.tipoBeca,
+                fechaAdquisicion: serverTimestamp(),
+                estado: "aprobada"
+            }
+        );
+
+
+        // ==================================================
+        // GUARDAR TODOS LOS CAMBIOS
+        // ==================================================
+
         await batch.commit();
+
 
         alert(
             "La solicitud fue aprobada correctamente."

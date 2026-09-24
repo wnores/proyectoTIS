@@ -555,100 +555,286 @@ function obtenerNombreTipoBeca(tipoBeca) {
     return nombres[tipoBeca] || "Beca";
 }
 
-function configurarServiciosAdquiridos(datosUsuario) {
+async function configurarServiciosAdquiridos(datosUsuario) {
     const boton = document.getElementById("btnServiciosAdquiridos");
 
     if (!boton) return;
 
-    boton.addEventListener("click", () => {
+    boton.addEventListener("click", async () => {
         const contenedor = document.getElementById("listaServiciosAdquiridos");
 
         if (!contenedor) return;
 
-        contenedor.innerHTML = "";
-
-        const servicios = datosUsuario.serviciosAdquiridos;
-
-        const tituloServicios = document.createElement("h6");
-        tituloServicios.className = "fw-bold mb-3";
-        tituloServicios.textContent = "Cursos adquiridos";
-
-        contenedor.appendChild(tituloServicios);
-
-        if (!Array.isArray(servicios) || servicios.length === 0) {
-            contenedor.innerHTML += `
-                <div class="text-center py-3">
-                    <i class="bi bi-mortarboard fs-1 text-secondary"></i>
-                    <p class="mt-3 mb-0">
-                        No tenés cursos adquiridos.
-                    </p>
+        contenedor.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
                 </div>
-            `;
-        } else {
-            const lista = document.createElement("div");
-            lista.className = "list-group mb-4";
-
-            servicios.forEach((servicio) => {
-                const elemento = document.createElement("div");
-                elemento.className = "list-group-item d-flex align-items-center gap-2";
-
-                elemento.innerHTML = `
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                    <span>${servicio.curso || servicio}</span>
-                `;
-
-                lista.appendChild(elemento);
-            });
-
-            contenedor.appendChild(lista);
-        }
-
-        const becas = datosUsuario.becasAdquiridas;
-
-        if (Array.isArray(becas) && becas.length > 0) {
-            const separador = document.createElement("hr");
-            separador.className = "my-4";
-
-            contenedor.appendChild(separador);
-
-            const tituloBecas = document.createElement("h6");
-            tituloBecas.className = "fw-bold mb-3";
-            tituloBecas.textContent = "Becas otorgadas";
-
-            contenedor.appendChild(tituloBecas);
-
-            const listaBecas = document.createElement("div");
-            listaBecas.className = "list-group";
-
-            becas.forEach((beca) => {
-                const elemento = document.createElement("div");
-                elemento.className = "list-group-item";
-
-                elemento.innerHTML = `
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-award-fill text-warning"></i>
-                        <div>
-                            <div class="fw-semibold">
-                                ${beca.curso}
-                            </div>
-                            <small class="text-secondary">
-                                ${obtenerNombreTipoBeca(beca.tipoBeca)}
-                            </small>
-                        </div>
-                    </div>
-                `;
-
-                listaBecas.appendChild(elemento);
-            });
-
-            contenedor.appendChild(listaBecas);
-        }
+                <p class="mt-3 mb-0">
+                    Cargando tus cursos adquiridos...
+                </p>
+            </div>
+        `;
 
         const modalElemento = document.getElementById("modalServicios");
 
         if (modalElemento) {
             const modal = new bootstrap.Modal(modalElemento);
             modal.show();
+        }
+
+        try {
+            // ==================================================
+            // OBTENER ADQUISICIONES PAGADAS DEL USUARIO
+            // ==================================================
+
+            const referenciaAdquisiciones = collection(
+                db,
+                "adquisiciones"
+            );
+
+            const consultaAdquisiciones = query(
+                referenciaAdquisiciones,
+                where("usuarioId", "==", auth.currentUser.uid),
+                where("estado", "==", "aprobada")
+            );
+
+            const resultadoAdquisiciones =
+                await getDocs(consultaAdquisiciones);
+
+            const cursosAdquiridos = [];
+
+            resultadoAdquisiciones.forEach((documento) => {
+                const adquisicion = documento.data();
+
+                cursosAdquiridos.push({
+                    cursoId: adquisicion.cursoId,
+                    cursoTitulo:
+                        adquisicion.cursoTitulo ||
+                        "Curso sin título",
+                    origen: "pago"
+                });
+            });
+
+
+            // ==================================================
+            // OBTENER CURSOS ADQUIRIDOS MEDIANTE BECA
+            // ==================================================
+
+            const becas = Array.isArray(datosUsuario.becasAdquiridas)
+                ? datosUsuario.becasAdquiridas
+                : [];
+
+            becas.forEach((beca) => {
+
+                const cursoYaExiste = cursosAdquiridos.some((curso) => {
+
+                    if (beca.cursoId && curso.cursoId) {
+                        return curso.cursoId === beca.cursoId;
+                    }
+
+                    return (
+                        curso.cursoTitulo &&
+                        beca.curso &&
+                        curso.cursoTitulo.toLowerCase() ===
+                        beca.curso.toLowerCase()
+                    );
+                });
+
+                if (!cursoYaExiste) {
+                    cursosAdquiridos.push({
+                        cursoId: beca.cursoId,
+                        cursoTitulo: beca.curso || "Curso sin título",
+                        origen: "beca",
+                        tipoBeca: beca.tipoBeca
+                    });
+                }
+            });
+
+
+            // ==================================================
+            // TÍTULO
+            // ==================================================
+
+            contenedor.innerHTML = "";
+
+            const tituloServicios = document.createElement("h6");
+            tituloServicios.className = "fw-bold mb-3";
+            tituloServicios.textContent = "Cursos adquiridos";
+
+            contenedor.appendChild(tituloServicios);
+
+
+            // ==================================================
+            // CURSOS ADQUIRIDOS
+            // ==================================================
+
+            if (cursosAdquiridos.length === 0) {
+
+                contenedor.innerHTML += `
+                    <div class="text-center py-3">
+                        <i class="bi bi-mortarboard fs-1 text-secondary"></i>
+                        <p class="mt-3 mb-0">
+                            No tenés cursos adquiridos.
+                        </p>
+                    </div>
+                `;
+
+            } else {
+
+                const lista = document.createElement("div");
+                lista.className = "list-group mb-4";
+
+                cursosAdquiridos.forEach((curso) => {
+
+                    const elemento =
+                        document.createElement("div");
+
+                    elemento.className =
+                        "list-group-item d-flex align-items-center justify-content-between gap-2";
+
+                    const informacion =
+                        document.createElement("div");
+
+                    informacion.className =
+                        "d-flex align-items-center gap-2";
+
+                    let etiquetaOrigen = "";
+
+                    if (curso.origen === "beca") {
+                        etiquetaOrigen = `
+                            <small class="text-secondary d-block">
+                                ${obtenerNombreTipoBeca(curso.tipoBeca)}
+                            </small>
+                        `;
+                    }
+
+                    informacion.innerHTML = `
+                        <i class="bi bi-check-circle-fill text-success"></i>
+
+                        <div>
+                            <span>
+                                ${curso.cursoTitulo}
+                            </span>
+
+                            ${etiquetaOrigen}
+                        </div>
+                    `;
+
+                    const botonAcceder =
+                        document.createElement("a");
+
+                    botonAcceder.className =
+                        "btn btn-sm btn-primary";
+
+                    if (curso.cursoId) {
+
+                        botonAcceder.href =
+                            `contenidoCurso.html?curso=${curso.cursoId}`;
+
+                        botonAcceder.innerHTML = `
+                            <i class="bi bi-play-circle me-1"></i>
+                            Acceder
+                        `;
+
+                    } else {
+
+                        botonAcceder.classList.add("disabled");
+                        botonAcceder.innerHTML = `
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            Sin acceso
+                        `;
+                    }
+
+                    elemento.appendChild(informacion);
+                    elemento.appendChild(botonAcceder);
+
+                    lista.appendChild(elemento);
+                });
+
+                contenedor.appendChild(lista);
+            }
+
+
+            // ==================================================
+            // BECAS OTORGADAS
+            // ==================================================
+
+            if (becas.length > 0) {
+
+                const separador =
+                    document.createElement("hr");
+
+                separador.className = "my-4";
+
+                contenedor.appendChild(separador);
+
+
+                const tituloBecas =
+                    document.createElement("h6");
+
+                tituloBecas.className =
+                    "fw-bold mb-3";
+
+                tituloBecas.textContent =
+                    "Becas otorgadas";
+
+                contenedor.appendChild(tituloBecas);
+
+
+                const listaBecas =
+                    document.createElement("div");
+
+                listaBecas.className =
+                    "list-group";
+
+
+                becas.forEach((beca) => {
+
+                    const elemento =
+                        document.createElement("div");
+
+                    elemento.className =
+                        "list-group-item";
+
+
+                    elemento.innerHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-award-fill text-warning"></i>
+
+                            <div>
+                                <div class="fw-semibold">
+                                    ${beca.curso}
+                                </div>
+
+                                <small class="text-secondary">
+                                    ${obtenerNombreTipoBeca(beca.tipoBeca)}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+
+                    listaBecas.appendChild(elemento);
+                });
+
+                contenedor.appendChild(listaBecas);
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Error al obtener los cursos adquiridos:",
+                error
+            );
+
+            contenedor.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+                    <p class="mt-3 mb-0">
+                        No fue posible cargar tus cursos adquiridos.
+                    </p>
+                </div>
+            `;
         }
     });
 }

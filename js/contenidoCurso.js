@@ -114,7 +114,11 @@ function iniciarPagina() {
             };
 
             const tieneAcceso =
-                comprobarAcceso(datosUsuario, curso);
+                await comprobarAcceso(
+                    datosUsuario,
+                    curso,
+                    usuario.uid
+                );
 
             if (!tieneAcceso) {
                 mostrarError(
@@ -140,7 +144,8 @@ function iniciarPagina() {
     });
 }
 //comprueba acceso
-function comprobarAcceso(datosUsuario, curso) {
+async function comprobarAcceso(datosUsuario, curso, uid) {
+
     const rol = (
         datosUsuario.tipoUsuario ||
         datosUsuario.rol ||
@@ -150,38 +155,53 @@ function comprobarAcceso(datosUsuario, curso) {
         .trim()
         .toLowerCase();
 
-    
+    // =====================================================
+    // DOCENTE / ADMIN
+    // =====================================================
+
     if (rol === "docente/admin") {
         return true;
     }
-        
+
+    // =====================================================
+    // SOLO LOS ESTUDIANTES PUEDEN ACCEDER COMO ADQUIRIENTES
+    // =====================================================
 
     if (rol !== "estudiante") {
         return false;
     }
 
-    const servicios =
-        Array.isArray(datosUsuario.serviciosAdquiridos)
-            ? datosUsuario.serviciosAdquiridos
-            : [];
+    // =====================================================
+    // BUSCAR ADQUISICIÓN APROBADA
+    // =====================================================
 
-    return servicios.some((servicio) => {
-        
-        if (typeof servicio === "string") {
-            return normalizarTexto(servicio) ===
-                normalizarTexto(curso.titulo);
-        }
-
-        return (
-            servicio.cursoId === curso.id ||
-            servicio.id === curso.id ||
-            normalizarTexto(servicio.curso) ===
-                normalizarTexto(curso.titulo) ||
-            normalizarTexto(servicio.titulo) ===
-                normalizarTexto(curso.titulo)
+    const referenciaAdquisiciones =
+        collection(
+            db,
+            "adquisiciones"
         );
-    });
+
+    const consulta =
+        await getDocs(
+            referenciaAdquisiciones
+        );
+
+    const tieneAdquisicionAprobada =
+        consulta.docs.some((documento) => {
+
+            const adquisicion =
+                documento.data();
+
+            return (
+                adquisicion.usuarioId === uid &&
+                adquisicion.cursoId === curso.id &&
+                adquisicion.estado === "aprobada"
+            );
+        });
+
+    return tieneAdquisicionAprobada;
 }
+
 function mostrarCurso(curso, modulos) {
     nombreCursoRuta.textContent =
         curso.titulo || "Curso";

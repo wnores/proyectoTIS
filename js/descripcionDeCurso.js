@@ -118,61 +118,160 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!docSnap.exists()) return;
 
         const datosUsuario = docSnap.data();
-        const tipo = (datosUsuario.tipoUsuario || '').toString().trim().toLowerCase();
+        const tipo = (datosUsuario.tipoUsuario || '')
+          .toString()
+          .trim()
+          .toLowerCase();
 
-        // Ocultamos el botón superior 'Inscribirse' si hay sesión activa
-        const btnInscribirmeSuperior = document.querySelector('.js-btn-inscribirme-superior');
+        // Ocultamos el botón superior 'Inscribirse'
+        // si hay sesión activa.
+        const btnInscribirmeSuperior =
+          document.querySelector('.js-btn-inscribirme-superior');
 
         if (btnInscribirmeSuperior) {
           btnInscribirmeSuperior.classList.add('d-none');
         }
 
         if (tipo === 'estudiante') {
+
           renderizarTablaModulos(curso);
 
-          const contenedorAcciones = document.querySelector('.js-acciones-estudiante');
-          const btnInscribirmeInferior = document.querySelector('.js-btn-inscribirme-inferior');
-          const btnBeca = document.querySelector('.js-btn-beca');
+          const contenedorAcciones =
+            document.querySelector('.js-acciones-estudiante');
+
+          const btnInscribirmeInferior =
+            document.querySelector('.js-btn-inscribirme-inferior');
+
+          const btnBeca =
+            document.querySelector('.js-btn-beca');
+
+          const btnAcceder =
+            document.querySelector('.js-btn-acceder');
+
+
+          // ==================================================
+          // CONFIGURAR BOTONES
+          // ==================================================
 
           if (btnInscribirmeInferior) {
-            btnInscribirmeInferior.href = `pasarelaDePago.html?curso=${curso.id}`;
+            btnInscribirmeInferior.href =
+              `pasarelaDePago.html?curso=${curso.id}`;
           }
 
           if (btnBeca) {
-            btnBeca.href = `beca.html?curso=${curso.id}`;
+            btnBeca.href =
+              `beca.html?curso=${curso.id}`;
           }
 
-          // Verificamos si el usuario ya adquirió el curso
-          const referenciaAdquisiciones = collection(db, "adquisiciones");
+          if (btnAcceder) {
+            btnAcceder.href =
+              `contenidoCurso.html?curso=${curso.id}`;
+          }
 
-          const consultaAdquisicion = query(
-            referenciaAdquisiciones,
-            where("usuarioId", "==", user.uid),
-            where("cursoId", "==", curso.id),
-            where("estado", "==", "aprobada")
-          );
 
-          const resultadoAdquisicion = await getDocs(consultaAdquisicion);
+          // ==================================================
+          // VERIFICAR SI YA ADQUIRIÓ EL CURSO
+          // ==================================================
 
-          // Si ya adquirió el curso, no puede volver a inscribirse
-          // ni solicitar una beca.
+          const referenciaAdquisiciones =
+            collection(
+              db,
+              "adquisiciones"
+            );
+
+          const consultaAdquisicion =
+            query(
+              referenciaAdquisiciones,
+              where(
+                "usuarioId",
+                "==",
+                user.uid
+              ),
+              where(
+                "cursoId",
+                "==",
+                curso.id
+              ),
+              where(
+                "estado",
+                "==",
+                "aprobada"
+              )
+            );
+
+          const resultadoAdquisicion =
+            await getDocs(
+              consultaAdquisicion
+            );
+
+
+          // ==================================================
+          // CURSO YA ADQUIRIDO
+          // ==================================================
+
           if (!resultadoAdquisicion.empty) {
 
+            // Ocultar inscripción
             if (btnInscribirmeInferior) {
-              btnInscribirmeInferior.classList.add('d-none');
+              btnInscribirmeInferior.classList.add(
+                'd-none'
+              );
+            }
+
+            // Ocultar solicitud de beca
+            if (btnBeca) {
+              btnBeca.classList.add(
+                'd-none'
+              );
+            }
+
+            // Mostrar acceso
+            if (btnAcceder) {
+              btnAcceder.classList.remove(
+                'd-none'
+              );
+            }
+
+          } else {
+
+            // ==================================================
+            // CURSO NO ADQUIRIDO
+            // ==================================================
+
+            if (btnAcceder) {
+              btnAcceder.classList.add(
+                'd-none'
+              );
+            }
+
+            if (btnInscribirmeInferior) {
+              btnInscribirmeInferior.classList.remove(
+                'd-none'
+              );
             }
 
             if (btnBeca) {
-              btnBeca.classList.add('d-none');
+              btnBeca.classList.remove(
+                'd-none'
+              );
             }
           }
 
+
+          // Mostrar contenedor de acciones
           if (contenedorAcciones) {
-            contenedorAcciones.classList.remove('d-none');
+            contenedorAcciones.classList.remove(
+              'd-none'
+            );
           }
         }
+
       } catch (error) {
-        console.error("Error al consultar el usuario en Firestore:", error);
+
+        console.error(
+          "Error al consultar el usuario en Firestore:",
+          error
+        );
       }
     });
   }

@@ -2,7 +2,11 @@ import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
   doc,
-  getDoc
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -118,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Ocultamos el botón superior 'Inscribirse' si hay sesión activa
         const btnInscribirmeSuperior = document.querySelector('.js-btn-inscribirme-superior');
+
         if (btnInscribirmeSuperior) {
           btnInscribirmeSuperior.classList.add('d-none');
         }
@@ -135,6 +140,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (btnBeca) {
             btnBeca.href = `beca.html?curso=${curso.id}`;
+          }
+
+          // Verificamos si el usuario ya adquirió el curso
+          const referenciaAdquisiciones = collection(db, "adquisiciones");
+
+          const consultaAdquisicion = query(
+            referenciaAdquisiciones,
+            where("usuarioId", "==", user.uid),
+            where("cursoId", "==", curso.id),
+            where("estado", "==", "aprobada")
+          );
+
+          const resultadoAdquisicion = await getDocs(consultaAdquisicion);
+
+          // Si ya adquirió el curso, no puede volver a inscribirse
+          // ni solicitar una beca.
+          if (!resultadoAdquisicion.empty) {
+
+            if (btnInscribirmeInferior) {
+              btnInscribirmeInferior.classList.add('d-none');
+            }
+
+            if (btnBeca) {
+              btnBeca.classList.add('d-none');
+            }
           }
 
           if (contenedorAcciones) {

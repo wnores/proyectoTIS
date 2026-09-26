@@ -241,20 +241,23 @@ async function obtenerModulos(idCurso) {
     const resultado =
         await getDocs(referenciaModulos);
 
-    const modulos = await Promise.all(
-        resultado.docs.map(async (documento) => {
-            const modulo = {
+    const modulos = resultado.docs.map(
+        (documento) => {
+            const datos = documento.data();
+
+            return {
                 id: documento.id,
-                ...documento.data()
+                ...datos,
+
+                recursos: Array.isArray(datos.recursos)
+                    ? datos.recursos
+                    : [],
+
+                objetivos: Array.isArray(datos.objetivos)
+                    ? datos.objetivos
+                    : []
             };
-
-            modulo.recursos = await obtenerRecursos(
-                idCurso,
-                documento.id
-            );
-
-            return modulo;
-        })
+        }
     );
 
     modulos.sort(
@@ -265,35 +268,7 @@ async function obtenerModulos(idCurso) {
     return modulos;
 }
 
-
-async function obtenerRecursos(idCurso, idModulo) {
-    const referenciaRecursos = collection(
-        db,
-        "cursos",
-        idCurso,
-        "modulos",
-        idModulo,
-        "recursos"
-    );
-
-    const resultado =
-        await getDocs(referenciaRecursos);
-
-    const recursos = resultado.docs.map(
-        (documento) => ({
-            id: documento.id,
-            ...documento.data()
-        })
-    );
-
-    recursos.sort(
-        (a, b) =>
-            Number(a.orden) - Number(b.orden)
-    );
-
-    return recursos;
-}
-
+   
 //menú lateral
 function mostrarListaModulos(modulos) {
     listaModulos.replaceChildren();
@@ -423,8 +398,116 @@ function mostrarRecursos(recursos) {
 
         return;
     }
+    recursos.forEach((recurso) => {
+        const columna =
+            document.createElement("div");
+
+        columna.className =
+            "col-12 col-md-6 mb-3";
+
+        const tarjeta =
+            document.createElement("article");
+
+        tarjeta.className =
+            "card h-100 shadow-sm";
+
+        const cuerpo =
+            document.createElement("div");
+
+        cuerpo.className =
+            "card-body d-flex flex-column";
+
+        const icono =
+            document.createElement("i");
+
+        icono.className =
+            obtenerIconoRecurso(recurso.tipo);
+
+        const titulo =
+            document.createElement("h4");
+
+        titulo.className =
+            "card-title h5";
+
+        titulo.textContent =
+            recurso.nombre ||
+            recurso.titulo ||
+            "Material del módulo";
+
+        const descripcion =
+            document.createElement("p");
+
+        descripcion.className =
+            "card-text flex-grow-1";
+
+        descripcion.textContent =
+            recurso.descripcion || "";
+
+        const enlace =
+            document.createElement("a");
+
+        enlace.className =
+            "btn btn-primary mt-auto";
+
+        enlace.target = "_blank";
+        enlace.rel = "noopener noreferrer";
+
+        if (recurso.url) {
+            enlace.href = recurso.url;
+            enlace.textContent =
+                obtenerTextoBoton(recurso.tipo);
+        } else {
+            enlace.href = "#";
+            enlace.textContent =
+                "Material no disponible";
+
+            enlace.classList.add("disabled");
+
+            enlace.setAttribute(
+                "aria-disabled",
+                "true"
+            );
+        }
+
+        cuerpo.appendChild(icono);
+        cuerpo.appendChild(titulo);
+        cuerpo.appendChild(descripcion);
+        cuerpo.appendChild(enlace);
+
+        tarjeta.appendChild(cuerpo);
+        columna.appendChild(tarjeta);
+        listaRecursos.appendChild(columna);
+    });
 }
+
 //agrega funciones auxiliares
+
+function obtenerIconoRecurso(tipo) {
+    const iconos = {
+        pdf: "bi bi-file-earmark-pdf fs-2 text-danger mb-3",
+        drive: "bi bi-google fs-2 text-success mb-3",
+        presentacion: "bi bi-easel fs-2 text-warning mb-3",
+        url: "bi bi-link-45deg fs-2 text-primary mb-3"
+    };
+
+    return (
+        iconos[tipo] ||
+        "bi bi-file-earmark fs-2 text-primary mb-3"
+    );
+}
+
+
+function obtenerTextoBoton(tipo) {
+    const textos = {
+        pdf: "Abrir PDF",
+        drive: "Abrir en Drive",
+        presentacion: "Ver presentación",
+        url: "Visitar enlace"
+    };
+
+    return textos[tipo] || "Abrir material";
+}
+
 function actualizarProgreso(
     indice,
     cantidadModulos

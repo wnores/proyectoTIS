@@ -132,6 +132,50 @@ document.addEventListener('DOMContentLoaded', () => {
           btnInscribirmeSuperior.classList.add('d-none');
         }
 
+        if (tipo === "docente/admin") {
+          renderizarTablaModulos(curso);
+
+        const seccionModulos =
+          document.querySelector(".js-seccion-modulos");
+
+        const contenedorAcciones =
+          document.querySelector(".js-acciones-estudiante");
+
+        const btnInscribirmeInferior =
+          document.querySelector(".js-btn-inscribirme-inferior");
+
+        const btnBeca =
+          document.querySelector(".js-btn-beca");
+
+        const btnAcceder =
+          document.querySelector(".js-btn-acceder");
+
+        if (seccionModulos) {
+          seccionModulos.classList.remove("d-none");
+        }
+
+        if (btnInscribirmeInferior) {
+          btnInscribirmeInferior.classList.add("d-none");
+        }
+
+        if (btnBeca) {
+          btnBeca.classList.add("d-none");
+        }
+
+        if (btnAcceder) {
+          btnAcceder.href =
+            `contenidoCurso.html?curso=${curso.id}`;
+
+          btnAcceder.classList.remove("d-none");
+        }
+
+        if (contenedorAcciones) {
+          contenedorAcciones.classList.remove("d-none");
+        }
+
+        return;
+      }
+
         if (tipo === 'estudiante') {
 
           renderizarTablaModulos(curso);

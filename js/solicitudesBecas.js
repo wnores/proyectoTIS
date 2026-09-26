@@ -130,7 +130,7 @@ async function cargarSolicitudes() {
                 document.createElement("div");
 
             tarjeta.className =
-                "col-12 col-md-6 col-lg-5";
+                "col-12 col-md-6 col-lg-4";
 
             tarjeta.innerHTML = `
 
@@ -138,45 +138,55 @@ async function cargarSolicitudes() {
 
                     <div class="card-body">
 
-                        <h3 class="h5">
-                            ${solicitud.nombre}
-                        </h3>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+
+                            <div>
+                                <h3 class="h5 mb-1">
+                                    ${solicitud.nombre || "Estudiante no disponible"}
+                                </h3>
+
+                                <span class="badge text-bg-warning">
+                                    Pendiente
+                                </span>
+                            </div>
+
+                            <i class="bi bi-award fs-3 text-warning"></i>
+
+                        </div>
 
                         <p class="mb-2">
                             <strong>Correo:</strong>
-                            ${solicitud.correo}
+                            ${solicitud.correo || "Correo no disponible"}
                         </p>
 
                         <p class="mb-2">
                             <strong>Curso:</strong>
-                            ${nombreCurso}
+                            ${nombreCurso || "Curso no disponible"}
                         </p>
 
                         <p class="mb-2">
                             <strong>Tipo de beca:</strong>
-                            ${solicitud.tipoBeca}
+                            ${solicitud.tipoBeca || "No especificado"}
                         </p>
 
                         <p class="mb-3">
-                            <strong>Motivo:</strong><br>
-                            ${solicitud.motivo}
+                            <strong>Motivo:</strong>
+                            ${solicitud.motivo || "No especificado"}
                         </p>
-
-                        <span class="badge text-bg-warning mb-3">
-                            Pendiente
-                        </span>
 
                         <div class="d-flex gap-2">
 
                             <button
                                 type="button"
-                                class="btn btn-success btn-sm js-aprobar-beca">
+                                class="btn btn-success flex-fill js-aprobar-beca">
+                                <i class="bi bi-check-circle me-2"></i>
                                 Aprobar
                             </button>
 
                             <button
                                 type="button"
-                                class="btn btn-danger btn-sm js-rechazar-beca">
+                                class="btn btn-danger flex-fill js-rechazar-beca">
+                                <i class="bi bi-x-circle me-2"></i>
                                 Rechazar
                             </button>
 

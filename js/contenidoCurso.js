@@ -487,7 +487,8 @@ function obtenerIconoRecurso(tipo) {
         pdf: "bi bi-file-earmark-pdf fs-2 text-danger mb-3",
         drive: "bi bi-google fs-2 text-success mb-3",
         presentacion: "bi bi-easel fs-2 text-warning mb-3",
-        url: "bi bi-link-45deg fs-2 text-primary mb-3"
+        url: "bi bi-link-45deg fs-2 text-primary mb-3",
+        python: "bi bi-filetype-py fs-2 text-primary mb-3"
     };
 
     return (
@@ -502,7 +503,8 @@ function obtenerTextoBoton(tipo) {
         pdf: "Abrir PDF",
         drive: "Abrir en Drive",
         presentacion: "Ver presentación",
-        url: "Visitar enlace"
+        url: "Visitar enlace",
+        python: "Descargar Python"
     };
 
     return textos[tipo] || "Abrir material";

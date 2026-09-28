@@ -293,7 +293,7 @@ function renderizarModulos() {
                       <option value="drive" ${rec.tipo === 'drive' ? 'selected' : ''}>📁 Google Drive</option>
                       <option value="presentacion" ${rec.tipo === 'presentacion' ? 'selected' : ''}>📊 Presentación (Slides/Canva)</option>
                       <option value="url" ${rec.tipo === 'url' ? 'selected' : ''}>🔗 Enlace / Web</option>
-                      <option value="python">🐍 Archivo Python</option>
+                      <option value="python" ${rec.tipo === 'python' ? 'selected' : ''}>🐍 Archivo Python</option>
                     </select>
                   </div>
                   <div class="col-md-4">

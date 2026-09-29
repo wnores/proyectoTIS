@@ -452,10 +452,58 @@ function mostrarRecursos(recursos) {
         enlace.target = "_blank";
         enlace.rel = "noopener noreferrer";
 
+
         if (recurso.url) {
             enlace.href = recurso.url;
             enlace.textContent =
                 obtenerTextoBoton(recurso.tipo);
+
+            if (recurso.tipo === "python") {
+                enlace.removeAttribute("target");
+
+                enlace.addEventListener("click", async (event) => {
+                    event.preventDefault();
+
+                    try {
+                        const respuesta = await fetch(recurso.url);
+
+                        if (!respuesta.ok) {
+                            throw new Error("No se pudo obtener el archivo.");
+                        }
+
+                        const contenido = await respuesta.blob();
+
+                        const urlDescarga =
+                            URL.createObjectURL(contenido);
+
+                        const enlaceDescarga =
+                            document.createElement("a");
+
+                        enlaceDescarga.href = urlDescarga;
+
+                        enlaceDescarga.download =
+                            recurso.nombre
+                                ? `${recurso.nombre}.py`
+                                : "material.py";
+
+                        document.body.appendChild(enlaceDescarga);
+                        enlaceDescarga.click();
+                        enlaceDescarga.remove();
+
+                        URL.revokeObjectURL(urlDescarga);
+
+                    } catch (error) {
+                        console.error(
+                            "Error al descargar el archivo Python:",
+                            error
+                        );
+
+                        alert(
+                            "No se pudo descargar el archivo Python."
+                        );
+                    }
+                });
+            }
         } else {
             enlace.href = "#";
             enlace.textContent =

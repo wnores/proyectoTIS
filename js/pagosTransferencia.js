@@ -11,7 +11,8 @@ import {
     where,
     doc,
     updateDoc,
-    getDoc
+    getDoc,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const contenedor =
@@ -352,25 +353,19 @@ function crearTarjetaPago(
         return columna;
     }
 
-
 async function aprobarPago(
     idAdquisicion,
     boton
 ) {
-
-    const confirmar =
-        confirm(
-            "¿Confirmás que la transferencia bancaria fue recibida?"
-        );
-
+    const confirmar = confirm(
+        "¿Confirmás que la transferencia bancaria fue recibida?"
+    );
 
     if (!confirmar) {
         return;
     }
 
-
     try {
-
         boton.disabled = true;
 
         boton.innerHTML = `
@@ -378,56 +373,145 @@ async function aprobarPago(
                 class="spinner-border spinner-border-sm me-2"
                 aria-hidden="true">
             </span>
-
             Aprobando...
         `;
 
-
-        const referenciaAdquisicion =
-            doc(
-                db,
-                "adquisiciones",
-                idAdquisicion
-            );
-
-
-        await updateDoc(
-            referenciaAdquisicion,
-            {
-                estado: "aprobada"
-            }
+        const referenciaAdquisicion = doc(
+            db,
+            "adquisiciones",
+            idAdquisicion
         );
 
+        await runTransaction(
+            db,
+            async (transaccion) => {
+
+                const resultadoAdquisicion =
+                    await transaccion.get(
+                        referenciaAdquisicion
+                    );
+
+                if (!resultadoAdquisicion.exists()) {
+                    throw new Error(
+                        "ADQUISICION_NO_EXISTE"
+                    );
+                }
+
+                const adquisicion =
+                    resultadoAdquisicion.data();
+
+                // Evita aprobar y descontar dos veces
+                if (
+                    adquisicion.estado !== "pendiente"
+                ) {
+                    throw new Error(
+                        "PAGO_YA_PROCESADO"
+                    );
+                }
+
+                if (!adquisicion.cursoId) {
+                    throw new Error(
+                        "CURSO_NO_EXISTE"
+                    );
+                }
+
+                const referenciaCurso = doc(
+                    db,
+                    "cursos",
+                    adquisicion.cursoId
+                );
+
+                const resultadoCurso =
+                    await transaccion.get(
+                        referenciaCurso
+                    );
+
+                if (!resultadoCurso.exists()) {
+                    throw new Error(
+                        "CURSO_NO_EXISTE"
+                    );
+                }
+
+                const cuposActuales = Number(
+                    resultadoCurso.data()
+                        .cupos_disponibles || 0
+                );
+
+                if (cuposActuales <= 0) {
+                    throw new Error("SIN_CUPOS");
+                }
+
+                transaccion.update(
+                    referenciaCurso,
+                    {
+                        cupos_disponibles:
+                            cuposActuales - 1
+                    }
+                );
+
+                transaccion.update(
+                    referenciaAdquisicion,
+                    {
+                        estado: "aprobada"
+                    }
+                );
+            }
+        );
 
         alert(
             "El pago fue aprobado correctamente."
         );
 
-
-        cargarPagosPendientes();
-
+        await cargarPagosPendientes();
 
     } catch (error) {
-
         console.error(
             "Error al aprobar el pago:",
             error
         );
 
+        if (error.message === "SIN_CUPOS") {
+            alert(
+                "No se puede aprobar el pago porque el curso no tiene cupos."
+            );
 
-        alert(
-            "No fue posible aprobar el pago. Intentá nuevamente."
-        );
+        } else if (
+            error.message === "PAGO_YA_PROCESADO"
+        ) {
+            alert(
+                "Este pago ya fue procesado anteriormente."
+            );
 
+        } else if (
+            error.message === "CURSO_NO_EXISTE"
+        ) {
+            alert(
+                "No se encontró el curso asociado al pago."
+            );
+
+        } else if (
+            error.message === "ADQUISICION_NO_EXISTE"
+        ) {
+            alert(
+                "No se encontró la adquisición."
+            );
+
+        } else {
+            alert(
+                "No fue posible aprobar el pago. Intentá nuevamente."
+            );
+        }
 
         boton.disabled = false;
 
         boton.innerHTML = `
             <i class="bi bi-check-circle me-2"></i>
-            Aprobar pago
+            Aprobar
         `;
     }
 }
+
+
 
 async function rechazarPago(idAdquisicion, boton) {
     const confirmar =

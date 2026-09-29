@@ -9,7 +9,8 @@ import {
   getDoc,
   addDoc,
   collection,
-  serverTimestamp
+  serverTimestamp,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 
@@ -80,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // CARGAR CURSO DESDE FIRESTORE
   // ======================================================
 
+  
   try {
 
     const cursoRef = doc(db, "cursos", cursoId);
@@ -512,6 +514,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           estado = "pendiente";
         }
 
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = "Procesando...";
 
         try {
 
@@ -519,31 +523,81 @@ document.addEventListener("DOMContentLoaded", async () => {
           // CREAR ADQUISICIÓN
           // ---------------------------------------------
 
-          const referenciaAdquisicion =
-            await addDoc(
-              collection(db, "adquisiciones"),
-              {
-                usuarioId: usuario.uid,
-                usuarioCorreo: usuario.email || "",
+          let referenciaAdquisicion;
 
-                cursoId: cursoId,
+          const datosAdquisicion = {
+            usuarioId: usuario.uid,
+            usuarioCorreo: usuario.email || "",
+            cursoId: cursoId,
 
                 cursoTitulo:
                   curso.titulo ||
                   curso.nombre ||
                   "Curso sin título",
 
-                precio:
-                  Number(curso.precio || 0),
-
+                precio: Number(curso.precio || 0),
                 metodoPago: metodo,
-
-                fechaAdquisicion:
-                  serverTimestamp(),
-
+                fechaAdquisicion: serverTimestamp(),
                 estado: estado
-              }
+            };
+          if (metodo ==="tarjeta"){
+           referenciaAdquisicion =
+        doc(collection(db, "adquisiciones"));
+
+    const referenciaCurso =
+        doc(db, "cursos", cursoId);
+
+    await runTransaction(
+        db,
+        async (transaccion) => {
+
+            const resultadoCurso =
+                await transaccion.get(
+                    referenciaCurso
+                );
+
+            if (!resultadoCurso.exists()) {
+                throw new Error("CURSO_NO_EXISTE");
+            }
+
+            const datosCurso =
+                resultadoCurso.data();
+
+            const cuposActuales =
+                Number(
+                    datosCurso.cupos_disponibles || 0
+                );
+
+            if (cuposActuales <= 0) {
+                throw new Error("SIN_CUPOS");
+            }
+
+            transaccion.update(
+                referenciaCurso,
+                {
+                    cupos_disponibles:
+                        cuposActuales - 1
+                }
             );
+
+            transaccion.set(
+                referenciaAdquisicion,
+                datosAdquisicion
+            );
+        }
+    );
+
+} else {
+
+    // La transferencia queda pendiente.
+    // Todavía no se descuenta el cupo.
+    referenciaAdquisicion =
+        await addDoc(
+            collection(db, "adquisiciones"),
+            datosAdquisicion
+        );
+} 
+ 
 
 
           // ---------------------------------------------
@@ -560,15 +614,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Error al registrar la adquisición:",
             error
           );
-
-          alert(
-            "No fue posible registrar la adquisición. Intentá nuevamente."
-          );
-        }
+          if (error.message === "SIN_CUPOS") {
+            alert(
+              "Este curso ya no tiene cupos disponibles."
+            );
+          } else {
+            alert(
+              "No fue posible registrar la adquisición. Intentá nuevamente."
+            );
+          }
+          btnConfirmar.disabled = false;
+          btnConfirmar.textContent =
+            "Confirmar pago";
 
       }
-    );
-
-  }
-
+    }
+  );
+}
 });

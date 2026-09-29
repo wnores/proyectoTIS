@@ -189,13 +189,21 @@ if (formPublicarCurso) {
     const cuposDisponibles = Number(document.getElementById("cupos").value);
 
     const camposModulos = document.querySelectorAll(".moduloCurso");
-    const modulos = {};
-
-    camposModulos.forEach((campo, indice) => {
-      modulos[`modulo${indice + 1}`] = campo.value.trim();
-    });
-
-    const modulosCompletos = Object.values(modulos).every((contenido) => contenido !== "");
+    
+    const modulos = Array.from(camposModulos).map(
+      (campo,indice) => ({
+        numero: indice + 1, 
+        titulo: `Módulo ${indice + 1}`,
+        descripcion: campo.value.trim(),
+        objetivos: [],
+        recursos: []
+      })
+    );
+    const modulosCompletos = 
+    modulos.length > 0 &&
+    modulos.every(
+    (modulo) => modulo.descripcion !== ""
+    );
 
     if (
       !titulo ||
@@ -222,7 +230,7 @@ if (formPublicarCurso) {
         imagenUrl = await subirImagenACloudinary(archivoImagenCurso);
       }
 
-      await addDoc(collection(db, "cursos"), {
+      const referenciaCurso = await addDoc(collection(db, "cursos"), {
         titulo: titulo,
         descripcion: descripcion,
         categoria: categoria,
@@ -232,10 +240,21 @@ if (formPublicarCurso) {
         URL_imagen: imagenUrl,
         modalidad: "Virtual",
         activo: true, 
-        ...modulos,
+        
         creadoPor: usuario.uid,
         creadoEn: serverTimestamp()
       });
+
+      const referenciaModulos = collection(
+        db,
+        "cursos",
+        referenciaCurso.id,
+        "modulos"
+      );
+
+      for (const modulo of modulos) {
+        await addDoc(referenciaModulos, modulo);
+      }
 
       mostrarMensaje("El curso fue creado correctamente. Redirigiendo a administración...", "success");
 

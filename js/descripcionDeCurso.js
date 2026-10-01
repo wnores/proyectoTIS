@@ -6,7 +6,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function cargarCurso(id) {
     try {
-      const docRef = doc(db, 'cursos', id);
+      const docRef = doc(db, 'cursoscc', id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
@@ -123,8 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .trim()
           .toLowerCase();
 
-        // Ocultamos el botón superior 'Inscribirse'
-        // si hay sesión activa.
         const btnInscribirmeSuperior =
           document.querySelector('.js-btn-inscribirme-superior');
 
@@ -133,52 +132,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (tipo === "docente/admin") {
-          renderizarTablaModulos(curso);
+          await renderizarTablaModulos(curso.id);
 
-        const seccionModulos =
-          document.querySelector(".js-seccion-modulos");
+          const seccionModulos =
+            document.querySelector(".js-seccion-modulos");
 
-        const contenedorAcciones =
-          document.querySelector(".js-acciones-estudiante");
+          const contenedorAcciones =
+            document.querySelector(".js-acciones-estudiante");
 
-        const btnInscribirmeInferior =
-          document.querySelector(".js-btn-inscribirme-inferior");
+          const btnInscribirmeInferior =
+            document.querySelector(".js-btn-inscribirme-inferior");
 
-        const btnBeca =
-          document.querySelector(".js-btn-beca");
+          const btnBeca =
+            document.querySelector(".js-btn-beca");
 
-        const btnAcceder =
-          document.querySelector(".js-btn-acceder");
+          const btnAcceder =
+            document.querySelector(".js-btn-acceder");
 
-        if (seccionModulos) {
-          seccionModulos.classList.remove("d-none");
+          if (seccionModulos) {
+            seccionModulos.classList.remove("d-none");
+          }
+
+          if (btnInscribirmeInferior) {
+            btnInscribirmeInferior.classList.add("d-none");
+          }
+
+          if (btnBeca) {
+            btnBeca.classList.add("d-none");
+          }
+
+          if (btnAcceder) {
+            btnAcceder.href =
+              `contenidoCurso.html?curso=${curso.id}`;
+
+            btnAcceder.classList.remove("d-none");
+          }
+
+          if (contenedorAcciones) {
+            contenedorAcciones.classList.remove("d-none");
+          }
+
+          return;
         }
-
-        if (btnInscribirmeInferior) {
-          btnInscribirmeInferior.classList.add("d-none");
-        }
-
-        if (btnBeca) {
-          btnBeca.classList.add("d-none");
-        }
-
-        if (btnAcceder) {
-          btnAcceder.href =
-            `contenidoCurso.html?curso=${curso.id}`;
-
-          btnAcceder.classList.remove("d-none");
-        }
-
-        if (contenedorAcciones) {
-          contenedorAcciones.classList.remove("d-none");
-        }
-
-        return;
-      }
 
         if (tipo === 'estudiante') {
 
-          renderizarTablaModulos(curso);
+          await renderizarTablaModulos(curso.id);
 
           const contenedorAcciones =
             document.querySelector('.js-acciones-estudiante');
@@ -191,11 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const btnAcceder =
             document.querySelector('.js-btn-acceder');
-
-
-          // ==================================================
-          // CONFIGURAR BOTONES
-          // ==================================================
 
           if (btnInscribirmeInferior) {
             btnInscribirmeInferior.href =
@@ -211,11 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnAcceder.href =
               `contenidoCurso.html?curso=${curso.id}`;
           }
-
-
-          // ==================================================
-          // VERIFICAR SI YA ADQUIRIÓ EL CURSO
-          // ==================================================
 
           const referenciaAdquisiciones =
             collection(
@@ -248,79 +237,45 @@ document.addEventListener('DOMContentLoaded', () => {
               consultaAdquisicion
             );
 
-
-          // ==================================================
-          // CURSO YA ADQUIRIDO
-          // ==================================================
-
           if (!resultadoAdquisicion.empty) {
-
-            // Ocultar inscripción
             if (btnInscribirmeInferior) {
-              btnInscribirmeInferior.classList.add(
-                'd-none'
-              );
+              btnInscribirmeInferior.classList.add('d-none');
             }
 
-            // Ocultar solicitud de beca
             if (btnBeca) {
-              btnBeca.classList.add(
-                'd-none'
-              );
+              btnBeca.classList.add('d-none');
             }
 
-            // Mostrar acceso
             if (btnAcceder) {
-              btnAcceder.classList.remove(
-                'd-none'
-              );
+              btnAcceder.classList.remove('d-none');
             }
-
           } else {
-
-            // ==================================================
-            // CURSO NO ADQUIRIDO
-            // ==================================================
-
             if (btnAcceder) {
-              btnAcceder.classList.add(
-                'd-none'
-              );
+              btnAcceder.classList.add('d-none');
             }
 
             if (btnInscribirmeInferior) {
-              btnInscribirmeInferior.classList.remove(
-                'd-none'
-              );
+              btnInscribirmeInferior.classList.remove('d-none');
             }
 
             if (btnBeca) {
-              btnBeca.classList.remove(
-                'd-none'
-              );
+              btnBeca.classList.remove('d-none');
             }
           }
 
-
-          // Mostrar contenedor de acciones
           if (contenedorAcciones) {
-            contenedorAcciones.classList.remove(
-              'd-none'
-            );
+            contenedorAcciones.classList.remove('d-none');
           }
         }
 
       } catch (error) {
-
-        console.error(
-          "Error al consultar el usuario en Firestore:",
-          error
-        );
+        console.error("Error al consultar el usuario en Firestore:", error);
       }
     });
   }
 
-  function renderizarTablaModulos(curso) {
+// Carga la subcolección 'modulos' dentro de 'cursoscc/{cursoId}'
+  async function renderizarTablaModulos(cursoId) {
     const seccionModulos = document.querySelector('.js-seccion-modulos');
     const tablaBody = document.querySelector('.js-tabla-modulos-body');
 
@@ -331,32 +286,73 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const clavesModulos = Object.keys(curso)
-      .filter((clave) => clave.startsWith('modulo'))
-      .sort();
+    try {
+      // Referencia a la subcolección 'modulos'
+      const modulosRef = collection(db, 'cursoscc', cursoId, 'modulos');
+      const modulosSnap = await getDocs(modulosRef);
 
-    if (clavesModulos.length > 0) {
+      if (modulosSnap.empty) {
+        return;
+      }
+
       tablaBody.innerHTML = '';
 
-      clavesModulos.forEach((clave, index) => {
+      // Ordenamos por la propiedad 'numero'
+      const docs = modulosSnap.docs.map(doc => doc.data());
+      docs.sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
+
+      docs.forEach((moduloData, index) => {
+        const numero = moduloData.numero ?? (index + 1);
+        const nombreModulo = moduloData.modulo || moduloData.titulo || moduloData.nombre || 'Sin título';
+        const textoModulo = `Módulo ${numero}: ${nombreModulo}`;
+
         const tr = document.createElement('tr');
 
-        const tdNumero = document.createElement('td');
-        tdNumero.className = 'fw-bold text-center';
-        tdNumero.textContent = `Módulo ${index + 1}`;
+        // Columna 1: Número y Módulo
+        const tdModulo = document.createElement('td');
+        tdModulo.className = 'fw-bold';
+        tdModulo.textContent = textoModulo;
 
-        const tdDetalle = document.createElement('td');
-        tdDetalle.textContent = curso[clave];
+        // Columna 2: Temas uno debajo del otro
+        const tdTemas = document.createElement('td');
 
-        tr.appendChild(tdNumero);
-        tr.appendChild(tdDetalle);
+        let listaTemas = [];
+
+        if (Array.isArray(moduloData.temas)) {
+          listaTemas = moduloData.temas;
+        } else if (typeof moduloData.temas === 'string' && moduloData.temas.trim() !== '') {
+          // Si vienen separados por comas, los dividimos en una lista
+          listaTemas = moduloData.temas.split(',').map(tema => tema.trim());
+        } else if (moduloData.descripcion) {
+          listaTemas = [moduloData.descripcion];
+        }
+
+        if (listaTemas.length > 0) {
+          const ul = document.createElement('ul');
+          ul.className = 'mb-0 ps-3'; // Quita margen inferior y ajusta sangría
+          
+          listaTemas.forEach(tema => {
+            const li = document.createElement('li');
+            li.textContent = tema;
+            ul.appendChild(li);
+          });
+          
+          tdTemas.appendChild(ul);
+        } else {
+          tdTemas.textContent = '-';
+        }
+
+        tr.appendChild(tdModulo);
+        tr.appendChild(tdTemas);
         tablaBody.appendChild(tr);
       });
 
       seccionModulos.classList.remove('d-none');
+    } catch (error) {
+      console.error("Error al obtener la subcolección de módulos:", error);
     }
   }
-
+  
   function mostrarError(texto) {
     if (mensajeEstado) {
       mensajeEstado.innerHTML = texto;

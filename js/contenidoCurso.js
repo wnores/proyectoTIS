@@ -1,72 +1,25 @@
-import {
-    auth,
-    db
-} from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+const estadoCarga = document.getElementById("estadoCarga");
+const mensajeError = document.getElementById("mensajeError");
+const contenidoCurso = document.getElementById("contenidoCurso");
+const nombreCursoRuta = document.getElementById("nombreCursoRuta");
+const tituloCurso = document.getElementById("tituloCurso");
+const listaModulos = document.getElementById("listaModulos");
+const numeroModulo = document.getElementById("numeroModulo");
+const tituloModulo = document.getElementById("tituloModulo");
+const contenedorTemas = document.getElementById("contenedorTemas");
 
-import {
-    doc,
-    getDoc,
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-
-const estadoCarga =
-    document.getElementById("estadoCarga");
-
-const mensajeError =
-    document.getElementById("mensajeError");
-
-const contenidoCurso =
-    document.getElementById("contenidoCurso");
-
-const nombreCursoRuta =
-    document.getElementById("nombreCursoRuta");
-
-const tituloCurso =
-    document.getElementById("tituloCurso");
-
-const listaModulos =
-    document.getElementById("listaModulos");
-
-const numeroModulo =
-    document.getElementById("numeroModulo");
-
-const tituloModulo =
-    document.getElementById("tituloModulo");
-
-const descripcionModulo =
-    document.getElementById("descripcionModulo");
-
-const seccionObjetivos =
-    document.getElementById("seccionObjetivos");
-
-const listaObjetivos =
-    document.getElementById("listaObjetivos");
-
-const listaRecursos =
-    document.getElementById("listaRecursos");
-
-
-const parametros =
-    new URLSearchParams(window.location.search);
-
-const cursoId =
-    parametros.get("curso");
-
+const parametros = new URLSearchParams(window.location.search);
+const cursoId = parametros.get("curso");
 
 iniciarPagina();
 
-
 function iniciarPagina() {
     if (!cursoId) {
-        mostrarError(
-            "No se indicó qué curso se debe mostrar."
-        );
+        mostrarError("No se indicó qué curso se debe mostrar.");
         return;
     }
 
@@ -77,239 +30,180 @@ function iniciarPagina() {
         }
 
         try {
-            const referenciaUsuario =
-                doc(db, "usuarios", usuario.uid);
+            const referenciaUsuario = doc(db, "usuarios", usuario.uid);
+            const referenciaCurso = doc(db, "cursoscc", cursoId);
 
-            const referenciaCurso =
-                doc(db, "cursos", cursoId);
-
-            const [
-                resultadoUsuario,
-                resultadoCurso
-            ] = await Promise.all([
+            const [resultadoUsuario, resultadoCurso] = await Promise.all([
                 getDoc(referenciaUsuario),
                 getDoc(referenciaCurso)
             ]);
 
             if (!resultadoUsuario.exists()) {
-                mostrarError(
-                    "No se encontraron los datos del usuario."
-                );
+                mostrarError("No se encontraron los datos del usuario.");
                 return;
             }
 
             if (!resultadoCurso.exists()) {
-                mostrarError(
-                    "El curso solicitado no existe."
-                );
+                mostrarError("El curso solicitado no existe.");
                 return;
             }
 
-            const datosUsuario =
-                resultadoUsuario.data();
-
+            const datosUsuario = resultadoUsuario.data();
             const curso = {
                 id: resultadoCurso.id,
                 ...resultadoCurso.data()
             };
 
-            const tieneAcceso =
-                await comprobarAcceso(
-                    datosUsuario,
-                    curso,
-                    usuario.uid
-                );
+            const tieneAcceso = await comprobarAcceso(datosUsuario, curso, usuario.uid);
 
             if (!tieneAcceso) {
-                mostrarError(
-                    "No tenés acceso al contenido de este curso. Debés adquirirlo o solicitar una beca."
-                );
+                mostrarError("No tenés acceso al contenido de este curso. Debés adquirirlo o solicitar una beca.");
                 return;
             }
 
-            const modulos = await obtenerModulos(curso.id);
-
+            const modulos = await obtenerModulosConTemas(curso.id);
             mostrarCurso(curso, modulos);
 
         } catch (error) {
-            console.error(
-                "Error al cargar el contenido del curso:",
-                error
-            );
-
-            mostrarError(
-                "No fue posible cargar el contenido del curso."
-            );
+            console.error("Error al cargar el contenido del curso:", error);
+            mostrarError("No fue posible cargar el contenido del curso.");
         }
     });
 }
-//comprueba acceso
+
 async function comprobarAcceso(datosUsuario, curso, uid) {
+    const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toString().trim().toLowerCase();
 
-    const rol = (
-        datosUsuario.tipoUsuario ||
-        datosUsuario.rol ||
-        ""
-    )
-        .toString()
-        .trim()
-        .toLowerCase();
-
-    // =====================================================
-    // DOCENTE / ADMIN
-    // =====================================================
-
-    if (rol === "docente/admin") {
+    if (rol.includes("admin") || rol.includes("docente")) {
         return true;
     }
-
-    // =====================================================
-    // SOLO LOS ESTUDIANTES PUEDEN ACCEDER COMO ADQUIRIENTES
-    // =====================================================
 
     if (rol !== "estudiante") {
         return false;
     }
 
-    // =====================================================
-    // BUSCAR ADQUISICIÓN APROBADA
-    // =====================================================
+    const referenciaAdquisiciones = collection(db, "adquisiciones");
+    const consulta = await getDocs(referenciaAdquisiciones);
 
-    const referenciaAdquisiciones =
-        collection(
-            db,
-            "adquisiciones"
+    return consulta.docs.some((documento) => {
+        const adquisicion = documento.data();
+        return (
+            adquisicion.usuarioId === uid &&
+            adquisicion.cursoId === curso.id &&
+            adquisicion.estado === "aprobada"
         );
+    });
+}
 
-    const consulta =
-        await getDocs(
-            referenciaAdquisiciones
-        );
+/**
+ * Obtiene los módulos y sus respectivos temas desde Firestore (Subcolección o Array)
+ */
+async function obtenerModulosConTemas(idCurso) {
+    const referenciaModulos = collection(db, "cursoscc", idCurso, "modulos");
+    const resultadoModulos = await getDocs(referenciaModulos);
 
-    const tieneAdquisicionAprobada =
-        consulta.docs.some((documento) => {
+    const modulos = [];
 
-            const adquisicion =
-                documento.data();
+    for (const docModulo of resultadoModulos.docs) {
+        const datosMod = docModulo.data();
+        const modId = docModulo.id;
 
-            return (
-                adquisicion.usuarioId === uid &&
-                adquisicion.cursoId === curso.id &&
-                adquisicion.estado === "aprobada"
-            );
+        // 1. Intentar obtener temas desde la subcolección 'temas'
+        const referenciaTemas = collection(db, "cursoscc", idCurso, "modulos", modId, "temas");
+        const resultadoTemas = await getDocs(referenciaTemas);
+
+        let temas = [];
+
+        if (!resultadoTemas.empty) {
+            temas = resultadoTemas.docs.map((docTema, index) => {
+                const dataTema = docTema.data();
+                return {
+                    id: docTema.id,
+                    orden: dataTema.orden ?? dataTema.numero ?? (index + 1),
+                    nombre: dataTema.nombre || dataTema.titulo || "Tema sin nombre",
+                    descripcion: dataTema.descripcion || "",
+                    objetivos: Array.isArray(dataTema.objetivos) ? dataTema.objetivos : [],
+                    recursos: Array.isArray(dataTema.recursos) ? dataTema.recursos : []
+                };
+            });
+            // Ordenar según el campo de orden
+            temas.sort((a, b) => Number(a.orden) - Number(b.orden));
+        } else if (Array.isArray(datosMod.temas)) {
+            // 2. Si no hay subcolección, tomar del array 'temas' del módulo
+            temas = datosMod.temas.map((t, index) => {
+                if (typeof t === "string") {
+                    return {
+                        id: null,
+                        orden: index + 1,
+                        nombre: t,
+                        descripcion: "",
+                        objetivos: [],
+                        recursos: []
+                    };
+                }
+                return {
+                    id: null,
+                    orden: t.orden ?? (index + 1),
+                    nombre: t.nombre || t.titulo || "Tema sin nombre",
+                    descripcion: t.descripcion || "",
+                    objetivos: Array.isArray(t.objetivos) ? t.objetivos : [],
+                    recursos: Array.isArray(t.recursos) ? t.recursos : []
+                };
+            });
+            temas.sort((a, b) => Number(a.orden) - Number(b.orden));
+        }
+
+        modulos.push({
+            id: modId,
+            numero: datosMod.numero || (modulos.length + 1),
+            nombre: datosMod.nombre || datosMod.modulo || datosMod.titulo || "Módulo",
+            temas: temas
         });
+    }
 
-    return tieneAdquisicionAprobada;
+    modulos.sort((a, b) => Number(a.numero) - Number(b.numero));
+    return modulos;
 }
 
 function mostrarCurso(curso, modulos) {
-    nombreCursoRuta.textContent =
-        curso.titulo || "Curso";
-
-    tituloCurso.textContent =
-        curso.titulo || "Contenido del curso";
+    nombreCursoRuta.textContent = curso.titulo || "Curso";
+    tituloCurso.textContent = curso.titulo || "Contenido del curso";
 
     if (modulos.length === 0) {
-        mostrarError(
-            "Este curso todavía no tiene módulos disponibles."
-        );
+        mostrarError("Este curso todavía no tiene módulos disponibles.");
         return;
     }
 
     mostrarListaModulos(modulos);
-
-    mostrarModulo(
-        modulos[0],
-        0,
-        modulos.length
-    );
+    mostrarModulo(modulos[0], 0, modulos.length);
 
     estadoCarga.classList.add("d-none");
     mensajeError.classList.add("d-none");
     contenidoCurso.classList.remove("d-none");
 }
 
-
-async function obtenerModulos(idCurso) {
-    const referenciaModulos = collection(
-        db,
-        "cursos",
-        idCurso,
-        "modulos"
-    );
-
-    const resultado =
-        await getDocs(referenciaModulos);
-
-    const modulos = resultado.docs.map(
-        (documento) => {
-            const datos = documento.data();
-
-            return {
-                id: documento.id,
-                ...datos,
-
-                recursos: Array.isArray(datos.recursos)
-                    ? datos.recursos
-                    : [],
-
-                objetivos: Array.isArray(datos.objetivos)
-                    ? datos.objetivos
-                    : []
-            };
-        }
-    );
-
-    modulos.sort(
-        (a, b) =>
-            Number(a.numero) - Number(b.numero)
-    );
-
-    return modulos;
-}
-
-   
-//menú lateral
 function mostrarListaModulos(modulos) {
     listaModulos.replaceChildren();
 
     modulos.forEach((modulo, indice) => {
-        const boton =
-            document.createElement("button");
-
+        const boton = document.createElement("button");
         boton.type = "button";
+        boton.className = "list-group-item list-group-item-action p-3";
 
-        boton.className =
-            "list-group-item list-group-item-action p-3";
+        const numero = document.createElement("strong");
+        numero.className = "d-block mb-1";
+        numero.textContent = `Módulo ${modulo.numero}`;
 
-        const numero =
-            document.createElement("strong");
-
-        numero.className =
-            "d-block mb-1";
-
-        numero.textContent =
-            `Módulo ${modulo.numero}`;
-
-        const nombre =
-            document.createElement("span");
-
-        nombre.textContent =
-            modulo.titulo;
+        const nombre = document.createElement("span");
+        nombre.textContent = modulo.nombre;
 
         boton.appendChild(numero);
         boton.appendChild(nombre);
 
         boton.addEventListener("click", () => {
             quitarModuloActivo();
-
             boton.classList.add("active");
-
-            mostrarModulo(
-                modulo,
-                indice,
-                modulos.length
-            );
+            mostrarModulo(modulo, indice, modulos.length);
         });
 
         if (indice === 0) {
@@ -319,183 +213,155 @@ function mostrarListaModulos(modulos) {
         listaModulos.appendChild(boton);
     });
 }
-//muestra modulo seleccionado 
-function mostrarModulo(
-    modulo,
-    indice,
-    cantidadModulos
-) {
-    numeroModulo.textContent =
-        `Módulo ${modulo.numero} de ${cantidadModulos}`;
 
-    tituloModulo.textContent =
-        modulo.titulo;
+function mostrarModulo(modulo, indice, cantidadModulos) {
+    numeroModulo.textContent = `Módulo ${modulo.numero} de ${cantidadModulos}`;
+    tituloModulo.textContent = modulo.nombre;
 
-    descripcionModulo.textContent =
-        modulo.descripcion ||
-        "Este módulo todavía no tiene una descripción.";
-
-    mostrarObjetivos(modulo.objetivos);
-
-    mostrarRecursos(modulo.recursos);
-
-    actualizarProgreso(
-        indice,
-        cantidadModulos
-    );
-}
-//agrega recursos
-function mostrarObjetivos(objetivos) {
-    listaObjetivos.replaceChildren();
-
-    if (
-        !Array.isArray(objetivos) ||
-        objetivos.length === 0
-    ) {
-        seccionObjetivos.classList.add("d-none");
-        return;
-    }
-
-    objetivos.forEach((objetivo) => {
-        const elemento =
-            document.createElement("li");
-
-        elemento.textContent =
-            objetivo;
-
-        listaObjetivos.appendChild(elemento);
-    });
-
-    seccionObjetivos.classList.remove("d-none");
+    renderizarTemasDelModulo(modulo.temas);
+    actualizarProgreso(indice, cantidadModulos);
 }
 
+/**
+ * Renderiza cada tema respetando el orden con su descripción, objetivos y recursos
+ */
+function renderizarTemasDelModulo(temas) {
+    contenedorTemas.replaceChildren();
 
-function mostrarRecursos(recursos) {
-    listaRecursos.replaceChildren();
-
-    if (
-        !Array.isArray(recursos) ||
-        recursos.length === 0
-    ) {
-        const columna =
-            document.createElement("div");
-
-        columna.className = "col-12";
-
-        const aviso =
-            document.createElement("div");
-
-        aviso.className =
-            "alert alert-secondary mb-0";
-
-        aviso.innerHTML = `
-            <i class="bi bi-info-circle me-2"></i>
-            Los recursos de este módulo se agregarán próximamente.
+    if (!Array.isArray(temas) || temas.length === 0) {
+        contenedorTemas.innerHTML = `
+            <div class="alert alert-secondary mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                Este módulo todavía no tiene temas asignados.
+            </div>
         `;
-
-        columna.appendChild(aviso);
-        listaRecursos.appendChild(columna);
-
         return;
     }
-    recursos.forEach((recurso) => {
-        const columna =
-            document.createElement("div");
 
-        columna.className =
-            "col-12 col-md-6 mb-3";
+    temas.forEach((tema, index) => {
+        const cardTema = document.createElement("div");
+        cardTema.className = "card mb-4 border-1 shadow-sm";
 
-        const tarjeta =
-            document.createElement("article");
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body p-4";
 
-        tarjeta.className =
-            "card h-100 shadow-sm";
+        // Título del Tema con el número de orden
+        const tituloTema = document.createElement("h3");
+        tituloTema.className = "h5 text-primary mb-2";
+        tituloTema.textContent = `${index + 1}. ${tema.nombre}`;
+        cardBody.appendChild(tituloTema);
 
-        const cuerpo =
-            document.createElement("div");
-
-        cuerpo.className =
-            "card-body d-flex flex-column";
-
-        const icono =
-            document.createElement("i");
-
-        icono.className =
-            obtenerIconoRecurso(recurso.tipo);
-
-        const titulo =
-            document.createElement("h4");
-
-        titulo.className =
-            "card-title h5";
-
-        titulo.textContent =
-            recurso.nombre ||
-            recurso.titulo ||
-            "Material del módulo";
-
-        const descripcion =
-            document.createElement("p");
-
-        descripcion.className =
-            "card-text flex-grow-1";
-
-        descripcion.textContent =
-            recurso.descripcion || "";
-
-        const enlace =
-            document.createElement("a");
-
-        enlace.className =
-            "btn btn-primary mt-auto";
-
-        enlace.target = "_blank";
-        enlace.rel = "noopener noreferrer";
-
-        if (recurso.url) {
-            enlace.href = recurso.url;
-            enlace.textContent =
-                obtenerTextoBoton(recurso.tipo);
-        } else {
-            enlace.href = "#";
-            enlace.textContent =
-                "Material no disponible";
-
-            enlace.classList.add("disabled");
-
-            enlace.setAttribute(
-                "aria-disabled",
-                "true"
-            );
+        // Descripción del Tema
+        if (tema.descripcion) {
+            const descTema = document.createElement("p");
+            descTema.className = "text-muted mb-3";
+            descTema.textContent = tema.descripcion;
+            cardBody.appendChild(descTema);
         }
 
-        cuerpo.appendChild(icono);
-        cuerpo.appendChild(titulo);
-        cuerpo.appendChild(descripcion);
-        cuerpo.appendChild(enlace);
+        // Objetivos del Tema
+        if (Array.isArray(tema.objetivos) && tema.objetivos.length > 0) {
+            const divObjetivos = document.createElement("div");
+            divObjetivos.className = "alert alert-info py-2 px-3 mb-3";
+            
+            const hObj = document.createElement("h4");
+            hObj.className = "h6 mb-2 fw-bold text-dark";
+            hObj.innerHTML = `<i class="bi bi-bullseye me-2 text-primary"></i>Objetivos del tema:`;
+            divObjetivos.appendChild(hObj);
 
-        tarjeta.appendChild(cuerpo);
-        columna.appendChild(tarjeta);
-        listaRecursos.appendChild(columna);
+            const ulObj = document.createElement("ul");
+            ulObj.className = "mb-0 small";
+
+            tema.objetivos.forEach(obj => {
+                if (typeof obj === 'string' && obj.trim()) {
+                    const li = document.createElement("li");
+                    li.textContent = obj;
+                    ulObj.appendChild(li);
+                }
+            });
+
+            if (ulObj.children.length > 0) {
+                divObjetivos.appendChild(ulObj);
+                cardBody.appendChild(divObjetivos);
+            }
+        }
+
+        // Recursos del Tema
+        const hRecursos = document.createElement("h4");
+        hRecursos.className = "h6 fw-bold mb-3 text-secondary";
+        hRecursos.textContent = "Recursos del tema:";
+        cardBody.appendChild(hRecursos);
+
+        const rowRecursos = document.createElement("div");
+        rowRecursos.className = "row g-3";
+
+        if (!Array.isArray(tema.recursos) || tema.recursos.length === 0) {
+            const col = document.createElement("div");
+            col.className = "col-12";
+            col.innerHTML = `
+                <div class="alert alert-light text-muted small mb-0 border">
+                    <i class="bi bi-info-circle me-1"></i> No hay recursos disponibles para este tema.
+                </div>
+            `;
+            rowRecursos.appendChild(col);
+        } else {
+            tema.recursos.forEach((recurso) => {
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-6";
+
+                const cardRecurso = document.createElement("div");
+                cardRecurso.className = "card h-100 border shadow-xs";
+
+                const bodyRecurso = document.createElement("div");
+                bodyRecurso.className = "card-body d-flex flex-column p-3";
+
+                const icono = document.createElement("i");
+                icono.className = obtenerIconoRecurso(recurso.tipo);
+
+                const tituloRec = document.createElement("h5");
+                tituloRec.className = "card-title h6 mb-2";
+                tituloRec.textContent = recurso.nombre || "Recurso del tema";
+
+                const enlace = document.createElement("a");
+                enlace.className = "btn btn-outline-primary btn-sm mt-auto w-100";
+                enlace.target = "_blank";
+                enlace.rel = "noopener noreferrer";
+
+                if (recurso.url) {
+                    enlace.href = recurso.url;
+                    enlace.textContent = obtenerTextoBoton(recurso.tipo);
+                } else {
+                    enlace.href = "#";
+                    enlace.textContent = "Material no disponible";
+                    enlace.classList.add("disabled");
+                    enlace.setAttribute("aria-disabled", "true");
+                }
+
+                bodyRecurso.appendChild(icono);
+                bodyRecurso.appendChild(tituloRec);
+                bodyRecurso.appendChild(enlace);
+
+                cardRecurso.appendChild(bodyRecurso);
+                col.appendChild(cardRecurso);
+                rowRecursos.appendChild(col);
+            });
+        }
+
+        cardBody.appendChild(rowRecursos);
+        cardTema.appendChild(cardBody);
+        contenedorTemas.appendChild(cardTema);
     });
 }
-
-//agrega funciones auxiliares
 
 function obtenerIconoRecurso(tipo) {
     const iconos = {
-        pdf: "bi bi-file-earmark-pdf fs-2 text-danger mb-3",
-        drive: "bi bi-google fs-2 text-success mb-3",
-        presentacion: "bi bi-easel fs-2 text-warning mb-3",
-        url: "bi bi-link-45deg fs-2 text-primary mb-3"
+        pdf: "bi bi-file-earmark-pdf fs-3 text-danger mb-2",
+        drive: "bi bi-google fs-3 text-success mb-2",
+        presentacion: "bi bi-easel fs-3 text-warning mb-2",
+        url: "bi bi-link-45deg fs-3 text-primary mb-2"
     };
-
-    return (
-        iconos[tipo] ||
-        "bi bi-file-earmark fs-2 text-primary mb-3"
-    );
+    return iconos[tipo] || "bi bi-file-earmark fs-3 text-primary mb-2";
 }
-
 
 function obtenerTextoBoton(tipo) {
     const textos = {
@@ -504,62 +370,29 @@ function obtenerTextoBoton(tipo) {
         presentacion: "Ver presentación",
         url: "Visitar enlace"
     };
-
     return textos[tipo] || "Abrir material";
 }
 
-function actualizarProgreso(
-    indice,
-    cantidadModulos
-) {
-    const porcentaje =
-        Math.round(
-            ((indice + 1) / cantidadModulos) * 100
-        );
+function actualizarProgreso(indice, cantidadModulos) {
+    const porcentaje = Math.round(((indice + 1) / cantidadModulos) * 100);
+    const barra = document.getElementById("barraProgreso");
 
-    const barra =
-        document.getElementById("barraProgreso");
-
-    barra.style.width =
-        `${porcentaje}%`;
-
-    barra.textContent =
-        `${porcentaje}%`;
-
-    barra.setAttribute(
-        "aria-valuenow",
-        porcentaje
-    );
+    barra.style.width = `${porcentaje}%`;
+    barra.textContent = `${porcentaje}%`;
+    barra.setAttribute("aria-valuenow", porcentaje);
 }
 
-
 function quitarModuloActivo() {
-    const botones =
-        listaModulos.querySelectorAll(
-            ".list-group-item"
-        );
-
+    const botones = listaModulos.querySelectorAll(".list-group-item");
     botones.forEach((boton) => {
         boton.classList.remove("active");
     });
 }
 
-
-function normalizarTexto(texto) {
-    return String(texto || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-}
-
-
 function mostrarError(mensaje) {
     estadoCarga.classList.add("d-none");
     contenidoCurso.classList.add("d-none");
 
-    mensajeError.textContent =
-        mensaje;
-
+    mensajeError.textContent = mensaje;
     mensajeError.classList.remove("d-none");
 }

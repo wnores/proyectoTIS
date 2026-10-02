@@ -1,14 +1,21 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { 
+  doc, 
+  getDoc, 
+  getDocs, 
+  collection, 
+  addDoc, 
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const contenidoAdministrador = document.getElementById("contenidoAdministrador");  
 const formPublicarCurso = document.getElementById("formPublicarCurso");
 const mensajeCurso = document.getElementById("mensajeCurso");
 const btnPublicarCurso = document.getElementById("btnPublicarCurso");
+const selectCategoria = document.getElementById("categoria");
 const contenedorModulos = document.getElementById("contenedorModulos");
 const btnAgregarModulo = document.getElementById("btnAgregarModulo");
-const selectCategoria = document.getElementById("categoria");
 
 const imagenCurso = document.getElementById("imagenCurso");
 const nombreImagenCurso = document.getElementById("nombreImagenCurso");
@@ -42,7 +49,6 @@ function iniciarPagina() {
           if (contenidoAdministrador) {
             contenidoAdministrador.classList.remove("d-none");
           }
-        
           await cargarCategorias();
         } else {
           alert("No tenés permiso para crear cursos.");
@@ -58,17 +64,17 @@ function iniciarPagina() {
   });
 }
 
+/**
+ * Obtiene todas las categorías únicas de la colección 'cursoscc' y llena el selector
+ */
 async function cargarCategorias() {
-  if (!selectCategoria) return;
-
   try {
-    const querySnapshot = await getDocs(collection(db, "cursos"));
+    const snapshot = await getDocs(collection(db, "cursoscc"));
     const categoriasSet = new Set();
 
-    querySnapshot.forEach((doc) => {
-      const datos = doc.data();
-      const cat = datos.categoria || datos.categorias;
-
+    snapshot.forEach((docSnap) => {
+      const curso = docSnap.data();
+      const cat = curso.categoria || curso.categorias;
       if (cat) {
         if (Array.isArray(cat)) {
           cat.forEach((c) => c && categoriasSet.add(c.trim()));
@@ -78,22 +84,24 @@ async function cargarCategorias() {
       }
     });
 
-    selectCategoria.innerHTML = '<option value="">Seleccioná una categoría</option>';
-
-    const categoriasOrdenadas = Array.from(categoriasSet).sort();
-    
-    categoriasOrdenadas.forEach((catNombre) => {
-      const option = document.createElement("option");
-      option.value = catNombre;
-      option.textContent = catNombre;
-      selectCategoria.appendChild(option);
-    });
-
+    if (selectCategoria) {
+      selectCategoria.innerHTML = '<option value="">Seleccioná una categoría</option>';
+      const categoriasOrdenadas = Array.from(categoriasSet).sort();
+      categoriasOrdenadas.forEach((catNombre) => {
+        const opcionCat = document.createElement("option");
+        opcionCat.value = catNombre;
+        opcionCat.textContent = catNombre;
+        selectCategoria.appendChild(opcionCat);
+      });
+    }
   } catch (error) {
-    console.error("Error al obtener las categorías desde la colección cursos:", error);
-    selectCategoria.innerHTML = '<option value="">Error al cargar categorías</option>';
+    console.error("Error al cargar las categorías:", error);
+    if (selectCategoria) {
+      selectCategoria.innerHTML = '<option value="">Error al cargar categorías</option>';
+    }
   }
 }
+
 if (imagenCurso) {
   imagenCurso.addEventListener("change", (event) => {
     const archivo = event.target.files[0];
@@ -118,31 +126,40 @@ if (imagenCurso) {
   });
 }
 
+// Agregar un nuevo módulo dinámicamente
 if (btnAgregarModulo) {
   btnAgregarModulo.addEventListener("click", () => {
     cantidadModulos++;
 
     const nuevoModulo = document.createElement("div");
-    nuevoModulo.className = "modulo-item mb-3";
+    nuevoModulo.className = "modulo-item border rounded p-3 mb-3 bg-light";
 
     nuevoModulo.innerHTML = `
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <label class="form-label mb-0">
-          Módulo ${cantidadModulos}
-          <span class="text-danger">*</span>
+        <label class="form-label fw-bold mb-0">
+          Módulo ${cantidadModulos}: Nombre del módulo <span class="text-danger">*</span>
         </label>
         <button type="button" class="btn btn-outline-danger btn-sm btnEliminarModulo">
           <i class="bi bi-trash3 me-1"></i>
           Eliminar
         </button>
       </div>
-      <textarea class="form-control moduloCurso" rows="3" placeholder="Ingresá los temas del módulo" required></textarea>
+      <div class="mb-2">
+        <input type="text" class="form-control nombreModulo" placeholder="Ej.: Introducción a la programación" required>
+      </div>
+      <div>
+        <label class="form-label">
+          Temas del módulo (un tema por línea) <span class="text-danger">*</span>
+        </label>
+        <textarea class="form-control temasModulo" rows="3" placeholder="Variables&#10;Tipos de datos&#10;Operadores" required></textarea>
+      </div>
     `;
 
     contenedorModulos.appendChild(nuevoModulo);
   });
 }
 
+// Eliminar módulo del DOM y renumerar
 if (contenedorModulos) {
   contenedorModulos.addEventListener("click", (event) => {
     const botonEliminar = event.target.closest(".btnEliminarModulo");
@@ -162,8 +179,7 @@ function renumerarModulos() {
     const etiqueta = modulo.querySelector("label");
     if (etiqueta) {
       etiqueta.innerHTML = `
-        Módulo ${indice + 1}
-        <span class="text-danger">*</span>
+        Módulo ${indice + 1}: Nombre del módulo <span class="text-danger">*</span>
       `;
     }
   });
@@ -171,6 +187,7 @@ function renumerarModulos() {
   cantidadModulos = modulos.length;
 }
 
+// Procesamiento del formulario y guardado en la colección 'cursoscc'
 if (formPublicarCurso) {
   formPublicarCurso.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -183,19 +200,33 @@ if (formPublicarCurso) {
 
     const titulo = document.getElementById("titulo").value.trim();
     const descripcion = document.getElementById("descripcion").value.trim();
-    const categoria = selectCategoria.value;
+    const categoria = selectCategoria ? selectCategoria.value : "";
     const precio = Number(document.getElementById("precio").value);
     const duracionHoras = Number(document.getElementById("duracion").value);
     const cuposDisponibles = Number(document.getElementById("cupos").value);
 
-    const camposModulos = document.querySelectorAll(".moduloCurso");
-    const modulos = {};
+    // Mapeo del campo 'módulo' y la conversión de temas a array de cadenas
+    const itemsModulos = contenedorModulos.querySelectorAll(".modulo-item");
+    
+    const modulos = Array.from(itemsModulos).map((item, indice) => {
+      const nombreInput = item.querySelector(".nombreModulo");
+      const temasTextarea = item.querySelector(".temasModulo");
 
-    camposModulos.forEach((campo, indice) => {
-      modulos[`modulo${indice + 1}`] = campo.value.trim();
+      const temasArray = temasTextarea ? temasTextarea.value
+        .split("\n")
+        .map((tema) => tema.trim())
+        .filter((tema) => tema.length > 0) : [];
+
+      return {
+        numero: indice + 1,
+        nombre: nombreInput ? nombreInput.value.trim() : "",
+        temas: temasArray
+      };
     });
 
-    const modulosCompletos = Object.values(modulos).every((contenido) => contenido !== "");
+    const modulosValidos = modulos.length > 0 && modulos.every(
+      (m) => m.nombre !== "" && m.temas.length > 0
+    );
 
     if (
       !titulo ||
@@ -204,9 +235,9 @@ if (formPublicarCurso) {
       precio <= 0 ||
       duracionHoras <= 0 ||
       cuposDisponibles <= 0 ||
-      !modulosCompletos
+      !modulosValidos
     ) {
-      mostrarMensaje("Revisá los datos ingresados en el formulario.", "danger");
+      mostrarMensaje("Revisá los datos ingresados en el formulario. Asegurate de seleccionar una categoría e ingresar al menos un tema por módulo.", "danger");
       return;
     }
 
@@ -222,7 +253,8 @@ if (formPublicarCurso) {
         imagenUrl = await subirImagenACloudinary(archivoImagenCurso);
       }
 
-      await addDoc(collection(db, "cursos"), {
+      // Guardado principal en la colección 'cursoscc'
+      const referenciaCurso = await addDoc(collection(db, "cursoscc"), {
         titulo: titulo,
         descripcion: descripcion,
         categoria: categoria,
@@ -232,12 +264,23 @@ if (formPublicarCurso) {
         URL_imagen: imagenUrl,
         modalidad: "Virtual",
         activo: true, 
-        ...modulos,
         creadoPor: usuario.uid,
         creadoEn: serverTimestamp()
       });
 
-      mostrarMensaje("El curso fue creado correctamente. Redirigiendo a administración...", "success");
+      // Guardado de subcolección 'modulos' dentro del documento de la colección 'cursoscc'
+      const referenciaModulos = collection(
+        db,
+        "cursoscc",
+        referenciaCurso.id,
+        "modulos"
+      );
+
+      for (const modulo of modulos) {
+        await addDoc(referenciaModulos, modulo);
+      }
+
+      mostrarMensaje("El curso fue creado correctamente en 'cursoscc'. Redirigiendo a administración...", "success");
 
       formPublicarCurso.reset();
 
@@ -258,7 +301,7 @@ if (formPublicarCurso) {
       }, 3500); 
 
     } catch (error) {
-      console.error("Error al crear el curso:", error);
+      console.error("Error al crear el curso en cursoscc:", error);
       mostrarMensaje("No se pudo crear el curso. Intentá nuevamente.", "danger");
       btnPublicarCurso.disabled = false;
       btnPublicarCurso.innerHTML = `

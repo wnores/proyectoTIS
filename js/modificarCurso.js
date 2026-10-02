@@ -7,9 +7,7 @@ import {
     getDoc,
     updateDoc,
     addDoc,
-    deleteDoc,
-    query, 
-    where
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
@@ -26,7 +24,6 @@ const imagenCurso = document.getElementById("imagenCurso");
 const nombreImagenCurso = document.getElementById("nombreImagenCurso");
 const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
 
-// Elementos de la sección Módulos
 const contenedorModulos = document.getElementById("contenedorModulos");
 const btnAgregarModulo = document.getElementById("btnAgregarModulo");
 
@@ -34,9 +31,12 @@ let cursoSeleccionadoId = null;
 let archivoImagenCurso = null;
 let urlImagenActual = "";
 
-// Estado local para los módulos
 let listaModulos = [];
 let modulosEliminados = [];
+let temasEliminados = [];
+
+// Índice del módulo que se está editando en la página actual (0 a N-1)
+let moduloPaginaActual = 0;
 
 iniciarPagina();
 
@@ -97,16 +97,11 @@ function iniciarPagina() {
 
 async function cargarListaCursos() {
     try {
-        const q = query(
-            collection(db, "cursos"), 
-            where("activo", "==", true)
-        );
-
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(collection(db, "cursoscc"));
         const categoriasSet = new Set();
 
         if (selectorCurso) {
-            selectorCurso.innerHTML = '<option value="">Selecciona un curso para editar</option>';
+            selectorCurso.innerHTML = '<option value="">Seleccioná un curso para editar</option>';
         }
 
         snapshot.forEach((docSnap) => {
@@ -141,8 +136,8 @@ async function cargarListaCursos() {
         }
 
     } catch (error) {
-        console.error("Error al cargar los cursos activos:", error);
-        mostrarMensaje("No se pudieron cargar los cursos activos.", "danger");
+        console.error("Error al cargar los cursos:", error);
+        mostrarMensaje("No se pudieron cargar los cursos.", "danger");
     }
 }
 
@@ -153,6 +148,8 @@ if (selectorCurso) {
         archivoImagenCurso = null;
         listaModulos = [];
         modulosEliminados = [];
+        temasEliminados = [];
+        moduloPaginaActual = 0;
 
         if (imagenCurso) imagenCurso.value = "";
         if (nombreImagenCurso) nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
@@ -169,7 +166,7 @@ if (selectorCurso) {
         }
 
         try {
-            const snap = await getDoc(doc(db, "cursos", id));
+            const snap = await getDoc(doc(db, "cursoscc", id));
 
             if (!snap.exists()) {
                 mostrarMensaje("El curso seleccionado ya no existe.", "danger");
@@ -200,7 +197,6 @@ if (selectorCurso) {
                 }
             }
 
-            // Cargar subcolección de módulos desde Firestore
             await cargarModulosDelCurso(id);
 
             if (formModificarCurso) formModificarCurso.classList.remove("d-none");
@@ -212,37 +208,55 @@ if (selectorCurso) {
     });
 }
 
-/**
- * Carga los módulos y adapta los recursos si vienen como texto único o como array
- */
 async function cargarModulosDelCurso(idCurso) {
     try {
-        const modulosRef = collection(db, "cursos", idCurso, "modulos");
+        const modulosRef = collection(db, "cursoscc", idCurso, "modulos");
         const snapshot = await getDocs(modulosRef);
 
         listaModulos = [];
-        snapshot.forEach((docSnap) => {
+
+        for (const docSnap of snapshot.docs) {
             const data = docSnap.data();
-            
-            // Normalizar el arreglo de recursos
-            let recursosArr = [];
-            if (Array.isArray(data.recursos)) {
-                recursosArr = data.recursos;
-            } else if (typeof data.recursos === "string" && data.recursos.trim() !== "") {
-                recursosArr = [{ tipo: "pdf", url: data.recursos, nombre: "Recurso del módulo" }];
+            const modId = docSnap.id;
+
+            const temasRef = collection(db, "cursoscc", idCurso, "modulos", modId, "temas");
+            const snapshotTemas = await getDocs(temasRef);
+            let temasArr = [];
+
+            if (!snapshotTemas.empty) {
+                snapshotTemas.forEach((tDoc, idx) => {
+                    const tData = tDoc.data();
+                    temasArr.push({
+                        id: tDoc.id,
+                        orden: tData.orden ?? tData.numero ?? (idx + 1),
+                        nombre: tData.nombre || tData.titulo || '',
+                        descripcion: tData.descripcion || '',
+                        objetivos: Array.isArray(tData.objetivos) ? tData.objetivos : [],
+                        recursos: Array.isArray(tData.recursos) ? tData.recursos : []
+                    });
+                });
+                temasArr.sort((a, b) => a.orden - b.orden);
+            } else if (Array.isArray(data.temas)) {
+                temasArr = data.temas.map((t, idx) => ({
+                    id: null,
+                    orden: idx + 1,
+                    nombre: typeof t === 'string' ? t : (t.nombre || t.titulo || ''),
+                    descripcion: typeof t === 'object' ? (t.descripcion || '') : '',
+                    objetivos: typeof t === 'object' && Array.isArray(t.objetivos) ? t.objetivos : [],
+                    recursos: typeof t === 'object' && Array.isArray(t.recursos) ? t.recursos : []
+                }));
             }
 
             listaModulos.push({
-                id: docSnap.id,
+                id: modId,
                 numero: data.numero || (listaModulos.length + 1),
-                titulo: data.titulo || '',
-                descripcion: data.descripcion || '',
-                recursos: recursosArr,
-                objetivos: Array.isArray(data.objetivos) ? [...data.objetivos] : []
+                nombre: data.nombre || data.modulo || data.titulo || '',
+                temas: temasArr
             });
-        });
+        }
 
         listaModulos.sort((a, b) => a.numero - b.numero);
+        moduloPaginaActual = 0;
         renderizarModulos();
     } catch (error) {
         console.error("Error al obtener los módulos del curso:", error);
@@ -250,198 +264,342 @@ async function cargarModulosDelCurso(idCurso) {
 }
 
 /**
- * Renderiza módulos con selector dinámico de tipos de recurso (PDF, Drive, Presentación, URL)
+ * Renderiza la paginación por módulo y solo el módulo de la página activa
  */
 function renderizarModulos() {
     if (!contenedorModulos) return;
     contenedorModulos.innerHTML = '';
 
-    listaModulos.forEach((mod, indexModulo) => {
-        mod.numero = indexModulo + 1;
-
-        const divModulo = document.createElement('div');
-        divModulo.className = 'card mb-3 p-3 border-secondary';
-        divModulo.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="m-0">Módulo ${mod.numero}</h5>
-            <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-modulo" data-index="${indexModulo}">
-              Eliminar Módulo
-            </button>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label font-weight-bold">Título del Módulo:</label>
-            <input type="text" class="form-control input-titulo" data-index="${indexModulo}" value="${mod.titulo}" required>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Descripción:</label>
-            <textarea class="form-control input-descripcion" data-index="${indexModulo}" rows="2">${mod.descripcion}</textarea>
-          </div>
-
-          <!-- SECCIÓN DE RECURSOS / MATERIALES -->
-          <div class="mb-3 border p-2 rounded bg-light">
-            <label class="form-label font-weight-bold text-secondary">
-              <i class="bi bi-folder2-open me-1"></i> Recursos y Materiales
-            </label>
-            <div id="contenedorRecursos-${indexModulo}">
-              ${mod.recursos.map((rec, indexRec) => `
-                <div class="row g-2 mb-2 align-items-center">
-                  <div class="col-md-3">
-                    <select class="form-select select-tipo-recurso" data-mod-index="${indexModulo}" data-rec-index="${indexRec}">
-                      <option value="pdf" ${rec.tipo === 'pdf' ? 'selected' : ''}>📄 PDF / Documento</option>
-                      <option value="drive" ${rec.tipo === 'drive' ? 'selected' : ''}>📁 Google Drive</option>
-                      <option value="presentacion" ${rec.tipo === 'presentacion' ? 'selected' : ''}>📊 Presentación (Slides/Canva)</option>
-                      <option value="url" ${rec.tipo === 'url' ? 'selected' : ''}>🔗 Enlace / Web</option>
-                      <option value="python" ${rec.tipo === 'python' ? 'selected' : ''}>🐍 Archivo Python</option>
-                    </select>
-                  </div>
-                  <div class="col-md-4">
-                    <input type="text" class="form-control input-nombre-recurso" data-mod-index="${indexModulo}" data-rec-index="${indexRec}" value="${rec.nombre || ''}" placeholder="Nombre del material">
-                  </div>
-                  <div class="col-md-4">
-                    <input type="url" class="form-control input-url-recurso" data-mod-index="${indexModulo}" data-rec-index="${indexRec}" value="${rec.url || ''}" placeholder="https://drive.google.com/..." required>
-                  </div>
-                  <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-recurso" data-mod-index="${indexModulo}" data-rec-index="${indexRec}">✕</button>
-                  </div>
-                </div>
-              `).join('')}
+    if (listaModulos.length === 0) {
+        contenedorModulos.innerHTML = `
+            <div class="alert alert-secondary text-center">
+                El curso aún no posee módulos agregados. Presioná <strong>"+ Agregar Módulo"</strong> para empezar.
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mt-1 btn-agregar-recurso" data-index="${indexModulo}">
-              + Agregar Material / Recurso
-            </button>
-          </div>
-
-          <!-- SECCIÓN DE OBJETIVOS -->
-          <div class="mb-2">
-            <label class="form-label font-weight-bold text-secondary">Objetivos del Módulo:</label>
-            <div id="contenedorObjetivos-${indexModulo}">
-              ${mod.objetivos.map((obj, indexObj) => `
-                <div class="input-group mb-1">
-                  <input type="text" class="form-control input-objetivo" data-mod-index="${indexModulo}" data-obj-index="${indexObj}" value="${obj}">
-                  <button type="button" class="btn btn-outline-secondary btn-eliminar-objetivo" data-mod-index="${indexModulo}" data-obj-index="${indexObj}">✕</button>
-                </div>
-              `).join('')}
-            </div>
-            <button type="button" class="btn btn-sm btn-outline-primary mt-1 btn-agregar-objetivo" data-index="${indexModulo}">
-              + Agregar Objetivo
-            </button>
-          </div>
         `;
+        return;
+    }
 
-        contenedorModulos.appendChild(divModulo);
+    if (moduloPaginaActual >= listaModulos.length) {
+        moduloPaginaActual = Math.max(0, listaModulos.length - 1);
+    }
+
+    listaModulos.forEach((m, i) => m.numero = i + 1);
+
+    const mod = listaModulos[moduloPaginaActual];
+    const indexModulo = moduloPaginaActual;
+
+    mod.temas.forEach((t, idx) => {
+        t.orden = idx + 1;
     });
+
+    // --- CONTROLES DE PAGINACIÓN / NAVEGACIÓN ENTRE MÓDULOS ---
+    const divNavegacion = document.createElement('div');
+    divNavegacion.className = 'mb-3 bg-light p-3 rounded border shadow-sm';
+
+    let htmlBotonesPasos = '';
+    listaModulos.forEach((m, idx) => {
+        const esActivo = idx === moduloPaginaActual;
+        htmlBotonesPasos += `
+            <button type="button" class="btn btn-sm ${esActivo ? 'btn-primary' : 'btn-outline-secondary'} me-1 mb-1 btn-ir-a-modulo" data-index="${idx}">
+                Módulo ${m.numero}
+            </button>
+        `;
+    });
+
+    divNavegacion.innerHTML = `
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <div>
+                <span class="fw-bold text-dark me-2"><i class="bi bi-collection-play me-1"></i>Página de Módulo:</span>
+                ${htmlBotonesPasos}
+            </div>
+            <span class="badge bg-secondary">Módulo ${indexModulo + 1} de ${listaModulos.length}</span>
+        </div>
+    `;
+
+    // --- CARD DEL MÓDULO ACTUAL ---
+    const divModulo = document.createElement('div');
+    divModulo.className = 'card border-secondary shadow-sm p-3 mb-3';
+    divModulo.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="m-0 text-primary fw-bold">Módulo ${mod.numero}</h5>
+        <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-modulo" data-index="${indexModulo}">
+          <i class="bi bi-trash me-1"></i>Eliminar Este Módulo
+        </button>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Nombre del Módulo:</label>
+        <input type="text" class="form-control input-nombre-modulo" data-index="${indexModulo}" value="${mod.nombre}" placeholder="Ej. Introducción a la programación" required>
+      </div>
+
+      <!-- TEMAS DEL MÓDULO -->
+      <div class="mb-3 border p-3 rounded bg-light">
+        <label class="form-label fw-bold text-dark fs-6">
+          <i class="bi bi-journal-text me-1"></i> Temas del Módulo
+        </label>
+        
+        <div id="contenedorTemas-${indexModulo}">
+          ${mod.temas.map((tema, indexTema) => `
+            <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-bold text-primary">Tema ${indexTema + 1}</span>
+                <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}">
+                  <i class="bi bi-trash"></i> Eliminar Tema
+                </button>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label small fw-bold">Nombre del Tema:</label>
+                <input type="text" class="form-control input-nombre-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" value="${tema.nombre}" placeholder="Ej. Variables y tipos de datos">
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label small fw-bold">Descripción del Tema:</label>
+                <textarea class="form-control input-descripcion-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" rows="2" placeholder="Resumen de lo que aborda este tema">${tema.descripcion}</textarea>
+              </div>
+
+              <!-- Objetivos del Tema -->
+              <div class="mb-3 p-2 bg-light rounded border">
+                <label class="form-label small fw-bold text-secondary">Objetivos del Tema:</label>
+                <div>
+                  ${tema.objetivos.map((obj, indexObj) => `
+                    <div class="input-group input-group-sm mb-1">
+                      <input type="text" class="form-control input-objetivo-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-obj-index="${indexObj}" value="${obj}" placeholder="Ej. Dominar el uso de condicionales">
+                      <button type="button" class="btn btn-outline-danger btn-eliminar-objetivo-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-obj-index="${indexObj}">✕</button>
+                    </div>
+                  `).join('')}
+                </div>
+                <button type="button" class="btn btn-sm btn-link p-0 mt-1 btn-agregar-objetivo-tema text-decoration-none" data-mod-index="${indexModulo}" data-tema-index="${indexTema}">
+                  + Agregar Objetivo al Tema
+                </button>
+              </div>
+
+              <!-- Recursos del Tema -->
+              <div class="p-2 bg-light rounded border">
+                <label class="form-label small fw-bold text-secondary">Recursos del Tema:</label>
+                <div>
+                  ${tema.recursos.map((rec, indexRec) => `
+                    <div class="row g-2 mb-2 align-items-center">
+                      <div class="col-md-3">
+                        <select class="form-select form-select-sm select-tipo-recurso" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-rec-index="${indexRec}">
+                          <option value="pdf" ${rec.tipo === 'pdf' ? 'selected' : ''}>📄 PDF / Doc</option>
+                          <option value="drive" ${rec.tipo === 'drive' ? 'selected' : ''}>📁 Google Drive</option>
+                          <option value="presentacion" ${rec.tipo === 'presentacion' ? 'selected' : ''}>📊 Presentación</option>
+                          <option value="url" ${rec.tipo === 'url' ? 'selected' : ''}>🔗 Enlace Web</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm input-nombre-recurso" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-rec-index="${indexRec}" value="${rec.nombre || ''}" placeholder="Nombre del recurso">
+                      </div>
+                      <div class="col-md-4">
+                        <input type="url" class="form-control form-control-sm input-url-recurso" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-rec-index="${indexRec}" value="${rec.url || ''}" placeholder="https://...">
+                      </div>
+                      <div class="col-md-1 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-recurso" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" data-rec-index="${indexRec}">✕</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <button type="button" class="btn btn-sm btn-link p-0 mt-1 btn-agregar-recurso text-decoration-none" data-mod-index="${indexModulo}" data-tema-index="${indexTema}">
+                  + Agregar Recurso al Tema
+                </button>
+              </div>
+
+            </div>
+          `).join('')}
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-primary mt-1 btn-agregar-tema" data-index="${indexModulo}">
+          + Agregar Nuevo Tema
+        </button>
+      </div>
+    `;
+
+    // --- CONTROLES DE NAVEGACIÓN (ANTERIOR / SIGUIENTE) ---
+    const divFooterPaginacion = document.createElement('div');
+    divFooterPaginacion.className = 'd-flex justify-content-between align-items-center mt-3';
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.type = 'button';
+    btnAnterior.className = `btn btn-outline-secondary btn-sm ${moduloPaginaActual === 0 ? 'disabled' : ''}`;
+    btnAnterior.innerHTML = `<i class="bi bi-chevron-left me-1"></i> Anterior Módulo`;
+    btnAnterior.addEventListener('click', () => {
+        if (moduloPaginaActual > 0) {
+            moduloPaginaActual--;
+            renderizarModulos();
+        }
+    });
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.type = 'button';
+    btnSiguiente.className = `btn btn-outline-secondary btn-sm ${moduloPaginaActual === listaModulos.length - 1 ? 'disabled' : ''}`;
+    btnSiguiente.innerHTML = `Siguiente Módulo <i class="bi bi-chevron-right ms-1"></i>`;
+    btnSiguiente.addEventListener('click', () => {
+        if (moduloPaginaActual < listaModulos.length - 1) {
+            moduloPaginaActual++;
+            renderizarModulos();
+        }
+    });
+
+    divFooterPaginacion.appendChild(btnAnterior);
+    divFooterPaginacion.appendChild(btnSiguiente);
+
+    contenedorModulos.appendChild(divNavegacion);
+    contenedorModulos.appendChild(divModulo);
+    contenedorModulos.appendChild(divFooterPaginacion);
 
     asignarEventosModulos();
 }
 
 function asignarEventosModulos() {
-    // Título y Descripción
-    document.querySelectorAll('.input-titulo').forEach(input => {
+    document.querySelectorAll('.btn-ir-a-modulo').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            moduloPaginaActual = Number(e.target.dataset.index);
+            renderizarModulos();
+        });
+    });
+
+    document.querySelectorAll('.input-nombre-modulo').forEach(input => {
         input.addEventListener('input', (e) => {
-            listaModulos[e.target.dataset.index].titulo = e.target.value;
+            listaModulos[e.target.dataset.index].nombre = e.target.value;
         });
     });
 
-    document.querySelectorAll('.input-descripcion').forEach(textarea => {
+    document.querySelectorAll('.input-nombre-tema').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const { modIndex, temaIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].nombre = e.target.value;
+        });
+    });
+
+    document.querySelectorAll('.input-descripcion-tema').forEach(textarea => {
         textarea.addEventListener('input', (e) => {
-            listaModulos[e.target.dataset.index].descripcion = e.target.value;
+            const { modIndex, temaIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].descripcion = e.target.value;
         });
     });
 
-    // Manejo de Recursos
+    document.querySelectorAll('.btn-agregar-tema').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const modIdx = e.target.dataset.index;
+            listaModulos[modIdx].temas.push({
+                id: null,
+                orden: listaModulos[modIdx].temas.length + 1,
+                nombre: '',
+                descripcion: '',
+                objetivos: [''],
+                recursos: [{ tipo: 'pdf', nombre: '', url: '' }]
+            });
+            renderizarModulos();
+        });
+    });
+
+    document.querySelectorAll('.btn-eliminar-tema').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const { modIndex, temaIndex } = e.target.dataset;
+            const temaRemovido = listaModulos[modIndex].temas.splice(temaIndex, 1)[0];
+            
+            if (listaModulos[modIndex].id && temaRemovido.id) {
+                temasEliminados.push({
+                    moduloId: listaModulos[modIndex].id,
+                    temaId: temaRemovido.id
+                });
+            }
+            renderizarModulos();
+        });
+    });
+
+    document.querySelectorAll('.input-objetivo-tema').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const { modIndex, temaIndex, objIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].objetivos[objIndex] = e.target.value;
+        });
+    });
+
+    document.querySelectorAll('.btn-agregar-objetivo-tema').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const { modIndex, temaIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].objetivos.push('');
+            renderizarModulos();
+        });
+    });
+
+    document.querySelectorAll('.btn-eliminar-objetivo-tema').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const { modIndex, temaIndex, objIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].objetivos.splice(objIndex, 1);
+            renderizarModulos();
+        });
+    });
+
     document.querySelectorAll('.select-tipo-recurso').forEach(select => {
         select.addEventListener('change', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const recIdx = e.target.dataset.recIndex;
-            listaModulos[modIdx].recursos[recIdx].tipo = e.target.value;
+            const { modIndex, temaIndex, recIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].recursos[recIndex].tipo = e.target.value;
         });
     });
 
     document.querySelectorAll('.input-nombre-recurso').forEach(input => {
         input.addEventListener('input', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const recIdx = e.target.dataset.recIndex;
-            listaModulos[modIdx].recursos[recIdx].nombre = e.target.value;
+            const { modIndex, temaIndex, recIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].recursos[recIndex].nombre = e.target.value;
         });
     });
 
     document.querySelectorAll('.input-url-recurso').forEach(input => {
         input.addEventListener('input', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const recIdx = e.target.dataset.recIndex;
-            listaModulos[modIdx].recursos[recIdx].url = e.target.value;
+            const { modIndex, temaIndex, recIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].recursos[recIndex].url = e.target.value;
         });
     });
 
     document.querySelectorAll('.btn-agregar-recurso').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const modIdx = e.target.dataset.index;
-            listaModulos[modIdx].recursos.push({ tipo: 'pdf', nombre: '', url: '' });
+            const { modIndex, temaIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].recursos.push({ tipo: 'pdf', nombre: '', url: '' });
             renderizarModulos();
         });
     });
 
     document.querySelectorAll('.btn-eliminar-recurso').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const recIdx = e.target.dataset.recIndex;
-            listaModulos[modIdx].recursos.splice(recIdx, 1);
+            const { modIndex, temaIndex, recIndex } = e.target.dataset;
+            listaModulos[modIndex].temas[temaIndex].recursos.splice(recIndex, 1);
             renderizarModulos();
         });
     });
 
-    // Manejo de Objetivos
-    document.querySelectorAll('.input-objetivo').forEach(input => {
-        input.addEventListener('input', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const objIdx = e.target.dataset.objIndex;
-            listaModulos[modIdx].objetivos[objIdx] = e.target.value;
-        });
-    });
-
-    document.querySelectorAll('.btn-agregar-objetivo').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modIdx = e.target.dataset.index;
-            listaModulos[modIdx].objetivos.push('');
-            renderizarModulos();
-        });
-    });
-
-    document.querySelectorAll('.btn-eliminar-objetivo').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modIdx = e.target.dataset.modIndex;
-            const objIdx = e.target.dataset.objIndex;
-            listaModulos[modIdx].objetivos.splice(objIdx, 1);
-            renderizarModulos();
-        });
-    });
-
-    // Eliminar Módulo Completo
     document.querySelectorAll('.btn-eliminar-modulo').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const idx = e.target.dataset.index;
+            const idx = Number(e.target.dataset.index);
             const moduloRemovido = listaModulos.splice(idx, 1)[0];
             if (moduloRemovido.id) {
                 modulosEliminados.push(moduloRemovido.id);
+            }
+            if (moduloPaginaActual >= listaModulos.length) {
+                moduloPaginaActual = Math.max(0, listaModulos.length - 1);
             }
             renderizarModulos();
         });
     });
 }
 
-// Botón "+ Agregar módulo"
 if (btnAgregarModulo) {
     btnAgregarModulo.addEventListener('click', () => {
         listaModulos.push({
             id: null,
             numero: listaModulos.length + 1,
-            titulo: '',
-            descripcion: '',
-            recursos: [{ tipo: 'pdf', nombre: '', url: '' }],
-            objetivos: ['']
+            nombre: '',
+            temas: [{
+                id: null,
+                orden: 1,
+                nombre: '',
+                descripcion: '',
+                objetivos: [''],
+                recursos: [{ tipo: 'pdf', nombre: '', url: '' }]
+            }]
         });
+        moduloPaginaActual = listaModulos.length - 1;
         renderizarModulos();
     });
 }
@@ -495,8 +653,8 @@ if (formModificarCurso) {
                 urlImagenFinal = await subirImagenACloudinary(archivoImagenCurso);
             }
 
-            // 1. Guardar datos generales del curso
-            await updateDoc(doc(db, "cursos", cursoSeleccionadoId), {
+            // 1. Guardar datos principales del curso en 'cursoscc'
+            await updateDoc(doc(db, "cursoscc", cursoSeleccionadoId), {
                 titulo: titulo,
                 descripcion: descripcion,
                 categoria: categoria,
@@ -506,34 +664,81 @@ if (formModificarCurso) {
                 URL_imagen: urlImagenFinal
             });
 
-            // 2. Eliminar de Firestore los módulos retirados
+            // 2. Eliminar módulos y temas marcados para borrar
             for (const idModEliminar of modulosEliminados) {
-                await deleteDoc(doc(db, "cursos", cursoSeleccionadoId, "modulos", idModEliminar));
+                await deleteDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", idModEliminar));
             }
             modulosEliminados = [];
 
-            // 3. Crear o actualizar cada módulo en `modulos`
-            const modulosRef = collection(db, "cursos", cursoSeleccionadoId, "modulos");
+            for (const tElim of temasEliminados) {
+                await deleteDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", tElim.moduloId, "temas", tElim.temaId));
+            }
+            temasEliminados = [];
+
+            // 3. Guardar/Actualizar Módulos y sus Temas
+            const modulosRef = collection(db, "cursoscc", cursoSeleccionadoId, "modulos");
 
             for (let i = 0; i < listaModulos.length; i++) {
                 const mod = listaModulos[i];
-                
-                // Filtrar recursos válidos (que tengan URL)
-                const recursosValidos = mod.recursos.filter(r => r.url && r.url.trim() !== '');
 
+                const arrayTemasObjetos = [];
+                const arrayNombresTemas = [];
+
+                for (let j = 0; j < mod.temas.length; j++) {
+                    const tema = mod.temas[j];
+
+                    // Omitir solo si el tema no tiene ningún tipo de información
+                    const estaCompletamenteVacio =
+                        !(tema.nombre && tema.nombre.trim()) &&
+                        !(tema.descripcion && tema.descripcion.trim()) &&
+                        (!tema.objetivos || tema.objetivos.length === 0) &&
+                        (!tema.recursos || tema.recursos.length === 0);
+
+                    if (estaCompletamenteVacio) continue;
+
+                    const nombreLimpio = (tema.nombre || "").trim();
+
+                    const datosTema = {
+                        orden: j + 1,
+                        nombre: nombreLimpio,
+                        descripcion: (tema.descripcion || "").trim(),
+                        objetivos: Array.isArray(tema.objetivos) ? tema.objetivos.filter(o => typeof o === 'string' && o.trim() !== '') : [],
+                        recursos: Array.isArray(tema.recursos) ? tema.recursos.filter(r => r.url && r.url.trim() !== '') : []
+                    };
+
+                    arrayTemasObjetos.push({ datos: datosTema, original: tema });
+                    arrayNombresTemas.push(nombreLimpio);
+                }
+
+                // Estructura del Módulo: en el array 'temas' se guardan SOLO los nombres
                 const datosModulo = {
                     numero: i + 1,
-                    titulo: mod.titulo,
-                    descripcion: mod.descripcion,
-                    recursos: recursosValidos,
-                    objetivos: mod.objetivos.filter(obj => obj.trim() !== '')
+                    nombre: (mod.nombre || "").trim(),
+                    temas: arrayNombresTemas
                 };
 
-                if (mod.id) {
-                    await updateDoc(doc(db, "cursos", cursoSeleccionadoId, "modulos", mod.id), datosModulo);
+                let targetModuloId = mod.id;
+
+                if (targetModuloId) {
+                    await updateDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", targetModuloId), datosModulo);
                 } else {
-                    const docNuevo = await addDoc(modulosRef, datosModulo);
-                    mod.id = docNuevo.id;
+                    const docNuevoModulo = await addDoc(modulosRef, datosModulo);
+                    targetModuloId = docNuevoModulo.id;
+                    mod.id = targetModuloId;
+                }
+
+                // 4. Guardar/Actualizar en la subcolección 'temas' con el detalle completo
+                const temasRef = collection(db, "cursoscc", cursoSeleccionadoId, "modulos", targetModuloId, "temas");
+
+                for (let j = 0; j < arrayTemasObjetos.length; j++) {
+                    const { datos, original } = arrayTemasObjetos[j];
+
+                    if (original && original.id) {
+                        await updateDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", targetModuloId, "temas", original.id), datos);
+                    } else {
+                        const docNuevoTema = await addDoc(temasRef, datos);
+                        if (original) original.id = docNuevoTema.id;
+                    }
                 }
             }
 
@@ -542,16 +747,16 @@ if (formModificarCurso) {
             if (imagenCurso) imagenCurso.value = "";
             if (nombreImagenCurso) nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
 
-            mostrarMensaje("El curso y sus recursos se guardaron correctamente. Redirigiendo...", "success");
+            mostrarMensaje("El curso, sus módulos y temas se guardaron correctamente. Redirigiendo...", "success");
 
             setTimeout(() => {
                 window.location.href = "administrarCursos.html";
-            }, 3000);
+            }, 2500);
 
         } catch (error) {
             console.error("Error al modificar el curso:", error);
             mostrarMensaje("No se pudo modificar el curso. Intentá nuevamente.", "danger");
-            
+
             if (btnGuardarCambios) {
                 btnGuardarCambios.disabled = false;
                 btnGuardarCambios.innerHTML = `

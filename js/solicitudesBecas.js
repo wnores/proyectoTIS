@@ -9,7 +9,8 @@ import {
     writeBatch,
     arrayUnion,
     getDoc,
-    serverTimestamp
+    serverTimestamp,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const contenedor =
@@ -244,157 +245,228 @@ async function cargarSolicitudes() {
     }
 }
 
-async function aprobarSolicitud(idSolicitud, solicitud) {
+async function aprobarSolicitud(
+    idSolicitud,
+    solicitud
+) {
+    const confirmar = confirm(
+        `¿Querés aprobar la beca para el curso "${solicitud.curso}"?`
+    );
 
-    const confirmar =
-        confirm(
-            `¿Querés aprobar la beca para el curso "${solicitud.curso}"?`
-        );
-
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     try {
-
         const cursoId =
-            solicitud.cursoId || solicitud.curso;
+            solicitud.cursoId ||
+            solicitud.curso;
 
         if (!cursoId) {
-            alert("No se encontró el curso asociado a la solicitud.");
+            alert(
+                "No se encontró el curso asociado a la solicitud."
+            );
             return;
         }
 
-        // ==================================================
-        // OBTENER CURSO
-        // ==================================================
-
-        const referenciaCurso =
-            doc(
-                db,
-                "cursos",
-                cursoId
+        if (!solicitud.uid) {
+            alert(
+                "No se encontró el usuario asociado a la solicitud."
             );
-
-        const resultadoCurso =
-            await getDoc(referenciaCurso);
-
-        if (!resultadoCurso.exists()) {
-            alert("No se encontró el curso asociado a la solicitud.");
             return;
         }
 
-        const datosCurso =
-            resultadoCurso.data();
-
-        const nombreCurso =
-            datosCurso.titulo ||
-            datosCurso.nombre ||
-            datosCurso.nombreCurso ||
-            "Curso sin nombre";
-
-
-        // ==================================================
-        // CREAR BATCH
-        // ==================================================
-
-        const batch =
-            writeBatch(db);
-
-
-        // ==================================================
-        // ACTUALIZAR SOLICITUD DE BECA
-        // ==================================================
-
-        const referenciaSolicitud =
-            doc(
-                db,
-                "solicitudesBecas",
-                idSolicitud
-            );
-
-        batch.update(
-            referenciaSolicitud,
-            {
-                estado: "aprobada",
-                cursoId: cursoId,
-                curso: nombreCurso
-            }
+        const referenciaCurso = doc(
+            db,
+            "cursos",
+            cursoId
         );
 
+        const referenciaSolicitud = doc(
+            db,
+            "solicitudesBecas",
+            idSolicitud
+        );
 
-        // ==================================================
-        // ACTUALIZAR USUARIO
-        // ==================================================
+        const referenciaUsuario = doc(
+            db,
+            "usuarios",
+            solicitud.uid
+        );
 
-        const referenciaUsuario =
-            doc(
-                db,
-                "usuarios",
-                solicitud.uid
-            );
+        const referenciaAdquisicion = doc(
+            collection(db, "adquisiciones")
+        );
 
-        batch.update(
-            referenciaUsuario,
-            {
-                serviciosAdquiridos:
-                    arrayUnion(nombreCurso),
+        await runTransaction(
+            db,
+            async (transaccion) => {
 
-                becasAdquiridas:
-                    arrayUnion({
-                        curso: nombreCurso,
+                // Todas las lecturas deben realizarse
+                // antes que las escrituras.
+                const resultadoCurso =
+                    await transaccion.get(
+                        referenciaCurso
+                    );
+
+                const resultadoSolicitud =
+                    await transaccion.get(
+                        referenciaSolicitud
+                    );
+
+                if (!resultadoCurso.exists()) {
+                    throw new Error(
+                        "CURSO_NO_EXISTE"
+                    );
+                }
+
+                if (!resultadoSolicitud.exists()) {
+                    throw new Error(
+                        "SOLICITUD_NO_EXISTE"
+                    );
+                }
+
+                const datosSolicitud =
+                    resultadoSolicitud.data();
+
+                // Evita aprobar y descontar dos veces
+                if (
+                    datosSolicitud.estado !==
+                    "pendiente"
+                ) {
+                    throw new Error(
+                        "SOLICITUD_YA_PROCESADA"
+                    );
+                }
+
+                const datosCurso =
+                    resultadoCurso.data();
+
+                const cuposActuales = Number(
+                    datosCurso
+                        .cupos_disponibles || 0
+                );
+
+                if (cuposActuales <= 0) {
+                    throw new Error("SIN_CUPOS");
+                }
+
+                const nombreCurso =
+                    datosCurso.titulo ||
+                    datosCurso.nombre ||
+                    datosCurso.nombreCurso ||
+                    "Curso sin nombre";
+
+                // Descontar un cupo
+                transaccion.update(
+                    referenciaCurso,
+                    {
+                        cupos_disponibles:
+                            cuposActuales - 1
+                    }
+                );
+
+                // Aprobar la solicitud
+                transaccion.update(
+                    referenciaSolicitud,
+                    {
+                        estado: "aprobada",
                         cursoId: cursoId,
-                        tipoBeca: solicitud.tipoBeca
-                    })
+                        curso: nombreCurso
+                    }
+                );
+
+                // Agregar la beca al perfil
+                transaccion.update(
+                    referenciaUsuario,
+                    {
+                        serviciosAdquiridos:
+                            arrayUnion(nombreCurso),
+
+                        becasAdquiridas:
+                            arrayUnion({
+                                curso: nombreCurso,
+                                cursoId: cursoId,
+                                tipoBeca:
+                                    solicitud.tipoBeca
+                            })
+                    }
+                );
+
+                // Registrar la adquisición
+                transaccion.set(
+                    referenciaAdquisicion,
+                    {
+                        usuarioId:
+                            solicitud.uid,
+
+                        cursoId: cursoId,
+
+                        cursoTitulo:
+                            nombreCurso,
+
+                        precio: 0,
+
+                        metodoPago: "beca",
+
+                        tipoBeca:
+                            solicitud.tipoBeca,
+
+                        fechaAdquisicion:
+                            serverTimestamp(),
+
+                        estado: "aprobada"
+                    }
+                );
             }
         );
-
-
-        // ==================================================
-        // REGISTRAR ADQUISICIÓN POR BECA
-        // ==================================================
-
-        const referenciaAdquisicion =
-            doc(
-                collection(db, "adquisiciones")
-            );
-
-        batch.set(
-            referenciaAdquisicion,
-            {
-                usuarioId: solicitud.uid,
-                cursoId: cursoId,
-                cursoTitulo: nombreCurso,
-                precio: 0,
-                metodoPago: "beca",
-                tipoBeca: solicitud.tipoBeca,
-                fechaAdquisicion: serverTimestamp(),
-                estado: "aprobada"
-            }
-        );
-
-
-        // ==================================================
-        // GUARDAR TODOS LOS CAMBIOS
-        // ==================================================
-
-        await batch.commit();
-
 
         alert(
             "La solicitud fue aprobada correctamente."
         );
 
-        cargarSolicitudes();
+        await cargarSolicitudes();
 
     } catch (error) {
-
         console.error(
             "Error al aprobar la solicitud:",
             error
         );
 
-        alert(
-            "No se pudo aprobar la solicitud. Intentá nuevamente."
-        );
+        if (error.message === "SIN_CUPOS") {
+            alert(
+                "No se puede aprobar la beca porque el curso no tiene cupos."
+            );
+
+        } else if (
+            error.message ===
+            "SOLICITUD_YA_PROCESADA"
+        ) {
+            alert(
+                "Esta solicitud ya fue procesada."
+            );
+
+        } else if (
+            error.message ===
+            "CURSO_NO_EXISTE"
+        ) {
+            alert(
+                "No se encontró el curso asociado a la solicitud."
+            );
+
+        } else if (
+            error.message ===
+            "SOLICITUD_NO_EXISTE"
+        ) {
+            alert(
+                "No se encontró la solicitud de beca."
+            );
+
+        } else {
+            alert(
+                "No se pudo aprobar la solicitud. Intentá nuevamente."
+            );
+        }
     }
 }
 

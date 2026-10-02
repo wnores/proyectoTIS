@@ -38,7 +38,8 @@ async function cargarCursos() {
         contenedorTabla.classList.add("d-none");
         mensajeVacio.classList.add("d-none");
 
-        const cursosRef = collection(db, "cursos");
+        // CAMBIO: Ahora apunta a la colección 'cursoscc'
+        const cursosRef = collection(db, "cursoscc");
         const snapshot = await getDocs(cursosRef);
 
         estadoCarga.classList.add("d-none");
@@ -60,7 +61,8 @@ async function cargarCursos() {
             });
         });
 
-        todosLosCursos.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+        // CAMBIO: Ordena alfabéticamente por 'titulo' (campo de cursoscc)
+        todosLosCursos.sort((a, b) => (a.titulo || a.nombre || "").localeCompare(b.titulo || b.nombre || ""));
 
         cursosFiltrados = [...todosLosCursos];
         paginaActual = 1;
@@ -68,7 +70,7 @@ async function cargarCursos() {
         renderizarPagina();
 
     } catch (error) {
-        console.error("Error al cargar cursos:", error);
+        console.error("Error al cargar cursos de cursoscc:", error);
         estadoCarga.classList.remove("d-none");
         estadoCarga.innerHTML = `
             <div class="alert alert-danger">
@@ -103,20 +105,20 @@ function renderizarPagina() {
         const botonAccion = curso.activo
             ? `<button class="btn btn-danger btn-sm btn-accion" 
                        data-id="${curso.id}" 
-                       data-nombre="${curso.titulo || 'este curso'}" 
+                       data-nombre="${curso.titulo || curso.nombre || 'este curso'}" 
                        data-activo="true">
                    <i class="bi bi-eye-slash"></i> Deshabilitar
                </button>`
             : `<button class="btn btn-success btn-sm btn-accion" 
                        data-id="${curso.id}" 
-                       data-nombre="${curso.titulo || 'este curso'}" 
+                       data-nombre="${curso.titulo || curso.nombre || 'este curso'}" 
                        data-activo="false">
                    <i class="bi bi-eye"></i> Habilitar
                </button>`;
 
         listadoCursos.innerHTML += `
         <tr id="curso-${curso.id}">
-            <td data-label="Título" class="fw-bold">${curso.titulo || "Sin título"}</td>
+            <td data-label="Título" class="fw-bold">${curso.titulo || curso.nombre || "Sin título"}</td>
             <td data-label="Categoría">
                 <span class="badge text-bg-light border">${curso.categoria || "General"}</span>
             </td>
@@ -207,7 +209,8 @@ btnConfirmarEliminar.addEventListener("click", async () => {
     if (!cursoSeleccionado || !accion) return;
 
     try {
-        const cursoRef = doc(db, "cursos", cursoSeleccionado.id);
+        // CAMBIO: Ahora actualiza en la colección 'cursoscc'
+        const cursoRef = doc(db, "cursoscc", cursoSeleccionado.id);
         const nuevoEstado = accion === "habilitar";
 
         await updateDoc(cursoRef, {
@@ -226,7 +229,7 @@ btnConfirmarEliminar.addEventListener("click", async () => {
         accion = null;
 
     } catch (error) {
-        console.error("Error al actualizar el curso:", error);
+        console.error("Error al actualizar el curso en cursoscc:", error);
         alert("No se pudo actualizar el curso: " + error.message);
     }
 });

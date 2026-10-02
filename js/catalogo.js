@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       mostrarMensaje('Cargando catálogo...');
 
-      const resultadoCursos = await getDocs(collection(db, 'cursos'));
+      // Consulta a la colección 'cursoscc'
+      const resultadoCursos = await getDocs(collection(db, 'cursoscc'));
       todosLosCursos = resultadoCursos.docs.map(doc => ({
         ...doc.data(),
         id: doc.id

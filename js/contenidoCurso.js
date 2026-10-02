@@ -368,7 +368,8 @@ function obtenerTextoBoton(tipo) {
         pdf: "Abrir PDF",
         drive: "Abrir en Drive",
         presentacion: "Ver presentación",
-        url: "Visitar enlace"
+        url: "Visitar enlace",
+        python: "Descargar Python"
     };
     return textos[tipo] || "Abrir material";
 }

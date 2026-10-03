@@ -23,21 +23,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   const seccionPago = document.getElementById("seccionPago");
 
   const formPago = document.getElementById("formPago");
-  const radiosMetodo = document.querySelectorAll('input[name="metodoPago"]');
-  const desplegableTarjeta = document.getElementById("desplegableTarjeta");
-  const desplegableTransferencia = document.getElementById("desplegableTransferencia");
-  const btnConfirmar = document.getElementById("btnConfirmarPago");
+  const radiosMetodo = document.querySelectorAll(
+    'input[name="metodoPago"]'
+  );
 
-  const inputNombre = document.getElementById("nombreTarjeta");
-  const inputNumero = document.getElementById("numeroTarjeta");
-  const inputVencimiento = document.getElementById("vencimiento");
-  const inputCvv = document.getElementById("cvv");
+  const desplegableTarjeta =
+    document.getElementById("desplegableTarjeta");
 
-  const inputComprobante = document.getElementById("comprobantePago");
-  const errorComprobante = document.getElementById("errorComprobante");
+  const desplegableTransferencia =
+    document.getElementById("desplegableTransferencia");
 
-  const parametros = new URLSearchParams(window.location.search);
-  const cursoId = parametros.get("curso");
+  const btnConfirmar =
+    document.getElementById("btnConfirmarPago");
+
+  const inputNombre =
+    document.getElementById("nombreTarjeta");
+
+  const inputNumero =
+    document.getElementById("numeroTarjeta");
+
+  const inputVencimiento =
+    document.getElementById("vencimiento");
+
+  const inputCvv =
+    document.getElementById("cvv");
+
+  const inputComprobante =
+    document.getElementById("comprobantePago");
+
+  const errorComprobante =
+    document.getElementById("errorComprobante");
+
+
+  // ======================================================
+  // CONFIGURACIÓN CLOUDINARY
+  // ======================================================
+
+  const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
+  const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
+
+
+  // ======================================================
+  // DATOS INICIALES
+  // ======================================================
+
+  const parametros =
+    new URLSearchParams(window.location.search);
+
+  const cursoId =
+    parametros.get("curso");
 
   let curso = null;
   let usuarioActual = null;
@@ -48,10 +82,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ======================================================
 
   onAuthStateChanged(auth, (usuario) => {
+
     usuarioActual = usuario;
 
     if (!usuario) {
-      window.location.href = "ingresar.html";
+
+      window.location.href =
+        "ingresar.html";
     }
   });
 
@@ -67,6 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (errorBox && mensajeError) {
+
       mensajeError.textContent =
         "No se especificó ningún curso para realizar el pago.";
 
@@ -81,11 +119,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // CARGAR CURSO DESDE FIRESTORE
   // ======================================================
 
-  
   try {
 
-    const cursoRef = doc(db, "cursos", cursoId);
-    const docSnap = await getDoc(cursoRef);
+    const cursoRef =
+      doc(db, "cursoscc", cursoId);
+
+    const docSnap =
+      await getDoc(cursoRef);
+
 
     if (!docSnap.exists()) {
 
@@ -94,6 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (errorBox && mensajeError) {
+
         mensajeError.textContent =
           "El curso solicitado no existe o fue desactivado.";
 
@@ -103,42 +145,62 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    curso = docSnap.data();
+
+    curso =
+      docSnap.data();
 
 
-    const elTitulo = document.getElementById("cursoTitulo");
-    const elPrecio = document.getElementById("cursoPrecio");
-    const elImg = document.getElementById("cursoImg");
+    const elTitulo =
+      document.getElementById("cursoTitulo");
+
+    const elPrecio =
+      document.getElementById("cursoPrecio");
+
+    const elImg =
+      document.getElementById("cursoImg");
 
 
     const precioFormateado =
-      Number(curso.precio || 0).toLocaleString("es-UY", {
-        style: "currency",
-        currency: "UYU"
-      });
+      Number(curso.precio || 0).toLocaleString(
+        "es-UY",
+        {
+          style: "currency",
+          currency: "UYU"
+        }
+      );
 
 
     if (elTitulo) {
+
       elTitulo.textContent =
-        curso.titulo || curso.nombre || "Curso sin título";
+        curso.titulo ||
+        curso.nombre ||
+        "Curso sin título";
     }
 
 
     if (elPrecio) {
-      elPrecio.textContent = precioFormateado;
+
+      elPrecio.textContent =
+        precioFormateado;
     }
 
 
     if (elImg) {
 
       const rutaImagen =
-        curso.URL_imagen ?? curso.imagen_url;
+        curso.URL_imagen ??
+        curso.imagen_url;
+
 
       if (rutaImagen) {
 
-        elImg.src = rutaImagen;
+        elImg.src =
+          rutaImagen;
+
         elImg.alt =
-          curso.titulo || "Imagen del curso";
+          curso.titulo ||
+          "Imagen del curso";
 
       } else {
 
@@ -163,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       seccionPago.classList.remove("d-none");
     }
 
+
   } catch (error) {
 
     console.error(
@@ -170,9 +233,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       error
     );
 
+
     if (cargando) {
       cargando.classList.add("d-none");
     }
+
 
     if (errorBox && mensajeError) {
 
@@ -203,7 +268,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
 
-      const metodo = e.target.value;
+      const metodo =
+        e.target.value;
 
 
       if (
@@ -211,14 +277,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         desplegableTarjeta
       ) {
 
-        desplegableTarjeta.classList.remove("d-none");
+        desplegableTarjeta.classList.remove(
+          "d-none"
+        );
 
       } else if (
         metodo === "transferencia" &&
         desplegableTransferencia
       ) {
 
-        desplegableTransferencia.classList.remove("d-none");
+        desplegableTransferencia.classList.remove(
+          "d-none"
+        );
       }
 
 
@@ -234,20 +304,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (inputNumero) {
 
-    inputNumero.addEventListener("input", (e) => {
+    inputNumero.addEventListener(
+      "input",
+      (e) => {
 
-      let valor =
-        e.target.value.replace(/\D/g, "");
+        let valor =
+          e.target.value.replace(
+            /\D/g,
+            ""
+          );
 
-      valor =
-        valor.replace(/(.{4})/g, "$1 ").trim();
 
-      e.target.value =
-        valor.substring(0, 19);
+        valor =
+          valor
+            .replace(
+              /(.{4})/g,
+              "$1 "
+            )
+            .trim();
 
-      validarFormulario();
-    });
 
+        e.target.value =
+          valor.substring(
+            0,
+            19
+          );
+
+
+        validarFormulario();
+      }
+    );
   }
 
 
@@ -257,25 +343,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (inputVencimiento) {
 
-    inputVencimiento.addEventListener("input", (e) => {
+    inputVencimiento.addEventListener(
+      "input",
+      (e) => {
 
-      let valor =
-        e.target.value.replace(/\D/g, "");
+        let valor =
+          e.target.value.replace(
+            /\D/g,
+            ""
+          );
 
-      if (valor.length >= 3) {
 
-        valor =
-          valor.substring(0, 2) +
-          "/" +
-          valor.substring(2, 4);
+        if (valor.length >= 3) {
+
+          valor =
+            valor.substring(0, 2) +
+            "/" +
+            valor.substring(2, 4);
+        }
+
+
+        e.target.value =
+          valor.substring(
+            0,
+            5
+          );
+
+
+        validarFormulario();
       }
-
-      e.target.value =
-        valor.substring(0, 5);
-
-      validarFormulario();
-    });
-
+    );
   }
 
 
@@ -284,6 +381,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ======================================================
 
   if (inputNombre) {
+
     inputNombre.addEventListener(
       "input",
       validarFormulario
@@ -297,16 +395,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (inputCvv) {
 
-    inputCvv.addEventListener("input", (e) => {
+    inputCvv.addEventListener(
+      "input",
+      (e) => {
 
-      e.target.value =
-        e.target.value
-          .replace(/\D/g, "")
-          .substring(0, 4);
+        e.target.value =
+          e.target.value
+            .replace(
+              /\D/g,
+              ""
+            )
+            .substring(
+              0,
+              4
+            );
 
-      validarFormulario();
-    });
 
+        validarFormulario();
+      }
+    );
   }
 
 
@@ -316,13 +423,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (inputComprobante) {
 
-    inputComprobante.addEventListener("change", () => {
+    inputComprobante.addEventListener(
+      "change",
+      () => {
 
-      const archivo =
-        inputComprobante.files[0];
+        const archivo =
+          inputComprobante.files[0];
 
 
-      if (archivo) {
+        if (!archivo) {
+
+          validarFormulario();
+          return;
+        }
+
 
         const tiposPermitidos = [
           "image/jpeg",
@@ -338,27 +452,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         ) {
 
           if (errorComprobante) {
+
             errorComprobante.classList.remove(
               "d-none"
             );
           }
+
 
           inputComprobante.value = "";
 
         } else {
 
           if (errorComprobante) {
+
             errorComprobante.classList.add(
               "d-none"
             );
           }
         }
+
+
+        validarFormulario();
       }
-
-
-      validarFormulario();
-    });
-
+    );
   }
 
 
@@ -381,7 +497,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!radioSeleccionado) {
 
-      btnConfirmar.disabled = true;
+      btnConfirmar.disabled =
+        true;
+
       return;
     }
 
@@ -390,16 +508,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       radioSeleccionado.value;
 
 
+    // ----------------------------------------------------
+    // TARJETA
+    // ----------------------------------------------------
+
     if (metodo === "tarjeta") {
 
       const nombreValido =
         inputNombre &&
-        inputNombre.value.trim().length >= 3;
+        inputNombre.value
+          .trim()
+          .length >= 3;
 
 
       const numeroLimpio =
         inputNumero
-          ? inputNumero.value.replace(/\s/g, "")
+          ? inputNumero.value.replace(
+              /\s/g,
+              ""
+            )
           : "";
 
 
@@ -410,12 +537,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const vencimientoValido =
         inputVencimiento &&
-        inputVencimiento.value.trim().length === 5;
+        inputVencimiento.value
+          .trim()
+          .length === 5;
 
 
       const cvvValido =
         inputCvv &&
-        inputCvv.value.trim().length >= 3;
+        inputCvv.value
+          .trim()
+          .length >= 3;
 
 
       btnConfirmar.disabled =
@@ -426,6 +557,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           cvvValido
         );
 
+
+    // ----------------------------------------------------
+    // TRANSFERENCIA
+    // ----------------------------------------------------
 
     } else if (metodo === "transferencia") {
 
@@ -441,12 +576,79 @@ document.addEventListener("DOMContentLoaded", async () => {
           "image/jpeg",
           "image/png",
           "image/jpg"
-        ].includes(archivo.type);
+        ].includes(
+          archivo.type
+        );
 
 
       btnConfirmar.disabled =
         !tieneComprobanteValido;
     }
+  }
+
+
+  // ======================================================
+  // SUBIR COMPROBANTE A CLOUDINARY
+  // ======================================================
+
+  async function subirComprobanteACloudinary(
+    archivo
+  ) {
+
+    if (!archivo) {
+      throw new Error(
+        "NO_HAY_COMPROBANTE"
+      );
+    }
+
+
+    const formulario =
+      new FormData();
+
+
+    formulario.append(
+      "file",
+      archivo
+    );
+
+
+    formulario.append(
+      "upload_preset",
+      CLOUDINARY_UPLOAD_PRESET
+    );
+
+
+    const respuesta =
+      await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formulario
+        }
+      );
+
+
+    if (!respuesta.ok) {
+
+      throw new Error(
+        "ERROR_CLOUDINARY"
+      );
+    }
+
+
+    const datos =
+      await respuesta.json();
+
+
+    if (!datos.secure_url) {
+
+      throw new Error(
+        "URL_COMPROBANTE_NO_GENERADA"
+      );
+    }
+
+
+    return datos.secure_url;
   }
 
 
@@ -467,7 +669,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         // VERIFICAR USUARIO
         // -----------------------------------------------
 
-        const usuario = auth.currentUser;
+        const usuario =
+          auth.currentUser;
 
 
         if (!usuario) {
@@ -507,105 +710,210 @@ document.addEventListener("DOMContentLoaded", async () => {
         // DETERMINAR ESTADO
         // -----------------------------------------------
 
-        let estado = "aprobada";
+        let estado =
+          "aprobada";
 
 
         if (metodo === "transferencia") {
-          estado = "pendiente";
+
+          estado =
+            "pendiente";
         }
 
-        btnConfirmar.disabled = true;
-        btnConfirmar.textContent = "Procesando...";
+
+        btnConfirmar.disabled =
+          true;
+
+        btnConfirmar.textContent =
+          "Procesando...";
+
 
         try {
 
           // ---------------------------------------------
-          // CREAR ADQUISICIÓN
+          // DATOS BASE DE LA ADQUISICIÓN
           // ---------------------------------------------
-
-          let referenciaAdquisicion;
 
           const datosAdquisicion = {
-            usuarioId: usuario.uid,
-            usuarioCorreo: usuario.email || "",
-            cursoId: cursoId,
 
-                cursoTitulo:
-                  curso.titulo ||
-                  curso.nombre ||
-                  "Curso sin título",
+            usuarioId:
+              usuario.uid,
 
-                precio: Number(curso.precio || 0),
-                metodoPago: metodo,
-                fechaAdquisicion: serverTimestamp(),
-                estado: estado
-            };
-          if (metodo ==="tarjeta"){
-           referenciaAdquisicion =
-        doc(collection(db, "adquisiciones"));
+            usuarioCorreo:
+              usuario.email || "",
 
-    const referenciaCurso =
-        doc(db, "cursos", cursoId);
+            cursoId:
+              cursoId,
 
-    await runTransaction(
-        db,
-        async (transaccion) => {
+            cursoTitulo:
+              curso.titulo ||
+              curso.nombre ||
+              "Curso sin título",
 
-            const resultadoCurso =
-                await transaccion.get(
+            precio:
+              Number(
+                curso.precio || 0
+              ),
+
+            metodoPago:
+              metodo,
+
+            fechaAdquisicion:
+              serverTimestamp(),
+
+            estado:
+              estado
+          };
+
+
+          // =================================================
+          // PAGO CON TARJETA
+          // =================================================
+
+          if (metodo === "tarjeta") {
+
+            const referenciaAdquisicion =
+              doc(
+                collection(
+                  db,
+                  "adquisiciones"
+                )
+              );
+
+
+            const referenciaCurso =
+              doc(
+                db,
+                "cursoscc",
+                cursoId
+              );
+
+
+            await runTransaction(
+              db,
+              async (transaccion) => {
+
+                const resultadoCurso =
+                  await transaccion.get(
                     referenciaCurso
-                );
+                  );
 
-            if (!resultadoCurso.exists()) {
-                throw new Error("CURSO_NO_EXISTE");
-            }
 
-            const datosCurso =
-                resultadoCurso.data();
+                if (!resultadoCurso.exists()) {
 
-            const cuposActuales =
-                Number(
-                    datosCurso.cupos_disponibles || 0
-                );
-
-            if (cuposActuales <= 0) {
-                throw new Error("SIN_CUPOS");
-            }
-
-            transaccion.update(
-                referenciaCurso,
-                {
-                    cupos_disponibles:
-                        cuposActuales - 1
+                  throw new Error(
+                    "CURSO_NO_EXISTE"
+                  );
                 }
+
+
+                const datosCurso =
+                  resultadoCurso.data();
+
+
+                const cuposActuales =
+                  Number(
+                    datosCurso.cupos_disponibles ||
+                    0
+                  );
+
+
+                if (cuposActuales <= 0) {
+
+                  throw new Error(
+                    "SIN_CUPOS"
+                  );
+                }
+
+
+                transaccion.update(
+                  referenciaCurso,
+                  {
+                    cupos_disponibles:
+                      cuposActuales - 1
+                  }
+                );
+
+
+                transaccion.set(
+                  referenciaAdquisicion,
+                  datosAdquisicion
+                );
+              }
             );
 
-            transaccion.set(
-                referenciaAdquisicion,
+
+            window.location.href =
+              `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
+
+
+            return;
+          }
+
+
+          // =================================================
+          // PAGO POR TRANSFERENCIA
+          // =================================================
+
+          if (metodo === "transferencia") {
+
+            const archivo =
+              inputComprobante?.files?.[0];
+
+
+            if (!archivo) {
+
+              throw new Error(
+                "NO_HAY_COMPROBANTE"
+              );
+            }
+
+
+            // ---------------------------------------------
+            // SUBIR COMPROBANTE
+            // ---------------------------------------------
+
+            const comprobanteUrl =
+              await subirComprobanteACloudinary(
+                archivo
+              );
+
+
+            // ---------------------------------------------
+            // AGREGAR DATOS DEL COMPROBANTE
+            // ---------------------------------------------
+
+            datosAdquisicion.comprobanteUrl =
+              comprobanteUrl;
+
+            datosAdquisicion.comprobanteNombre =
+              archivo.name;
+
+
+            // ---------------------------------------------
+            // REGISTRAR ADQUISICIÓN
+            // ---------------------------------------------
+
+            const referenciaAdquisicion =
+              await addDoc(
+                collection(
+                  db,
+                  "adquisiciones"
+                ),
                 datosAdquisicion
-            );
-        }
-    );
-
-} else {
-
-    // La transferencia queda pendiente.
-    // Todavía no se descuenta el cupo.
-    referenciaAdquisicion =
-        await addDoc(
-            collection(db, "adquisiciones"),
-            datosAdquisicion
-        );
-} 
- 
+              );
 
 
-          // ---------------------------------------------
-          // REDIRIGIR AL COMPROBANTE
-          // ---------------------------------------------
+            window.location.href =
+              `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
 
-          window.location.href =
-            `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
+            return;
+          }
+
+
+          throw new Error(
+            "METODO_PAGO_NO_VALIDO"
+          );
 
 
         } catch (error) {
@@ -614,21 +922,60 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Error al registrar la adquisición:",
             error
           );
-          if (error.message === "SIN_CUPOS") {
+
+
+          if (
+            error.message ===
+            "SIN_CUPOS"
+          ) {
+
             alert(
               "Este curso ya no tiene cupos disponibles."
             );
+
+          } else if (
+            error.message ===
+            "ERROR_CLOUDINARY"
+          ) {
+
+            alert(
+              "No fue posible subir el comprobante. Intentá nuevamente."
+            );
+
+          } else if (
+            error.message ===
+            "URL_COMPROBANTE_NO_GENERADA"
+          ) {
+
+            alert(
+              "No se pudo obtener el comprobante. Intentá nuevamente."
+            );
+
+          } else if (
+            error.message ===
+            "NO_HAY_COMPROBANTE"
+          ) {
+
+            alert(
+              "Debés seleccionar un comprobante válido."
+            );
+
           } else {
+
             alert(
               "No fue posible registrar la adquisición. Intentá nuevamente."
             );
           }
-          btnConfirmar.disabled = false;
+
+
+          btnConfirmar.disabled =
+            false;
+
           btnConfirmar.textContent =
             "Confirmar pago";
-
+        }
       }
-    }
-  );
-}
+    );
+  }
+
 });

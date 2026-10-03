@@ -52,6 +52,28 @@ if (botonMostrarSolicitudes) {
     );
 }
 
+function formatearFechaSolicitud(fecha) {
+    if (!fecha) {
+        return "Fecha no disponible";
+    }
+
+    let fechaReal;
+
+    if (typeof fecha.toDate === "function") {
+        fechaReal = fecha.toDate();
+    } else if (fecha instanceof Date) {
+        fechaReal = fecha;
+    } else {
+        return "Fecha no disponible";
+    }
+
+    return fechaReal.toLocaleDateString("es-UY", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+
 async function cargarSolicitudes() {
 
     if (!contenedor) return;
@@ -86,6 +108,9 @@ async function cargarSolicitudes() {
 
             const solicitud = documento.data();
 
+            const fechaSolicitud =
+                formatearFechaSolicitud(solicitud.fechaSolicitud);
+
             let nombreCurso = solicitud.curso;
 
             const cursoId = solicitud.cursoId || solicitud.curso;
@@ -97,7 +122,7 @@ async function cargarSolicitudes() {
                     const referenciaCurso =
                         doc(
                             db,
-                            "cursos",
+                            "cursoscc",
                             cursoId
                         );
 
@@ -158,6 +183,11 @@ async function cargarSolicitudes() {
                         <p class="mb-2">
                             <strong>Correo:</strong>
                             ${solicitud.correo || "Correo no disponible"}
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Fecha de solicitud:</strong>
+                            ${fechaSolicitud}
                         </p>
 
                         <p class="mb-2">
@@ -278,7 +308,7 @@ async function aprobarSolicitud(
 
         const referenciaCurso = doc(
             db,
-            "cursos",
+            "cursoscc",
             cursoId
         );
 

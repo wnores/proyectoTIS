@@ -76,6 +76,127 @@
 </div>  
     </nav>
     </header>
+
+    <!-- ============================================ -->
+    <!-- DASHBOARD DE ESTADÍSTICAS -->
+    <!-- ============================================ -->
+    <section class="py-4 bg-light border-bottom">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="h4 fw-bold mb-1">
+                        <i class="bi bi-bar-chart-fill text-primary"></i> Estadísticas
+                    </h2>
+                    <p class="text-secondary mb-0 small">Resumen general de la plataforma.</p>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" id="btnRefrescarStats">
+                    <i class="bi bi-arrow-clockwise"></i> Refrescar
+                </button>
+            </div>
+
+            <!-- KPI CARDS -->
+            <div class="row g-3 mb-4" id="contenedorStats">
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-people-fill fs-2 text-primary"></i>
+                            <h3 class="h2 fw-bold mb-0 mt-2" id="statTotalUsuarios">-</h3>
+                            <small class="text-secondary text-uppercase">Usuarios</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-person-check-fill fs-2 text-success"></i>
+                            <h3 class="h2 fw-bold mb-0 mt-2" id="statUsuariosActivos">-</h3>
+                            <small class="text-secondary text-uppercase">Activos</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-mortarboard-fill fs-2 text-warning"></i>
+                            <h3 class="h2 fw-bold mb-0 mt-2" id="statMatriculados">-</h3>
+                            <small class="text-secondary text-uppercase">Matriculados</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-journal-bookmark-fill fs-2 text-info"></i>
+                            <h3 class="h2 fw-bold mb-0 mt-2" id="statTotalCursos">-</h3>
+                            <small class="text-secondary text-uppercase">Cursos</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-cash-coin fs-2 text-success"></i>
+                            <h3 class="h3 fw-bold mb-0 mt-2" id="statIngresos">-</h3>
+                            <small class="text-secondary text-uppercase">Ingresos</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="card border-0 shadow-sm h-100 text-center">
+                        <div class="card-body">
+                            <i class="bi bi-award-fill fs-2 text-warning"></i>
+                            <h3 class="h2 fw-bold mb-0 mt-2" id="statBecas">-</h3>
+                            <small class="text-secondary text-uppercase">Becas</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILA 2: RANKING + DISTRIBUCIÓN -->
+            <div class="row g-4">
+
+                <!-- Cursos más populares -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h3 class="h6 fw-bold text-uppercase text-secondary mb-3">
+                                <i class="bi bi-trophy"></i> Cursos más populares
+                            </h3>
+                            <div id="statRankingCursos">
+                                <p class="text-secondary text-center mb-0 py-3">Cargando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribución por rol -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h3 class="h6 fw-bold text-uppercase text-secondary mb-3">
+                                <i class="bi bi-pie-chart"></i> Distribución por rol
+                            </h3>
+                            <div id="statDistribucionRoles">
+                                <p class="text-secondary text-center mb-0 py-3">Cargando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
     <main id="contenidoAdministrador" class="flex-grow-1">
 
     <section class="py-5" aria-labelledby="tituloAdministrarCursos">

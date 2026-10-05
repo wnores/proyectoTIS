@@ -307,5 +307,17 @@ En `inicioCierreSesion.js`, luego de autenticar correctamente con Firebase Auth,
 
 De esta forma, un usuario deshabilitado **puede autenticarse** (Firebase Auth no lo bloquea), pero **no puede acceder a la aplicación** porque la validación ocurre antes de permitir el ingreso. Se definen además, las reglas de Firestore sobre la coleccción 'usuarios' de 'lectura/escritura' de acuerdo al 'tipoUsuario' 'docente/admin' y 'estudiante'.
 
+## Panel de estadísticas (Walter)
+
+Se implementó un dashboard de métricas en el panel de administración (`administrarCursos.html`) que muestra un resumen general de la plataforma en tiempo real: total de usuarios (activos e inactivos), distribución por rol, estudiantes matriculados, ranking de cursos más populares, ingresos totales y becas otorgadas. Los datos se obtienen desde Firestore y se procesan con métodos de arrays para calcular agrupaciones y porcentajes.
+
+**Métricas mostradas:**
+
+- **Usuarios:** total registrados, activos, inactivos y distribución por rol (estudiante / docente-admin).
+- **Estudiantes matriculados:** usuarios únicos con al menos una adquisición aprobada.
+- **Cursos:** total publicados y ranking de los 5 más populares según cantidad de inscripciones.
+- **Ingresos:** suma total de adquisiciones aprobadas con estado de pago.
+- **Becas:** cantidad de solicitudes aprobadas u otorgadas.
+
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)

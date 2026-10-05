@@ -1,6 +1,7 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { cargarEstadisticas } from "./estadisticas.js";
 
 const contenidoAdministrador = document.getElementById("contenidoAdministrador");
 
@@ -9,7 +10,7 @@ iniciarPagina();
 function iniciarPagina() {
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            alert("Debés iniciar sesión para acceder.");
+            alert("Debes iniciar sesión para acceder.");
             window.location.replace("ingresar.html");
             return;
         }
@@ -22,13 +23,16 @@ function iniciarPagina() {
                 const datosUsuario = docSnap.data();
                 const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toLowerCase().trim();
 
-                // 3. Validar si el rol es docente o admin
-                if (rol.includes("docente") || rol.includes("admin")) {
+                
+                if (rol.includes("docente/admin")) {
                     if (contenidoAdministrador) {
                         contenidoAdministrador.classList.remove("d-none");
                     }
+                    cargarEstadisticas();
+                    document.querySelector("#btnRefrescarStats")?.addEventListener("click", cargarEstadisticas);
+
                 } else {
-                    alert("No tenés permiso para administrar cursos.");
+                    alert("No tienes permiso para administrar cursos.");
                     window.location.replace("index.html");
                 }
             } else {
@@ -41,3 +45,5 @@ function iniciarPagina() {
         }
     });
 }
+
+

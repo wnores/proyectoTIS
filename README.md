@@ -283,4 +283,29 @@ Se completó manualmente el campo categoria en Firestore para los cursos que no 
 
 ## Sprint 3 (28/09/2026 al 11/10/2026)
 
+## Gestión de usuarios: habilitar / deshabilitar (Walter)
+
+Se implementó un sistema de **baja lógica** sobre la colección `usuarios` de Firestore, que permite al administrador bloquear el acceso de un usuario sin eliminar su cuenta.
+
+**Funcionamiento:**
+
+- Cada documento de la colección `usuarios` incluye un campo booleano `activo` (por defecto `true`).
+- El panel de administración (`administrarCursos.html`) lista a todos los usuarios registrados en una tabla, con búsqueda, filtro por estado (activos/inactivos) y paginación.
+- Cada fila muestra un botón dinámico:
+  - **Deshabilitar** (rojo) si el usuario está activo.
+  - **Habilitar** (verde) si el usuario está inactivo.
+- La acción se confirma mediante un modal antes de aplicar el cambio.
+- Al confirmar, se actualiza el campo `activo` en Firestore y se registra la fecha del cambio (`fechaCambioEstado`).
+
+**Validación en el inicio de sesión:**
+
+En `inicioCierreSesion.js`, luego de autenticar correctamente con Firebase Auth, se consulta el documento del usuario en Firestore. Si el campo `activo` es `false`:
+
+1. Se cierra la sesión inmediatamente con `signOut(auth)`.
+2. Se muestra un mensaje al usuario: *"Tu cuenta está deshabilitada. Contacta al administrador."*
+3. No se permite la redirección al sitio.
+
+De esta forma, un usuario deshabilitado **puede autenticarse** (Firebase Auth no lo bloquea), pero **no puede acceder a la aplicación** porque la validación ocurre antes de permitir el ingreso. Se definen además, las reglas de Firestore sobre la coleccción 'usuarios' de 'lectura/escritura' de acuerdo al 'tipoUsuario' 'docente/admin' y 'estudiante'.
+
+
 ## Sprint 4 (12/10/2026 al 23/10/2026)

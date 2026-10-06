@@ -1,6 +1,13 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {
+    doc,
+    getDoc,
+    collection,
+    getDocs,
+    query,
+    where
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const estadoCarga = document.getElementById("estadoCarga");
 const mensajeError = document.getElementById("mensajeError");
@@ -72,27 +79,69 @@ function iniciarPagina() {
 }
 
 async function comprobarAcceso(datosUsuario, curso, uid) {
-    const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toString().trim().toLowerCase();
+    const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "")
+        .toString()
+        .trim()
+        .toLowerCase();
 
+    console.log("=== COMPROBACIÓN DE ACCESO ===");
+    console.log("UID usuario:", uid);
+    console.log("ID curso:", curso.id);
+    console.log("Título curso:", curso.titulo);
+    console.log("Rol:", rol);
+
+    // Admin/docente tiene acceso
     if (rol.includes("admin") || rol.includes("docente")) {
+        console.log("Acceso concedido: admin/docente");
         return true;
     }
 
+    // Solo estudiantes continúan
     if (rol !== "estudiante") {
+        console.log("Acceso rechazado: rol no válido");
         return false;
     }
 
     const referenciaAdquisiciones = collection(db, "adquisiciones");
-    const consulta = await getDocs(referenciaAdquisiciones);
 
-    return consulta.docs.some((documento) => {
+    // Traer solamente las adquisiciones del usuario actual
+    const consultaAdquisiciones = query(
+        referenciaAdquisiciones,
+        where("usuarioId", "==", uid)
+    );
+
+    const consulta = await getDocs(consultaAdquisiciones);
+
+    console.log(
+        "Adquisiciones del usuario:",
+        consulta.size
+    );
+
+    const adquisicionEncontrada = consulta.docs.find((documento) => {
         const adquisicion = documento.data();
+
+        console.log("Adquisición encontrada:", adquisicion);
+
         return (
-            adquisicion.usuarioId === uid &&
             adquisicion.cursoId === curso.id &&
             adquisicion.estado === "aprobada"
         );
     });
+
+    if (adquisicionEncontrada) {
+        console.log(
+            "ACCESO CONCEDIDO. Adquisición:",
+            adquisicionEncontrada.id
+        );
+
+        return true;
+    }
+
+    console.log(
+        "ACCESO RECHAZADO: no existe una adquisición aprobada para este curso."
+    );
+
+    return false;
 }
 
 /**

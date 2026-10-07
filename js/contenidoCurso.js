@@ -18,9 +18,15 @@ const listaModulos = document.getElementById("listaModulos");
 const numeroModulo = document.getElementById("numeroModulo");
 const tituloModulo = document.getElementById("tituloModulo");
 const contenedorTemas = document.getElementById("contenedorTemas");
+const btnForoCurso = document.getElementById("btnForoCurso");
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso");
+
+if (btnForoCurso && cursoId) {
+    btnForoCurso.href =
+        `foroCurso.html?curso=${encodeURIComponent(cursoId)}`;
+}
 
 iniciarPagina();
 

@@ -21,9 +21,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 
-// ======================================================
 // ELEMENTOS DEL HTML
-// ======================================================
 
 const estadoCargaForo =
     document.getElementById("estadoCargaForo");
@@ -68,10 +66,7 @@ const sinPublicaciones =
     document.getElementById("sinPublicaciones");
 
 
-// ======================================================
 // OBTENER ID DEL CURSO
-// ======================================================
-
 const parametros =
     new URLSearchParams(window.location.search);
 
@@ -79,18 +74,14 @@ const cursoId =
     parametros.get("curso");
 
 
-// ======================================================
-// VARIABLES GENERALES
-// ======================================================
-
 let usuarioActual = null;
 let datosUsuarioActual = null;
 let cancelarEscuchaPublicaciones = null;
+let cancelarEscuchasRespuestas = [];
 
 
-// ======================================================
 // INICIAR PÁGINA
-// ======================================================
+
 
 iniciarPagina();
 
@@ -631,6 +622,12 @@ function escucharPublicaciones() {
 
 function mostrarPublicaciones(publicaciones) {
 
+    cancelarEscuchasRespuestas.forEach(
+    (cancelar) => cancelar()
+);
+
+    cancelarEscuchasRespuestas = [];
+
     listaPublicaciones.replaceChildren();
 
     cantidadPublicaciones.textContent =
@@ -792,16 +789,437 @@ function crearTarjetaPublicacion(publicacion) {
     cuerpo.appendChild(modulo);
     cuerpo.appendChild(mensaje);
 
-    articulo.appendChild(cuerpo);
+    const separador =
+        document.createElement("hr");
+    separador.className =
+        "my-4";
+
+    cuerpo.appendChild(separador);
+
+    const tituloRespuestas =
+    document.createElement("h3");
+
+tituloRespuestas.className =
+    "h6 fw-bold mb-3";
+
+tituloRespuestas.innerHTML = `
+    <i class="bi bi-reply-fill me-2"></i>
+    Respuestas
+`;
+
+cuerpo.appendChild(tituloRespuestas);
 
 
-    return articulo;
+// Contenedor dinámico de respuestas
+const contenedorRespuestas =
+    document.createElement("div");
+
+contenedorRespuestas.className =
+    "d-flex flex-column gap-2 mb-3";
+
+cuerpo.appendChild(contenedorRespuestas);
+
+
+// Formulario para responder
+const formularioRespuesta =
+    document.createElement("form");
+
+formularioRespuesta.className =
+    "mt-3";
+
+
+const grupoRespuesta =
+    document.createElement("div");
+
+grupoRespuesta.className =
+    "input-group";
+
+
+const campoRespuesta =
+    document.createElement("textarea");
+
+campoRespuesta.className =
+    "form-control";
+
+campoRespuesta.rows = 2;
+
+campoRespuesta.maxLength = 500;
+
+campoRespuesta.placeholder =
+    "Escribí una respuesta...";
+
+campoRespuesta.required = true;
+
+campoRespuesta.setAttribute(
+    "aria-label",
+    "Escribir una respuesta"
+);
+
+
+const botonResponder =
+    document.createElement("button");
+
+botonResponder.type =
+    "submit";
+
+botonResponder.className =
+    "btn btn-primary";
+
+botonResponder.innerHTML = `
+    <i class="bi bi-send-fill me-1"></i>
+    Responder
+`;
+
+
+grupoRespuesta.appendChild(
+    campoRespuesta
+);
+
+grupoRespuesta.appendChild(
+    botonResponder
+);
+
+formularioRespuesta.appendChild(
+    grupoRespuesta
+);
+
+cuerpo.appendChild(
+    formularioRespuesta
+);
+
+
+formularioRespuesta.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        const textoRespuesta =
+            campoRespuesta.value.trim();
+
+
+        if (textoRespuesta.length < 2) {
+            return;
+        }
+
+
+        botonResponder.disabled =
+            true;
+
+        botonResponder.innerHTML = `
+            <span
+                class="spinner-border spinner-border-sm"
+                aria-hidden="true"
+            ></span>
+        `;
+
+
+        try {
+
+            await guardarRespuesta(
+                publicacion,
+                textoRespuesta
+            );
+
+            campoRespuesta.value = "";
+
+        } catch (error) {
+
+            console.error(
+                "Error al guardar la respuesta:",
+                error
+            );
+
+            alert(
+                "No se pudo publicar la respuesta."
+            );
+
+        } finally {
+
+            botonResponder.disabled =
+                false;
+
+            botonResponder.innerHTML = `
+                <i class="bi bi-send-fill me-1"></i>
+                Responder
+            `;
+        }
+    }
+);
+
+articulo.appendChild(cuerpo);
+
+escucharRespuestas(
+    publicacion.id,
+    contenedorRespuestas
+);
+
+return articulo;
+}
+
+async function guardarRespuesta(
+    publicacion,
+    textoRespuesta
+) {
+
+    if (
+        !usuarioActual ||
+        !datosUsuarioActual
+    ) {
+        throw new Error(
+            "USUARIO_NO_AUTENTICADO"
+        );
+    }
+
+
+    const rol =
+        (
+            datosUsuarioActual.tipoUsuario ||
+            datosUsuarioActual.rol ||
+            "estudiante"
+        )
+            .toString()
+            .trim()
+            .toLowerCase();
+
+
+    const nombreAutor =
+        obtenerNombreUsuario(
+            datosUsuarioActual,
+            usuarioActual
+        );
+
+
+    const referenciaRespuestas =
+        collection(
+            db,
+            "cursoscc",
+            cursoId,
+            "foro",
+            publicacion.id,
+            "respuestas"
+        );
+
+
+    await addDoc(
+        referenciaRespuestas,
+        {
+            autorId:
+                usuarioActual.uid,
+
+            autorNombre:
+                nombreAutor,
+
+            autorRol:
+                rol,
+
+            mensaje:
+                textoRespuesta,
+
+            fechaCreacion:
+                serverTimestamp(),
+
+            activo:
+                true
+        }
+    );
 }
 
 
-// ======================================================
+
+// ESCUCHAR RESPUESTAS
+
+function escucharRespuestas(
+    publicacionId,
+    contenedor
+) {
+
+    const referenciaRespuestas =
+        collection(
+            db,
+            "cursoscc",
+            cursoId,
+            "foro",
+            publicacionId,
+            "respuestas"
+        );
+
+
+    const consultaRespuestas =
+        query(
+            referenciaRespuestas,
+            orderBy(
+                "fechaCreacion",
+                "asc"
+            )
+        );
+
+
+    const cancelar =
+        onSnapshot(
+            consultaRespuestas,
+
+            (resultado) => {
+
+                const respuestas =
+                    resultado.docs
+                        .map(
+                            (documento) => ({
+                                id:
+                                    documento.id,
+
+                                ...documento.data()
+                            })
+                        )
+                        .filter(
+                            (respuesta) =>
+                                respuesta.activo !==
+                                false
+                        );
+
+
+                mostrarRespuestas(
+                    respuestas,
+                    contenedor
+                );
+            },
+
+            (error) => {
+
+                console.error(
+                    "Error al cargar respuestas:",
+                    error
+                );
+
+                contenedor.innerHTML = `
+                    <p class="small text-danger mb-0">
+                        No se pudieron cargar las respuestas.
+                    </p>
+                `;
+            }
+        );
+
+
+    cancelarEscuchasRespuestas.push(
+        cancelar
+    );
+}
+
+
+
+// MOSTRAR RESPUESTAS
+
+function mostrarRespuestas(
+    respuestas,
+    contenedor
+) {
+
+    contenedor.replaceChildren();
+
+
+    if (respuestas.length === 0) {
+
+        const mensaje =
+            document.createElement("p");
+
+        mensaje.className =
+            "small text-muted mb-0";
+
+        mensaje.textContent =
+            "Todavía no hay respuestas.";
+
+        contenedor.appendChild(mensaje);
+
+        return;
+    }
+
+
+    respuestas.forEach(
+        (respuesta) => {
+
+            const caja =
+                document.createElement("div");
+
+            caja.className =
+                "border rounded p-3 bg-light";
+
+
+            const encabezado =
+                document.createElement("div");
+
+            encabezado.className =
+                "d-flex justify-content-between align-items-center gap-2 mb-2";
+
+
+            const autor =
+                document.createElement("strong");
+
+            autor.className =
+                "small";
+
+            autor.textContent =
+                respuesta.autorNombre ||
+                "Usuario";
+
+
+            const rol =
+                (
+                    respuesta.autorRol ||
+                    "estudiante"
+                ).toLowerCase();
+
+
+            const etiqueta =
+                document.createElement("span");
+
+            etiqueta.className =
+                rol.includes("docente") ||
+                rol.includes("admin")
+                    ? "badge bg-primary"
+                    : "badge bg-secondary";
+
+            etiqueta.textContent =
+                rol.includes("docente")
+                    ? "Docente"
+                    : rol.includes("admin")
+                        ? "Administrador"
+                        : "Estudiante";
+
+
+            const mensaje =
+                document.createElement("p");
+
+            mensaje.className =
+                "mb-1";
+
+            mensaje.textContent =
+                respuesta.mensaje || "";
+
+
+            const fecha =
+                document.createElement("small");
+
+            fecha.className =
+                "text-muted";
+
+            fecha.textContent =
+                formatearFecha(
+                    respuesta.fechaCreacion
+                );
+
+
+            encabezado.appendChild(autor);
+            encabezado.appendChild(etiqueta);
+
+            caja.appendChild(encabezado);
+            caja.appendChild(mensaje);
+            caja.appendChild(fecha);
+
+            contenedor.appendChild(caja);
+        }
+    );
+}
 // OBTENER NOMBRE DEL USUARIO
-// ======================================================
 
 function obtenerNombreUsuario(
     datosUsuario,
@@ -827,10 +1245,6 @@ function obtenerNombreUsuario(
     );
 }
 
-
-// ======================================================
-// FORMATEAR FECHA
-// ======================================================
 
 function formatearFecha(fecha) {
 
@@ -864,9 +1278,9 @@ function formatearFecha(fecha) {
 }
 
 
-// ======================================================
+
 // MENSAJES DEL FORMULARIO
-// ======================================================
+
 
 function mostrarMensajeFormulario(
     texto,
@@ -880,10 +1294,7 @@ function mostrarMensajeFormulario(
         `alert alert-${tipo} mt-3`;
 }
 
-
-// ======================================================
 // MOSTRAR ERROR GENERAL
-// ======================================================
 
 function mostrarError(mensaje) {
 
@@ -896,10 +1307,7 @@ function mostrarError(mensaje) {
     mensajeErrorForo.classList.remove("d-none");
 }
 
-
-// ======================================================
 // DETENER ESCUCHA AL SALIR
-// ======================================================
 
 window.addEventListener(
     "beforeunload",
@@ -908,5 +1316,9 @@ window.addEventListener(
         if (cancelarEscuchaPublicaciones) {
             cancelarEscuchaPublicaciones();
         }
+        cancelarEscuchasRespuestas.forEach(
+            (cancelar) => cancelar()
+        );      
+        cancelarEscuchasRespuestas = [];
     }
 );

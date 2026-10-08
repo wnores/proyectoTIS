@@ -175,77 +175,87 @@
     </header>
 
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-grow-1">
+<!-- CONTENIDO PRINCIPAL -->
+<main class="flex-grow-1">
 
-        <section
-            class="container py-4"
-            aria-labelledby="tituloMisCursos">
+    <!-- ENCABEZADO -->
+    <section class="hero" aria-labelledby="tituloMisCursos">
+
+        <div class="container py-5">
 
             <div class="row justify-content-center">
 
-                <div class="col-12 col-xl-10">
+                <div class="col-lg-10 text-center">
 
-                    <!-- ENCABEZADO -->
-                    <div class="text-center mb-4">
+                    <h1 id="tituloMisCursos" class="mb-4">
+                        Mis cursos
+                    </h1>
 
-                        <h1
-                            id="tituloMisCursos"
-                            class="fw-bold mb-2">
-
-                            Mis cursos
-                        </h1>
-
-                        <p class="text-muted mb-0">
-                            Consultá tus cursos adquiridos y accedé al contenido
-                            cuando tu inscripción esté aprobada.
-                        </p>
-
-                    </div>
-
-
-                    <!-- MENSAJES -->
-                    <div
-                        id="mensajeMisCursos"
-                        class="mb-4">
-                    </div>
-
-
-                    <!-- CARGANDO -->
-                    <div
-                        id="cargandoMisCursos"
-                        class="text-center py-5">
-
-                        <div
-                            class="spinner-border text-success"
-                            role="status">
-
-                            <span class="visually-hidden">
-                                Cargando...
-                            </span>
-
-                        </div>
-
-                        <p class="text-muted mt-3 mb-0">
-                            Cargando tus cursos...
-                        </p>
-
-                    </div>
-
-
-                    <!-- CONTENEDOR DE CURSOS -->
-                    <div
-                        id="contenedorMisCursos"
-                        class="row g-4 d-none">
-                    </div>
+                    <p class="fs-5 fw-bold">
+                        Accedé a los cursos que adquiriste y continuá tu formación.
+                    </p>
 
                 </div>
 
             </div>
 
-        </section>
+        </div>
 
-    </main>
+    </section>
+
+
+    <!-- CURSOS ADQUIRIDOS -->
+    <section class="py-5" aria-labelledby="tituloCursosAdquiridos">
+
+        <div class="container mis-cursos-container">
+
+            <h2
+                id="tituloCursosAdquiridos"
+                class="text-center mb-5">
+                Cursos adquiridos
+            </h2>
+
+
+            <!-- MENSAJES -->
+            <div
+                id="mensajeMisCursos"
+                class="mb-4">
+            </div>
+
+
+            <!-- CARGANDO -->
+            <div
+                id="cargandoMisCursos"
+                class="text-center py-5">
+
+                <div
+                    class="spinner-border text-success"
+                    role="status">
+
+                    <span class="visually-hidden">
+                        Cargando...
+                    </span>
+
+                </div>
+
+                <p class="text-muted mt-3 mb-0">
+                    Cargando tus cursos...
+                </p>
+
+            </div>
+
+
+            <!-- CONTENEDOR DE CURSOS -->
+            <div
+                id="contenedorMisCursos"
+                class="row g-4 d-none">
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
 
 
     <!-- FOOTER -->

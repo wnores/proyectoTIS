@@ -24,12 +24,21 @@ const imagenCurso = document.getElementById("imagenCurso");
 const nombreImagenCurso = document.getElementById("nombreImagenCurso");
 const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
 
+// Campos de la Actividad Final (PDF)
+const actividadPdf = document.getElementById("actividadPdf");
+const nombreActividadPdf = document.getElementById("nombreActividadPdf");
+const contenedorPreviaPdf = document.getElementById("contenedorPreviaPdf");
+const enlacePdfActual = document.getElementById("enlacePdfActual");
+
 const contenedorModulos = document.getElementById("contenedorModulos");
 const btnAgregarModulo = document.getElementById("btnAgregarModulo");
 
 let cursoSeleccionadoId = null;
 let archivoImagenCurso = null;
 let urlImagenActual = "";
+
+let archivoActividadPdf = null;
+let urlPdfActual = "";
 
 let listaModulos = [];
 let modulosEliminados = [];
@@ -57,6 +66,30 @@ if (imagenCurso) {
             vistaPreviaCurso.src = URL.createObjectURL(archivo);
             vistaPreviaCurso.classList.remove("d-none");
         }
+    });
+}
+
+// Evento para validar y capturar el archivo PDF exclusivo
+if (actividadPdf) {
+    actividadPdf.addEventListener("change", (event) => {
+        const archivo = event.target.files[0];
+
+        if (!archivo) {
+            archivoActividadPdf = null;
+            if (nombreActividadPdf) nombreActividadPdf.textContent = "No se seleccionó ningún archivo PDF.";
+            return;
+        }
+
+        if (archivo.type !== "application/pdf") {
+            alert("Por favor, seleccioná un archivo en formato PDF.");
+            actividadPdf.value = "";
+            archivoActividadPdf = null;
+            if (nombreActividadPdf) nombreActividadPdf.textContent = "No se seleccionó ningún archivo PDF.";
+            return;
+        }
+
+        archivoActividadPdf = archivo;
+        if (nombreActividadPdf) nombreActividadPdf.textContent = `Archivo seleccionado: ${archivo.name}`;
     });
 }
 
@@ -146,6 +179,7 @@ if (selectorCurso) {
         const id = selectorCurso.value;
 
         archivoImagenCurso = null;
+        archivoActividadPdf = null;
         listaModulos = [];
         modulosEliminados = [];
         temasEliminados = [];
@@ -158,10 +192,15 @@ if (selectorCurso) {
             vistaPreviaCurso.removeAttribute("src");
         }
 
+        if (actividadPdf) actividadPdf.value = "";
+        if (nombreActividadPdf) nombreActividadPdf.textContent = "No se seleccionó ningún archivo PDF.";
+        if (contenedorPreviaPdf) contenedorPreviaPdf.classList.add("d-none");
+
         if (!id) {
             if (formModificarCurso) formModificarCurso.classList.add("d-none");
             cursoSeleccionadoId = null;
             urlImagenActual = "";
+            urlPdfActual = "";
             return;
         }
 
@@ -177,6 +216,7 @@ if (selectorCurso) {
             const curso = snap.data();
             cursoSeleccionadoId = id;
             urlImagenActual = curso.URL_imagen ?? curso.imagen_url ?? "";
+            urlPdfActual = curso.actividad_pdf_url ?? curso.actividadPdf ?? curso.actividad ?? "";
 
             document.getElementById("titulo").value = curso.titulo ?? "";
             document.getElementById("descripcion").value = curso.descripcion ?? "";
@@ -194,6 +234,14 @@ if (selectorCurso) {
                 vistaPreviaCurso.classList.remove("d-none");
                 if (nombreImagenCurso) {
                     nombreImagenCurso.textContent = "Imagen actual del curso (elegí un archivo para reemplazarla).";
+                }
+            }
+
+            if (urlPdfActual && enlacePdfActual && contenedorPreviaPdf) {
+                enlacePdfActual.href = urlPdfActual;
+                contenedorPreviaPdf.classList.remove("d-none");
+                if (nombreActividadPdf) {
+                    nombreActividadPdf.textContent = "PDF actual registrado (puedes adjuntar uno nuevo para reemplazarlo).";
                 }
             }
 
@@ -263,9 +311,6 @@ async function cargarModulosDelCurso(idCurso) {
     }
 }
 
-/**
- * Renderiza la paginación por módulo y solo el módulo de la página activa
- */
 function renderizarModulos() {
     if (!contenedorModulos) return;
     contenedorModulos.innerHTML = '';
@@ -292,7 +337,6 @@ function renderizarModulos() {
         t.orden = idx + 1;
     });
 
-    // --- CONTROLES DE PAGINACIÓN / NAVEGACIÓN ENTRE MÓDULOS ---
     const divNavegacion = document.createElement('div');
     divNavegacion.className = 'mb-3 bg-light p-3 rounded border shadow-sm';
 
@@ -316,7 +360,6 @@ function renderizarModulos() {
         </div>
     `;
 
-    // --- CARD DEL MÓDULO ACTUAL ---
     const divModulo = document.createElement('div');
     divModulo.className = 'card border-secondary shadow-sm p-3 mb-3';
     divModulo.innerHTML = `
@@ -332,7 +375,6 @@ function renderizarModulos() {
         <input type="text" class="form-control input-nombre-modulo" data-index="${indexModulo}" value="${mod.nombre}" placeholder="Ej. Introducción a la programación" required>
       </div>
 
-      <!-- TEMAS DEL MÓDULO -->
       <div class="mb-3 border p-3 rounded bg-light">
         <label class="form-label fw-bold text-dark fs-6">
           <i class="bi bi-journal-text me-1"></i> Temas del Módulo
@@ -358,7 +400,6 @@ function renderizarModulos() {
                 <textarea class="form-control input-descripcion-tema" data-mod-index="${indexModulo}" data-tema-index="${indexTema}" rows="2" placeholder="Resumen de lo que aborda este tema">${tema.descripcion}</textarea>
               </div>
 
-              <!-- Objetivos del Tema -->
               <div class="mb-3 p-2 bg-light rounded border">
                 <label class="form-label small fw-bold text-secondary">Objetivos del Tema:</label>
                 <div>
@@ -374,7 +415,6 @@ function renderizarModulos() {
                 </button>
               </div>
 
-              <!-- Recursos del Tema -->
               <div class="p-2 bg-light rounded border">
                 <label class="form-label small fw-bold text-secondary">Recursos del Tema:</label>
                 <div>
@@ -415,7 +455,6 @@ function renderizarModulos() {
       </div>
     `;
 
-    // --- CONTROLES DE NAVEGACIÓN (ANTERIOR / SIGUIENTE) ---
     const divFooterPaginacion = document.createElement('div');
     divFooterPaginacion.className = 'd-flex justify-content-between align-items-center mt-3';
 
@@ -648,9 +687,15 @@ if (formModificarCurso) {
 
         try {
             let urlImagenFinal = urlImagenActual;
+            let urlPdfFinal = urlPdfActual;
 
             if (archivoImagenCurso) {
                 urlImagenFinal = await subirImagenACloudinary(archivoImagenCurso);
+            }
+
+            // Subida directa apuntando exclusivamente a RAW para archivos PDF
+            if (archivoActividadPdf) {
+                urlPdfFinal = await subirPdfACloudinary(archivoActividadPdf);
             }
 
             // 1. Guardar datos principales del curso en 'cursoscc'
@@ -661,7 +706,8 @@ if (formModificarCurso) {
                 precio: precio,
                 duracion_horas: duracionHoras,
                 cupos_disponibles: cuposDisponibles,
-                URL_imagen: urlImagenFinal
+                URL_imagen: urlImagenFinal,
+                actividad_pdf_url: urlPdfFinal
             });
 
             // 2. Eliminar módulos y temas marcados para borrar
@@ -687,7 +733,6 @@ if (formModificarCurso) {
                 for (let j = 0; j < mod.temas.length; j++) {
                     const tema = mod.temas[j];
 
-                    // Omitir solo si el tema no tiene ningún tipo de información
                     const estaCompletamenteVacio =
                         !(tema.nombre && tema.nombre.trim()) &&
                         !(tema.descripcion && tema.descripcion.trim()) &&
@@ -710,7 +755,6 @@ if (formModificarCurso) {
                     arrayNombresTemas.push(nombreLimpio);
                 }
 
-                // Estructura del Módulo: en el array 'temas' se guardan SOLO los nombres
                 const datosModulo = {
                     numero: i + 1,
                     nombre: (mod.nombre || "").trim(),
@@ -727,7 +771,6 @@ if (formModificarCurso) {
                     mod.id = targetModuloId;
                 }
 
-                // 4. Guardar/Actualizar en la subcolección 'temas' con el detalle completo
                 const temasRef = collection(db, "cursoscc", cursoSeleccionadoId, "modulos", targetModuloId, "temas");
 
                 for (let j = 0; j < arrayTemasObjetos.length; j++) {
@@ -746,6 +789,11 @@ if (formModificarCurso) {
             archivoImagenCurso = null;
             if (imagenCurso) imagenCurso.value = "";
             if (nombreImagenCurso) nombreImagenCurso.textContent = "No se seleccionó ninguna imagen nueva.";
+
+            urlPdfActual = urlPdfFinal;
+            archivoActividadPdf = null;
+            if (actividadPdf) actividadPdf.value = "";
+            if (nombreActividadPdf) nombreActividadPdf.textContent = "No se seleccionó ningún archivo PDF.";
 
             mostrarMensaje("El curso, sus módulos y temas se guardaron correctamente. Redirigiendo...", "success");
 
@@ -799,6 +847,27 @@ async function subirImagenACloudinary(archivo) {
 
     if (!respuesta.ok) {
         throw new Error("No se pudo subir la imagen.");
+    }
+
+    const datos = await respuesta.json();
+    return datos.secure_url;
+}
+
+async function subirPdfACloudinary(archivo) {
+    const datosFormulario = new FormData();
+    datosFormulario.append("file", archivo);
+    datosFormulario.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const respuesta = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+            method: "POST",
+            body: datosFormulario
+        }
+    );
+
+    if (!respuesta.ok) {
+        throw new Error("No se pudo subir el archivo PDF a Cloudinary.");
     }
 
     const datos = await respuesta.json();

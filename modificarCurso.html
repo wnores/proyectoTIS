@@ -172,13 +172,36 @@
                                         <img id="vistaPreviaCurso" class="img-fluid rounded d-none" style="max-height: 220px;" alt="Vista previa de la imagen del curso">
                                     </div>
 
-                                    <!-- MÓDULOS -->
                                     <div class="mb-4">
                                         <h2 class="h5">Módulos del curso</h2>
                                         <div id="contenedorModulos"></div>
                                         <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarModulo">
                                             <i class="bi bi-plus-circle me-1"></i> Agregar módulo
                                         </button>
+                                    </div>
+
+                                   
+                                    <div class="mb-4 border p-3 rounded bg-light">
+                                        <h2 class="h5 mb-2"><i class="bi bi-file-earmark-pdf text-danger me-1"></i> Actividad Final</h2>
+                                        <p class="text-muted small mb-3">Adjuntá una consigna o evaluación en formato PDF para este curso.</p>
+                                        
+                                        <div class="mb-2">
+                                            <label for="actividadPdf" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-paperclip me-1"></i> Adjuntar PDF
+                                            </label>
+                                            <input type="file" id="actividadPdf" class="d-none" accept="application/pdf">
+                                        </div>
+
+                                        <p id="nombreActividadPdf" class="form-text text-muted mb-2">
+                                            No se seleccionó ningún archivo PDF.
+                                        </p>
+
+                                        <!-- Previsualización / enlace al PDF cargado previamente -->
+                                        <div id="contenedorPreviaPdf" class="d-none mt-2">
+                                            <a id="enlacePdfActual" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Ver PDF actual
+                                            </a>
+                                        </div>
                                     </div>
 
                                     <!-- BOTONES -->

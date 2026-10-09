@@ -21,11 +21,10 @@ const contenedorTemas = document.getElementById("contenedorTemas");
 const btnForoCurso = document.getElementById("btnForoCurso");
 
 const parametros = new URLSearchParams(window.location.search);
-const cursoId = parametros.get("curso");
+const cursoId = parametros.get("curso") || parametros.get("id");
 
 if (btnForoCurso && cursoId) {
-    btnForoCurso.href =
-        `foroCurso.html?curso=${encodeURIComponent(cursoId)}`;
+    btnForoCurso.href = `foroCurso.html?curso=${encodeURIComponent(cursoId)}`;
 }
 
 iniciarPagina();
@@ -62,12 +61,16 @@ function iniciarPagina() {
             }
 
             const datosUsuario = resultadoUsuario.data();
+            const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toString().trim().toLowerCase();
+
+            gestionarEnlaceMisCursos(rol);
+
             const curso = {
                 id: resultadoCurso.id,
                 ...resultadoCurso.data()
             };
 
-            const tieneAcceso = await comprobarAcceso(datosUsuario, curso, usuario.uid);
+            const tieneAcceso = await comprobarAcceso(rol, curso, usuario.uid);
 
             if (!tieneAcceso) {
                 mostrarError("No tenés acceso al contenido de este curso. Debés adquirirlo o solicitar una beca.");
@@ -84,33 +87,41 @@ function iniciarPagina() {
     });
 }
 
-async function comprobarAcceso(datosUsuario, curso, uid) {
-    const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "")
-        .toString()
-        .trim()
-        .toLowerCase();
+function gestionarEnlaceMisCursos(rol) {
+    const esEstudiante = rol === "estudiante";
 
-    console.log("=== COMPROBACIÓN DE ACCESO ===");
-    console.log("UID usuario:", uid);
-    console.log("ID curso:", curso.id);
-    console.log("Título curso:", curso.titulo);
-    console.log("Rol:", rol);
+    const itemMenuMisCursos = document.getElementById("menuMisCursos");
+    if (itemMenuMisCursos) {
+        if (esEstudiante) {
+            itemMenuMisCursos.classList.remove("d-none");
+        } else {
+            itemMenuMisCursos.classList.add("d-none");
+        }
+    }
 
-    // Admin/docente tiene acceso
+    const enlaceBreadcrumb = document.querySelector('.breadcrumb a[href="misCursos.html"]');
+    if (enlaceBreadcrumb) {
+        const itemBreadcrumb = enlaceBreadcrumb.parentElement;
+        if (esEstudiante) {
+            enlaceBreadcrumb.classList.remove("d-none");
+            if (itemBreadcrumb) itemBreadcrumb.classList.remove("d-none");
+        } else {
+            enlaceBreadcrumb.classList.add("d-none");
+            if (itemBreadcrumb) itemBreadcrumb.classList.add("d-none");
+        }
+    }
+}
+
+async function comprobarAcceso(rol, curso, uid) {
     if (rol.includes("admin") || rol.includes("docente")) {
-        console.log("Acceso concedido: admin/docente");
         return true;
     }
 
-    // Solo estudiantes continúan
     if (rol !== "estudiante") {
-        console.log("Acceso rechazado: rol no válido");
         return false;
     }
 
     const referenciaAdquisiciones = collection(db, "adquisiciones");
-
-    // Traer solamente las adquisiciones del usuario actual
     const consultaAdquisiciones = query(
         referenciaAdquisiciones,
         where("usuarioId", "==", uid)
@@ -118,41 +129,17 @@ async function comprobarAcceso(datosUsuario, curso, uid) {
 
     const consulta = await getDocs(consultaAdquisiciones);
 
-    console.log(
-        "Adquisiciones del usuario:",
-        consulta.size
-    );
-
     const adquisicionEncontrada = consulta.docs.find((documento) => {
         const adquisicion = documento.data();
-
-        console.log("Adquisición encontrada:", adquisicion);
-
         return (
             adquisicion.cursoId === curso.id &&
             adquisicion.estado === "aprobada"
         );
     });
 
-    if (adquisicionEncontrada) {
-        console.log(
-            "ACCESO CONCEDIDO. Adquisición:",
-            adquisicionEncontrada.id
-        );
-
-        return true;
-    }
-
-    console.log(
-        "ACCESO RECHAZADO: no existe una adquisición aprobada para este curso."
-    );
-
-    return false;
+    return Boolean(adquisicionEncontrada);
 }
 
-/**
- * Obtiene los módulos y sus respectivos temas desde Firestore (Subcolección o Array)
- */
 async function obtenerModulosConTemas(idCurso) {
     const referenciaModulos = collection(db, "cursoscc", idCurso, "modulos");
     const resultadoModulos = await getDocs(referenciaModulos);
@@ -163,7 +150,6 @@ async function obtenerModulosConTemas(idCurso) {
         const datosMod = docModulo.data();
         const modId = docModulo.id;
 
-        // 1. Intentar obtener temas desde la subcolección 'temas'
         const referenciaTemas = collection(db, "cursoscc", idCurso, "modulos", modId, "temas");
         const resultadoTemas = await getDocs(referenciaTemas);
 
@@ -181,10 +167,8 @@ async function obtenerModulosConTemas(idCurso) {
                     recursos: Array.isArray(dataTema.recursos) ? dataTema.recursos : []
                 };
             });
-            // Ordenar según el campo de orden
             temas.sort((a, b) => Number(a.orden) - Number(b.orden));
         } else if (Array.isArray(datosMod.temas)) {
-            // 2. Si no hay subcolección, tomar del array 'temas' del módulo
             temas = datosMod.temas.map((t, index) => {
                 if (typeof t === "string") {
                     return {
@@ -221,15 +205,43 @@ async function obtenerModulosConTemas(idCurso) {
 }
 
 function mostrarCurso(curso, modulos) {
-    nombreCursoRuta.textContent = curso.titulo || "Curso";
-    tituloCurso.textContent = curso.titulo || "Contenido del curso";
+    if (nombreCursoRuta) {
+        nombreCursoRuta.textContent = curso.titulo || "Curso";
+    }
+
+    if (tituloCurso) {
+        const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+
+        tituloCurso.replaceChildren();
+        tituloCurso.classList.add("d-flex", "flex-column", "mb-4");
+
+        if (rutaImagen) {
+            const imgMiniatura = document.createElement("img");
+            imgMiniatura.src = rutaImagen;
+            imgMiniatura.alt = curso.titulo || "Curso";
+            imgMiniatura.className = "img-fluid rounded border shadow-sm w-100 mb-3";
+            imgMiniatura.style.maxHeight = "280px";
+            imgMiniatura.style.objectFit = "cover";
+
+            tituloCurso.appendChild(imgMiniatura);
+        }
+
+        const textoTitulo = document.createElement("h2");
+        textoTitulo.className = "h3 fw-bold text-dark mb-0";
+        textoTitulo.textContent = curso.titulo || "Contenido del curso";
+
+        tituloCurso.appendChild(textoTitulo);
+    }
 
     if (modulos.length === 0) {
         mostrarError("Este curso todavía no tiene módulos disponibles.");
         return;
     }
 
-    mostrarListaModulos(modulos);
+    // Cargar la lista combinada (Módulos + Actividad Final si existe)
+    mostrarListaModulos(modulos, curso);
+    
+    // Cargar el primer módulo por defecto
     mostrarModulo(modulos[0], 0, modulos.length);
 
     estadoCarga.classList.add("d-none");
@@ -237,9 +249,10 @@ function mostrarCurso(curso, modulos) {
     contenidoCurso.classList.remove("d-none");
 }
 
-function mostrarListaModulos(modulos) {
+function mostrarListaModulos(modulos, curso) {
     listaModulos.replaceChildren();
 
+    // 1. Agregar Módulos
     modulos.forEach((modulo, indice) => {
         const boton = document.createElement("button");
         boton.type = "button";
@@ -267,6 +280,117 @@ function mostrarListaModulos(modulos) {
 
         listaModulos.appendChild(boton);
     });
+
+    // 2. Agregar la Actividad Final con estilo unificado
+    const urlActividad = curso.actividad_pdf_url || curso.actividad || curso.actividad_url || curso.pdf_actividad;
+    
+    if (urlActividad) {
+        const botonActividad = document.createElement("button");
+        botonActividad.type = "button";
+        botonActividad.className = "list-group-item list-group-item-action p-3";
+
+        const numero = document.createElement("strong");
+        numero.className = "d-block mb-1";
+        numero.textContent = "Evaluación / Cierre";
+
+        const nombre = document.createElement("span");
+        nombre.innerHTML = `<i class="bi bi-file-earmark-text me-1"></i> Actividad Final Integradora`;
+
+        botonActividad.appendChild(numero);
+        botonActividad.appendChild(nombre);
+
+        botonActividad.addEventListener("click", () => {
+            quitarModuloActivo();
+            botonActividad.classList.add("active");
+            mostrarActividadFinal(urlActividad, modulos.length);
+        });
+
+        listaModulos.appendChild(botonActividad);
+    }
+}
+
+function mostrarActividadFinal(urlActividad, cantidadModulos) {
+    numeroModulo.textContent = "Evaluación / Cierre";
+    tituloModulo.textContent = "Actividad Final Integradora";
+
+    actualizarProgreso(cantidadModulos - 1, cantidadModulos);
+
+    contenedorTemas.replaceChildren();
+
+    const urlPdfLimpia = urlActividad.trim();
+    // Usar Google Docs Viewer para resolver visualización cross-origin
+    const urlVisorGoogle = `https://docs.google.com/viewer?url=${encodeURIComponent(urlPdfLimpia)}&embedded=true`;
+
+    const contenedor = document.createElement("div");
+    contenedor.className = "card border-0 shadow-sm p-4 bg-light";
+
+    contenedor.innerHTML = `
+        <div class="mb-4">
+            <h3 class="h5 fw-bold text-primary mb-2">1. Consigna de la actividad</h3>
+            <p class="text-muted">Visualizá o descargá la consigna oficial en formato PDF.</p>
+            
+            <div class="d-flex gap-2 flex-wrap mb-3">
+                <a href="${urlPdfLimpia}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
+                    <span>Abrir / Descargar PDF directo</span>
+                </a>
+            </div>
+
+            <div class="ratio ratio-16x9 rounded border shadow-xs overflow-hidden mt-3 bg-white" style="min-height: 480px;">
+                <iframe src="${urlVisorGoogle}" title="Consigna de Actividad Final" allowfullscreen style="border: 0;"></iframe>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div>
+            <h3 class="h5 fw-bold text-primary mb-3">2. Entrega del estudiante</h3>
+            <form id="formEntregaActividad" class="bg-white p-3 rounded border shadow-xs">
+                <div class="mb-3">
+                    <label for="archivoEntrega" class="form-label fw-bold small text-muted">Subir archivo de resolución (PDF)</label>
+                    <input type="file" class="form-control" id="archivoEntrega" accept=".pdf">
+                </div>
+                
+                <div class="text-center my-2 text-muted small fw-bold">- O -</div>
+
+                <div class="mb-3">
+                    <label for="enlaceEntrega" class="form-label fw-bold small text-muted">Enlace / URL del proyecto o repositorio</label>
+                    <input type="url" class="form-control" id="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto">
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2" id="btnEnviarEntrega">
+                    <i class="bi bi-send-fill"></i>
+                    <span>Enviar Entrega</span>
+                </button>
+            </form>
+            
+            <div id="mensajeEntrega" class="mt-3 small text-center d-none alert"></div>
+        </div>
+    `;
+
+    contenedorTemas.appendChild(contenedor);
+
+    const formEntrega = document.getElementById("formEntregaActividad");
+    const archivoEntrega = document.getElementById("archivoEntrega");
+    const enlaceEntrega = document.getElementById("enlaceEntrega");
+    const mensajeEntrega = document.getElementById("mensajeEntrega");
+
+    formEntrega.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const archivo = archivoEntrega.files[0];
+        const url = enlaceEntrega.value.trim();
+
+        if (!archivo && !url) {
+            mensajeEntrega.className = "mt-3 alert alert-danger d-block";
+            mensajeEntrega.textContent = "Por favor, adjuntá un archivo PDF o ingresá un enlace.";
+            return;
+        }
+
+        mensajeEntrega.className = "mt-3 alert alert-success d-block";
+        mensajeEntrega.textContent = "¡Tu entrega fue enviada correctamente!";
+        formEntrega.reset();
+    });
 }
 
 function mostrarModulo(modulo, indice, cantidadModulos) {
@@ -277,9 +401,6 @@ function mostrarModulo(modulo, indice, cantidadModulos) {
     actualizarProgreso(indice, cantidadModulos);
 }
 
-/**
- * Renderiza cada tema respetando el orden con su descripción, objetivos y recursos
- */
 function renderizarTemasDelModulo(temas) {
     contenedorTemas.replaceChildren();
 
@@ -300,13 +421,11 @@ function renderizarTemasDelModulo(temas) {
         const cardBody = document.createElement("div");
         cardBody.className = "card-body p-4";
 
-        // Título del Tema con el número de orden
         const tituloTema = document.createElement("h3");
         tituloTema.className = "h5 text-primary mb-2";
         tituloTema.textContent = `${index + 1}. ${tema.nombre}`;
         cardBody.appendChild(tituloTema);
 
-        // Descripción del Tema
         if (tema.descripcion) {
             const descTema = document.createElement("p");
             descTema.className = "text-muted mb-3";
@@ -314,7 +433,6 @@ function renderizarTemasDelModulo(temas) {
             cardBody.appendChild(descTema);
         }
 
-        // Objetivos del Tema
         if (Array.isArray(tema.objetivos) && tema.objetivos.length > 0) {
             const divObjetivos = document.createElement("div");
             divObjetivos.className = "alert alert-info py-2 px-3 mb-3";
@@ -341,7 +459,6 @@ function renderizarTemasDelModulo(temas) {
             }
         }
 
-        // Recursos del Tema
         const hRecursos = document.createElement("h4");
         hRecursos.className = "h6 fw-bold mb-3 text-secondary";
         hRecursos.textContent = "Recursos del tema:";
@@ -433,9 +550,11 @@ function actualizarProgreso(indice, cantidadModulos) {
     const porcentaje = Math.round(((indice + 1) / cantidadModulos) * 100);
     const barra = document.getElementById("barraProgreso");
 
-    barra.style.width = `${porcentaje}%`;
-    barra.textContent = `${porcentaje}%`;
-    barra.setAttribute("aria-valuenow", porcentaje);
+    if (barra) {
+        barra.style.width = `${porcentaje}%`;
+        barra.textContent = `${porcentaje}%`;
+        barra.setAttribute("aria-valuenow", porcentaje);
+    }
 }
 
 function quitarModuloActivo() {

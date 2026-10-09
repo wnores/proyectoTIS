@@ -13,6 +13,35 @@ import {
 
 let cancelarEscuchaNotificaciones = null;
 
+/**
+ * Actualiza los enlaces de las tarjetas en Cursos Destacados según el rol del usuario.
+ * @param {string|null} rol - Rol del usuario actual ('estudiante', 'docente', 'admin', etc.)
+ */
+function actualizarEnlacesCursosDestacados(rol) {
+  const rolLimpio = (rol || "").toLowerCase().trim();
+  const esAdminODocente = rolLimpio.includes("docente") || rolLimpio.includes("admin");
+
+  // Selecciona los enlaces de los cursos destacados (Soporta botones directos y tarjetas con enlace)
+  const enlacesCursos = document.querySelectorAll('.destacados .curso-card a');
+
+  enlacesCursos.forEach(enlace => {
+    try {
+      const url = new URL(enlace.href, window.location.origin);
+      const cursoId = url.searchParams.get("id");
+
+      if (cursoId) {
+        if (esAdminODocente) {
+          enlace.href = `contenidoCurso.html?id=${cursoId}`;
+        } else {
+          enlace.href = `descripcionDeCurso.html?id=${cursoId}`;
+        }
+      }
+    } catch (e) {
+      console.error("Error al actualizar enlace del curso:", e);
+    }
+  });
+}
+
 onAuthStateChanged(auth, async (user) => {
   const grupoIngresar = document.getElementById("grupIngresar");
   const grupoRegistrarse = document.getElementById("grupoRegistrarse");
@@ -77,6 +106,9 @@ onAuthStateChanged(auth, async (user) => {
           }
         }
 
+        // ACTUALIZAR ENLACES DE TARJETAS DE CURSOS
+        actualizarEnlacesCursosDestacados(rol);
+
       } else {
         if (nombreUsuario) {
           nombreUsuario.textContent =
@@ -84,8 +116,6 @@ onAuthStateChanged(auth, async (user) => {
             user.email.split("@")[0];
         }
 
-        // Si no existe el documento del usuario,
-        // no mostramos opciones administrativas.
         if (menuAdminCursos) {
           menuAdminCursos.classList.add("d-none");
         }
@@ -93,6 +123,8 @@ onAuthStateChanged(auth, async (user) => {
         if (menuMisCursos) {
           menuMisCursos.classList.remove("d-none");
         }
+
+        actualizarEnlacesCursosDestacados(null);
       }
 
     } catch (error) {
@@ -114,6 +146,8 @@ onAuthStateChanged(auth, async (user) => {
       if (menuMisCursos) {
         menuMisCursos.classList.remove("d-none");
       }
+
+      actualizarEnlacesCursosDestacados(null);
     }
 
   } else {
@@ -131,6 +165,9 @@ onAuthStateChanged(auth, async (user) => {
     if (menuMisCursos) {
       menuMisCursos.classList.add("d-none");
     }
+
+    // SIN SESIÓN: Redirigir a descripción de curso
+    actualizarEnlacesCursosDestacados(null);
   }
 });
 
@@ -177,7 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
-// Notificación docente
+
+// NOTIFICACIÓN DOCENTE
 function iniciarNotificacionesDocente(grupoUsuario) {
 
   if (!grupoUsuario) {
@@ -336,8 +374,6 @@ function iniciarNotificacionesDocente(grupoUsuario) {
 
 
 // MOSTRAR NOTIFICACIONES
-
-
 function mostrarNotificacionesDocente(
   notificaciones
 ) {
@@ -499,8 +535,6 @@ function mostrarNotificacionesDocente(
 
 
 // DETENER NOTIFICACIONES
-
-
 function detenerNotificacionesDocente() {
 
   if (cancelarEscuchaNotificaciones) {
@@ -527,8 +561,6 @@ function detenerNotificacionesDocente() {
 
 
 // OBTENER FECHA EN MILISEGUNDOS
-
-
 function obtenerMilisegundos(fecha) {
 
   if (!fecha) {
@@ -555,8 +587,6 @@ function obtenerMilisegundos(fecha) {
 
 
 // FORMATEAR FECHA DE NOTIFICACIÓN
-
-
 function formatearFechaNotificacion(fecha) {
 
   if (!fecha) {

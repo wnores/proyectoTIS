@@ -14,10 +14,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 
-// ============================================================
-// OBTENER CURSO DESDE LA URL
-// ============================================================
-
 function obtenerCursoDesdeURL() {
 
     const parametros =
@@ -25,11 +21,6 @@ function obtenerCursoDesdeURL() {
 
     return parametros.get("curso");
 }
-
-
-// ============================================================
-// NOTIFICACIÓN DE ÉXITO
-// ============================================================
 
 function mostrarNotificacionExito() {
 
@@ -53,12 +44,7 @@ function mostrarNotificacionExito() {
     }, 5000);
 }
 
-
-// ============================================================
-// CONTROLAR ACCESO AL BOTÓN "SOLICITAR BECA"
-// ============================================================
-
-function controlarAccesoBoton(usuario) {
+async function controlarAccesoBoton(usuario) {
 
     const botonSolicitar =
         document.getElementById("btnSolicitarBeca");
@@ -67,13 +53,28 @@ function controlarAccesoBoton(usuario) {
         return;
     }
 
-    botonSolicitar.disabled = !usuario;
+    if (!usuario) {
+        botonSolicitar.disabled = true;
+        return;
+    }
+
+    try {
+        const datosUsuario = await obtenerDatosUsuario(usuario.uid);
+        
+        const rol = (
+            datosUsuario?.tipoUsuario ||
+            datosUsuario?.rol ||
+            ""
+        ).toLowerCase().trim();
+        const esEstudiante = rol === "estudiante";
+
+        botonSolicitar.disabled = !esEstudiante;
+
+    } catch (error) {
+        console.error("Error al verificar rol para solicitar beca:", error);
+        botonSolicitar.disabled = true;
+    }
 }
-
-
-// ============================================================
-// CARGAR CURSOS EN EL SELECT
-// ============================================================
 
 async function cargarCursosEnSelect(cursoSeleccionado = null) {
 
@@ -120,28 +121,15 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
                 opcion.textContent =
                     curso.titulo || "Curso sin título";
 
-                // --------------------------------------------
-                // PRESELECCIONAR CURSO
-                // --------------------------------------------
-
                 if (
                     cursoSeleccionado &&
                     documento.id === cursoSeleccionado
                 ) {
-
                     opcion.selected = true;
-
                 }
-
                 selectCurso.appendChild(opcion);
             }
-
         });
-
-
-        // ----------------------------------------------------
-        // VERIFICAR SI EL CURSO EXISTE
-        // ----------------------------------------------------
 
         if (cursoSeleccionado) {
 
@@ -153,23 +141,18 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
                     );
 
             if (!cursoExiste) {
-
                 console.warn(
                     "El curso indicado en la URL no existe o no está activo:",
                     cursoSeleccionado
                 );
-
             }
-
         }
 
     } catch (error) {
-
         console.error(
             "Error al cargar los cursos:",
             error
         );
-
         selectCurso.innerHTML = `
             <option value="">
                 No se pudieron cargar los cursos
@@ -177,11 +160,6 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
         `;
     }
 }
-
-
-// ============================================================
-// OBTENER DATOS DEL USUARIO
-// ============================================================
 
 async function obtenerDatosUsuario(uid) {
 
@@ -194,43 +172,27 @@ async function obtenerDatosUsuario(uid) {
             await getDoc(referenciaUsuario);
 
         if (documentoUsuario.exists()) {
-
             return documentoUsuario.data();
-
         }
-
         return null;
-
     } catch (error) {
-
         console.error(
             "Error al obtener el usuario:",
             error
         );
-
         return null;
     }
 }
 
-
-// ============================================================
-// INICIALIZAR FORMULARIO
-// ============================================================
-
 function inicializarFormularioBeca(usuario) {
-
     const formulario =
         document.getElementById("formularioBeca");
-
     if (!formulario) {
-
         console.error(
             "No se encontró el formulario #formularioBeca."
         );
-
         return;
     }
-
 
     const campoNombre =
         document.getElementById("nombre");
@@ -243,11 +205,6 @@ function inicializarFormularioBeca(usuario) {
             'button[type="submit"]'
         );
 
-
-    // --------------------------------------------------------
-    // DATOS DEL USUARIO
-    // --------------------------------------------------------
-
     if (campoCorreo) {
 
         campoCorreo.value =
@@ -255,49 +212,31 @@ function inicializarFormularioBeca(usuario) {
 
     }
 
-
     obtenerDatosUsuario(usuario.uid)
         .then((datosUsuario) => {
-
             if (
                 datosUsuario &&
                 campoNombre
             ) {
-
                 campoNombre.value =
                     `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
-
             }
-
         })
         .catch((error) => {
-
             console.error(
                 "Error al obtener datos del usuario:",
                 error
             );
-
         });
 
-
-    // --------------------------------------------------------
-    // EVITAR DUPLICAR EVENTO
-    // --------------------------------------------------------
 
     if (
         formulario.dataset.eventoRegistrado === "true"
     ) {
-
         return;
-
     }
 
     formulario.dataset.eventoRegistrado = "true";
-
-
-    // --------------------------------------------------------
-    // ENVÍO
-    // --------------------------------------------------------
 
     formulario.addEventListener(
         "submit",
@@ -333,11 +272,6 @@ function inicializarFormularioBeca(usuario) {
                     .getElementById("motivo")
                     .value
                     .trim();
-
-
-            // ------------------------------------------------
-            // VALIDACIONES
-            // ------------------------------------------------
 
             if (!nombre) {
 
@@ -408,11 +342,6 @@ function inicializarFormularioBeca(usuario) {
                     }
                 );
 
-
-                // --------------------------------------------
-                // GUARDAR SOLICITUD
-                // --------------------------------------------
-
                 await addDoc(
                     collection(
                         db,
@@ -438,17 +367,7 @@ function inicializarFormularioBeca(usuario) {
                     }
                 );
 
-
-                // --------------------------------------------
-                // ÉXITO
-                // --------------------------------------------
-
                 mostrarNotificacionExito();
-
-
-                // --------------------------------------------
-                // LIMPIAR FORMULARIO
-                // --------------------------------------------
 
                 document
                     .getElementById("curso")
@@ -506,29 +425,18 @@ function inicializarFormularioBeca(usuario) {
     );
 }
 
-
-// ============================================================
-// AUTENTICACIÓN
-// ============================================================
-
 onAuthStateChanged(
     auth,
     async (usuario) => {
 
         if (!usuario) {
 
-            controlarAccesoBoton(null);
+            await controlarAccesoBoton(null);
 
             return;
         }
 
-
-        controlarAccesoBoton(usuario);
-
-
-        // ----------------------------------------------------
-        // OBTENER CURSO DESDE LA URL
-        // ----------------------------------------------------
+        await controlarAccesoBoton(usuario);
 
         const cursoDesdeURL =
             obtenerCursoDesdeURL();
@@ -539,19 +447,9 @@ onAuthStateChanged(
             cursoDesdeURL
         );
 
-
-        // ----------------------------------------------------
-        // CARGAR CURSOS Y PRESELECCIONAR
-        // ----------------------------------------------------
-
         await cargarCursosEnSelect(
             cursoDesdeURL
         );
-
-
-        // ----------------------------------------------------
-        // INICIALIZAR FORMULARIO
-        // ----------------------------------------------------
 
         inicializarFormularioBeca(usuario);
 

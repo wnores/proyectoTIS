@@ -1,5 +1,6 @@
-import { db } from "./firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
   const contenedor = document.getElementById('listaCursos');
@@ -18,8 +19,31 @@ document.addEventListener('DOMContentLoaded', () => {
   let todosLosCursos = [];
   let paginaActual = 1;
   const cursosPorPagina = 6;
+  
+  let rolUsuario = "estudiante";
 
-  cargarCategoriasYCursos();
+  detectarRolEIniciar();
+
+  function detectarRolEIniciar() {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, "usuarios", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const datos = docSnap.data();
+            rolUsuario = (datos.tipoUsuario || datos.rol || "estudiante").toLowerCase().trim();
+          }
+        } catch (error) {
+          console.error("Error al obtener rol del usuario:", error);
+        }
+      } else {
+        rolUsuario = "estudiante";
+      }
+
+      cargarCategoriasYCursos();
+    });
+  }
 
   formBuscar.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -53,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       mostrarMensaje('Cargando catálogo...');
 
-      // Consulta a la colección 'cursoscc'
       const resultadoCursos = await getDocs(collection(db, 'cursoscc'));
       todosLosCursos = resultadoCursos.docs.map(doc => ({
         ...doc.data(),
@@ -278,8 +301,15 @@ document.addEventListener('DOMContentLoaded', () => {
     tarjeta.querySelector('.js-precio').textContent = precioFormateado;
     tarjeta.querySelector('.js-cupos').textContent = curso.cupos_disponibles ?? 0;
     
-    const btnVerMas = tarjeta.querySelector('.js-ver-mas');
-    btnVerMas.href = `descripcionDeCurso.html?id=${curso.id}`;
+    const btnVerMas = tarjeta.querySelector('.js-ver-curso');
+    
+    // Si el usuario es admin o docente, va a ver la estructura directamente a contenidoCurso.html
+    // Si es estudiante o visitante sin loguear, va a la ficha de compra/descripción
+    if (rolUsuario.includes("admin") || rolUsuario.includes("docente")) {
+      btnVerMas.href = `contenidoCurso.html?id=${curso.id}`;
+    } else {
+      btnVerMas.href = `descripcionDeCurso.html?id=${curso.id}`;
+    }
 
     return tarjeta;
   }

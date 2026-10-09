@@ -299,7 +299,72 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // ======================================================
-  // VALIDACIÓN NÚMERO DE TARJETA
+  // FUNCIONES DE VALIDACIÓN INDIVIDUAL CON FEEDBACK VISUAL
+  // ======================================================
+
+  function aplicarClasesValidacion(input, esValido) {
+    if (!input) return;
+    
+    if (input.value.trim() === "") {
+      input.classList.remove("is-valid", "is-invalid");
+      return;
+    }
+
+    if (esValido) {
+      input.classList.add("is-valid");
+      input.classList.remove("is-invalid");
+    } else {
+      input.classList.add("is-invalid");
+      input.classList.remove("is-valid");
+    }
+  }
+
+  function esVencimientoValido(vencimientoTexto) {
+    if (!vencimientoTexto || vencimientoTexto.length !== 5) {
+      return false;
+    }
+
+    const [mesTexto, anioTexto] = vencimientoTexto.split("/");
+    const mes = parseInt(mesTexto, 10);
+    const anio2D = parseInt(anioTexto, 10);
+
+    if (isNaN(mes) || mes < 1 || mes > 12 || isNaN(anio2D)) {
+      return false;
+    }
+
+    const anioIngresado = 2000 + anio2D;
+
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth() + 1;
+
+    if (anioIngresado < anioActual) {
+      return false;
+    }
+
+    if (anioIngresado === anioActual && mes < mesActual) {
+      return false;
+    }
+
+    return true;
+  }
+
+
+  // ======================================================
+  // VALIDACIÓN NOMBRE (SÓLO LETRAS Y ESPACIOS)
+  // ======================================================
+
+  if (inputNombre) {
+    inputNombre.addEventListener("input", (e) => {
+      // Elimina cualquier carácter que no sea una letra (con tildes/ñ) o espacio
+      e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+      validarFormulario();
+    });
+  }
+
+
+  // ======================================================
+  // VALIDACIÓN NÚMERO DE TARJETA (16 DÍGITOS)
   // ======================================================
 
   if (inputNumero) {
@@ -314,8 +379,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             ""
           );
 
+        valor = valor.substring(0, 16);
 
-        valor =
+        const valorFormateado =
           valor
             .replace(
               /(.{4})/g,
@@ -323,13 +389,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             )
             .trim();
 
-
-        e.target.value =
-          valor.substring(
-            0,
-            19
-          );
-
+        e.target.value = valorFormateado;
 
         validarFormulario();
       }
@@ -338,7 +398,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // ======================================================
-  // VALIDACIÓN VENCIMIENTO
+  // VALIDACIÓN VENCIMIENTO (MAYOR O IGUAL A LA FECHA ACTUAL)
   // ======================================================
 
   if (inputVencimiento) {
@@ -372,19 +432,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         validarFormulario();
       }
-    );
-  }
-
-
-  // ======================================================
-  // VALIDACIÓN NOMBRE
-  // ======================================================
-
-  if (inputNombre) {
-
-    inputNombre.addEventListener(
-      "input",
-      validarFormulario
     );
   }
 
@@ -479,7 +526,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // ======================================================
-  // VALIDAR FORMULARIO
+  // VALIDAR FORMULARIO GENERAL
   // ======================================================
 
   function validarFormulario() {
@@ -514,11 +561,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (metodo === "tarjeta") {
 
-      const nombreValido =
-        inputNombre &&
-        inputNombre.value
-          .trim()
-          .length >= 3;
+      const nombreTexto = inputNombre ? inputNombre.value.trim() : "";
+      // Valida que tenga al menos 3 caracteres y contenga únicamente letras/espacios
+      const nombreValido = nombreTexto.length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombreTexto);
 
 
       const numeroLimpio =
@@ -530,16 +575,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           : "";
 
 
-      const numeroValido =
-        numeroLimpio.length >= 15 &&
-        numeroLimpio.length <= 16;
+      const numeroValido = numeroLimpio.length === 16;
 
 
       const vencimientoValido =
         inputVencimiento &&
-        inputVencimiento.value
-          .trim()
-          .length === 5;
+        esVencimientoValido(inputVencimiento.value.trim());
 
 
       const cvvValido =
@@ -548,6 +589,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           .trim()
           .length >= 3;
 
+      // Aplicar clases de estado visual en tiempo real
+      aplicarClasesValidacion(inputNombre, nombreValido);
+      aplicarClasesValidacion(inputNumero, numeroValido);
+      aplicarClasesValidacion(inputVencimiento, vencimientoValido);
+      aplicarClasesValidacion(inputCvv, cvvValido);
 
       btnConfirmar.disabled =
         !(

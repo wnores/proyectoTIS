@@ -3,11 +3,15 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/f
 import {
     doc,
     getDoc,
+    setDoc,
     collection,
     getDocs,
     query,
     where
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
+const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
 const estadoCarga = document.getElementById("estadoCarga");
 const mensajeError = document.getElementById("mensajeError");
@@ -22,6 +26,9 @@ const btnForoCurso = document.getElementById("btnForoCurso");
 
 const parametros = new URLSearchParams(window.location.search);
 const cursoId = parametros.get("curso") || parametros.get("id");
+
+let rolUsuarioActual = "";
+let datosUsuarioActual = null;
 
 if (btnForoCurso && cursoId) {
     btnForoCurso.href = `foroCurso.html?curso=${encodeURIComponent(cursoId)}`;
@@ -60,17 +67,17 @@ function iniciarPagina() {
                 return;
             }
 
-            const datosUsuario = resultadoUsuario.data();
-            const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toString().trim().toLowerCase();
+            datosUsuarioActual = { uid: usuario.uid, ...resultadoUsuario.data() };
+            rolUsuarioActual = (datosUsuarioActual.tipoUsuario || datosUsuarioActual.rol || "").toString().trim().toLowerCase();
 
-            gestionarEnlaceMisCursos(rol);
+            gestionarEnlaceMisCursos(rolUsuarioActual);
 
             const curso = {
                 id: resultadoCurso.id,
                 ...resultadoCurso.data()
             };
 
-            const tieneAcceso = await comprobarAcceso(rol, curso, usuario.uid);
+            const tieneAcceso = await comprobarAcceso(rolUsuarioActual, curso, usuario.uid);
 
             if (!tieneAcceso) {
                 mostrarError("No tenés acceso al contenido de este curso. Debés adquirirlo o solicitar una beca.");
@@ -238,10 +245,7 @@ function mostrarCurso(curso, modulos) {
         return;
     }
 
-    // Cargar la lista combinada (Módulos + Actividad Final si existe)
     mostrarListaModulos(modulos, curso);
-    
-    // Cargar el primer módulo por defecto
     mostrarModulo(modulos[0], 0, modulos.length);
 
     estadoCarga.classList.add("d-none");
@@ -252,7 +256,6 @@ function mostrarCurso(curso, modulos) {
 function mostrarListaModulos(modulos, curso) {
     listaModulos.replaceChildren();
 
-    // 1. Agregar Módulos
     modulos.forEach((modulo, indice) => {
         const boton = document.createElement("button");
         boton.type = "button";
@@ -281,71 +284,162 @@ function mostrarListaModulos(modulos, curso) {
         listaModulos.appendChild(boton);
     });
 
-    // 2. Agregar la Actividad Final con estilo unificado
-    const urlActividad = curso.actividad_pdf_url || curso.actividad || curso.actividad_url || curso.pdf_actividad;
+    const urlActividad = curso.actividad_pdf_url || curso.actividad || curso.actividad_url || curso.pdf_actividad || "";
     
-    if (urlActividad) {
-        const botonActividad = document.createElement("button");
-        botonActividad.type = "button";
-        botonActividad.className = "list-group-item list-group-item-action p-3";
+    const botonActividad = document.createElement("button");
+    botonActividad.type = "button";
+    botonActividad.className = "list-group-item list-group-item-action p-3";
 
-        const numero = document.createElement("strong");
-        numero.className = "d-block mb-1";
-        numero.textContent = "Evaluación / Cierre";
+    const numero = document.createElement("strong");
+    numero.className = "d-block mb-1";
+    numero.textContent = "Evaluación / Cierre";
 
-        const nombre = document.createElement("span");
-        nombre.innerHTML = `<i class="bi bi-file-earmark-text me-1"></i> Actividad Final Integradora`;
+    const nombre = document.createElement("span");
+    nombre.innerHTML = `<i class="bi bi-file-earmark-text me-1"></i> Actividad Final Integradora`;
 
-        botonActividad.appendChild(numero);
-        botonActividad.appendChild(nombre);
+    botonActividad.appendChild(numero);
+    botonActividad.appendChild(nombre);
 
-        botonActividad.addEventListener("click", () => {
-            quitarModuloActivo();
-            botonActividad.classList.add("active");
-            mostrarActividadFinal(urlActividad, modulos.length);
-        });
+    botonActividad.addEventListener("click", () => {
+        quitarModuloActivo();
+        botonActividad.classList.add("active");
+        mostrarActividadFinal(urlActividad, modulos.length);
+    });
 
-        listaModulos.appendChild(botonActividad);
-    }
+    listaModulos.appendChild(botonActividad);
 }
 
-function mostrarActividadFinal(urlActividad, cantidadModulos) {
+async function mostrarActividadFinal(urlActividad, cantidadModulos) {
     numeroModulo.textContent = "Evaluación / Cierre";
     tituloModulo.textContent = "Actividad Final Integradora";
 
     actualizarProgreso(cantidadModulos - 1, cantidadModulos);
-
     contenedorTemas.replaceChildren();
 
-    const urlPdfLimpia = urlActividad.trim();
-    // Usar Google Docs Viewer para resolver visualización cross-origin
-    const urlVisorGoogle = `https://docs.google.com/viewer?url=${encodeURIComponent(urlPdfLimpia)}&embedded=true`;
+    const esAdminODocente = rolUsuarioActual.includes("admin") || rolUsuarioActual.includes("docente");
+    const tieneConsignaDocente = Boolean(urlActividad && urlActividad.trim() !== "");
 
     const contenedor = document.createElement("div");
     contenedor.className = "card border-0 shadow-sm p-4 bg-light";
 
-    contenedor.innerHTML = `
-        <div class="mb-4">
-            <h3 class="h5 fw-bold text-primary mb-2">1. Consigna de la actividad</h3>
-            <p class="text-muted">Visualizá o descargá la consigna oficial en formato PDF.</p>
-            
-            <div class="d-flex gap-2 flex-wrap mb-3">
-                <a href="${urlPdfLimpia}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
-                    <span>Abrir / Descargar PDF directo</span>
-                </a>
-            </div>
+    let htmlConsigna = '';
+    if (tieneConsignaDocente) {
+        const urlPdfLimpia = urlActividad.trim();
+        const urlVisorGoogle = `https://docs.google.com/viewer?url=${encodeURIComponent(urlPdfLimpia)}&embedded=true`;
 
-            <div class="ratio ratio-16x9 rounded border shadow-xs overflow-hidden mt-3 bg-white" style="min-height: 480px;">
-                <iframe src="${urlVisorGoogle}" title="Consigna de Actividad Final" allowfullscreen style="border: 0;"></iframe>
+        htmlConsigna = `
+            <div class="mb-4">
+                <h3 class="h5 fw-bold text-primary mb-2">1. Consigna de la actividad</h3>
+                <p class="text-muted">Visualizá o descargá la consigna oficial en formato PDF.</p>
+                
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <a href="${urlPdfLimpia}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
+                        <span>Abrir / Descargar PDF directo</span>
+                    </a>
+                </div>
+
+                <div class="ratio ratio-16x9 rounded border shadow-xs overflow-hidden mt-3 bg-white" style="min-height: 480px;">
+                    <iframe src="${urlVisorGoogle}" title="Consigna de Actividad Final" allowfullscreen style="border: 0;"></iframe>
+                </div>
+            </div>
+            <hr class="my-4">
+        `;
+    } else {
+        htmlConsigna = `
+            <div class="alert alert-warning mb-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                El docente aún no ha adjuntado un documento de consigna para este curso.
+            </div>
+        `;
+    }
+
+    contenedor.innerHTML = `
+        ${htmlConsigna}
+        <div id="seccionEntregaYCalificacion" class="mt-4">
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                <span class="ms-2 small text-muted">Cargando estado...</span>
             </div>
         </div>
+    `;
 
-        <hr class="my-4">
+    contenedorTemas.appendChild(contenedor);
 
-        <div>
+    const seccionDinamica = document.getElementById("seccionEntregaYCalificacion");
+
+    if (esAdminODocente) {
+        await renderizarSeccionAdministrador(seccionDinamica);
+    } else {
+        if (!tieneConsignaDocente) {
+            // Si es estudiante y no hay consigna guardada, NO se habilita el formulario de carga
+            seccionDinamica.innerHTML = '';
+        } else {
+            await renderizarSeccionEstudiante(seccionDinamica);
+        }
+    }
+}
+
+async function renderizarSeccionEstudiante(contenedor) {
+    try {
+        if (!datosUsuarioActual || !datosUsuarioActual.uid) {
+            contenedor.innerHTML = `<div class="alert alert-danger">No se pudo verificar la información del estudiante.</div>`;
+            return;
+        }
+
+        const refEntrega = doc(db, "cursoscc", cursoId, "entregas", datosUsuarioActual.uid);
+        let entrega = null;
+
+        try {
+            const snapEntrega = await getDoc(refEntrega);
+            if (snapEntrega.exists()) {
+                entrega = snapEntrega.data();
+            }
+        } catch (eDoc) {
+            console.warn("No existía entrega previa registrada:", eDoc);
+        }
+
+        let htmlCalificacion = '';
+        if (entrega && entrega.nota !== undefined && entrega.nota !== null) {
+            htmlCalificacion = `
+                <div class="alert alert-success border-success mb-4 p-3 shadow-sm">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-award-fill fs-4 text-success"></i>
+                        <h4 class="h5 m-0 fw-bold text-success">Calificación Asignada</h4>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark mb-2">Nota: <span class="badge bg-success">${entrega.nota} / 10</span></div>
+                    ${entrega.comentario ? `<p class="mb-0 text-secondary"><strong>Devolución del docente:</strong> ${entrega.comentario}</p>` : ''}
+                </div>
+            `;
+        } else if (entrega) {
+            htmlCalificacion = `
+                <div class="alert alert-warning mb-4 p-3">
+                    <i class="bi bi-hourglass-split me-2 fs-5"></i>
+                    <strong>Entrega enviada.</strong> Tu trabajo está pendiente de calificación por parte del docente.
+                </div>
+            `;
+        }
+
+        let htmlArchivosEnviados = '';
+        if (entrega) {
+            htmlArchivosEnviados = `
+                <div class="p-3 bg-light rounded border mb-3">
+                    <h5 class="h6 fw-bold mb-2 text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>Tu entrega realizada:</h5>
+                    ${entrega.archivoUrl ? `<a href="${entrega.archivoUrl}" target="_blank" class="btn btn-sm btn-outline-danger me-2 mb-1"><i class="bi bi-file-earmark-pdf me-1"></i>Ver PDF enviado</a>` : ''}
+                    ${entrega.enlaceUrl ? `<a href="${entrega.enlaceUrl}" target="_blank" class="btn btn-sm btn-outline-primary mb-1"><i class="bi bi-link-45deg me-1"></i>Ver enlace enviado</a>` : ''}
+                    <div class="form-text text-muted small mt-1">Fecha de envío: ${entrega.fechaEnvio ? new Date(entrega.fechaEnvio).toLocaleString() : 'Registrada'}</div>
+                </div>
+            `;
+        }
+
+        contenedor.innerHTML = `
             <h3 class="h5 fw-bold text-primary mb-3">2. Entrega del estudiante</h3>
+            ${htmlCalificacion}
+            ${htmlArchivosEnviados}
+            
             <form id="formEntregaActividad" class="bg-white p-3 rounded border shadow-xs">
+                <h5 class="h6 fw-bold mb-3 text-secondary">${entrega ? 'Reemplazar / Reenviar entrega' : 'Realizar entrega'}</h5>
+                
                 <div class="mb-3">
                     <label for="archivoEntrega" class="form-label fw-bold small text-muted">Subir archivo de resolución (PDF)</label>
                     <input type="file" class="form-control" id="archivoEntrega" accept=".pdf">
@@ -355,42 +449,213 @@ function mostrarActividadFinal(urlActividad, cantidadModulos) {
 
                 <div class="mb-3">
                     <label for="enlaceEntrega" class="form-label fw-bold small text-muted">Enlace / URL del proyecto o repositorio</label>
-                    <input type="url" class="form-control" id="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto">
+                    <input type="url" class="form-control" id="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto" value="${entrega?.enlaceUrl || ''}">
                 </div>
 
                 <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2" id="btnEnviarEntrega">
                     <i class="bi bi-send-fill"></i>
-                    <span>Enviar Entrega</span>
+                    <span>${entrega ? 'Actualizar Entrega' : 'Enviar Entrega'}</span>
                 </button>
             </form>
             
             <div id="mensajeEntrega" class="mt-3 small text-center d-none alert"></div>
-        </div>
-    `;
+        `;
 
-    contenedorTemas.appendChild(contenedor);
+        const formEntrega = document.getElementById("formEntregaActividad");
+        const archivoEntrega = document.getElementById("archivoEntrega");
+        const enlaceEntrega = document.getElementById("enlaceEntrega");
+        const mensajeEntrega = document.getElementById("mensajeEntrega");
+        const btnEnviar = document.getElementById("btnEnviarEntrega");
 
-    const formEntrega = document.getElementById("formEntregaActividad");
-    const archivoEntrega = document.getElementById("archivoEntrega");
-    const enlaceEntrega = document.getElementById("enlaceEntrega");
-    const mensajeEntrega = document.getElementById("mensajeEntrega");
+        formEntrega.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-    formEntrega.addEventListener("submit", (e) => {
-        e.preventDefault();
+            const archivo = archivoEntrega.files[0];
+            const url = enlaceEntrega.value.trim();
 
-        const archivo = archivoEntrega.files[0];
-        const url = enlaceEntrega.value.trim();
+            if (!archivo && !url) {
+                mensajeEntrega.className = "mt-3 alert alert-danger d-block";
+                mensajeEntrega.textContent = "Por favor, adjuntá un archivo PDF o ingresá un enlace.";
+                return;
+            }
 
-        if (!archivo && !url) {
-            mensajeEntrega.className = "mt-3 alert alert-danger d-block";
-            mensajeEntrega.textContent = "Por favor, adjuntá un archivo PDF o ingresá un enlace.";
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...`;
+
+            try {
+                let archivoUrl = entrega?.archivoUrl || "";
+
+                if (archivo) {
+                    archivoUrl = await subirPdfACloudinary(archivo);
+                }
+
+                const refDoc = doc(db, "cursoscc", cursoId, "entregas", datosUsuarioActual.uid);
+                await setDoc(refDoc, {
+                    usuarioId: datosUsuarioActual.uid,
+                    nombreEstudiante: datosUsuarioActual.nombre || datosUsuarioActual.email || "Estudiante",
+                    emailEstudiante: datosUsuarioActual.email || "",
+                    archivoUrl: archivoUrl,
+                    enlaceUrl: url,
+                    fechaEnvio: new Date().toISOString(),
+                    nota: entrega?.nota ?? null,
+                    comentario: entrega?.comentario ?? ""
+                }, { merge: true });
+
+                mensajeEntrega.className = "mt-3 alert alert-success d-block";
+                mensajeEntrega.textContent = "¡Tu entrega se guardó correctamente!";
+
+                setTimeout(() => {
+                    renderizarSeccionEstudiante(contenedor);
+                }, 1500);
+
+            } catch (err) {
+                console.error("Error al guardar entrega:", err);
+                mensajeEntrega.className = "mt-3 alert alert-danger d-block";
+                mensajeEntrega.textContent = "Ocurrió un error al guardar la entrega. Volvé a intentarlo.";
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML = `<i class="bi bi-send-fill"></i><span>Enviar Entrega</span>`;
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al obtener el estado de la entrega:", error);
+        contenedor.innerHTML = `<div class="alert alert-danger">No se pudo obtener el estado de tu entrega.</div>`;
+    }
+}
+
+async function renderizarSeccionAdministrador(contenedor) {
+    try {
+        const refEntregas = collection(db, "cursoscc", cursoId, "entregas");
+        const snapEntregas = await getDocs(refEntregas);
+
+        if (snapEntregas.empty) {
+            contenedor.innerHTML = `
+                <h3 class="h5 fw-bold text-primary mb-3">2. Calificación de Entregas</h3>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>Aún ningún estudiante ha realizado una entrega para este curso.
+                </div>
+            `;
             return;
         }
 
-        mensajeEntrega.className = "mt-3 alert alert-success d-block";
-        mensajeEntrega.textContent = "¡Tu entrega fue enviada correctamente!";
-        formEntrega.reset();
-    });
+        let htmlLista = '';
+        snapEntregas.forEach((docSnap) => {
+            const data = docSnap.data();
+            const estUid = docSnap.id;
+
+            htmlLista += `
+                <div class="card mb-3 border shadow-xs">
+                    <div class="card-body p-3">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                            <span class="fw-bold text-dark fs-6">
+                                <i class="bi bi-person-circle me-1 text-primary"></i> ${data.nombreEstudiante || 'Estudiante'} (${data.emailEstudiante || estUid})
+                            </span>
+                            <span class="badge ${data.nota !== undefined && data.nota !== null ? 'bg-success' : 'bg-warning text-dark'}">
+                                ${data.nota !== undefined && data.nota !== null ? `Calificado: ${data.nota}/10` : 'Pendiente de revisión'}
+                            </span>
+                        </div>
+
+                        <div class="mb-3 bg-light p-2 rounded border small">
+                            <strong>Archivos entregados:</strong><br>
+                            ${data.archivoUrl ? `<a href="${data.archivoUrl}" target="_blank" class="btn btn-sm btn-outline-danger me-2 mt-1"><i class="bi bi-file-earmark-pdf me-1"></i>Ver PDF enviado</a>` : ''}
+                            ${data.enlaceUrl ? `<a href="${data.enlaceUrl}" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="bi bi-link-45deg me-1"></i>Ver Enlace</a>` : ''}
+                            <div class="text-muted mt-1">Fecha: ${data.fechaEnvio ? new Date(data.fechaEnvio).toLocaleString() : 'N/D'}</div>
+                        </div>
+
+                        <form class="form-calificar-estudiante bg-white p-2 rounded border" data-uid="${estUid}">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold mb-1">Nota (0 a 10):</label>
+                                    <input type="number" class="form-control form-control-sm input-nota" min="0" max="10" step="0.5" value="${data.nota ?? ''}" required placeholder="Ej: 8.5">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold mb-1">Devolución / Comentario:</label>
+                                    <input type="text" class="form-control form-control-sm input-comentario" value="${data.comentario || ''}" placeholder="Ej: Excelente desarrollo del proyecto.">
+                                </div>
+                                <div class="col-12 col-md-3 text-end mt-md-4">
+                                    <button type="submit" class="btn btn-primary btn-sm w-100 btn-guardar-nota">
+                                        <i class="bi bi-check-circle me-1"></i> Guardar Nota
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mensaje-calificacion mt-2 small text-center d-none alert py-1 mb-0"></div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        });
+
+        contenedor.innerHTML = `
+            <h3 class="h5 fw-bold text-primary mb-3"><i class="bi bi-journal-check me-2"></i>2. Calificación de Entregas (${snapEntregas.size})</h3>
+            <p class="text-muted small mb-3">Revisá las entregas de los alumnos y asignales su correspondiente nota y comentario.</p>
+            ${htmlLista}
+        `;
+
+        document.querySelectorAll(".form-calificar-estudiante").forEach((formulario) => {
+            formulario.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const estUid = formulario.dataset.uid;
+                const inputNota = formulario.querySelector(".input-nota");
+                const inputComentario = formulario.querySelector(".input-comentario");
+                const btnSubmit = formulario.querySelector(".btn-guardar-nota");
+                const msgBox = formulario.querySelector(".mensaje-calificacion");
+
+                const notaVal = Number(inputNota.value);
+                const comentarioVal = inputComentario.value.trim();
+
+                btnSubmit.disabled = true;
+
+                try {
+                    const refDoc = doc(db, "cursoscc", cursoId, "entregas", estUid);
+                    await setDoc(refDoc, {
+                        nota: notaVal,
+                        comentario: comentarioVal,
+                        fechaCalificacion: new Date().toISOString()
+                    }, { merge: true });
+
+                    msgBox.className = "mensaje-calificacion mt-2 small text-center alert alert-success py-1 mb-0 d-block";
+                    msgBox.textContent = "¡Calificación guardada con éxito!";
+
+                    setTimeout(() => {
+                        msgBox.className = "mensaje-calificacion mt-2 small text-center d-none alert py-1 mb-0";
+                        btnSubmit.disabled = false;
+                    }, 2000);
+
+                } catch (errorCal) {
+                    console.error("Error al guardar calificación:", errorCal);
+                    msgBox.className = "mensaje-calificacion mt-2 small text-center alert alert-danger py-1 mb-0 d-block";
+                    msgBox.textContent = "Error al guardar la nota.";
+                    btnSubmit.disabled = false;
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error("Error al listar entregas para el administrador:", error);
+        contenedor.innerHTML = `<div class="alert alert-danger">No se pudieron cargar las entregas para su revisión.</div>`;
+    }
+}
+
+async function subirPdfACloudinary(archivo) {
+    const datosFormulario = new FormData();
+    datosFormulario.append("file", archivo);
+    datosFormulario.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const respuesta = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`,
+        {
+            method: "POST",
+            body: datosFormulario
+        }
+    );
+
+    if (!respuesta.ok) {
+        throw new Error("No se pudo subir el archivo PDF.");
+    }
+
+    const datos = await respuesta.json();
+    return datos.secure_url;
 }
 
 function mostrarModulo(modulo, indice, cantidadModulos) {

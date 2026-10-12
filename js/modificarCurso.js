@@ -867,7 +867,7 @@ async function subirPdfACloudinary(archivo) {
     );
 
     if (!respuesta.ok) {
-        throw new Error("No se pudo subir el archivo PDF a Cloudinary.");
+        throw new Error("No se pudo subir el archivo PDF a Cloudinary");
     }
 
     const datos = await respuesta.json();

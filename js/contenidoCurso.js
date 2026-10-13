@@ -7,7 +7,9 @@ import {
     collection,
     getDocs,
     query,
-    where
+    where,
+    writeBatch,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
@@ -246,7 +248,12 @@ function mostrarCurso(curso, modulos) {
     }
 
     mostrarListaModulos(modulos, curso);
-    mostrarModulo(modulos[0], 0, modulos.length);
+
+    if (parametros.get("actividad") === "final") {
+        listaModulos.lastElementChild.click();
+    } else {
+        mostrarModulo(modulos[0], 0, modulos.length);
+    }
 
     estadoCarga.classList.add("d-none");
     mensajeError.classList.add("d-none");
@@ -490,16 +497,43 @@ async function renderizarSeccionEstudiante(contenedor) {
                 }
 
                 const refDoc = doc(db, "cursoscc", cursoId, "entregas", datosUsuarioActual.uid);
-                await setDoc(refDoc, {
+                const refNotificacion = doc(collection(db, "notificaciones")
+                );
+
+                const nombreEstudiante = [
+                    datosUsuarioActual.nombre,
+                    datosUsuarioActual.apellido
+                ].filter(Boolean).join(" ") || auth.currentUser.email || "Estudiante";
+
+                const lote = writeBatch(db);
+
+                lote.set(refDoc, {
                     usuarioId: datosUsuarioActual.uid,
-                    nombreEstudiante: datosUsuarioActual.nombre || datosUsuarioActual.email || "Estudiante",
-                    emailEstudiante: datosUsuarioActual.email || "",
+                    nombreEstudiante: nombreEstudiante,
+                    emailEstudiante: datosUsuarioActual.email || auth.currentUser.email || "",
                     archivoUrl: archivoUrl,
                     enlaceUrl: url,
-                    fechaEnvio: new Date().toISOString(),
-                    nota: entrega?.nota ?? null,
-                    comentario: entrega?.comentario ?? ""
+                    fechaEnvio: new Date().toISOString()
                 }, { merge: true });
+
+
+                lote.set(refNotificacion, {
+                    tipo: "entrega",
+                    destinatarioRol: "docente/admin",
+                    estudianteId: datosUsuarioActual.uid,
+                    autorNombre: nombreEstudiante,
+                    cursoId: cursoId,
+                    cursoTitulo: nombreCursoRuta.textContent || "Curso",
+                    titulo: entrega
+                        ? "Entrega actualizada para revisar"
+                        : "Nueva entrega para calificar",
+                    leida: false,
+                    fechaCreacion: serverTimestamp(),
+                    enlace:
+                        `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
+                });
+
+                await lote.commit();
 
                 mensajeEntrega.className = "mt-3 alert alert-success d-block";
                 mensajeEntrega.textContent = "¡Tu entrega se guardó correctamente!";
@@ -604,15 +638,55 @@ async function renderizarSeccionAdministrador(contenedor) {
                 const notaVal = Number(inputNota.value);
                 const comentarioVal = inputComentario.value.trim();
 
+                if (
+                    inputNota.value.trim() === "" ||
+                    !Number.isFinite(notaVal) ||
+                    notaVal < 0 ||
+                    notaVal > 10
+                ) {
+                    inputNota.reportValidity();
+                    return;
+                }
+
                 btnSubmit.disabled = true;
 
                 try {
-                    const refDoc = doc(db, "cursoscc", cursoId, "entregas", estUid);
-                    await setDoc(refDoc, {
+                    const refDoc = doc(
+                        db,
+                        "cursoscc",
+                        cursoId,
+                        "entregas",
+                        estUid
+                    );
+
+                    const refNotificacion = doc(
+                        collection(db, "notificaciones")
+                    );
+
+                    const lote = writeBatch(db);
+
+                    lote.set(refDoc, {
                         nota: notaVal,
                         comentario: comentarioVal,
                         fechaCalificacion: new Date().toISOString()
                     }, { merge: true });
+
+                    lote.set(refNotificacion, {
+                        tipo: "calificacion",
+                        destinatarioRol: "estudiante",
+                        destinatarioId: estUid,
+                        cursoId: cursoId,
+                        cursoTitulo: nombreCursoRuta.textContent || "Tu curso",
+                        titulo: "Tu actividad fue calificada",
+                        nota: notaVal,
+                        leida: false,
+                        fechaCreacion: serverTimestamp(),
+                        enlace:
+                            `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
+                    });
+
+    
+                    await lote.commit();
 
                     msgBox.className = "mensaje-calificacion mt-2 small text-center alert alert-success py-1 mb-0 d-block";
                     msgBox.textContent = "¡Calificación guardada con éxito!";

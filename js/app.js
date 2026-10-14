@@ -31,9 +31,9 @@ function actualizarEnlacesCursosDestacados(rol) {
 
       if (cursoId) {
         if (esAdminODocente) {
-          enlace.href = `contenidoCurso.html?id=${cursoId}`;
+          enlace.href = `contenidoCurso.html?id=${encodeURIComponent(cursoId)}`;
         } else {
-          enlace.href = `descripcionDeCurso.html?id=${cursoId}`;
+          enlace.href = `descripcionDeCurso.html?id=${encodeURIComponent(cursoId)}`;
         }
       }
     } catch (e) {
@@ -49,6 +49,8 @@ onAuthStateChanged(auth, async (user) => {
   const nombreUsuario = document.getElementById("nombreUsuario");
   const menuAdminCursos = document.getElementById("menuAdminCursos");
   const menuMisCursos = document.getElementById("menuMisCursos");
+
+  detenerNotificacionesDocente();
   
   if (user) {
     if (grupoIngresar) grupoIngresar.classList.add("d-none");
@@ -84,6 +86,8 @@ onAuthStateChanged(auth, async (user) => {
 
         if (esAdminODocente) {
           iniciarNotificacionesDocente(grupoUsuario);
+        } else if (rol === "estudiante") {
+  iniciarNotificacionesDocente(grupoUsuario, user.uid);
         } else {
           detenerNotificacionesDocente();
         }
@@ -216,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // NOTIFICACIÓN DOCENTE
-function iniciarNotificacionesDocente(grupoUsuario) {
+function iniciarNotificacionesDocente(grupoUsuario, estudianteUid = null) {
 
   if (!grupoUsuario) {
     return;
@@ -303,73 +307,51 @@ function iniciarNotificacionesDocente(grupoUsuario) {
   const consultaNotificaciones =
     query(
       referenciaNotificaciones,
-      where("leida", "==", false)
+      where (estudianteUid ? "destinatarioId" : "destinatarioRol",
+      "==",
+      estudianteUid || "docente/admin"
+      )
     );
-
-
-  cancelarEscuchaNotificaciones =
-    onSnapshot(
-      consultaNotificaciones,
-
-      (resultado) => {
-
-        const notificaciones =
-          resultado.docs
-            .map((documento) => ({
-              id: documento.id,
-              ...documento.data()
-            }))
-            .filter(
-              (notificacion) =>
-                notificacion.destinatarioRol ===
-                "docente/admin"
-            );
-
-
-        notificaciones.sort(
-          (a, b) => {
-
-            const fechaA =
-              obtenerMilisegundos(
-                a.fechaCreacion
-              );
-
-            const fechaB =
-              obtenerMilisegundos(
-                b.fechaCreacion
-              );
-
-            return fechaB - fechaA;
-          }
+cancelarEscuchaNotificaciones = onSnapshot(
+    consultaNotificaciones,
+    (resultado) => {
+      const notificaciones = resultado.docs
+        .map((documento) => ({
+          id: documento.id,
+          ...documento.data()
+        }))
+        .filter((notificacion) =>
+          notificacion.leida === false &&
+          (
+            estudianteUid
+              ? notificacion.destinatarioId === estudianteUid
+              : notificacion.destinatarioRol === "docente/admin"
+          )
         );
 
+      notificaciones.sort((a, b) =>
+        obtenerMilisegundos(b.fechaCreacion) -
+        obtenerMilisegundos(a.fechaCreacion)
+      );
 
-        mostrarNotificacionesDocente(
-          notificaciones
-        );
-      },
+      mostrarNotificacionesDocente(notificaciones);
+    },
+    (error) => {
+      console.error("Error al escuchar las notificaciones:", error);
 
-      (error) => {
+      const contenido = document.getElementById(
+        "contenidoNotificaciones"
+      );
 
-        console.error(
-          "Error al escuchar las notificaciones:",
-          error
-        );
-
-        const contenido =
-          document.getElementById(
-            "contenidoNotificaciones"
-          );
-
-        if (contenido) {
-          contenido.innerHTML = `
-            <p class="text-danger small mb-0 p-3">
-              No se pudieron cargar las notificaciones.
-            </p>
-          `;
-        }
+      if (contenido) {
+        contenido.innerHTML = `
+          <p class="text-danger small mb-0 p-3">
+            No se pudieron cargar las notificaciones.
+          </p>
+        `;
       }
-    );
+    }
+  );
 }
 
 
@@ -410,7 +392,6 @@ function mostrarNotificacionesDocente(
 
     return;
   }
-
 
   contador.classList.remove("d-none");
 
@@ -467,8 +448,21 @@ function mostrarNotificacionesDocente(
       detalle.className =
         "small mb-1";
 
-      detalle.textContent =
-        `${notificacion.autorNombre || "Estudiante"} publicó en ${notificacion.cursoTitulo || "un curso"}.`;
+      if (notificacion.tipo === "calificacion") {
+        detalle.textContent =
+          `${notificacion.cursoTitulo || "Tu curso"}: recibiste ` +
+          `${notificacion.nota}/10 en la Actividad Final Integradora. Ver actividad.`;
+
+      } else if (notificacion.tipo === "entrega") {
+        detalle.textContent =
+          `${notificacion.autorNombre || "Un estudiante"} envió una entrega en ` +
+          `${notificacion.cursoTitulo || "un curso"}. Abrí la actividad para revisar y calificar.`;
+
+      } else {
+        detalle.textContent =
+          `${notificacion.autorNombre || "Estudiante"} publicó en ` +
+          `${notificacion.cursoTitulo || "un curso"}.`;
+      }
 
 
       const fecha =

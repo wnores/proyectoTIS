@@ -121,33 +121,71 @@ function gestionarEnlaceMisCursos(rol) {
     }
 }
 
+
+
 async function comprobarAcceso(rol, curso, uid) {
+
+    // Administradores y docentes mantienen el acceso.
     if (rol.includes("admin") || rol.includes("docente")) {
         return true;
     }
 
+    // Solo los estudiantes pueden acceder mediante una adquisición.
     if (rol !== "estudiante") {
         return false;
     }
 
     const referenciaAdquisiciones = collection(db, "adquisiciones");
+
     const consultaAdquisiciones = query(
         referenciaAdquisiciones,
         where("usuarioId", "==", uid)
     );
 
-    const consulta = await getDocs(consultaAdquisiciones);
+    const resultadoAdquisiciones = await getDocs(
+        consultaAdquisiciones
+    );
 
-    const adquisicionEncontrada = consulta.docs.find((documento) => {
-        const adquisicion = documento.data();
-        return (
-            adquisicion.cursoId === curso.id &&
-            adquisicion.estado === "aprobada"
-        );
-    });
+    const adquisicionEncontrada = resultadoAdquisiciones.docs.some(
+        (documento) => {
+            const adquisicion = documento.data();
 
-    return Boolean(adquisicionEncontrada);
+            // Debe corresponder al curso solicitado.
+            if (adquisicion.cursoId !== curso.id) {
+                return false;
+            }
+
+            // Adquisiciones mediante beca.
+            if (adquisicion.metodoPago === "beca") {
+                const becaAprobada =
+                    adquisicion.porcentajeBeca > 0 &&
+                    adquisicion.estadoPagoSaldo === "pagado" &&
+                    Number(adquisicion.saldoPendiente) === 0;
+
+                return becaAprobada;
+            }
+
+            // Compras normales: deben estar aprobadas.
+            if (adquisicion.estado !== "aprobada") {
+                return false;
+            }
+
+            // Si existe un estado de saldo, debe estar pagado.
+            if (
+                adquisicion.estadoPagoSaldo != null &&
+                adquisicion.estadoPagoSaldo !== "pagado"
+            ) {
+                return false;
+            }
+
+            return true;
+        }
+    );
+
+    return adquisicionEncontrada;
 }
+
+
 
 async function obtenerModulosConTemas(idCurso) {
     const referenciaModulos = collection(db, "cursoscc", idCurso, "modulos");
@@ -508,12 +546,11 @@ async function renderizarSeccionEstudiante(contenedor) {
                 const lote = writeBatch(db);
 
                 lote.set(refDoc, {
-                    usuarioId: datosUsuarioActual.uid,
-                    nombreEstudiante: nombreEstudiante,
-                    emailEstudiante: datosUsuarioActual.email || auth.currentUser.email || "",
-                    archivoUrl: archivoUrl,
+                    archivoUrl,
                     enlaceUrl: url,
-                    fechaEnvio: new Date().toISOString()
+                    fechaEnvio: new Date().toISOString(),
+                    nombreEstudiante,
+                    emailEstudiante: auth.currentUser.email || ""
                 }, { merge: true });
 
 
@@ -665,9 +702,13 @@ async function renderizarSeccionAdministrador(contenedor) {
 
                     const lote = writeBatch(db);
 
+                    const cursoAprobado = notaVal >= 6;
+
                     lote.set(refDoc, {
                         nota: notaVal,
                         comentario: comentarioVal,
+                        estadoFinal: cursoAprobado ? "aprobado" : "no_aprobado",
+                        cursoFinalizado: cursoAprobado,
                         fechaCalificacion: new Date().toISOString()
                     }, { merge: true });
 

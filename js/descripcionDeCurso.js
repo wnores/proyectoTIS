@@ -206,61 +206,78 @@ document.addEventListener('DOMContentLoaded', () => {
               `contenidoCurso.html?curso=${curso.id}`;
           }
 
-          const referenciaAdquisiciones =
-            collection(
+          const referenciaAdquisiciones = collection(
               db,
               "adquisiciones"
-            );
+          );
 
-          const consultaAdquisicion =
-            query(
+          const consultaAdquisicion = query(
               referenciaAdquisiciones,
-              where(
-                "usuarioId",
-                "==",
-                user.uid
-              ),
-              where(
-                "cursoId",
-                "==",
-                curso.id
-              ),
-              where(
-                "estado",
-                "==",
-                "aprobada"
-              )
-            );
+              where("usuarioId", "==", user.uid),
+              where("cursoId", "==", curso.id)
+          );
 
-          const resultadoAdquisicion =
-            await getDocs(
+          const resultadoAdquisicion = await getDocs(
               consultaAdquisicion
-            );
+          );
 
-          if (!resultadoAdquisicion.empty) {
-            if (btnInscribirmeInferior) {
-              btnInscribirmeInferior.classList.add('d-none');
-            }
+          // Comprobar si el estudiante ya adquirió el curso.
+          const cursoAdquirido = resultadoAdquisicion.docs.some(
+              (documento) => {
+                  const adquisicion = documento.data();
 
-            if (btnBeca) {
-              btnBeca.classList.add('d-none');
-            }
+                  // Compras normales aprobadas.
+                  if (
+                      adquisicion.estado === "aprobada" &&
+                      (
+                          adquisicion.estadoPagoSaldo == null ||
+                          adquisicion.estadoPagoSaldo === "pagado"
+                      )
+                  ) {
+                      return true;
+                  }
 
-            if (btnAcceder) {
-              btnAcceder.classList.remove('d-none');
-            }
+                  // Becas con saldo completamente pagado.
+                  if (
+                      adquisicion.metodoPago === "beca" &&
+                      Number(adquisicion.porcentajeBeca) > 0 &&
+                      adquisicion.estadoPagoSaldo === "pagado" &&
+                      Number(adquisicion.saldoPendiente) === 0
+                  ) {
+                      return true;
+                  }
+
+                  return false;
+              }
+          );
+
+          if (cursoAdquirido) {
+              // Ya adquirió el curso: ocultar inscripción y solicitud de beca.
+              if (btnInscribirmeInferior) {
+                  btnInscribirmeInferior.classList.add("d-none");
+              }
+
+              if (btnBeca) {
+                  btnBeca.classList.add("d-none");
+              }
+
+              // Permitir acceder al contenido.
+              if (btnAcceder) {
+                  btnAcceder.classList.remove("d-none");
+              }
           } else {
-            if (btnAcceder) {
-              btnAcceder.classList.add('d-none');
-            }
+              // Todavía no adquirió el curso.
+              if (btnAcceder) {
+                  btnAcceder.classList.add("d-none");
+              }
 
-            if (btnInscribirmeInferior) {
-              btnInscribirmeInferior.classList.remove('d-none');
-            }
+              if (btnInscribirmeInferior) {
+                  btnInscribirmeInferior.classList.remove("d-none");
+              }
 
-            if (btnBeca) {
-              btnBeca.classList.remove('d-none');
-            }
+              if (btnBeca) {
+                  btnBeca.classList.remove("d-none");
+              }
           }
 
           if (contenedorAcciones) {

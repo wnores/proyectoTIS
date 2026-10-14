@@ -1,6 +1,11 @@
 import { auth, db } from "./firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { 
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+import {
   doc,
   getDoc,
   collection,
@@ -13,35 +18,43 @@ import {
 
 let cancelarEscuchaNotificaciones = null;
 
+
 /**
- * Actualiza los enlaces de las tarjetas en Cursos Destacados según el rol del usuario.
- * @param {string|null} rol - Rol del usuario actual ('estudiante', 'docente', 'admin', etc.)
+ * Actualiza los enlaces de las tarjetas en Cursos Destacados según el rol.
  */
 function actualizarEnlacesCursosDestacados(rol) {
   const rolLimpio = (rol || "").toLowerCase().trim();
-  const esAdminODocente = rolLimpio.includes("docente") || rolLimpio.includes("admin");
 
-  // Selecciona los enlaces de los cursos destacados (Soporta botones directos y tarjetas con enlace)
-  const enlacesCursos = document.querySelectorAll('.destacados .curso-card a');
+  const esAdminODocente =
+    rolLimpio.includes("docente") ||
+    rolLimpio.includes("admin");
 
-  enlacesCursos.forEach(enlace => {
+  const enlacesCursos = document.querySelectorAll(
+    ".destacados .curso-card a"
+  );
+
+  enlacesCursos.forEach((enlace) => {
     try {
       const url = new URL(enlace.href, window.location.origin);
       const cursoId = url.searchParams.get("id");
 
       if (cursoId) {
         if (esAdminODocente) {
-          enlace.href = `contenidoCurso.html?id=${encodeURIComponent(cursoId)}`;
+          enlace.href =
+            `contenidoCurso.html?id=${encodeURIComponent(cursoId)}`;
         } else {
-          enlace.href = `descripcionDeCurso.html?id=${encodeURIComponent(cursoId)}`;
+          enlace.href =
+            `descripcionDeCurso.html?id=${encodeURIComponent(cursoId)}`;
         }
       }
-    } catch (e) {
-      console.error("Error al actualizar enlace del curso:", e);
+    } catch (error) {
+      console.error("Error al actualizar enlace del curso:", error);
     }
   });
 }
 
+
+// CONTROL DE SESIÓN
 onAuthStateChanged(auth, async (user) => {
   const grupoIngresar = document.getElementById("grupIngresar");
   const grupoRegistrarse = document.getElementById("grupoRegistrarse");
@@ -51,11 +64,19 @@ onAuthStateChanged(auth, async (user) => {
   const menuMisCursos = document.getElementById("menuMisCursos");
 
   detenerNotificacionesDocente();
-  
+
   if (user) {
-    if (grupoIngresar) grupoIngresar.classList.add("d-none");
-    if (grupoRegistrarse) grupoRegistrarse.classList.add("d-none");
-    if (grupoUsuario) grupoUsuario.classList.remove("d-none");
+    if (grupoIngresar) {
+      grupoIngresar.classList.add("d-none");
+    }
+
+    if (grupoRegistrarse) {
+      grupoRegistrarse.classList.add("d-none");
+    }
+
+    if (grupoUsuario) {
+      grupoUsuario.classList.remove("d-none");
+    }
 
     try {
       const referenciaUsuario = doc(db, "usuarios", user.uid);
@@ -71,7 +92,7 @@ onAuthStateChanged(auth, async (user) => {
           nombreUsuario.textContent =
             nombreCompleto ||
             user.displayName ||
-            user.email.split("@")[0];
+            (user.email ? user.email.split("@")[0] : "Usuario");
         }
 
         const rol = (
@@ -84,40 +105,43 @@ onAuthStateChanged(auth, async (user) => {
           rol.includes("docente") ||
           rol.includes("admin");
 
+        console.log("Sesión iniciada:", {
+          uid: user.uid,
+          rol
+        });
+
         if (esAdminODocente) {
           iniciarNotificacionesDocente(grupoUsuario);
         } else if (rol === "estudiante") {
-  iniciarNotificacionesDocente(grupoUsuario, user.uid);
+          iniciarNotificacionesDocente(grupoUsuario, user.uid);
         } else {
           detenerNotificacionesDocente();
         }
 
         // ADMINISTRAR CURSOS
         if (menuAdminCursos) {
-          if (esAdminODocente) {
-            menuAdminCursos.classList.remove("d-none");
-          } else {
-            menuAdminCursos.classList.add("d-none");
-          }
+          menuAdminCursos.classList.toggle(
+            "d-none",
+            !esAdminODocente
+          );
         }
 
         // MIS CURSOS
         if (menuMisCursos) {
-          if (esAdminODocente) {
-            menuMisCursos.classList.add("d-none");
-          } else {
-            menuMisCursos.classList.remove("d-none");
-          }
+          menuMisCursos.classList.toggle(
+            "d-none",
+            esAdminODocente
+          );
         }
 
-        // ACTUALIZAR ENLACES DE TARJETAS DE CURSOS
+        // ACTUALIZAR ENLACES DE CURSOS DESTACADOS
         actualizarEnlacesCursosDestacados(rol);
 
       } else {
         if (nombreUsuario) {
           nombreUsuario.textContent =
             user.displayName ||
-            user.email.split("@")[0];
+            (user.email ? user.email.split("@")[0] : "Usuario");
         }
 
         if (menuAdminCursos) {
@@ -140,7 +164,7 @@ onAuthStateChanged(auth, async (user) => {
       if (nombreUsuario) {
         nombreUsuario.textContent =
           user.displayName ||
-          user.email.split("@")[0];
+          (user.email ? user.email.split("@")[0] : "Usuario");
       }
 
       if (menuAdminCursos) {
@@ -155,12 +179,17 @@ onAuthStateChanged(auth, async (user) => {
     }
 
   } else {
+    if (grupoIngresar) {
+      grupoIngresar.classList.remove("d-none");
+    }
 
-    detenerNotificacionesDocente();
+    if (grupoRegistrarse) {
+      grupoRegistrarse.classList.remove("d-none");
+    }
 
-    if (grupoIngresar) grupoIngresar.classList.remove("d-none");
-    if (grupoRegistrarse) grupoRegistrarse.classList.remove("d-none");
-    if (grupoUsuario) grupoUsuario.classList.add("d-none");
+    if (grupoUsuario) {
+      grupoUsuario.classList.add("d-none");
+    }
 
     if (menuAdminCursos) {
       menuAdminCursos.classList.add("d-none");
@@ -170,12 +199,12 @@ onAuthStateChanged(auth, async (user) => {
       menuMisCursos.classList.add("d-none");
     }
 
-    // SIN SESIÓN: Redirigir a descripción de curso
     actualizarEnlacesCursosDestacados(null);
   }
 });
 
 
+// EVENTOS DE LA PÁGINA
 document.addEventListener("DOMContentLoaded", () => {
 
   // CERRAR SESIÓN
@@ -183,27 +212,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnCerrarSesion) {
     btnCerrarSesion.addEventListener("click", async () => {
-
       try {
         await signOut(auth);
         window.location.href = "index.html";
-
       } catch (error) {
         console.error("Error al cerrar sesión:", error);
       }
-
     });
   }
-
 
   // BUSCADOR
   const formBuscador = document.getElementById("formBuscador");
   const inputBuscador = document.getElementById("inputBuscador");
 
   if (formBuscador && inputBuscador) {
-
     formBuscador.addEventListener("submit", (event) => {
-
       event.preventDefault();
 
       const texto = inputBuscador.value.trim();
@@ -212,38 +235,33 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href =
           `resultados.html?buscar=${encodeURIComponent(texto)}`;
       }
-
     });
-
   }
-
 });
 
-// NOTIFICACIÓN DOCENTE
-function iniciarNotificacionesDocente(grupoUsuario, estudianteUid = null) {
 
+// INICIAR NOTIFICACIONES
+function iniciarNotificacionesDocente(
+  grupoUsuario,
+  estudianteUid = null
+) {
   if (!grupoUsuario) {
+    console.error(
+      "No se pueden iniciar las notificaciones: no se encontró #grupoUsuario."
+    );
     return;
   }
 
-  detenerNotificacionesDocente();
+  detenerEscuchaNotificaciones();
 
-
-  let grupoNotificaciones =
-    document.getElementById("grupoNotificaciones");
-
+  let grupoNotificaciones = document.getElementById(
+    "grupoNotificaciones"
+  );
 
   if (!grupoNotificaciones) {
-
-    grupoNotificaciones =
-      document.createElement("div");
-
-    grupoNotificaciones.id =
-      "grupoNotificaciones";
-
-    grupoNotificaciones.className =
-      "dropdown me-2";
-
+    grupoNotificaciones = document.createElement("div");
+    grupoNotificaciones.id = "grupoNotificaciones";
+    grupoNotificaciones.className = "dropdown me-2";
 
     grupoNotificaciones.innerHTML = `
       <button
@@ -260,9 +278,7 @@ function iniciarNotificacionesDocente(grupoUsuario, estudianteUid = null) {
         <span
           id="contadorNotificaciones"
           class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
-        >
-          0
-        </span>
+        >0</span>
       </button>
 
       <div
@@ -278,10 +294,7 @@ function iniciarNotificacionesDocente(grupoUsuario, estudianteUid = null) {
           </h2>
         </div>
 
-        <div
-          id="contenidoNotificaciones"
-          class="p-2"
-        >
+        <div id="contenidoNotificaciones" class="p-2">
           <p class="text-muted text-center small mb-0 p-3">
             Cargando notificaciones...
           </p>
@@ -289,32 +302,49 @@ function iniciarNotificacionesDocente(grupoUsuario, estudianteUid = null) {
       </div>
     `;
 
-
     grupoUsuario.parentNode.insertBefore(
       grupoNotificaciones,
       grupoUsuario
     );
   }
 
-
   grupoNotificaciones.classList.remove("d-none");
 
+  const referenciaNotificaciones = collection(
+    db,
+    "notificaciones"
+  );
 
-  const referenciaNotificaciones =
-    collection(db, "notificaciones");
-
-
-  const consultaNotificaciones =
-    query(
-      referenciaNotificaciones,
-      where (estudianteUid ? "destinatarioId" : "destinatarioRol",
-      "==",
-      estudianteUid || "docente/admin"
+  // CONSULTA SEGÚN EL TIPO DE USUARIO
+  const consultaNotificaciones = estudianteUid
+    ? query(
+        referenciaNotificaciones,
+        where("destinatarioId", "==", estudianteUid),
+        where("destinatarioRol", "==", "estudiante")
       )
-    );
-cancelarEscuchaNotificaciones = onSnapshot(
+    : query(
+        referenciaNotificaciones,
+        where("destinatarioRol", "==", "docente/admin")
+      );
+
+  // DIAGNÓSTICO
+  console.log("Diagnóstico de notificaciones:", {
+    grupoUsuarioExiste: Boolean(grupoUsuario),
+    estudianteUid,
+    consultaPor: estudianteUid
+      ? "destinatarioId + destinatarioRol"
+      : "destinatarioRol"
+  });
+
+  cancelarEscuchaNotificaciones = onSnapshot(
     consultaNotificaciones,
+
     (resultado) => {
+      console.log(
+        "Documentos recibidos por Firestore:",
+        resultado.size
+      );
+
       const notificaciones = resultado.docs
         .map((documento) => ({
           id: documento.id,
@@ -324,10 +354,16 @@ cancelarEscuchaNotificaciones = onSnapshot(
           notificacion.leida === false &&
           (
             estudianteUid
-              ? notificacion.destinatarioId === estudianteUid
+              ? notificacion.destinatarioId === estudianteUid &&
+                notificacion.destinatarioRol === "estudiante"
               : notificacion.destinatarioRol === "docente/admin"
           )
         );
+
+      console.log(
+        "Notificaciones sin leer:",
+        notificaciones.length
+      );
 
       notificaciones.sort((a, b) =>
         obtenerMilisegundos(b.fechaCreacion) -
@@ -336,8 +372,12 @@ cancelarEscuchaNotificaciones = onSnapshot(
 
       mostrarNotificacionesDocente(notificaciones);
     },
+
     (error) => {
-      console.error("Error al escuchar las notificaciones:", error);
+      console.error(
+        "Error al escuchar las notificaciones:",
+        error
+      );
 
       const contenido = document.getElementById(
         "contenidoNotificaciones"
@@ -356,32 +396,25 @@ cancelarEscuchaNotificaciones = onSnapshot(
 
 
 // MOSTRAR NOTIFICACIONES
-function mostrarNotificacionesDocente(
-  notificaciones
-) {
+function mostrarNotificacionesDocente(notificaciones) {
+  const contador = document.getElementById(
+    "contadorNotificaciones"
+  );
 
-  const contador =
-    document.getElementById(
-      "contadorNotificaciones"
-    );
-
-  const contenido =
-    document.getElementById(
-      "contenidoNotificaciones"
-    );
-
+  const contenido = document.getElementById(
+    "contenidoNotificaciones"
+  );
 
   if (!contador || !contenido) {
+    console.error(
+      "No se encontraron los elementos del contador o contenido de notificaciones."
+    );
     return;
   }
 
-
-  contador.textContent =
-    notificaciones.length;
-
+  contador.textContent = notificaciones.length;
 
   if (notificaciones.length === 0) {
-
     contador.classList.add("d-none");
 
     contenido.innerHTML = `
@@ -394,187 +427,140 @@ function mostrarNotificacionesDocente(
   }
 
   contador.classList.remove("d-none");
-
   contenido.replaceChildren();
 
+  notificaciones.forEach((notificacion) => {
+    const boton = document.createElement("button");
 
-  notificaciones.forEach(
-    (notificacion) => {
+    boton.type = "button";
+    boton.className =
+      "dropdown-item text-wrap border-bottom p-3";
 
-      const boton =
-        document.createElement("button");
+    const encabezado = document.createElement("div");
+    encabezado.className = "d-flex align-items-start gap-2";
 
-      boton.type = "button";
+    const icono = document.createElement("i");
+    icono.className =
+      "bi bi-chat-left-text-fill text-primary mt-1";
 
-      boton.className =
-        "dropdown-item text-wrap border-bottom p-3";
+    const datos = document.createElement("div");
+    datos.className = "flex-grow-1";
 
+    const titulo = document.createElement("p");
+    titulo.className = "fw-bold mb-1";
+    titulo.textContent =
+      notificacion.titulo || "Nueva notificación";
 
-      const encabezado =
-        document.createElement("div");
+    const detalle = document.createElement("p");
+    detalle.className = "small mb-1";
 
-      encabezado.className =
-        "d-flex align-items-start gap-2";
+    if (notificacion.tipo === "calificacion") {
+      detalle.textContent =
+        `${notificacion.cursoTitulo || "Tu curso"}: recibiste ` +
+        `${notificacion.nota}/10 en la Actividad Final Integradora. Ver actividad.`;
 
+    } else if (notificacion.tipo === "entrega") {
+      detalle.textContent =
+        `${notificacion.autorNombre || "Un estudiante"} envió una entrega en ` +
+        `${notificacion.cursoTitulo || "un curso"}. Abrí la actividad para revisar y calificar.`;
 
-      const icono =
-        document.createElement("i");
-
-      icono.className =
-        "bi bi-chat-left-text-fill text-primary mt-1";
-
-
-      const datos =
-        document.createElement("div");
-
-      datos.className =
-        "flex-grow-1";
-
-
-      const titulo =
-        document.createElement("p");
-
-      titulo.className =
-        "fw-bold mb-1";
-
-      titulo.textContent =
-        notificacion.titulo ||
-        "Nueva publicación";
-
-
-      const detalle =
-        document.createElement("p");
-
-      detalle.className =
-        "small mb-1";
-
-      if (notificacion.tipo === "calificacion") {
+    } else if (notificacion.tipo === "beca") {
+      if (notificacion.destinatarioRol === "estudiante") {
         detalle.textContent =
-          `${notificacion.cursoTitulo || "Tu curso"}: recibiste ` +
-          `${notificacion.nota}/10 en la Actividad Final Integradora. Ver actividad.`;
-
-      } else if (notificacion.tipo === "entrega") {
-        detalle.textContent =
-          `${notificacion.autorNombre || "Un estudiante"} envió una entrega en ` +
-          `${notificacion.cursoTitulo || "un curso"}. Abrí la actividad para revisar y calificar.`;
-
+          `Tu solicitud de beca para ${notificacion.cursoTitulo || "el curso"} ` +
+          `fue aprobada con una cobertura del ${notificacion.porcentajeBeca}%.`;
       } else {
         detalle.textContent =
-          `${notificacion.autorNombre || "Estudiante"} publicó en ` +
+          `${notificacion.autorNombre || "Un estudiante"} solicitó una beca para ` +
           `${notificacion.cursoTitulo || "un curso"}.`;
       }
 
-
-      const fecha =
-        document.createElement("p");
-
-      fecha.className =
-        "small text-muted mb-0";
-
-      fecha.textContent =
-        formatearFechaNotificacion(
-          notificacion.fechaCreacion
-        );
-
-
-      datos.appendChild(titulo);
-      datos.appendChild(detalle);
-      datos.appendChild(fecha);
-
-      encabezado.appendChild(icono);
-      encabezado.appendChild(datos);
-
-      boton.appendChild(encabezado);
-
-
-      boton.addEventListener(
-        "click",
-        async () => {
-
-          try {
-
-            await updateDoc(
-              doc(
-                db,
-                "notificaciones",
-                notificacion.id
-              ),
-              {
-                leida: true,
-                fechaLectura:
-                  serverTimestamp()
-              }
-            );
-
-          } catch (error) {
-
-            console.error(
-              "No se pudo marcar la notificación como leída:",
-              error
-            );
-          }
-
-
-          window.location.href =
-            notificacion.enlace ||
-            `foroCurso.html?curso=${encodeURIComponent(notificacion.cursoId)}`;
-        }
-      );
-
-
-      contenido.appendChild(boton);
+    } else {
+      detalle.textContent =
+        `${notificacion.autorNombre || "Estudiante"} publicó en ` +
+        `${notificacion.cursoTitulo || "un curso"}.`;
     }
-  );
+
+    const fecha = document.createElement("p");
+    fecha.className = "small text-muted mb-0";
+    fecha.textContent = formatearFechaNotificacion(
+      notificacion.fechaCreacion
+    );
+
+    datos.appendChild(titulo);
+    datos.appendChild(detalle);
+    datos.appendChild(fecha);
+
+    encabezado.appendChild(icono);
+    encabezado.appendChild(datos);
+
+    boton.appendChild(encabezado);
+
+    boton.addEventListener("click", async () => {
+      try {
+        await updateDoc(
+          doc(db, "notificaciones", notificacion.id),
+          {
+            leida: true,
+            fechaLectura: serverTimestamp()
+          }
+        );
+      } catch (error) {
+        console.error(
+          "No se pudo marcar la notificación como leída:",
+          error
+        );
+      }
+
+      if (notificacion.enlace) {
+        window.location.href = notificacion.enlace;
+      } else if (notificacion.cursoId) {
+        window.location.href =
+          `foroCurso.html?curso=${encodeURIComponent(notificacion.cursoId)}`;
+      }
+    });
+
+    contenido.appendChild(boton);
+  });
 }
 
 
-// DETENER NOTIFICACIONES
-function detenerNotificacionesDocente() {
-
+// DETENER LA ESCUCHA ACTIVA
+function detenerEscuchaNotificaciones() {
   if (cancelarEscuchaNotificaciones) {
-
     cancelarEscuchaNotificaciones();
-
-    cancelarEscuchaNotificaciones =
-      null;
+    cancelarEscuchaNotificaciones = null;
   }
+}
 
 
-  const grupoNotificaciones =
-    document.getElementById(
-      "grupoNotificaciones"
-    );
+// OCULTAR Y DETENER NOTIFICACIONES
+function detenerNotificacionesDocente() {
+  detenerEscuchaNotificaciones();
 
+  const grupoNotificaciones = document.getElementById(
+    "grupoNotificaciones"
+  );
 
   if (grupoNotificaciones) {
-    grupoNotificaciones.classList.add(
-      "d-none"
-    );
+    grupoNotificaciones.classList.add("d-none");
   }
 }
 
 
 // OBTENER FECHA EN MILISEGUNDOS
 function obtenerMilisegundos(fecha) {
-
   if (!fecha) {
     return 0;
   }
 
-
-  if (
-    typeof fecha.toMillis === "function"
-  ) {
+  if (typeof fecha.toMillis === "function") {
     return fecha.toMillis();
   }
 
-
-  if (
-    typeof fecha.toDate === "function"
-  ) {
+  if (typeof fecha.toDate === "function") {
     return fecha.toDate().getTime();
   }
-
 
   return new Date(fecha).getTime();
 }
@@ -582,32 +568,20 @@ function obtenerMilisegundos(fecha) {
 
 // FORMATEAR FECHA DE NOTIFICACIÓN
 function formatearFechaNotificacion(fecha) {
-
   if (!fecha) {
     return "Ahora";
   }
 
-
   let fechaJavaScript;
 
-
-  if (
-    typeof fecha.toDate === "function"
-  ) {
-    fechaJavaScript =
-      fecha.toDate();
-
+  if (typeof fecha.toDate === "function") {
+    fechaJavaScript = fecha.toDate();
   } else {
-    fechaJavaScript =
-      new Date(fecha);
+    fechaJavaScript = new Date(fecha);
   }
 
-
-  return fechaJavaScript.toLocaleString(
-    "es-UY",
-    {
-      dateStyle: "short",
-      timeStyle: "short"
-    }
-  );
+  return fechaJavaScript.toLocaleString("es-UY", {
+    dateStyle: "short",
+    timeStyle: "short"
+  });
 }

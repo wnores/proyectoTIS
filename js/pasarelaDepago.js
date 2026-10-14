@@ -71,11 +71,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     new URLSearchParams(window.location.search);
 
   const cursoId =
-    parametros.get("curso");
+      parametros.get("curso");
+
+  const adquisicionId =
+      parametros.get("adquisicion");
 
   let curso = null;
   let usuarioActual = null;
-
+  let adquisicionExistente = null;
+  let esPagoSaldoBeca = false;
 
   // ======================================================
   // VERIFICAR USUARIO AUTENTICADO
@@ -121,6 +125,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
 
+    // ======================================================
+    // VERIFICAR SI ES UN PAGO DE SALDO DE BECA
+    // ======================================================
+
+    if (adquisicionId) {
+
+        const adquisicionRef = doc(
+            db,
+            "adquisiciones",
+            adquisicionId
+        );
+
+        const adquisicionSnap = await getDoc(adquisicionRef);
+
+        if (!adquisicionSnap.exists()) {
+            throw new Error("ADQUISICION_NO_EXISTE");
+        }
+
+        adquisicionExistente = {
+            id: adquisicionSnap.id,
+            ...adquisicionSnap.data()
+        };
+
+        // La adquisición debe pertenecer al usuario autenticado.
+        const usuario = auth.currentUser;
+
+        if (
+            !usuario ||
+            adquisicionExistente.usuarioId !== usuario.uid
+        ) {
+            throw new Error("ADQUISICION_NO_AUTORIZADA");
+        }
+
+        // Validar que corresponda al curso indicado.
+        if (adquisicionExistente.cursoId !== cursoId) {
+            throw new Error("CURSO_NO_COINCIDE");
+        }
+
+        // Solo se admite el pago de un saldo de beca pendiente.
+        if (
+            adquisicionExistente.metodoPago !== "beca" ||
+            Number(adquisicionExistente.saldoPendiente) <= 0 ||
+            adquisicionExistente.estadoPagoSaldo === "pagado"
+        ) {
+            throw new Error("SALDO_NO_PENDIENTE");
+        }
+
+        esPagoSaldoBeca = true;
+    }
+
     const cursoRef =
       doc(db, "cursoscc", cursoId);
 
@@ -146,8 +200,83 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    curso =
-      docSnap.data();
+    curso = docSnap.data();
+
+    // ======================================================
+    // PREPARAR EL RESUMEN DEL PAGO DE BECA
+    // ======================================================
+
+    if (esPagoSaldoBeca) {
+
+        const saldoPendiente =
+            Number(adquisicionExistente.saldoPendiente);
+
+        if (!Number.isFinite(saldoPendiente) || saldoPendiente <= 0) {
+            throw new Error("SALDO_NO_PENDIENTE");
+        }
+
+        const detalleBeca =
+            document.getElementById("detallePagoBeca");
+
+        const precioOriginalBeca =
+            document.getElementById("precioOriginalBeca");
+
+        const porcentajeBeca =
+            document.getElementById("porcentajeBeca");
+
+        const importeBeca =
+            document.getElementById("importeBeca");
+
+        const etiquetaImportePago =
+            document.getElementById("etiquetaImportePago");
+
+        const elPrecio =
+            document.getElementById("cursoPrecio");
+
+        const formatoUYU = (importe) =>
+            Number(importe).toLocaleString("es-UY", {
+                style: "currency",
+                currency: "UYU"
+            });
+
+        if (detalleBeca) {
+            detalleBeca.classList.remove("d-none");
+        }
+
+        if (precioOriginalBeca) {
+            precioOriginalBeca.textContent =
+                formatoUYU(adquisicionExistente.precio);
+        }
+
+        if (porcentajeBeca) {
+            porcentajeBeca.textContent =
+                `${adquisicionExistente.porcentajeBeca}%`;
+        }
+
+        if (importeBeca) {
+            importeBeca.textContent =
+                formatoUYU(adquisicionExistente.importeBeca);
+        }
+
+        if (etiquetaImportePago) {
+            etiquetaImportePago.textContent =
+                "Saldo pendiente a abonar:";
+        }
+
+        if (elPrecio) {
+
+            const importeAMostrar = esPagoSaldoBeca
+                ? Number(adquisicionExistente.saldoPendiente)
+                : Number(curso.precio || 0);
+
+            elPrecio.textContent =
+                importeAMostrar.toLocaleString("es-UY", {
+                    style: "currency",
+                    currency: "UYU"
+                });
+        }
+
+    }
 
 
     const elTitulo =
@@ -181,9 +310,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (elPrecio) {
 
-      elPrecio.textContent =
-        precioFormateado;
+        const importeAMostrar = esPagoSaldoBeca
+            ? Number(adquisicionExistente.saldoPendiente)
+            : Number(curso.precio || 0);
+
+        elPrecio.textContent =
+            importeAMostrar.toLocaleString("es-UY", {
+                style: "currency",
+                currency: "UYU"
+            });
     }
+
 
 
     if (elImg) {
@@ -773,7 +910,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         btnConfirmar.textContent =
           "Procesando...";
 
-
         try {
 
           // ---------------------------------------------
@@ -781,34 +917,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           // ---------------------------------------------
 
           const datosAdquisicion = {
-
-            usuarioId:
-              usuario.uid,
-
-            usuarioCorreo:
-              usuario.email || "",
-
-            cursoId:
-              cursoId,
-
+            usuarioId: usuario.uid,
+            usuarioCorreo: usuario.email || "",
+            cursoId: cursoId,
             cursoTitulo:
               curso.titulo ||
               curso.nombre ||
               "Curso sin título",
-
-            precio:
-              Number(
-                curso.precio || 0
-              ),
-
-            metodoPago:
-              metodo,
-
-            fechaAdquisicion:
-              serverTimestamp(),
-
-            estado:
-              estado
+            precio: Number(curso.precio || 0),
+            metodoPago: metodo,
+            fechaAdquisicion: serverTimestamp(),
+            estado: estado
           };
 
 
@@ -818,80 +937,100 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           if (metodo === "tarjeta") {
 
-            const referenciaAdquisicion =
-              doc(
-                collection(
-                  db,
-                  "adquisiciones"
-                )
-              );
+            // Pago del saldo pendiente de una beca.
+            if (esPagoSaldoBeca) {
 
-
-            const referenciaCurso =
-              doc(
+              const referenciaAdquisicion = doc(
                 db,
-                "cursoscc",
-                cursoId
+                "adquisiciones",
+                adquisicionId
               );
 
+              await runTransaction(db, async (transaccion) => {
 
-            await runTransaction(
-              db,
-              async (transaccion) => {
+                const resultadoAdquisicion =
+                  await transaccion.get(referenciaAdquisicion);
 
-                const resultadoCurso =
-                  await transaccion.get(
-                    referenciaCurso
-                  );
-
-
-                if (!resultadoCurso.exists()) {
-
-                  throw new Error(
-                    "CURSO_NO_EXISTE"
-                  );
+                if (!resultadoAdquisicion.exists()) {
+                  throw new Error("ADQUISICION_NO_EXISTE");
                 }
 
+                const datosActuales = resultadoAdquisicion.data();
 
-                const datosCurso =
-                  resultadoCurso.data();
-
-
-                const cuposActuales =
-                  Number(
-                    datosCurso.cupos_disponibles ||
-                    0
-                  );
-
-
-                if (cuposActuales <= 0) {
-
-                  throw new Error(
-                    "SIN_CUPOS"
-                  );
+                if (
+                  datosActuales.usuarioId !== usuario.uid ||
+                  datosActuales.cursoId !== cursoId ||
+                  datosActuales.metodoPago !== "beca"
+                ) {
+                  throw new Error("ADQUISICION_NO_AUTORIZADA");
                 }
 
+                if (
+                  datosActuales.estadoPagoSaldo === "pagado" ||
+                  Number(datosActuales.saldoPendiente) <= 0
+                ) {
+                  throw new Error("SALDO_NO_PENDIENTE");
+                }
 
-                transaccion.update(
-                  referenciaCurso,
-                  {
-                    cupos_disponibles:
-                      cuposActuales - 1
-                  }
-                );
+                transaccion.update(referenciaAdquisicion, {
+                  saldoPendiente: 0,
+                  estadoPagoSaldo: "pagado",
+                  estado: "aprobada",
+                  metodoPagoSaldo: "tarjeta",
+                  fechaPagoSaldo: serverTimestamp()
+                });
+
+              });
+
+              window.location.href =
+                `comprobanteCompra.html?id=${adquisicionId}`;
+
+              return;
+            }
 
 
-                transaccion.set(
-                  referenciaAdquisicion,
-                  datosAdquisicion
-                );
-              }
+            // Compra normal con tarjeta.
+            const referenciaAdquisicion = doc(
+              collection(db, "adquisiciones")
             );
 
+            const referenciaCurso = doc(
+              db,
+              "cursoscc",
+              cursoId
+            );
+
+            await runTransaction(db, async (transaccion) => {
+
+              const resultadoCurso =
+                await transaccion.get(referenciaCurso);
+
+              if (!resultadoCurso.exists()) {
+                throw new Error("CURSO_NO_EXISTE");
+              }
+
+              const datosCurso = resultadoCurso.data();
+
+              const cuposActuales =
+                Number(datosCurso.cupos_disponibles || 0);
+
+              if (cuposActuales <= 0) {
+                throw new Error("SIN_CUPOS");
+              }
+
+              transaccion.update(referenciaCurso, {
+                cupos_disponibles: cuposActuales - 1
+              });
+
+              transaccion.set(
+                referenciaAdquisicion,
+                datosAdquisicion
+              );
+
+            });
 
             window.location.href =
               `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
-
 
             return;
           }
@@ -903,52 +1042,87 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           if (metodo === "transferencia") {
 
-            const archivo =
-              inputComprobante?.files?.[0];
-
+            const archivo = inputComprobante?.files?.[0];
 
             if (!archivo) {
+              throw new Error("NO_HAY_COMPROBANTE");
+            }
 
-              throw new Error(
-                "NO_HAY_COMPROBANTE"
+            // Subir comprobante a Cloudinary.
+            const comprobanteUrl =
+              await subirComprobanteACloudinary(archivo);
+
+
+            // ---------------------------------------------
+            // TRANSFERENCIA DEL SALDO DE UNA BECA
+            // ---------------------------------------------
+
+            if (esPagoSaldoBeca) {
+
+              const referenciaAdquisicion = doc(
+                db,
+                "adquisiciones",
+                adquisicionId
               );
+
+              await runTransaction(db, async (transaccion) => {
+
+                const resultadoAdquisicion =
+                  await transaccion.get(referenciaAdquisicion);
+
+                if (!resultadoAdquisicion.exists()) {
+                  throw new Error("ADQUISICION_NO_EXISTE");
+                }
+
+                const datosActuales = resultadoAdquisicion.data();
+
+                if (
+                  datosActuales.usuarioId !== usuario.uid ||
+                  datosActuales.cursoId !== cursoId ||
+                  datosActuales.metodoPago !== "beca"
+                ) {
+                  throw new Error("ADQUISICION_NO_AUTORIZADA");
+                }
+
+                if (
+                  datosActuales.estadoPagoSaldo === "pagado" ||
+                  Number(datosActuales.saldoPendiente) <= 0
+                ) {
+                  throw new Error("SALDO_NO_PENDIENTE");
+                }
+
+                transaccion.update(referenciaAdquisicion, {
+                  comprobanteUrl: comprobanteUrl,
+                  comprobanteNombre: archivo.name,
+                  metodoPagoSaldo: "transferencia",
+                  estadoPagoSaldo: "pendiente",
+                  fechaEnvioComprobanteSaldo: serverTimestamp()
+                });
+
+              });
+
+              alert(
+                "El comprobante fue enviado. El saldo seguirá pendiente hasta que se verifique la transferencia."
+              );
+
+              window.location.href =
+                `comprobanteCompra.html?id=${adquisicionId}`;
+
+              return;
             }
 
 
             // ---------------------------------------------
-            // SUBIR COMPROBANTE
+            // COMPRA NORMAL POR TRANSFERENCIA
             // ---------------------------------------------
 
-            const comprobanteUrl =
-              await subirComprobanteACloudinary(
-                archivo
-              );
+            datosAdquisicion.comprobanteUrl = comprobanteUrl;
+            datosAdquisicion.comprobanteNombre = archivo.name;
 
-
-            // ---------------------------------------------
-            // AGREGAR DATOS DEL COMPROBANTE
-            // ---------------------------------------------
-
-            datosAdquisicion.comprobanteUrl =
-              comprobanteUrl;
-
-            datosAdquisicion.comprobanteNombre =
-              archivo.name;
-
-
-            // ---------------------------------------------
-            // REGISTRAR ADQUISICIÓN
-            // ---------------------------------------------
-
-            const referenciaAdquisicion =
-              await addDoc(
-                collection(
-                  db,
-                  "adquisiciones"
-                ),
-                datosAdquisicion
-              );
-
+            const referenciaAdquisicion = await addDoc(
+              collection(db, "adquisiciones"),
+              datosAdquisicion
+            );
 
             window.location.href =
               `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
@@ -957,9 +1131,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
 
 
-          throw new Error(
-            "METODO_PAGO_NO_VALIDO"
-          );
+          throw new Error("METODO_PAGO_NO_VALIDO");
 
 
         } catch (error) {
@@ -969,56 +1141,57 @@ document.addEventListener("DOMContentLoaded", async () => {
             error
           );
 
-
-          if (
-            error.message ===
-            "SIN_CUPOS"
-          ) {
+          if (error.message === "SIN_CUPOS") {
 
             alert(
               "Este curso ya no tiene cupos disponibles."
             );
 
-          } else if (
-            error.message ===
-            "ERROR_CLOUDINARY"
-          ) {
+          } else if (error.message === "ERROR_CLOUDINARY") {
 
             alert(
               "No fue posible subir el comprobante. Intentá nuevamente."
             );
 
-          } else if (
-            error.message ===
-            "URL_COMPROBANTE_NO_GENERADA"
-          ) {
+          } else if (error.message === "URL_COMPROBANTE_NO_GENERADA") {
 
             alert(
               "No se pudo obtener el comprobante. Intentá nuevamente."
             );
 
-          } else if (
-            error.message ===
-            "NO_HAY_COMPROBANTE"
-          ) {
+          } else if (error.message === "NO_HAY_COMPROBANTE") {
 
             alert(
               "Debés seleccionar un comprobante válido."
             );
 
+          } else if (error.message === "ADQUISICION_NO_EXISTE") {
+
+            alert(
+              "No se encontró la adquisición que intentás pagar."
+            );
+
+          } else if (error.message === "ADQUISICION_NO_AUTORIZADA") {
+
+            alert(
+              "No tenés autorización para pagar esta adquisición."
+            );
+
+          } else if (error.message === "SALDO_NO_PENDIENTE") {
+
+            alert(
+              "Esta adquisición no tiene un saldo pendiente."
+            );
+
           } else {
 
             alert(
-              "No fue posible registrar la adquisición. Intentá nuevamente."
+              "No fue posible registrar el pago. Verificá los permisos de Firestore e intentá nuevamente."
             );
           }
 
-
-          btnConfirmar.disabled =
-            false;
-
-          btnConfirmar.textContent =
-            "Confirmar pago";
+          btnConfirmar.disabled = false;
+          btnConfirmar.textContent = "Confirmar pago";
         }
       }
     );

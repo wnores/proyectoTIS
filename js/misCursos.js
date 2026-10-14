@@ -349,8 +349,10 @@ function crearTarjetaCurso(curso) {
         "card-body d-flex flex-column";
 
 
-    const estado =
-        obtenerEstado(curso.estado);
+    const estado = obtenerEstado(
+        curso.estado,
+        curso.estadoPagoSaldo
+    );
 
 
     const metodo =
@@ -429,10 +431,39 @@ function crearTarjetaCurso(curso) {
             ${metodo.detalle}
 
 
-            <p class="mb-0">
-                <strong>Importe:</strong>
-                ${formatearPrecio(curso.precio)}
-            </p>
+            ${
+                curso.metodoPago === "beca" &&
+                curso.porcentajeBeca != null
+                    ? `
+                        <hr>
+
+                        <p class="mb-2">
+                            <strong>Precio original:</strong>
+                            ${formatearPrecio(curso.precio)}
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Porcentaje de beca:</strong>
+                            ${curso.porcentajeBeca}%
+                        </p>
+
+                        <p class="mb-2 text-success">
+                            <strong>Cubierto por la beca:</strong>
+                            ${formatearPrecio(curso.importeBeca)}
+                        </p>
+
+                        <p class="mb-2 ${Number(curso.saldoPendiente) > 0 ? "text-danger" : "text-success"}">
+                            <strong>Saldo pendiente:</strong>
+                            ${formatearPrecio(curso.saldoPendiente)}
+                        </p>
+                    `
+                    : `
+                        <p class="mb-0">
+                            <strong>Importe:</strong>
+                            ${formatearPrecio(curso.precio)}
+                        </p>
+                    `
+            }
 
         </div>
 
@@ -440,7 +471,35 @@ function crearTarjetaCurso(curso) {
         <div class="mt-auto pt-3">
 
             ${
-                curso.estado === "aprobada"
+                curso.metodoPago === "beca" &&
+                Number(curso.saldoPendiente) > 0 &&
+                curso.estadoPagoSaldo !== "pagado"
+                    ? `
+                        <a
+                            href="pasarelaDePago.html?curso=${encodeURIComponent(curso.cursoId)}&adquisicion=${encodeURIComponent(curso.id)}"
+                            class="btn btn-primary w-100 mb-2"
+                        >
+                            <i class="bi bi-credit-card me-2"></i>
+                            Pagar saldo pendiente
+                        </a>
+                    `
+                    : ""
+            }
+
+            ${
+                (
+                    curso.estado === "aprobada" &&
+                    (
+                        curso.estadoPagoSaldo === "pagado" ||
+                        curso.estadoPagoSaldo == null
+                    )
+                ) ||
+                (
+                    curso.metodoPago === "beca" &&
+                    Number(curso.porcentajeBeca) > 0 &&
+                    curso.estadoPagoSaldo === "pagado" &&
+                    Number(curso.saldoPendiente) === 0
+                )
                     ? `
                         <a
                             href="contenidoCurso.html?curso=${encodeURIComponent(curso.cursoId)}"
@@ -464,6 +523,7 @@ function crearTarjetaCurso(curso) {
 
         </div>
 
+
     `;
 
 
@@ -479,7 +539,22 @@ function crearTarjetaCurso(curso) {
    ESTADO
    ========================================================= */
 
-function obtenerEstado(estado) {
+
+function obtenerEstado(estado, estadoPagoSaldo) {
+
+    if (estadoPagoSaldo === "pendiente") {
+        return {
+            texto: "Pendiente de pago",
+            clase: "text-bg-warning"
+        };
+    }
+
+    if (estadoPagoSaldo === "pagado") {
+        return {
+            texto: "Pago completado",
+            clase: "text-bg-success"
+        };
+    }
 
     switch (estado) {
 
@@ -489,13 +564,11 @@ function obtenerEstado(estado) {
                 clase: "text-bg-success"
             };
 
-
         case "pendiente":
             return {
                 texto: "Pendiente",
                 clase: "text-bg-warning"
             };
-
 
         case "rechazada":
             return {
@@ -503,6 +576,11 @@ function obtenerEstado(estado) {
                 clase: "text-bg-danger"
             };
 
+        case "pendiente_pago":
+            return {
+                texto: "Pendiente de pago",
+                clase: "text-bg-warning"
+            };
 
         default:
             return {
@@ -511,6 +589,7 @@ function obtenerEstado(estado) {
             };
     }
 }
+
 
 
 /* =========================================================

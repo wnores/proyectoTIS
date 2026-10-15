@@ -167,26 +167,97 @@ async function cargarPagosPendientes() {
             );
 
 
-        const consulta =
-            query(
-                referenciaAdquisiciones,
-                where(
-                    "metodoPago",
-                    "==",
-                    "transferencia"
-                ),
-                where(
-                    "estado",
-                    "==",
-                    "pendiente"
-                )
+                
+       const consulta = query(
+            referenciaAdquisiciones,
+            where("estado", "in", [
+                "pendiente",
+                "pendiente_pago"
+            ])
+        );
+
+        const resultado = await getDocs(consulta);
+
+        const pagosPendientes = resultado.docs.filter((documento) => {
+            const pago = documento.data();
+
+            const transferenciaNormal =
+                pago.metodoPago === "transferencia";
+
+            const transferenciaSaldoBeca =
+                pago.metodoPago === "beca" &&
+                pago.metodoPagoSaldo === "transferencia" &&
+                pago.estadoPagoSaldo === "pendiente";
+
+            return (
+                transferenciaNormal ||
+                transferenciaSaldoBeca
+            );
+        });
+
+        if (pagosPendientes.length === 0) {
+            mostrarMensaje(
+                "No hay pagos por transferencia pendientes."
+            );
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        for (const documento of pagosPendientes) {
+            const adquisicion = {
+                id: documento.id,
+                ...documento.data()
+            };
+
+            let nombreUsuario = "Usuario no disponible";
+            let correoUsuario =
+                adquisicion.usuarioCorreo ||
+                "Correo no disponible";
+
+            if (adquisicion.usuarioId) {
+                try {
+                    const referenciaUsuario = doc(
+                        db,
+                        "usuarios",
+                        adquisicion.usuarioId
+                    );
+
+                    const resultadoUsuario = await getDoc(
+                        referenciaUsuario
+                    );
+
+                    if (resultadoUsuario.exists()) {
+                        const datosUsuario = resultadoUsuario.data();
+
+                        nombreUsuario =
+                            `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`
+                                .trim() ||
+                            "Usuario sin nombre";
+
+                        correoUsuario =
+                            datosUsuario.email ||
+                            adquisicion.usuarioCorreo ||
+                            "Correo no disponible";
+                    }
+                } catch (error) {
+                    console.error(
+                        "Error al obtener los datos del usuario:",
+                        error
+                    );
+                }
+            }
+
+            const tarjeta = crearTarjetaPago(
+                documento.id,
+                adquisicion,
+                nombreUsuario,
+                correoUsuario
             );
 
+            contenedor.appendChild(tarjeta);
+        }
 
-        const resultado =
-            await getDocs(
-                consulta
-            );
 
 
         if (resultado.empty) {
@@ -360,10 +431,20 @@ function crearTarjetaPago(
         );
 
 
-    const importe =
-        formatearPrecio(
-            adquisicion.precio
-        );
+    
+    const esPagoSaldoBeca =
+        adquisicion.metodoPago === "beca" &&
+        adquisicion.metodoPagoSaldo === "transferencia";
+
+    const importe = formatearPrecio(
+        esPagoSaldoBeca
+            ? adquisicion.saldoPendiente
+            : adquisicion.precio
+    );
+
+    const etiquetaImporte = esPagoSaldoBeca
+        ? "Saldo a verificar:"
+        : "Importe:";
 
 
     let comprobanteHTML = "";
@@ -477,7 +558,7 @@ function crearTarjetaPago(
         <p class="mb-2">
 
             <strong>
-                Importe:
+                ${etiquetaImporte}
             </strong>
 
             ${importe}
@@ -579,216 +660,113 @@ function crearTarjetaPago(
 // APROBAR PAGO
 // ======================================================
 
-async function aprobarPago(
-    idAdquisicion,
-    boton
-) {
 
-    const confirmar =
-        confirm(
-            "¿Confirmás que la transferencia bancaria fue recibida?"
-        );
+async function aprobarPago(idAdquisicion, boton) {
+    const confirmar = confirm(
+        "¿Confirmás que la transferencia bancaria fue recibida?"
+    );
 
-
-    if (!confirmar) {
-        return;
-    }
-
+    if (!confirmar) return;
 
     try {
-
         boton.disabled = true;
-
-
         boton.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm me-2"
-                aria-hidden="true">
-            </span>
+            <span class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true"></span>
             Aprobando...
         `;
 
-
-        const referenciaAdquisicion =
-            doc(
-                db,
-                "adquisiciones",
-                idAdquisicion
-            );
-
-
-        await runTransaction(
+        const referenciaAdquisicion = doc(
             db,
-            async (transaccion) => {
+            "adquisiciones",
+            idAdquisicion
+        );
 
-                const resultadoAdquisicion =
-                    await transaccion.get(
-                        referenciaAdquisicion
-                    );
+        await runTransaction(db, async (transaccion) => {
+            const resultadoAdquisicion =
+                await transaccion.get(referenciaAdquisicion);
 
+            if (!resultadoAdquisicion.exists()) {
+                throw new Error("ADQUISICION_NO_EXISTE");
+            }
 
-                if (
-                    !resultadoAdquisicion.exists()
-                ) {
+            const adquisicion = resultadoAdquisicion.data();
 
-                    throw new Error(
-                        "ADQUISICION_NO_EXISTE"
-                    );
+            const esPagoSaldoBeca =
+                adquisicion.metodoPago === "beca" &&
+                adquisicion.metodoPagoSaldo === "transferencia";
+
+            if (esPagoSaldoBeca) {
+                if (adquisicion.estadoPagoSaldo !== "pendiente") {
+                    throw new Error("PAGO_YA_PROCESADO");
                 }
 
+                transaccion.update(referenciaAdquisicion, {
+                    saldoPendiente: 0,
+                    estadoPagoSaldo: "pagado",
+                    metodoPagoSaldo: "transferencia",
+                    fechaPagoSaldo: new Date()
+                });
 
-                const adquisicion =
-                    resultadoAdquisicion.data();
-
-
-                if (
-                    adquisicion.estado !==
-                    "pendiente"
-                ) {
-
-                    throw new Error(
-                        "PAGO_YA_PROCESADO"
-                    );
+            } else {
+                if (adquisicion.estado !== "pendiente") {
+                    throw new Error("PAGO_YA_PROCESADO");
                 }
 
-
-                if (
-                    !adquisicion.cursoId
-                ) {
-
-                    throw new Error(
-                        "CURSO_NO_EXISTE"
-                    );
+                if (!adquisicion.cursoId) {
+                    throw new Error("CURSO_NO_EXISTE");
                 }
 
-
-                const referenciaCurso =
-                    doc(
-                        db,
-                        "cursoscc",
-                        adquisicion.cursoId
-                    );
-
+                const referenciaCurso = doc(
+                    db,
+                    "cursoscc",
+                    adquisicion.cursoId
+                );
 
                 const resultadoCurso =
-                    await transaccion.get(
-                        referenciaCurso
-                    );
+                    await transaccion.get(referenciaCurso);
 
-
-                if (
-                    !resultadoCurso.exists()
-                ) {
-
-                    throw new Error(
-                        "CURSO_NO_EXISTE"
-                    );
+                if (!resultadoCurso.exists()) {
+                    throw new Error("CURSO_NO_EXISTE");
                 }
 
+                const cuposActuales = Number(
+                    resultadoCurso.data().cupos_disponibles || 0
+                );
 
-                const cuposActuales =
-                    Number(
-                        resultadoCurso
-                            .data()
-                            .cupos_disponibles ||
-                        0
-                    );
-
-
-                if (
-                    cuposActuales <= 0
-                ) {
-
-                    throw new Error(
-                        "SIN_CUPOS"
-                    );
+                if (cuposActuales <= 0) {
+                    throw new Error("SIN_CUPOS");
                 }
 
+                transaccion.update(referenciaCurso, {
+                    cupos_disponibles: cuposActuales - 1
+                });
 
-                transaccion.update(
-                    referenciaCurso,
-                    {
-                        cupos_disponibles:
-                            cuposActuales - 1
-                    }
-                );
-
-
-                transaccion.update(
-                    referenciaAdquisicion,
-                    {
-                        estado:
-                            "aprobada"
-                    }
-                );
+                transaccion.update(referenciaAdquisicion, {
+                    estado: "aprobada"
+                });
             }
-        );
+        });
 
-
-        alert(
-            "El pago fue aprobado correctamente."
-        );
-
-
+        alert("La transferencia fue aprobada correctamente.");
         await cargarPagosPendientes();
 
-
     } catch (error) {
+        console.error("Error al aprobar el pago:", error);
 
-        console.error(
-            "Error al aprobar el pago:",
-            error
-        );
-
-
-        if (
-            error.message ===
-            "SIN_CUPOS"
-        ) {
-
-            alert(
-                "No se puede aprobar el pago porque el curso no tiene cupos."
-            );
-
-        } else if (
-            error.message ===
-            "PAGO_YA_PROCESADO"
-        ) {
-
-            alert(
-                "Este pago ya fue procesado anteriormente."
-            );
-
-        } else if (
-            error.message ===
-            "CURSO_NO_EXISTE"
-        ) {
-
-            alert(
-                "No se encontró el curso asociado al pago."
-            );
-
-        } else if (
-            error.message ===
-            "ADQUISICION_NO_EXISTE"
-        ) {
-
-            alert(
-                "No se encontró la adquisición."
-            );
-
+        if (error.message === "SIN_CUPOS") {
+            alert("No se puede aprobar el pago porque el curso no tiene cupos.");
+        } else if (error.message === "PAGO_YA_PROCESADO") {
+            alert("Este pago ya fue procesado anteriormente.");
+        } else if (error.message === "CURSO_NO_EXISTE") {
+            alert("No se encontró el curso asociado al pago.");
+        } else if (error.message === "ADQUISICION_NO_EXISTE") {
+            alert("No se encontró la adquisición.");
         } else {
-
-            alert(
-                "No fue posible aprobar el pago. Intentá nuevamente."
-            );
+            alert("No fue posible aprobar el pago. Revisá la consola.");
         }
 
-
-        boton.disabled =
-            false;
-
-
+        boton.disabled = false;
         boton.innerHTML = `
             <i class="bi bi-check-circle me-2"></i>
             Aprobar

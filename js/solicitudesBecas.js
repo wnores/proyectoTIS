@@ -1,7 +1,8 @@
 import { db } from "./firebase-config.js";
 
 import {
-   collection,
+    collection,
+    addDoc,
     getDocs,
     query,
     where,
@@ -73,6 +74,29 @@ function formatearFechaSolicitud(fecha) {
         year: "numeric"
     });
 }
+
+
+function obtenerPorcentajesPorTipoBeca(tipoBeca) {
+    const tipo = (tipoBeca || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (tipo.includes("acceso")) {
+        return [50, 60, 75, 90];
+    }
+
+    if (tipo.includes("rendimiento")) {
+        return [25, 50, 75, 90];
+    }
+
+    if (tipo.includes("inclusion")) {
+        return [50, 75, 90];
+    }
+
+    return [];
+}
+
 
 async function cargarSolicitudes() {
 
@@ -152,6 +176,17 @@ async function cargarSolicitudes() {
                 }
             }
 
+            
+            const porcentajesDisponibles =
+                obtenerPorcentajesPorTipoBeca(solicitud.tipoBeca);
+
+            const opcionesPorcentaje = porcentajesDisponibles
+                .map(porcentaje =>
+                    `<option value="${porcentaje}">${porcentaje}%</option>`
+                )
+                .join("");
+
+
             const tarjeta =
                 document.createElement("div");
 
@@ -200,6 +235,28 @@ async function cargarSolicitudes() {
                             ${solicitud.tipoBeca || "No especificado"}
                         </p>
 
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="porcentaje-${documento.id}">
+                                Porcentaje de cobertura
+                            </label>
+
+                            <select
+                                id="porcentaje-${documento.id}"
+                                class="form-select js-porcentaje-beca"
+                                required
+                                ${porcentajesDisponibles.length === 0 ? "disabled" : ""}>
+
+                                <option value="">Seleccionar cobertura...</option>
+                                ${opcionesPorcentaje}
+                            </select>
+
+                            ${porcentajesDisponibles.length === 0
+                                ? '<small class="text-danger">Tipo de beca no reconocido.</small>'
+                                : ""}
+                        </div>
+
+
                         <p class="mb-3">
                             <strong>Motivo:</strong>
                             ${solicitud.motivo || "No especificado"}
@@ -235,17 +292,30 @@ async function cargarSolicitudes() {
             const botonRechazar =
                 tarjeta.querySelector(".js-rechazar-beca");
 
-            botonAprobar.addEventListener(
-                "click",
-                () => aprobarSolicitud(
-                    documento.id,
-                    {
-                        ...solicitud,
-                        cursoId: cursoId,
-                        curso: nombreCurso
-                    }
-                )
-            );
+            
+            botonAprobar.addEventListener("click", () => {
+                const selectorPorcentaje =
+                    tarjeta.querySelector(".js-porcentaje-beca");
+
+                const porcentajeBeca =
+                    Number(selectorPorcentaje.value);
+
+                if (
+                    !selectorPorcentaje.value ||
+                    !porcentajesDisponibles.includes(porcentajeBeca)
+                ) {
+                    alert("Seleccioná un porcentaje de beca válido antes de aprobar.");
+                    return;
+                }
+
+                aprobarSolicitud(documento.id, {
+                    ...solicitud,
+                    cursoId: cursoId,
+                    curso: nombreCurso,
+                    porcentajeBeca: porcentajeBeca
+                });
+            });
+
 
             botonRechazar.addEventListener(
                 "click",
@@ -275,230 +345,186 @@ async function cargarSolicitudes() {
     }
 }
 
-async function aprobarSolicitud(
-    idSolicitud,
-    solicitud
-) {
-    const confirmar = confirm(
-        `¿Querés aprobar la beca para el curso "${solicitud.curso}"?`
-    );
 
-    if (!confirmar) {
+async function aprobarSolicitud(idSolicitud, solicitud) {
+    const porcentajeBeca = Number(solicitud.porcentajeBeca);
+
+    const porcentajesDisponibles =
+        obtenerPorcentajesPorTipoBeca(solicitud.tipoBeca);
+
+    if (!porcentajesDisponibles.includes(porcentajeBeca)) {
+        alert("Seleccioná un porcentaje de beca válido.");
         return;
     }
 
+    const confirmar = confirm(
+        `¿Querés aprobar la beca del ${porcentajeBeca}% para el curso "${solicitud.curso}"?`
+    );
+
+    if (!confirmar) return;
+
     try {
-        const cursoId =
-            solicitud.cursoId ||
-            solicitud.curso;
+        const cursoId = solicitud.cursoId || solicitud.curso;
 
-        if (!cursoId) {
-            alert(
-                "No se encontró el curso asociado a la solicitud."
-            );
+        if (!cursoId || !solicitud.uid) {
+            alert("Faltan datos del curso o del estudiante.");
             return;
         }
 
-        if (!solicitud.uid) {
-            alert(
-                "No se encontró el usuario asociado a la solicitud."
-            );
-            return;
-        }
+        const referenciaCurso = doc(db, "cursoscc", cursoId);
+        const referenciaSolicitud = doc(db, "solicitudesBecas", idSolicitud);
+        const referenciaUsuario = doc(db, "usuarios", solicitud.uid);
+        const referenciaAdquisicion = doc(collection(db, "adquisiciones"));
+        let importeBeca = 0;
+        let saldoPendiente = 0;
 
-        const referenciaCurso = doc(
-            db,
-            "cursoscc",
-            cursoId
-        );
+        await runTransaction(db, async (transaccion) => {
+            // Leer todos los documentos antes de escribir.
+            const resultadoCurso = await transaccion.get(referenciaCurso);
+            const resultadoSolicitud = await transaccion.get(referenciaSolicitud);
+            const resultadoUsuario = await transaccion.get(referenciaUsuario);
 
-        const referenciaSolicitud = doc(
-            db,
-            "solicitudesBecas",
-            idSolicitud
-        );
-
-        const referenciaUsuario = doc(
-            db,
-            "usuarios",
-            solicitud.uid
-        );
-
-        const referenciaAdquisicion = doc(
-            collection(db, "adquisiciones")
-        );
-
-        await runTransaction(
-            db,
-            async (transaccion) => {
-
-                // Todas las lecturas deben realizarse
-                // antes que las escrituras.
-                const resultadoCurso =
-                    await transaccion.get(
-                        referenciaCurso
-                    );
-
-                const resultadoSolicitud =
-                    await transaccion.get(
-                        referenciaSolicitud
-                    );
-
-                if (!resultadoCurso.exists()) {
-                    throw new Error(
-                        "CURSO_NO_EXISTE"
-                    );
-                }
-
-                if (!resultadoSolicitud.exists()) {
-                    throw new Error(
-                        "SOLICITUD_NO_EXISTE"
-                    );
-                }
-
-                const datosSolicitud =
-                    resultadoSolicitud.data();
-
-                // Evita aprobar y descontar dos veces
-                if (
-                    datosSolicitud.estado !==
-                    "pendiente"
-                ) {
-                    throw new Error(
-                        "SOLICITUD_YA_PROCESADA"
-                    );
-                }
-
-                const datosCurso =
-                    resultadoCurso.data();
-
-                const cuposActuales = Number(
-                    datosCurso
-                        .cupos_disponibles || 0
-                );
-
-                if (cuposActuales <= 0) {
-                    throw new Error("SIN_CUPOS");
-                }
-
-                const nombreCurso =
-                    datosCurso.titulo ||
-                    datosCurso.nombre ||
-                    datosCurso.nombreCurso ||
-                    "Curso sin nombre";
-
-                // Descontar un cupo
-                transaccion.update(
-                    referenciaCurso,
-                    {
-                        cupos_disponibles:
-                            cuposActuales - 1
-                    }
-                );
-
-                // Aprobar la solicitud
-                transaccion.update(
-                    referenciaSolicitud,
-                    {
-                        estado: "aprobada",
-                        cursoId: cursoId,
-                        curso: nombreCurso
-                    }
-                );
-
-                // Agregar la beca al perfil
-                transaccion.update(
-                    referenciaUsuario,
-                    {
-                        serviciosAdquiridos:
-                            arrayUnion(nombreCurso),
-
-                        becasAdquiridas:
-                            arrayUnion({
-                                curso: nombreCurso,
-                                cursoId: cursoId,
-                                tipoBeca:
-                                    solicitud.tipoBeca
-                            })
-                    }
-                );
-
-                // Registrar la adquisición
-                transaccion.set(
-                    referenciaAdquisicion,
-                    {
-                        usuarioId:
-                            solicitud.uid,
-
-                        cursoId: cursoId,
-
-                        cursoTitulo:
-                            nombreCurso,
-
-                        precio: 0,
-
-                        metodoPago: "beca",
-
-                        tipoBeca:
-                            solicitud.tipoBeca,
-
-                        fechaAdquisicion:
-                            serverTimestamp(),
-
-                        estado: "aprobada"
-                    }
-                );
+            if (!resultadoCurso.exists()) {
+                throw new Error("CURSO_NO_EXISTE");
             }
-        );
+
+            if (!resultadoSolicitud.exists()) {
+                throw new Error("SOLICITUD_NO_EXISTE");
+            }
+
+            if (!resultadoUsuario.exists()) {
+                throw new Error("USUARIO_NO_EXISTE");
+            }
+
+            const datosSolicitud = resultadoSolicitud.data();
+
+            if (datosSolicitud.estado !== "pendiente") {
+                throw new Error("SOLICITUD_YA_PROCESADA");
+            }
+
+            const datosCurso = resultadoCurso.data();
+            const precioCurso = Number(datosCurso.precio);
+
+            if (!Number.isFinite(precioCurso) || precioCurso < 0) {
+                throw new Error("PRECIO_INVALIDO");
+            }
+
+            const cuposActuales = Number(datosCurso.cupos_disponibles || 0);
+
+            if (cuposActuales <= 0) {
+                throw new Error("SIN_CUPOS");
+            }
+
+            const nombreCurso =
+                datosCurso.titulo ||
+                datosCurso.nombre ||
+                datosCurso.nombreCurso ||
+                "Curso sin nombre";
+
+            importeBeca = Math.round(
+                precioCurso * porcentajeBeca
+            ) / 100;
+
+            saldoPendiente = Math.round(
+                (precioCurso - importeBeca) * 100
+            ) / 100;
+
+            // Registrar la beca concedida y el saldo pendiente.
+            transaccion.update(referenciaSolicitud, {
+                estado: "aprobada",
+                cursoId,
+                curso: nombreCurso,
+                porcentajeBeca,
+                precioOriginal: precioCurso,
+                importeBeca,
+                saldoPendiente,
+                estadoPagoSaldo: saldoPendiente === 0
+                    ? "pagado"
+                    : "pendiente"
+            });
+
+            // Registrar el beneficio económico, no una compra pagada.
+            transaccion.set(referenciaAdquisicion, {
+                usuarioId: solicitud.uid,
+                cursoId,
+                cursoTitulo: nombreCurso,
+                precio: precioCurso,
+                porcentajeBeca,
+                importeBeca,
+                saldoPendiente,
+                metodoPago: "beca",
+                tipoBeca: solicitud.tipoBeca,
+                fechaAdquisicion: serverTimestamp(),
+                estado: "pendiente_pago",
+                estadoPagoSaldo: saldoPendiente === 0
+                    ? "pagado"
+                    : "pendiente"
+            });
+
+            // Reservar el cupo del curso.
+            transaccion.update(referenciaCurso, {
+                cupos_disponibles: cuposActuales - 1
+            });
+        });
+
+                // Notificar al estudiante que su beca fue aprobada.
+        try {
+            await addDoc(collection(db, "notificaciones"), {
+                tipo: "beca",
+                destinatarioRol: "estudiante",
+                destinatarioId: solicitud.uid,
+                estudianteId: solicitud.uid,
+                autorNombre: "Equipo docente",
+                cursoId: cursoId,
+                cursoTitulo: solicitud.curso,
+                solicitudId: idSolicitud,
+                porcentajeBeca: porcentajeBeca,
+                titulo: "¡Tu beca fue aprobada!",
+                mensaje: `Tu solicitud de beca para el curso "${solicitud.curso}" fue aprobada con una cobertura del ${porcentajeBeca}%.`,
+                leida: false,
+                fechaCreacion: serverTimestamp(),
+                enlace: "misCursos.html"
+            });
+        } catch (errorNotificacion) {
+            console.error(
+                "La beca fue aprobada, pero no se pudo crear la notificación:",
+                errorNotificacion
+            );
+        }
 
         alert(
-            "La solicitud fue aprobada correctamente."
+            `Beca aprobada: ${porcentajeBeca}%.\n` +
+            `Importe cubierto: ${importeBeca.toLocaleString("es-UY", {
+                style: "currency",
+                currency: "UYU"
+            })}\n` +
+            `Saldo pendiente: ${saldoPendiente.toLocaleString("es-UY", {
+                style: "currency",
+                currency: "UYU"
+            })}`
         );
 
         await cargarSolicitudes();
 
     } catch (error) {
-        console.error(
-            "Error al aprobar la solicitud:",
-            error
+        console.error("Error al aprobar la solicitud:", error);
+
+        const mensajes = {
+            SIN_CUPOS: "No se puede aprobar la beca porque el curso no tiene cupos.",
+            SOLICITUD_YA_PROCESADA: "Esta solicitud ya fue procesada.",
+            CURSO_NO_EXISTE: "No se encontró el curso.",
+            SOLICITUD_NO_EXISTE: "No se encontró la solicitud.",
+            USUARIO_NO_EXISTE: "No se encontró el usuario.",
+            PRECIO_INVALIDO: "El precio del curso no es válido."
+        };
+
+        alert(
+            mensajes[error.message] ||
+            "No se pudo aprobar la solicitud. Intentá nuevamente."
         );
-
-        if (error.message === "SIN_CUPOS") {
-            alert(
-                "No se puede aprobar la beca porque el curso no tiene cupos."
-            );
-
-        } else if (
-            error.message ===
-            "SOLICITUD_YA_PROCESADA"
-        ) {
-            alert(
-                "Esta solicitud ya fue procesada."
-            );
-
-        } else if (
-            error.message ===
-            "CURSO_NO_EXISTE"
-        ) {
-            alert(
-                "No se encontró el curso asociado a la solicitud."
-            );
-
-        } else if (
-            error.message ===
-            "SOLICITUD_NO_EXISTE"
-        ) {
-            alert(
-                "No se encontró la solicitud de beca."
-            );
-
-        } else {
-            alert(
-                "No se pudo aprobar la solicitud. Intentá nuevamente."
-            );
-        }
     }
 }
+
 
 async function rechazarSolicitud(idSolicitud) {
 

@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta
-        name="description"
-        content="Perfil de usuario registrado en la plataforma">
+    <meta name="description" content="Perfil de usuario registrado en la plataforma">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -15,8 +13,7 @@
 <body class="d-flex flex-column min-vh-100" data-page="perfil.html">
 
 <header>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
-    aria-label="Navegación principal">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
@@ -35,11 +32,7 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link"
-                            data-page="producto"
-                            href="acercaDe.html">
-                            Acerca de
-                        </a>
+                        <a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
@@ -60,18 +53,14 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-
                         <li id="menuMisCursos">
                             <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
-                                <i class="bi bi-book fs-5"></i>
-                                Mis cursos
+                                <i class="bi bi-book fs-5"></i> Mis cursos
                             </a>
                         </li>
-                        
                         <li>
                             <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                                <i class="bi bi-box-arrow-right fs-5"></i>
-                                Cerrar sesión
+                                <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
                             </button>
                         </li>
                     </ul>
@@ -82,8 +71,7 @@
 </header>    
 
     <main class="flex-grow-1">
-        <section class="container py-4"
-        aria-labelledby="tituloPerfil">
+        <section class="container py-4" aria-labelledby="tituloPerfil">
             <div class="row justify-content-center">
                 <div class="col-12 col-lg-10 col-xl-9">
                     <div class="perfil-card">
@@ -165,13 +153,11 @@
 
                         <div class="perfil-botones mt-4 pt-4">
                             <button type="button" class="btn btn-primary" id="btnModificarPassword">
-                                <i class="bi bi-key"></i>
-                                Modificar contraseña
+                                <i class="bi bi-key"></i> Modificar contraseña
                             </button>
 
-                            <button type="button" class="btn btn-outline-danger" id="btnEliminarCuenta">
-                                <i class="bi bi-trash3"></i>
-                                Eliminar cuenta
+                            <button type="button" class="btn btn-outline-danger" id="btnDeshabilitarCuenta">
+                                <i class="bi bi-person-x"></i> Deshabilitar cuenta
                             </button>
                         </div>
 
@@ -213,256 +199,130 @@
             </div>
             <hr>
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyright">
-                2026 - Taller Integrador de Sistemas
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>
 
+    <!-- MODAL MODIFICAR CONTRASEÑA -->
     <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalPasswordLabel">
-                        Modificar contraseña
-                    </h5>
+                    <h5 class="modal-title" id="modalPasswordLabel">Modificar contraseña</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-
                 <div class="modal-body">
-
                     <div class="mb-3">
-                        <label for="nuevaPassword" class="form-label">
-                            Nueva contraseña
-                        </label>
-
+                        <label for="nuevaPassword" class="form-label">Nueva contraseña</label>
                         <div class="input-group">
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="nuevaPassword"
-                                minlength="8"
-                                maxlength="20"
-                                placeholder="Entre 8 y 20 caracteres">
-
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-toggle-password"
-                                data-target="nuevaPassword"
-                                aria-label="Mostrar contraseña">
+                            <input type="password" class="form-control" id="nuevaPassword" minlength="8" maxlength="20" placeholder="Entre 8 y 20 caracteres">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="nuevaPassword" aria-label="Mostrar contraseña">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="confirmarPassword" class="form-label">
-                            Confirmar contraseña
-                        </label>
-
+                        <label for="confirmarPassword" class="form-label">Confirmar contraseña</label>
                         <div class="input-group">
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="confirmarPassword"
-                                minlength="8"
-                                maxlength="20"
-                                placeholder="Repetí la nueva contraseña">
-
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-toggle-password"
-                                data-target="confirmarPassword"
-                                aria-label="Mostrar contraseña">
+                            <input type="password" class="form-control" id="confirmarPassword" minlength="8" maxlength="20" placeholder="Repetí la nueva contraseña">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="confirmarPassword" aria-label="Mostrar contraseña">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                     </div>
-
                     <div id="mensajePassword" class="small"></div>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">
-                        Guardar contraseña
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">Guardar contraseña</button>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- MODAL REAUTENTICAR CONTRASEÑA -->
     <div class="modal fade" id="modalReautenticarPassword" tabindex="-1" aria-labelledby="modalReautenticarPasswordLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalReautenticarPasswordLabel">
-                        Verificación de seguridad
-                    </h5>
+                    <h5 class="modal-title" id="modalReautenticarPasswordLabel">Verificación de seguridad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-
                 <div class="modal-body">
-                    <p class="mb-3">
-                        Por seguridad, ingresá tu contraseña actual para continuar.
-                    </p>
-
+                    <p class="mb-3">Por seguridad, ingresá tu contraseña actual para continuar.</p>
                     <div class="input-group">
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="passwordActualReautenticar"
-                            placeholder="Contraseña actual">
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-toggle-password"
-                            data-target="passwordActualReautenticar"
-                            aria-label="Mostrar contraseña">
+                        <input type="password" class="form-control" id="passwordActualReautenticar" placeholder="Contraseña actual">
+                        <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="passwordActualReautenticar" aria-label="Mostrar contraseña">
                             <i class="bi bi-eye"></i>
                         </button>
                     </div>
-
                     <div id="mensajeReautenticarPassword" class="small mt-2"></div>
                 </div>
-
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        id="btnReautenticarPassword">
-                        Continuar
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnReautenticarPassword">Continuar</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-labelledby="modalEliminarCuentaLabel" aria-hidden="true">
+    <!-- MODAL CONFIRMAR DESHABILITAR CUENTA -->
+    <div class="modal fade" id="modalDeshabilitarCuenta" tabindex="-1" aria-labelledby="modalDeshabilitarCuentaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="modalEliminarCuentaLabel">
-                        Eliminar cuenta
-                    </h5>
-
+                    <h5 class="modal-title text-danger" id="modalDeshabilitarCuentaLabel">Deshabilitar cuenta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-
                 <div class="modal-body">
-                    <p>
-                        ¿Estás segura de que querés eliminar tu cuenta?
-                    </p>
-
-                    <p class="text-danger fw-bold mb-0">
-                        Esta acción no se puede deshacer.
-                    </p>
+                    <p>¿Estás seguro/a de que querés deshabilitar tu cuenta?</p>
+                    <p class="text-secondary small mb-0">No podrás ingresar a la plataforma hasta que un administrador vuelva a habilitar tu usuario.</p>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminarCuenta">
-                        Sí, eliminar mi cuenta
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarDeshabilitarCuenta">Sí, deshabilitar mi cuenta</button>
                 </div>
             </div>
         </div>
     </div>
 
-<div class="modal fade" id="modalReautenticarEliminar" tabindex="-1"
-    aria-labelledby="modalReautenticarEliminarLabel" aria-hidden="true">
-
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalReautenticarEliminarLabel">
-                    Confirmar identidad
-                </h5>
-
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar">
-                </button>
-            </div>
-
-            <div class="modal-body">
-
-                <p>
-                    Por seguridad, ingresá tu contraseña actual para continuar.
-                </p>
-
-                <div class="mb-3">
-                    <label for="passwordEliminarCuenta" class="form-label">
-                        Contraseña actual
-                    </label>
-
-                    <div class="input-group">
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="passwordEliminarCuenta"
-                            autocomplete="current-password"
-                            placeholder="Ingresá tu contraseña">
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-toggle-password"
-                            data-target="passwordEliminarCuenta"
-                            aria-label="Mostrar contraseña">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="mensajeEliminarCuenta"
-                    class="small mt-2">
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-                    Cancelar
-                </button>
-
-                <button type="button"
-                    class="btn btn-danger"
-                    id="btnReautenticarEliminar">
-                    Continuar
-                </button>
-
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalEditarNombre" tabindex="-1" aria-labelledby="modalEditarNombreLabel" aria-hidden="true">
+    <!-- MODAL CONTRASEÑA PARA DESHABILITAR CUENTA -->
+    <div class="modal fade" id="modalReautenticarDeshabilitar" tabindex="-1" aria-labelledby="modalReautenticarDeshabilitarLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarNombreLabel">
-                        Modificar nombre
-                    </h5>
+                    <h5 class="modal-title" id="modalReautenticarDeshabilitarLabel">Confirmar identidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Por seguridad, ingresá tu contraseña actual para continuar.</p>
+                    <div class="mb-3">
+                        <label for="passwordDeshabilitarCuenta" class="form-label">Contraseña actual</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="passwordDeshabilitarCuenta" autocomplete="current-password" placeholder="Ingresá tu contraseña">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="passwordDeshabilitarCuenta" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="mensajeDeshabilitarCuenta" class="small mt-2"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnReautenticarDeshabilitar">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES DE EDICIÓN DE NOMBRE Y APELLIDO -->
+    <div class="modal fade" id="modalEditarNombre" tabindex="-1" aria-labelledby="modalEditarNombreLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarNombreLabel">Modificar nombre</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -484,9 +344,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarApellidoLabel">
-                        Modificar apellido
-                    </h5>
+                    <h5 class="modal-title" id="modalEditarApellidoLabel">Modificar apellido</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -507,16 +365,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js" type="module"></script>
     <script src="js/perfil.js" type="module"></script>
+
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
-    <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center gap-2">
-                <i id="toastIcono" class="bi bi-check-circle-fill fs-5"></i>
-                <span id="toastMensaje">Cambio realizado con éxito.</span>
+        <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i id="toastIcono" class="bi bi-check-circle-fill fs-5"></i>
+                    <span id="toastMensaje">Cambio realizado con éxito.</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
         </div>
     </div>
-</div>
 </body>
 </html>

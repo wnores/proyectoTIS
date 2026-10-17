@@ -89,6 +89,9 @@ function iniciarPagina() {
             const modulos = await obtenerModulosConTemas(curso.id);
             mostrarCurso(curso, modulos);
 
+            // Verificar y mostrar el estado del certificado en la barra lateral
+            verificarEstadoCertificadoBarraLateral(usuario.uid, cursoId);
+
         } catch (error) {
             console.error("Error al cargar el contenido del curso:", error);
             mostrarError("No fue posible cargar el contenido del curso.");
@@ -121,41 +124,31 @@ function gestionarEnlaceMisCursos(rol) {
     }
 }
 
-
-
 async function comprobarAcceso(rol, curso, uid) {
-
-    // Administradores y docentes mantienen el acceso.
     if (rol.includes("admin") || rol.includes("docente")) {
         return true;
     }
 
-    // Solo los estudiantes pueden acceder mediante una adquisición.
     if (rol !== "estudiante") {
         return false;
     }
 
     const referenciaAdquisiciones = collection(db, "adquisiciones");
-
     const consultaAdquisiciones = query(
         referenciaAdquisiciones,
         where("usuarioId", "==", uid)
     );
 
-    const resultadoAdquisiciones = await getDocs(
-        consultaAdquisiciones
-    );
+    const resultadoAdquisiciones = await getDocs(consultaAdquisiciones);
 
     const adquisicionEncontrada = resultadoAdquisiciones.docs.some(
         (documento) => {
             const adquisicion = documento.data();
 
-            // Debe corresponder al curso solicitado.
             if (adquisicion.cursoId !== curso.id) {
                 return false;
             }
 
-            // Adquisiciones mediante beca.
             if (adquisicion.metodoPago === "beca") {
                 const becaAprobada =
                     adquisicion.porcentajeBeca > 0 &&
@@ -165,12 +158,10 @@ async function comprobarAcceso(rol, curso, uid) {
                 return becaAprobada;
             }
 
-            // Compras normales: deben estar aprobadas.
             if (adquisicion.estado !== "aprobada") {
                 return false;
             }
 
-            // Si existe un estado de saldo, debe estar pagado.
             if (
                 adquisicion.estadoPagoSaldo != null &&
                 adquisicion.estadoPagoSaldo !== "pagado"
@@ -185,7 +176,45 @@ async function comprobarAcceso(rol, curso, uid) {
     return adquisicionEncontrada;
 }
 
+async function verificarEstadoCertificadoBarraLateral(usuarioUid, cursoId) {
+    const contenedor = document.getElementById("contenedorCertificadoCurso");
+    if (!contenedor) return;
 
+    try {
+        const refEntrega = doc(db, "cursoscc", cursoId, "entregas", usuarioUid);
+        const snapEntrega = await getDoc(refEntrega);
+
+        if (snapEntrega.exists()) {
+            const dataEntrega = snapEntrega.data();
+            const nota = Number(dataEntrega.nota);
+
+            if (!isNaN(nota)) {
+                if (nota >= 6) {
+                    contenedor.innerHTML = `
+                        <div class="alert alert-success p-2 mb-2 text-center">
+                            <i class="bi bi-patch-check-fill fs-4 d-block mb-1"></i>
+                            <strong>¡Curso Aprobado!</strong><br>Nota: <strong>${nota}/10</strong>
+                        </div>
+                        <a href="certificado.html?curso=${cursoId}" class="btn btn-success w-100 fw-bold d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-award fs-5"></i>
+                            <span>Ver / Descargar Certificado</span>
+                        </a>
+                    `;
+                } else {
+                    contenedor.innerHTML = `
+                        <div class="alert alert-danger p-2 mb-0 text-center">
+                            <i class="bi bi-x-circle-fill fs-4 d-block mb-1"></i>
+                            <strong>Calificación: ${nota}/10</strong><br>
+                            <span class="small">No aprobaste el curso.</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error al verificar certificado en barra lateral:", e);
+    }
+}
 
 async function obtenerModulosConTemas(idCurso) {
     const referenciaModulos = collection(db, "cursoscc", idCurso, "modulos");
@@ -417,7 +446,6 @@ async function mostrarActividadFinal(urlActividad, cantidadModulos) {
         await renderizarSeccionAdministrador(seccionDinamica);
     } else {
         if (!tieneConsignaDocente) {
-            // Si es estudiante y no hay consigna guardada, NO se habilita el formulario de carga
             seccionDinamica.innerHTML = '';
         } else {
             await renderizarSeccionEstudiante(seccionDinamica);
@@ -446,13 +474,17 @@ async function renderizarSeccionEstudiante(contenedor) {
 
         let htmlCalificacion = '';
         if (entrega && entrega.nota !== undefined && entrega.nota !== null) {
+            const notaNum = Number(entrega.nota);
+            const aprobado = notaNum >= 6;
+
             htmlCalificacion = `
-                <div class="alert alert-success border-success mb-4 p-3 shadow-sm">
+                <div class="alert ${aprobado ? 'alert-success border-success' : 'alert-danger border-danger'} mb-4 p-3 shadow-sm">
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="bi bi-award-fill fs-4 text-success"></i>
-                        <h4 class="h5 m-0 fw-bold text-success">Calificación Asignada</h4>
+                        <i class="bi ${aprobado ? 'bi-award-fill text-success' : 'bi-x-circle-fill text-danger'} fs-4"></i>
+                        <h4 class="h5 m-0 fw-bold ${aprobado ? 'text-success' : 'text-danger'}">Calificación Asignada</h4>
                     </div>
-                    <div class="fs-4 fw-bold text-dark mb-2">Nota: <span class="badge bg-success">${entrega.nota} / 10</span></div>
+                    <div class="fs-4 fw-bold text-dark mb-2">Nota: <span class="badge ${aprobado ? 'bg-success' : 'bg-danger'}">${entrega.nota} / 10</span></div>
+                    <p class="mb-2"><strong>Estado:</strong> ${aprobado ? '¡Aprobado! Ya podés ver tu certificado en el menú lateral.' : 'No aprobaste el curso.'}</p>
                     ${entrega.comentario ? `<p class="mb-0 text-secondary"><strong>Devolución del docente:</strong> ${entrega.comentario}</p>` : ''}
                 </div>
             `;
@@ -535,8 +567,7 @@ async function renderizarSeccionEstudiante(contenedor) {
                 }
 
                 const refDoc = doc(db, "cursoscc", cursoId, "entregas", datosUsuarioActual.uid);
-                const refNotificacion = doc(collection(db, "notificaciones")
-                );
+                const refNotificacion = doc(collection(db, "notificaciones"));
 
                 const nombreEstudiante = [
                     datosUsuarioActual.nombre,
@@ -553,7 +584,6 @@ async function renderizarSeccionEstudiante(contenedor) {
                     emailEstudiante: auth.currentUser.email || ""
                 }, { merge: true });
 
-
                 lote.set(refNotificacion, {
                     tipo: "entrega",
                     destinatarioRol: "docente/admin",
@@ -561,13 +591,10 @@ async function renderizarSeccionEstudiante(contenedor) {
                     autorNombre: nombreEstudiante,
                     cursoId: cursoId,
                     cursoTitulo: nombreCursoRuta.textContent || "Curso",
-                    titulo: entrega
-                        ? "Entrega actualizada para revisar"
-                        : "Nueva entrega para calificar",
+                    titulo: entrega ? "Entrega actualizada para revisar" : "Nueva entrega para calificar",
                     leida: false,
                     fechaCreacion: serverTimestamp(),
-                    enlace:
-                        `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
+                    enlace: `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
                 });
 
                 await lote.commit();
@@ -641,7 +668,7 @@ async function renderizarSeccionAdministrador(contenedor) {
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold mb-1">Devolución / Comentario:</label>
-                                    <input type="text" class="form-control form-control-sm input-comentario" value="${data.comentario || ''}" placeholder="Ej: Excelente desarrollo del proyecto.">
+                                    <input type="text" class="form-control form-control-sm input-comentario" value="${data.comentario || ''}" placeholder="Ej: Excelente desarrollo.">
                                 </div>
                                 <div class="col-12 col-md-3 text-end mt-md-4">
                                     <button type="submit" class="btn btn-primary btn-sm w-100 btn-guardar-nota">
@@ -675,12 +702,7 @@ async function renderizarSeccionAdministrador(contenedor) {
                 const notaVal = Number(inputNota.value);
                 const comentarioVal = inputComentario.value.trim();
 
-                if (
-                    inputNota.value.trim() === "" ||
-                    !Number.isFinite(notaVal) ||
-                    notaVal < 0 ||
-                    notaVal > 10
-                ) {
+                if (inputNota.value.trim() === "" || !Number.isFinite(notaVal) || notaVal < 0 || notaVal > 10) {
                     inputNota.reportValidity();
                     return;
                 }
@@ -688,20 +710,11 @@ async function renderizarSeccionAdministrador(contenedor) {
                 btnSubmit.disabled = true;
 
                 try {
-                    const refDoc = doc(
-                        db,
-                        "cursoscc",
-                        cursoId,
-                        "entregas",
-                        estUid
-                    );
-
-                    const refNotificacion = doc(
-                        collection(db, "notificaciones")
-                    );
+                    const refDoc = doc(db, "cursoscc", cursoId, "entregas", estUid);
+                    const refCertificado = doc(db, "certificados", `${estUid}_${cursoId}`);
+                    const refNotificacion = doc(collection(db, "notificaciones"));
 
                     const lote = writeBatch(db);
-
                     const cursoAprobado = notaVal >= 6;
 
                     lote.set(refDoc, {
@@ -712,25 +725,33 @@ async function renderizarSeccionAdministrador(contenedor) {
                         fechaCalificacion: new Date().toISOString()
                     }, { merge: true });
 
+                    if (cursoAprobado) {
+                        lote.set(refCertificado, {
+                            usuarioId: estUid,
+                            cursoId: cursoId,
+                            nota: notaVal,
+                            fecha: serverTimestamp(),
+                            codigo: `CERT-UY-${Math.floor(100000 + Math.random() * 900000)}`
+                        }, { merge: true });
+                    }
+
                     lote.set(refNotificacion, {
                         tipo: "calificacion",
                         destinatarioRol: "estudiante",
                         destinatarioId: estUid,
                         cursoId: cursoId,
                         cursoTitulo: nombreCursoRuta.textContent || "Tu curso",
-                        titulo: "Tu actividad fue calificada",
+                        titulo: cursoAprobado ? "¡Felicitaciones! Curso aprobado y certificado disponible" : "Tu actividad fue calificada",
                         nota: notaVal,
                         leida: false,
                         fechaCreacion: serverTimestamp(),
-                        enlace:
-                            `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
+                        enlace: `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
                     });
 
-    
                     await lote.commit();
 
                     msgBox.className = "mensaje-calificacion mt-2 small text-center alert alert-success py-1 mb-0 d-block";
-                    msgBox.textContent = "¡Calificación guardada con éxito!";
+                    msgBox.textContent = "¡Calificación guardada y certificado emitido con éxito!";
 
                     setTimeout(() => {
                         msgBox.className = "mensaje-calificacion mt-2 small text-center d-none alert py-1 mb-0";
@@ -785,169 +806,53 @@ function renderizarTemasDelModulo(temas) {
     contenedorTemas.replaceChildren();
 
     if (!Array.isArray(temas) || temas.length === 0) {
-        contenedorTemas.innerHTML = `
-            <div class="alert alert-secondary mb-0">
-                <i class="bi bi-info-circle me-2"></i>
-                Este módulo todavía no tiene temas asignados.
-            </div>
-        `;
+        const mensaje = document.createElement("p");
+        mensaje.className = "text-muted";
+        mensaje.textContent = "Este módulo no tiene temas disponibles.";
+        contenedorTemas.appendChild(mensaje);
         return;
     }
 
-    temas.forEach((tema, index) => {
-        const cardTema = document.createElement("div");
-        cardTema.className = "card mb-4 border-1 shadow-sm";
+    temas.forEach((tema, idx) => {
+        const divTema = document.createElement("div");
+        divTema.className = "mb-4 pb-3 border-bottom";
 
-        const cardBody = document.createElement("div");
-        cardBody.className = "card-body p-4";
-
-        const tituloTema = document.createElement("h3");
-        tituloTema.className = "h5 text-primary mb-2";
-        tituloTema.textContent = `${index + 1}. ${tema.nombre}`;
-        cardBody.appendChild(tituloTema);
+        const titulo = document.createElement("h3");
+        titulo.className = "h5 fw-bold text-dark";
+        titulo.textContent = `${idx + 1}. ${tema.nombre}`;
+        divTema.appendChild(titulo);
 
         if (tema.descripcion) {
-            const descTema = document.createElement("p");
-            descTema.className = "text-muted mb-3";
-            descTema.textContent = tema.descripcion;
-            cardBody.appendChild(descTema);
+            const desc = document.createElement("p");
+            desc.className = "text-secondary";
+            desc.textContent = tema.descripcion;
+            divTema.appendChild(desc);
         }
 
-        if (Array.isArray(tema.objetivos) && tema.objetivos.length > 0) {
-            const divObjetivos = document.createElement("div");
-            divObjetivos.className = "alert alert-info py-2 px-3 mb-3";
-            
-            const hObj = document.createElement("h4");
-            hObj.className = "h6 mb-2 fw-bold text-dark";
-            hObj.innerHTML = `<i class="bi bi-bullseye me-2 text-primary"></i>Objetivos del tema:`;
-            divObjetivos.appendChild(hObj);
-
-            const ulObj = document.createElement("ul");
-            ulObj.className = "mb-0 small";
-
-            tema.objetivos.forEach(obj => {
-                if (typeof obj === 'string' && obj.trim()) {
-                    const li = document.createElement("li");
-                    li.textContent = obj;
-                    ulObj.appendChild(li);
-                }
-            });
-
-            if (ulObj.children.length > 0) {
-                divObjetivos.appendChild(ulObj);
-                cardBody.appendChild(divObjetivos);
-            }
-        }
-
-        const hRecursos = document.createElement("h4");
-        hRecursos.className = "h6 fw-bold mb-3 text-secondary";
-        hRecursos.textContent = "Recursos del tema:";
-        cardBody.appendChild(hRecursos);
-
-        const rowRecursos = document.createElement("div");
-        rowRecursos.className = "row g-3";
-
-        if (!Array.isArray(tema.recursos) || tema.recursos.length === 0) {
-            const col = document.createElement("div");
-            col.className = "col-12";
-            col.innerHTML = `
-                <div class="alert alert-light text-muted small mb-0 border">
-                    <i class="bi bi-info-circle me-1"></i> No hay recursos disponibles para este tema.
-                </div>
-            `;
-            rowRecursos.appendChild(col);
-        } else {
-            tema.recursos.forEach((recurso) => {
-                const col = document.createElement("div");
-                col.className = "col-12 col-md-6";
-
-                const cardRecurso = document.createElement("div");
-                cardRecurso.className = "card h-100 border shadow-xs";
-
-                const bodyRecurso = document.createElement("div");
-                bodyRecurso.className = "card-body d-flex flex-column p-3";
-
-                const icono = document.createElement("i");
-                icono.className = obtenerIconoRecurso(recurso.tipo);
-
-                const tituloRec = document.createElement("h5");
-                tituloRec.className = "card-title h6 mb-2";
-                tituloRec.textContent = recurso.nombre || "Recurso del tema";
-
-                const enlace = document.createElement("a");
-                enlace.className = "btn btn-outline-primary btn-sm mt-auto w-100";
-                enlace.target = "_blank";
-                enlace.rel = "noopener noreferrer";
-
-                if (recurso.url) {
-                    enlace.href = recurso.url;
-                    enlace.textContent = obtenerTextoBoton(recurso.tipo);
-                } else {
-                    enlace.href = "#";
-                    enlace.textContent = "Material no disponible";
-                    enlace.classList.add("disabled");
-                    enlace.setAttribute("aria-disabled", "true");
-                }
-
-                bodyRecurso.appendChild(icono);
-                bodyRecurso.appendChild(tituloRec);
-                bodyRecurso.appendChild(enlace);
-
-                cardRecurso.appendChild(bodyRecurso);
-                col.appendChild(cardRecurso);
-                rowRecursos.appendChild(col);
-            });
-        }
-
-        cardBody.appendChild(rowRecursos);
-        cardTema.appendChild(cardBody);
-        contenedorTemas.appendChild(cardTema);
+        contenedorTemas.appendChild(divTema);
     });
 }
 
-function obtenerIconoRecurso(tipo) {
-    const iconos = {
-        pdf: "bi bi-file-earmark-pdf fs-3 text-danger mb-2",
-        drive: "bi bi-google fs-3 text-success mb-2",
-        presentacion: "bi bi-easel fs-3 text-warning mb-2",
-        url: "bi bi-link-45deg fs-3 text-primary mb-2"
-    };
-    return iconos[tipo] || "bi bi-file-earmark fs-3 text-primary mb-2";
-}
+function actualizarProgreso(indiceModulo, totalModulos) {
+    const barraProgreso = document.getElementById("barraProgreso");
+    if (!barraProgreso || totalModulos === 0) return;
 
-function obtenerTextoBoton(tipo) {
-    const textos = {
-        pdf: "Abrir PDF",
-        drive: "Abrir en Drive",
-        presentacion: "Ver presentación",
-        url: "Visitar enlace",
-        python: "Descargar Python"
-    };
-    return textos[tipo] || "Abrir material";
-}
-
-function actualizarProgreso(indice, cantidadModulos) {
-    const porcentaje = Math.round(((indice + 1) / cantidadModulos) * 100);
-    const barra = document.getElementById("barraProgreso");
-
-    if (barra) {
-        barra.style.width = `${porcentaje}%`;
-        barra.textContent = `${porcentaje}%`;
-        barra.setAttribute("aria-valuenow", porcentaje);
-    }
+    const porcentaje = Math.round(((indiceModulo + 1) / totalModulos) * 100);
+    barraProgreso.style.width = `${porcentaje}%`;
+    barraProgreso.textContent = `${porcentaje}%`;
 }
 
 function quitarModuloActivo() {
-    const botones = listaModulos.querySelectorAll(".list-group-item");
-    botones.forEach((boton) => {
-        boton.classList.remove("active");
-    });
+    if (!listaModulos) return;
+    const items = listaModulos.querySelectorAll(".list-group-item");
+    items.forEach((item) => item.classList.remove("active"));
 }
 
 function mostrarError(mensaje) {
-    estadoCarga.classList.add("d-none");
-    contenidoCurso.classList.add("d-none");
-
-    mensajeError.textContent = mensaje;
-    mensajeError.classList.remove("d-none");
+    if (estadoCarga) estadoCarga.classList.add("d-none");
+    if (contenidoCurso) contenidoCurso.classList.add("d-none");
+    if (mensajeError) {
+        mensajeError.textContent = mensaje;
+        mensajeError.classList.remove("d-none");
+    }
 }

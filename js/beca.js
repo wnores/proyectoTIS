@@ -17,35 +17,25 @@ import {
 
 
 function obtenerCursoDesdeURL() {
-
-    const parametros =
-        new URLSearchParams(window.location.search);
-
+    const parametros = new URLSearchParams(window.location.search);
     return parametros.get("curso");
 }
 
 function mostrarNotificacionExito() {
-
     const notificacion = document.createElement("div");
-
-    notificacion.className =
-        "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3 shadow";
-
+    notificacion.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3 shadow";
     notificacion.style.zIndex = "9999";
-
     notificacion.innerHTML = `
         <strong>Solicitud enviada correctamente.</strong>
         <br>
         Tu solicitud de beca fue registrada y será evaluada por el equipo docente.
     `;
-
     document.body.appendChild(notificacion);
 
     setTimeout(() => {
         notificacion.remove();
     }, 5000);
 }
-
 
 async function controlarAccesoBoton(usuario) {
     const botonSolicitar = document.getElementById("btnSolicitarBeca");
@@ -54,9 +44,11 @@ async function controlarAccesoBoton(usuario) {
         return;
     }
 
-    // Si no hay un usuario autenticado, ocultar el botón.
+    // El botón siempre se mantiene visible
+    botonSolicitar.hidden = false;
+
+    // Si no hay sesión iniciada, dejar desactivado
     if (!usuario) {
-        botonSolicitar.hidden = true;
         botonSolicitar.disabled = true;
         return;
     }
@@ -72,44 +64,26 @@ async function controlarAccesoBoton(usuario) {
 
         const esEstudiante = rol === "estudiante";
 
-        // Solo los estudiantes pueden ver y utilizar el botón.
-        botonSolicitar.hidden = !esEstudiante;
+        // Se desactiva si NO es estudiante (por ejemplo docente/admin)
         botonSolicitar.disabled = !esEstudiante;
 
     } catch (error) {
-        console.error(
-            "Error al verificar el rol para solicitar una beca:",
-            error
-        );
-
-        // Ante un error, no permitir solicitar becas.
-        botonSolicitar.hidden = true;
+        console.error("Error al verificar el rol para solicitar una beca:", error);
         botonSolicitar.disabled = true;
     }
 }
 
-
 async function cargarCursosEnSelect(cursoSeleccionado = null) {
-
-    const selectCurso =
-        document.getElementById("curso");
+    const selectCurso = document.getElementById("curso");
 
     if (!selectCurso) {
-
-        console.error(
-            "No se encontró el elemento #curso."
-        );
-
+        console.error("No se encontró el elemento #curso.");
         return;
     }
 
     try {
-
-        const cursosRef =
-            collection(db, "cursoscc");
-
-        const resultado =
-            await getDocs(cursosRef);
+        const cursosRef = collection(db, "cursoscc");
+        const resultado = await getDocs(cursosRef);
 
         selectCurso.innerHTML = `
             <option value="">
@@ -117,27 +91,15 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
             </option>
         `;
 
-
         resultado.forEach((documento) => {
-
-            const curso =
-                documento.data();
+            const curso = documento.data();
 
             if (curso.activo !== false) {
+                const opcion = document.createElement("option");
+                opcion.value = documento.id;
+                opcion.textContent = curso.titulo || "Curso sin título";
 
-                const opcion =
-                    document.createElement("option");
-
-                opcion.value =
-                    documento.id;
-
-                opcion.textContent =
-                    curso.titulo || "Curso sin título";
-
-                if (
-                    cursoSeleccionado &&
-                    documento.id === cursoSeleccionado
-                ) {
+                if (cursoSeleccionado && documento.id === cursoSeleccionado) {
                     opcion.selected = true;
                 }
                 selectCurso.appendChild(opcion);
@@ -145,27 +107,17 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
         });
 
         if (cursoSeleccionado) {
-
-            const cursoExiste =
-                Array.from(selectCurso.options)
-                    .some(
-                        opcion =>
-                            opcion.value === cursoSeleccionado
-                    );
+            const cursoExiste = Array.from(selectCurso.options).some(
+                opcion => opcion.value === cursoSeleccionado
+            );
 
             if (!cursoExiste) {
-                console.warn(
-                    "El curso indicado en la URL no existe o no está activo:",
-                    cursoSeleccionado
-                );
+                console.warn("El curso indicado en la URL no existe o no está activo:", cursoSeleccionado);
             }
         }
 
     } catch (error) {
-        console.error(
-            "Error al cargar los cursos:",
-            error
-        );
+        console.error("Error al cargar los cursos:", error);
         selectCurso.innerHTML = `
             <option value="">
                 No se pudieron cargar los cursos
@@ -175,39 +127,25 @@ async function cargarCursosEnSelect(cursoSeleccionado = null) {
 }
 
 async function obtenerDatosUsuario(uid) {
-
     try {
-
-        const referenciaUsuario =
-            doc(db, "usuarios", uid);
-
-        const documentoUsuario =
-            await getDoc(referenciaUsuario);
+        const referenciaUsuario = doc(db, "usuarios", uid);
+        const documentoUsuario = await getDoc(referenciaUsuario);
 
         if (documentoUsuario.exists()) {
             return documentoUsuario.data();
         }
         return null;
     } catch (error) {
-        console.error(
-            "Error al obtener el usuario:",
-            error
-        );
+        console.error("Error al obtener el usuario:", error);
         return null;
     }
 }
 
-
-
-
 async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
-    // Verificar que el usuario exista y sea estudiante.
     const datosUsuario = await obtenerDatosUsuario(uid);
 
     if (!datosUsuario) {
-        throw new Error(
-            "No se pudieron verificar los datos del usuario."
-        );
+        throw new Error("No se pudieron verificar los datos del usuario.");
     }
 
     const rol = (
@@ -217,12 +155,9 @@ async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
     ).toLowerCase().trim();
 
     if (rol !== "estudiante") {
-        throw new Error(
-            "Solo los estudiantes pueden solicitar becas."
-        );
+        throw new Error("Solo los estudiantes pueden solicitar becas.");
     }
 
-    // Normalizar los tipos para comparar sus nombres.
     const normalizarTipoBeca = (tipo) =>
         (tipo || "")
             .toLowerCase()
@@ -232,74 +167,45 @@ async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
 
     const tipoSolicitado = normalizarTipoBeca(tipoBeca);
 
-    // Consultar las adquisiciones del estudiante.
     const consultaAdquisiciones = query(
         collection(db, "adquisiciones"),
         where("usuarioId", "==", uid)
     );
 
-    const resultadoAdquisiciones =
-        await getDocs(consultaAdquisiciones);
+    const resultadoAdquisiciones = await getDocs(consultaAdquisiciones);
+    const adquisiciones = resultadoAdquisiciones.docs.map(doc => doc.data());
 
-    const adquisiciones =
-        resultadoAdquisiciones.docs.map(
-            documento => documento.data()
+    const cursoAdquiridoPorPago = adquisiciones.some(adquisicion => {
+        const metodoPago = (adquisicion.metodoPago || "").toLowerCase().trim();
+        return (
+            adquisicion.cursoId === cursoId &&
+            metodoPago !== "beca"
         );
-
-    // No permitir solicitar una beca para un curso
-    // que ya fue adquirido mediante un pago.
-    const cursoAdquiridoPorPago = adquisiciones.some(
-        adquisicion => {
-            const metodoPago = (
-                adquisicion.metodoPago || ""
-            ).toLowerCase().trim();
-
-            return (
-                adquisicion.cursoId === cursoId &&
-                metodoPago !== "beca"
-            );
-        }
-    );
+    });
 
     if (cursoAdquiridoPorPago) {
         throw new Error(
-            "Ya adquiriste este curso mediante un pago. " +
-            "No podés solicitar una beca para el mismo curso."
+            "Ya adquiriste este curso mediante un pago. No podés solicitar una beca para el mismo curso."
         );
     }
 
-    // Consultar las solicitudes del estudiante.
     const consultaSolicitudes = query(
         collection(db, "solicitudesBecas"),
         where("uid", "==", uid)
     );
 
-    const resultadoSolicitudes =
-        await getDocs(consultaSolicitudes);
+    const resultadoSolicitudes = await getDocs(consultaSolicitudes);
+    const solicitudes = resultadoSolicitudes.docs.map(doc => doc.data());
 
-    const solicitudes =
-        resultadoSolicitudes.docs.map(
-            documento => documento.data()
-        );
-
-    // Bloquear otra solicitud del mismo tipo si existe
-    // una beca aprobada para un curso aún no finalizado.
     for (const solicitud of solicitudes) {
-        const estado = (
-            solicitud.estado || ""
-        ).toLowerCase().trim();
-
-        const mismoTipo =
-            normalizarTipoBeca(solicitud.tipoBeca) ===
-            tipoSolicitado;
+        const estado = (solicitud.estado || "").toLowerCase().trim();
+        const mismoTipo = normalizarTipoBeca(solicitud.tipoBeca) === tipoSolicitado;
 
         if (estado !== "aprobada" || !mismoTipo) {
             continue;
         }
 
-        const idCursoAnterior =
-            solicitud.cursoId || solicitud.curso;
-
+        const idCursoAnterior = solicitud.cursoId || solicitud.curso;
         if (!idCursoAnterior) {
             continue;
         }
@@ -312,8 +218,7 @@ async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
             uid
         );
 
-        const documentoEntrega =
-            await getDoc(referenciaEntrega);
+        const documentoEntrega = await getDoc(referenciaEntrega);
 
         const cursoFinalizado =
             documentoEntrega.exists() &&
@@ -321,29 +226,19 @@ async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
 
         if (!cursoFinalizado) {
             throw new Error(
-                "Ya tenés una beca de este tipo aprobada para un curso " +
-                "que todavía no finalizaste. Debés aprobar la actividad " +
-                "final con una nota mínima de 6 para volver a solicitar " +
-                "este tipo de beca. Podés solicitar los otros tipos."
+                "Ya tenés una beca de este tipo aprobada para un curso que todavía no finalizaste. Debés aprobar la actividad final con una nota mínima de 6 para volver a solicitar este tipo de beca. Podés solicitar los otros tipos."
             );
         }
     }
 
-    // Evitar solicitudes pendientes duplicadas
-    // del mismo tipo para el mismo curso.
     const solicitudPendiente = solicitudes.some(solicitud => {
-        const estado = (
-            solicitud.estado || ""
-        ).toLowerCase().trim();
-
-        const idCursoSolicitado =
-            solicitud.cursoId || solicitud.curso;
+        const estado = (solicitud.estado || "").toLowerCase().trim();
+        const idCursoSolicitado = solicitud.cursoId || solicitud.curso;
 
         return (
             estado === "pendiente" &&
             idCursoSolicitado === cursoId &&
-            normalizarTipoBeca(solicitud.tipoBeca) ===
-                tipoSolicitado
+            normalizarTipoBeca(solicitud.tipoBeca) === tipoSolicitado
         );
     });
 
@@ -356,292 +251,141 @@ async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
     return true;
 }
 
-
 function inicializarFormularioBeca(usuario) {
-    const formulario =
-        document.getElementById("formularioBeca");
+    const formulario = document.getElementById("formularioBeca");
     if (!formulario) {
-        console.error(
-            "No se encontró el formulario #formularioBeca."
-        );
+        console.error("No se encontró el formulario #formularioBeca.");
         return;
     }
 
-    const campoNombre =
-        document.getElementById("nombre");
-
-    const campoCorreo =
-        document.getElementById("correo");
-
-    const botonEnviar =
-        formulario.querySelector(
-            'button[type="submit"]'
-        );
+    const campoNombre = document.getElementById("nombre");
+    const campoCorreo = document.getElementById("correo");
+    const botonEnviar = formulario.querySelector('button[type="submit"]');
 
     if (campoCorreo) {
-
-        campoCorreo.value =
-            usuario.email || "";
-
+        campoCorreo.value = usuario.email || "";
     }
 
     obtenerDatosUsuario(usuario.uid)
         .then((datosUsuario) => {
-            if (
-                datosUsuario &&
-                campoNombre
-            ) {
-                campoNombre.value =
-                    `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
+            if (datosUsuario && campoNombre) {
+                campoNombre.value = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
             }
         })
         .catch((error) => {
-            console.error(
-                "Error al obtener datos del usuario:",
-                error
-            );
+            console.error("Error al obtener datos del usuario:", error);
         });
 
-
-    if (
-        formulario.dataset.eventoRegistrado === "true"
-    ) {
+    if (formulario.dataset.eventoRegistrado === "true") {
         return;
     }
 
     formulario.dataset.eventoRegistrado = "true";
 
-    formulario.addEventListener(
-        "submit",
-        async (evento) => {
+    formulario.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
 
-            evento.preventDefault();
+        const nombre = document.getElementById("nombre").value.trim();
+        const correo = document.getElementById("correo").value.trim();
+        const curso = document.getElementById("curso").value;
+        const tipoBeca = document.getElementById("tipo-beca").value;
+        const motivo = document.getElementById("motivo").value.trim();
 
-
-            const nombre =
-                document
-                    .getElementById("nombre")
-                    .value
-                    .trim();
-
-            const correo =
-                document
-                    .getElementById("correo")
-                    .value
-                    .trim();
-
-            const curso =
-                document
-                    .getElementById("curso")
-                    .value;
-
-            const tipoBeca =
-                document
-                    .getElementById("tipo-beca")
-                    .value;
-
-            const motivo =
-                document
-                    .getElementById("motivo")
-                    .value
-                    .trim();
-
-            if (!nombre) {
-
-                alert(
-                    "Ingresá tu nombre."
-                );
-
-                return;
-            }
-
-
-            if (!correo) {
-
-                alert(
-                    "No se pudo obtener tu correo electrónico."
-                );
-
-                return;
-            }
-
-
-            if (!curso) {
-
-                alert(
-                    "Seleccioná un curso."
-                );
-
-                return;
-            }
-
-
-            if (!tipoBeca) {
-
-                alert(
-                    "Seleccioná un tipo de beca."
-                );
-
-                return;
-            }
-
-
-            if (!motivo) {
-
-                alert(
-                    "Ingresá el motivo por el cual solicitás la beca."
-                );
-
-                return;
-            }
-
-
-            if (botonEnviar) {
-                botonEnviar.disabled = true;
-            }
-
-
-            try {
-
-                await validarSolicitudBeca(
-                    usuario.uid,
-                    curso,
-                    tipoBeca
-                );
-
-                console.log(
-                    "Registrando solicitud de beca:",
-                    {
-                        uid: usuario.uid,
-                        nombre,
-                        correo,
-                        curso,
-                        tipoBeca,
-                        motivo
-                    }
-                );
-
-                
-                const referenciaSolicitud = await addDoc(
-                    collection(db, "solicitudesBecas"),
-                    {
-                        uid: usuario.uid,
-                        nombre: nombre,
-                        correo: correo,
-                        curso: curso,
-                        tipoBeca: tipoBeca,
-                        motivo: motivo,
-                        estado: "pendiente",
-                        fechaSolicitud: serverTimestamp()
-                    }
-                );
-
-                // Notificar a los docentes/admin.
-                await addDoc(
-                    collection(db, "notificaciones"),
-                    {
-                        tipo: "beca",
-                        destinatarioRol: "docente/admin",
-                        estudianteId: usuario.uid,
-                        autorNombre: nombre,
-                        cursoId: curso,
-                        solicitudId: referenciaSolicitud.id,
-                        cursoTitulo: document
-                            .getElementById("curso")
-                            .selectedOptions[0]?.textContent || "Curso",
-                        titulo: "Nueva solicitud de beca",
-                        leida: false,
-                        fechaCreacion: serverTimestamp(),
-                        enlace: "./administrarCursos.html"
-                    }
-                );
-
-
-                mostrarNotificacionExito();
-
-                document
-                    .getElementById("curso")
-                    .value = "";
-
-                document
-                    .getElementById("tipo-beca")
-                    .value = "";
-
-                document
-                    .getElementById("motivo")
-                    .value = "";
-
-                const confirmacion =
-                    document.getElementById("confirmacion");
-
-                if (confirmacion) {
-                    confirmacion.checked = false;
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "Error al enviar la solicitud de beca:",
-                    error
-                );
-
-                console.error(
-                    "Código:",
-                    error.code
-                );
-
-                console.error(
-                    "Mensaje:",
-                    error.message
-                );
-
-
-                alert(
-                    "No se pudo enviar la solicitud de beca.\n\n" +
-                    error.message
-                );
-
-
-            } finally {
-
-                if (botonEnviar) {
-                    botonEnviar.disabled = false;
-                }
-
-            }
-
-        }
-    );
-}
-
-onAuthStateChanged(
-    auth,
-    async (usuario) => {
-
-        if (!usuario) {
-
-            await controlarAccesoBoton(null);
-
+        if (!nombre) {
+            alert("Ingresá tu nombre.");
             return;
         }
 
-        await controlarAccesoBoton(usuario);
+        if (!correo) {
+            alert("No se pudo obtener tu correo electrónico.");
+            return;
+        }
 
-        const cursoDesdeURL =
-            obtenerCursoDesdeURL();
+        if (!curso) {
+            alert("Seleccioná un curso.");
+            return;
+        }
 
+        if (!tipoBeca) {
+            alert("Seleccioná un tipo de beca.");
+            return;
+        }
 
-        console.log(
-            "Curso recibido desde la URL:",
-            cursoDesdeURL
-        );
+        if (!motivo) {
+            alert("Ingresá el motivo por el cual solicitás la beca.");
+            return;
+        }
 
-        await cargarCursosEnSelect(
-            cursoDesdeURL
-        );
+        if (botonEnviar) {
+            botonEnviar.disabled = true;
+        }
 
-        inicializarFormularioBeca(usuario);
+        try {
+            await validarSolicitudBeca(usuario.uid, curso, tipoBeca);
 
+            const referenciaSolicitud = await addDoc(
+                collection(db, "solicitudesBecas"),
+                {
+                    uid: usuario.uid,
+                    nombre: nombre,
+                    correo: correo,
+                    curso: curso,
+                    tipoBeca: tipoBeca,
+                    motivo: motivo,
+                    estado: "pendiente",
+                    fechaSolicitud: serverTimestamp()
+                }
+            );
+
+            await addDoc(
+                collection(db, "notificaciones"),
+                {
+                    tipo: "beca",
+                    destinatarioRol: "docente/admin",
+                    estudianteId: usuario.uid,
+                    autorNombre: nombre,
+                    cursoId: curso,
+                    solicitudId: referenciaSolicitud.id,
+                    cursoTitulo: document.getElementById("curso").selectedOptions[0]?.textContent || "Curso",
+                    titulo: "Nueva solicitud de beca",
+                    leida: false,
+                    fechaCreacion: serverTimestamp(),
+                    enlace: "./administrarCursos.html"
+                }
+            );
+
+            mostrarNotificacionExito();
+
+            document.getElementById("curso").value = "";
+            document.getElementById("tipo-beca").value = "";
+            document.getElementById("motivo").value = "";
+
+            const confirmacion = document.getElementById("confirmacion");
+            if (confirmacion) {
+                confirmacion.checked = false;
+            }
+
+        } catch (error) {
+            console.error("Error al enviar la solicitud de beca:", error);
+            alert("No se pudo enviar la solicitud de beca.\n\n" + error.message);
+        } finally {
+            if (botonEnviar) {
+                botonEnviar.disabled = false;
+            }
+        }
+    });
+}
+
+onAuthStateChanged(auth, async (usuario) => {
+    if (!usuario) {
+        await controlarAccesoBoton(null);
+        return;
     }
-);
+
+    await controlarAccesoBoton(usuario);
+
+    const cursoDesdeURL = obtenerCursoDesdeURL();
+    await cargarCursosEnSelect(cursoDesdeURL);
+
+    inicializarFormularioBeca(usuario);
+});

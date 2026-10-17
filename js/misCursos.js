@@ -1,10 +1,7 @@
-
 import { auth, db } from "./firebase-config.js";
-
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
 import {
     collection,
     getDocs,
@@ -14,14 +11,11 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-
 const contenedor = document.getElementById("contenedorMisCursos");
 const mensaje = document.getElementById("mensajeMisCursos");
 const cargando = document.getElementById("cargandoMisCursos");
 
-
 iniciarPagina();
-
 
 function iniciarPagina() {
 
@@ -31,31 +25,14 @@ function iniciarPagina() {
             window.location.replace("ingresar.html");
             return;
         }
-
         await cargarMisCursos(usuario.uid);
     });
 }
 
-
-/* =========================================================
-   CARGAR MIS CURSOS
-   ========================================================= */
-
 async function cargarMisCursos(uid) {
-
     try {
-
         mostrarCargando(true);
         limpiarMensaje();
-
-        /*
-         * 1. Obtener adquisiciones
-         *
-         * Incluye:
-         * - pagos con tarjeta
-         * - pagos por transferencia
-         * - becas aprobadas
-         */
 
         const referenciaAdquisiciones =
             collection(db, "adquisiciones");
@@ -69,18 +46,6 @@ async function cargarMisCursos(uid) {
         const resultadoAdquisiciones =
             await getDocs(consultaAdquisiciones);
 
-
-        /*
-         * 2. Obtener solicitudes de beca
-         *
-         * Esto permite mostrar:
-         * - becas pendientes
-         * - becas rechazadas
-         *
-         * Las becas aprobadas no se agregan nuevamente
-         * porque ya generan una adquisición aprobada.
-         */
-
         const referenciaBecas =
             collection(db, "solicitudesBecas");
 
@@ -93,13 +58,7 @@ async function cargarMisCursos(uid) {
         const resultadoBecas =
             await getDocs(consultaBecas);
 
-
         const cursos = [];
-
-
-        /* =====================================================
-           PROCESAR ADQUISICIONES
-           ===================================================== */
 
         for (const documento of resultadoAdquisiciones.docs) {
 
@@ -108,7 +67,6 @@ async function cargarMisCursos(uid) {
                 origen: "adquisicion",
                 ...documento.data()
             };
-
 
             let datosCurso = {};
 
@@ -120,17 +78,11 @@ async function cargarMisCursos(uid) {
                     );
             }
 
-
             cursos.push({
                 ...adquisicion,
                 ...datosCurso
             });
         }
-
-
-        /* =====================================================
-           PROCESAR SOLICITUDES DE BECA
-           ===================================================== */
 
         for (const documento of resultadoBecas.docs) {
 
@@ -140,39 +92,21 @@ async function cargarMisCursos(uid) {
                 ...documento.data()
             };
 
-
-            /*
-             * Si la beca ya fue aprobada, la adquisición
-             * correspondiente ya está en la lista.
-             *
-             * Por eso no la agregamos nuevamente.
-             */
-
             if (solicitud.estado === "aprobada") {
                 continue;
             }
-
-
-            /*
-             * La estructura actual de solicitudesBecas
-             * utiliza "curso", mientras que algunas
-             * solicitudes pueden tener "cursoId".
-             */
 
             const cursoId =
                 solicitud.cursoId ||
                 solicitud.curso;
 
-
             let datosCurso = {};
-
 
             if (cursoId) {
 
                 datosCurso =
                     await obtenerDatosCurso(cursoId);
             }
-
 
             cursos.push({
 
@@ -211,12 +145,6 @@ async function cargarMisCursos(uid) {
             });
         }
 
-
-        /*
-         * Si no existen adquisiciones ni solicitudes
-         * de beca, mostrar el mensaje correspondiente.
-         */
-
         if (cursos.length === 0) {
 
             mostrarCargando(false);
@@ -229,11 +157,6 @@ async function cargarMisCursos(uid) {
             return;
         }
 
-
-        /*
-         * Ordenar del más reciente al más antiguo.
-         */
-
         cursos.sort(
             (a, b) =>
                 obtenerMilisegundos(
@@ -244,9 +167,7 @@ async function cargarMisCursos(uid) {
                 )
         );
 
-
         contenedor.innerHTML = "";
-
 
         cursos.forEach((curso) => {
 
@@ -256,11 +177,9 @@ async function cargarMisCursos(uid) {
             contenedor.appendChild(tarjeta);
         });
 
-
         mostrarCargando(false);
 
         contenedor.classList.remove("d-none");
-
 
     } catch (error) {
 
@@ -278,17 +197,11 @@ async function cargarMisCursos(uid) {
     }
 }
 
-
-/* =========================================================
-   OBTENER DATOS DEL CURSO
-   ========================================================= */
-
 async function obtenerDatosCurso(cursoId) {
 
     if (!cursoId) {
         return {};
     }
-
 
     try {
 
@@ -298,7 +211,6 @@ async function obtenerDatosCurso(cursoId) {
                 "cursoscc",
                 cursoId
             );
-
 
         const resultadoCurso =
             await getDoc(referenciaCurso);
@@ -317,14 +229,8 @@ async function obtenerDatosCurso(cursoId) {
         );
     }
 
-
     return {};
 }
-
-
-/* =========================================================
-   CREAR TARJETA
-   ========================================================= */
 
 function crearTarjetaCurso(curso) {
 
@@ -341,13 +247,11 @@ function crearTarjetaCurso(curso) {
     tarjeta.className =
         "card h-100 shadow-sm";
 
-
     const cuerpo =
         document.createElement("div");
 
     cuerpo.className =
         "card-body d-flex flex-column";
-
 
     const estado =
         obtenerEstado(curso.estado);
@@ -356,13 +260,11 @@ function crearTarjetaCurso(curso) {
     const metodo =
         obtenerMetodo(curso);
 
-
     const cursoTitulo =
         curso.cursoTitulo ||
         curso.titulo ||
         curso.nombre ||
         "Curso sin título";
-
 
     cuerpo.innerHTML = `
 
@@ -378,7 +280,6 @@ function crearTarjetaCurso(curso) {
 
         </div>
 
-
         <div class="mb-3">
 
             <p class="mb-2">
@@ -390,12 +291,10 @@ function crearTarjetaCurso(curso) {
                 )}
             </p>
 
-
             <p class="mb-2">
                 <strong>Modalidad:</strong>
                 Virtual
             </p>
-
 
             <p class="mb-2">
                 <strong>Duración:</strong>
@@ -403,7 +302,6 @@ function crearTarjetaCurso(curso) {
                     formatearDuracion(curso.duracion)
                 )}
             </p>
-
 
             <p class="mb-2">
                 <strong>
@@ -419,15 +317,12 @@ function crearTarjetaCurso(curso) {
                 )}
             </p>
 
-
             <p class="mb-2">
                 <strong>Tipo de adquisición:</strong>
                 ${metodo.tipo}
             </p>
 
-
             ${metodo.detalle}
-
 
             <p class="mb-0">
                 <strong>Importe:</strong>
@@ -435,7 +330,6 @@ function crearTarjetaCurso(curso) {
             </p>
 
         </div>
-
 
         <div class="mt-auto pt-3">
 
@@ -466,29 +360,19 @@ function crearTarjetaCurso(curso) {
 
     `;
 
-
     tarjeta.appendChild(cuerpo);
     columna.appendChild(tarjeta);
-
 
     return columna;
 }
 
-
-/* =========================================================
-   ESTADO
-   ========================================================= */
-
 function obtenerEstado(estado) {
-
     switch (estado) {
-
         case "aprobada":
             return {
                 texto: "Aprobada",
                 clase: "text-bg-success"
             };
-
 
         case "pendiente":
             return {
@@ -496,13 +380,11 @@ function obtenerEstado(estado) {
                 clase: "text-bg-warning"
             };
 
-
         case "rechazada":
             return {
                 texto: "Rechazada",
                 clase: "text-bg-danger"
             };
-
 
         default:
             return {
@@ -512,17 +394,9 @@ function obtenerEstado(estado) {
     }
 }
 
-
-/* =========================================================
-   MÉTODO DE ADQUISICIÓN
-   ========================================================= */
-
 function obtenerMetodo(curso) {
-
     if (curso.metodoPago === "tarjeta") {
-
         return {
-
             tipo: "Pago",
 
             detalle: `
@@ -534,11 +408,8 @@ function obtenerMetodo(curso) {
         };
     }
 
-
     if (curso.metodoPago === "transferencia") {
-
         return {
-
             tipo: "Pago",
 
             detalle: `
@@ -568,13 +439,10 @@ function obtenerMetodo(curso) {
         };
     }
 
-
     if (curso.metodoPago === "beca") {
 
         return {
-
             tipo: "Beca",
-
             detalle: `
                 <p class="mb-2">
                     <strong>Tipo de beca:</strong>
@@ -588,45 +456,24 @@ function obtenerMetodo(curso) {
         };
     }
 
-
     return {
-
         tipo: "No especificado",
-
         detalle: ""
     };
 }
 
-
-/* =========================================================
-   NOMBRE DE BECA
-   ========================================================= */
-
 function obtenerNombreBeca(tipo) {
-
     switch (tipo) {
-
         case "acceso":
             return "Beca de acceso";
-
-
         case "rendimiento":
             return "Beca de rendimiento";
-
-
         case "inclusion":
             return "Beca de inclusión";
-
-
         default:
             return "No especificada";
     }
 }
-
-
-/* =========================================================
-   DURACIÓN
-   ========================================================= */
 
 function formatearDuracion(duracion) {
 
@@ -634,20 +481,13 @@ function formatearDuracion(duracion) {
         return "No disponible";
     }
 
-
     if (typeof duracion === "number") {
 
         return `${duracion} horas`;
     }
 
-
     return String(duracion);
 }
-
-
-/* =========================================================
-   PRECIO
-   ========================================================= */
 
 function formatearPrecio(precio) {
 
@@ -662,17 +502,10 @@ function formatearPrecio(precio) {
     );
 }
 
-
-/* =========================================================
-   FECHA
-   ========================================================= */
-
 function formatearFecha(timestamp) {
-
     if (!timestamp) {
         return "No disponible";
     }
-
 
     try {
 
@@ -685,7 +518,6 @@ function formatearFecha(timestamp) {
                 .toLocaleDateString("es-UY");
         }
 
-
         if (timestamp.seconds) {
 
             return new Date(
@@ -693,28 +525,20 @@ function formatearFecha(timestamp) {
             ).toLocaleDateString("es-UY");
         }
 
-
         return new Date(
             timestamp
         ).toLocaleDateString("es-UY");
-
     } catch {
 
         return "No disponible";
     }
 }
 
-
-/* =========================================================
-   MILISEGUNDOS
-   ========================================================= */
-
 function obtenerMilisegundos(timestamp) {
 
     if (!timestamp) {
         return 0;
     }
-
 
     try {
 
@@ -727,7 +551,6 @@ function obtenerMilisegundos(timestamp) {
                 .getTime();
         }
 
-
         if (timestamp.seconds) {
 
             return Number(
@@ -735,24 +558,16 @@ function obtenerMilisegundos(timestamp) {
             ) * 1000;
         }
 
-
         return new Date(
             timestamp
         ).getTime();
 
     } catch {
-
         return 0;
     }
 }
 
-
-/* =========================================================
-   ESCAPAR HTML
-   ========================================================= */
-
 function escaparHTML(texto) {
-
     return String(
         texto ?? ""
     )
@@ -778,17 +593,10 @@ function escaparHTML(texto) {
         );
 }
 
-
-/* =========================================================
-   CARGANDO
-   ========================================================= */
-
 function mostrarCargando(mostrar) {
-
     if (!cargando) {
         return;
     }
-
 
     cargando.classList.toggle(
         "d-none",
@@ -796,17 +604,11 @@ function mostrarCargando(mostrar) {
     );
 }
 
-
-/* =========================================================
-   MENSAJE
-   ========================================================= */
-
 function mostrarMensaje(texto, tipo) {
 
     if (!mensaje) {
         return;
     }
-
 
     mensaje.innerHTML = `
         <div
@@ -817,11 +619,6 @@ function mostrarMensaje(texto, tipo) {
         </div>
     `;
 }
-
-
-/* =========================================================
-   LIMPIAR MENSAJE
-   ========================================================= */
 
 function limpiarMensaje() {
 

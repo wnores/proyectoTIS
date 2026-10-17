@@ -13,15 +13,10 @@ import {
 
 let cancelarEscuchaNotificaciones = null;
 
-/**
- * Actualiza los enlaces de las tarjetas en Cursos Destacados según el rol del usuario.
- * @param {string|null} rol - Rol del usuario actual ('estudiante', 'docente', 'admin', etc.)
- */
 function actualizarEnlacesCursosDestacados(rol) {
   const rolLimpio = (rol || "").toLowerCase().trim();
   const esAdminODocente = rolLimpio.includes("docente") || rolLimpio.includes("admin");
 
-  // Selecciona los enlaces de los cursos destacados (Soporta botones directos y tarjetas con enlace)
   const enlacesCursos = document.querySelectorAll('.destacados .curso-card a');
 
   enlacesCursos.forEach(enlace => {
@@ -88,7 +83,6 @@ onAuthStateChanged(auth, async (user) => {
           detenerNotificacionesDocente();
         }
 
-        // ADMINISTRAR CURSOS
         if (menuAdminCursos) {
           if (esAdminODocente) {
             menuAdminCursos.classList.remove("d-none");
@@ -97,7 +91,6 @@ onAuthStateChanged(auth, async (user) => {
           }
         }
 
-        // MIS CURSOS
         if (menuMisCursos) {
           if (esAdminODocente) {
             menuMisCursos.classList.add("d-none");
@@ -106,7 +99,6 @@ onAuthStateChanged(auth, async (user) => {
           }
         }
 
-        // ACTUALIZAR ENLACES DE TARJETAS DE CURSOS
         actualizarEnlacesCursosDestacados(rol);
 
       } else {
@@ -166,7 +158,6 @@ onAuthStateChanged(auth, async (user) => {
       menuMisCursos.classList.add("d-none");
     }
 
-    // SIN SESIÓN: Redirigir a descripción de curso
     actualizarEnlacesCursosDestacados(null);
   }
 });
@@ -174,7 +165,6 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // CERRAR SESIÓN
   const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 
   if (btnCerrarSesion) {
@@ -191,8 +181,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
-  // BUSCADOR
   const formBuscador = document.getElementById("formBuscador");
   const inputBuscador = document.getElementById("inputBuscador");
 
@@ -208,38 +196,24 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href =
           `resultados.html?buscar=${encodeURIComponent(texto)}`;
       }
-
     });
-
   }
-
 });
 
-// NOTIFICACIÓN DOCENTE
 function iniciarNotificacionesDocente(grupoUsuario) {
-
   if (!grupoUsuario) {
     return;
   }
-
   detenerNotificacionesDocente();
-
-
   let grupoNotificaciones =
     document.getElementById("grupoNotificaciones");
-
-
   if (!grupoNotificaciones) {
-
     grupoNotificaciones =
       document.createElement("div");
-
     grupoNotificaciones.id =
       "grupoNotificaciones";
-
     grupoNotificaciones.className =
       "dropdown me-2";
-
 
     grupoNotificaciones.innerHTML = `
       <button
@@ -285,27 +259,22 @@ function iniciarNotificacionesDocente(grupoUsuario) {
       </div>
     `;
 
-
     grupoUsuario.parentNode.insertBefore(
       grupoNotificaciones,
       grupoUsuario
     );
   }
 
-
   grupoNotificaciones.classList.remove("d-none");
-
 
   const referenciaNotificaciones =
     collection(db, "notificaciones");
-
 
   const consultaNotificaciones =
     query(
       referenciaNotificaciones,
       where("leida", "==", false)
     );
-
 
   cancelarEscuchaNotificaciones =
     onSnapshot(
@@ -325,7 +294,6 @@ function iniciarNotificacionesDocente(grupoUsuario) {
                 "docente/admin"
             );
 
-
         notificaciones.sort(
           (a, b) => {
 
@@ -343,19 +311,15 @@ function iniciarNotificacionesDocente(grupoUsuario) {
           }
         );
 
-
         mostrarNotificacionesDocente(
           notificaciones
         );
       },
-
       (error) => {
-
         console.error(
           "Error al escuchar las notificaciones:",
           error
         );
-
         const contenido =
           document.getElementById(
             "contenidoNotificaciones"
@@ -372,8 +336,6 @@ function iniciarNotificacionesDocente(grupoUsuario) {
     );
 }
 
-
-// MOSTRAR NOTIFICACIONES
 function mostrarNotificacionesDocente(
   notificaciones
 ) {
@@ -397,7 +359,6 @@ function mostrarNotificacionesDocente(
   contador.textContent =
     notificaciones.length;
 
-
   if (notificaciones.length === 0) {
 
     contador.classList.add("d-none");
@@ -411,11 +372,9 @@ function mostrarNotificacionesDocente(
     return;
   }
 
-
   contador.classList.remove("d-none");
 
   contenido.replaceChildren();
-
 
   notificaciones.forEach(
     (notificacion) => {
@@ -428,13 +387,11 @@ function mostrarNotificacionesDocente(
       boton.className =
         "dropdown-item text-wrap border-bottom p-3";
 
-
       const encabezado =
         document.createElement("div");
 
       encabezado.className =
         "d-flex align-items-start gap-2";
-
 
       const icono =
         document.createElement("i");
@@ -442,13 +399,11 @@ function mostrarNotificacionesDocente(
       icono.className =
         "bi bi-chat-left-text-fill text-primary mt-1";
 
-
       const datos =
         document.createElement("div");
 
       datos.className =
         "flex-grow-1";
-
 
       const titulo =
         document.createElement("p");
@@ -460,7 +415,6 @@ function mostrarNotificacionesDocente(
         notificacion.titulo ||
         "Nueva publicación";
 
-
       const detalle =
         document.createElement("p");
 
@@ -469,7 +423,6 @@ function mostrarNotificacionesDocente(
 
       detalle.textContent =
         `${notificacion.autorNombre || "Estudiante"} publicó en ${notificacion.cursoTitulo || "un curso"}.`;
-
 
       const fecha =
         document.createElement("p");
@@ -482,7 +435,6 @@ function mostrarNotificacionesDocente(
           notificacion.fechaCreacion
         );
 
-
       datos.appendChild(titulo);
       datos.appendChild(detalle);
       datos.appendChild(fecha);
@@ -491,7 +443,6 @@ function mostrarNotificacionesDocente(
       encabezado.appendChild(datos);
 
       boton.appendChild(encabezado);
-
 
       boton.addEventListener(
         "click",
@@ -520,21 +471,17 @@ function mostrarNotificacionesDocente(
             );
           }
 
-
           window.location.href =
             notificacion.enlace ||
             `foroCurso.html?curso=${encodeURIComponent(notificacion.cursoId)}`;
         }
       );
 
-
       contenido.appendChild(boton);
     }
   );
 }
 
-
-// DETENER NOTIFICACIONES
 function detenerNotificacionesDocente() {
 
   if (cancelarEscuchaNotificaciones) {
@@ -545,12 +492,10 @@ function detenerNotificacionesDocente() {
       null;
   }
 
-
   const grupoNotificaciones =
     document.getElementById(
       "grupoNotificaciones"
     );
-
 
   if (grupoNotificaciones) {
     grupoNotificaciones.classList.add(
@@ -559,14 +504,11 @@ function detenerNotificacionesDocente() {
   }
 }
 
-
-// OBTENER FECHA EN MILISEGUNDOS
 function obtenerMilisegundos(fecha) {
 
   if (!fecha) {
     return 0;
   }
-
 
   if (
     typeof fecha.toMillis === "function"
@@ -574,28 +516,22 @@ function obtenerMilisegundos(fecha) {
     return fecha.toMillis();
   }
 
-
   if (
     typeof fecha.toDate === "function"
   ) {
     return fecha.toDate().getTime();
   }
 
-
   return new Date(fecha).getTime();
 }
 
-
-// FORMATEAR FECHA DE NOTIFICACIÓN
 function formatearFechaNotificacion(fecha) {
 
   if (!fecha) {
     return "Ahora";
   }
 
-
   let fechaJavaScript;
-
 
   if (
     typeof fecha.toDate === "function"
@@ -607,7 +543,6 @@ function formatearFechaNotificacion(fecha) {
     fechaJavaScript =
       new Date(fecha);
   }
-
 
   return fechaJavaScript.toLocaleString(
     "es-UY",

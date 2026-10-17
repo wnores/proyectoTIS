@@ -274,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-// Carga la subcolección 'modulos' dentro de 'cursoscc/{cursoId}'
   async function renderizarTablaModulos(cursoId) {
     const seccionModulos = document.querySelector('.js-seccion-modulos');
     const tablaBody = document.querySelector('.js-tabla-modulos-body');

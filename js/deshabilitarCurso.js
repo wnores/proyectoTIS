@@ -38,7 +38,6 @@ async function cargarCursos() {
         contenedorTabla.classList.add("d-none");
         mensajeVacio.classList.add("d-none");
 
-        // CAMBIO: Ahora apunta a la colección 'cursoscc'
         const cursosRef = collection(db, "cursoscc");
         const snapshot = await getDocs(cursosRef);
 
@@ -61,7 +60,6 @@ async function cargarCursos() {
             });
         });
 
-        // CAMBIO: Ordena alfabéticamente por 'titulo' (campo de cursoscc)
         todosLosCursos.sort((a, b) => (a.titulo || a.nombre || "").localeCompare(b.titulo || b.nombre || ""));
 
         cursosFiltrados = [...todosLosCursos];
@@ -209,13 +207,12 @@ btnConfirmarEliminar.addEventListener("click", async () => {
     if (!cursoSeleccionado || !accion) return;
 
     try {
-        // CAMBIO: Ahora actualiza en la colección 'cursoscc'
         const cursoRef = doc(db, "cursoscc", cursoSeleccionado.id);
         const nuevoEstado = accion === "habilitar";
 
         await updateDoc(cursoRef, {
             activo: nuevoEstado,
-            fechaCambioEstado: new Date().toISOString()
+            fechaCambioState: new Date().toISOString()
         });
 
         modal.hide();

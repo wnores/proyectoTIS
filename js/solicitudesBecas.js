@@ -1,5 +1,4 @@
 import { db } from "./firebase-config.js";
-
 import {
    collection,
     getDocs,
@@ -24,25 +23,17 @@ if (botonMostrarSolicitudes) {
     botonMostrarSolicitudes.addEventListener(
         "click",
         () => {
-
             const estaOculto =
                 contenedor.classList.contains("d-none");
-
             if (estaOculto) {
-
                 contenedor.classList.remove("d-none");
-
                 botonMostrarSolicitudes.innerHTML = `
                     <i class="bi bi-chevron-up me-2"></i>
                     Ocultar solicitudes
                 `;
-
                 cargarSolicitudes();
-
             } else {
-
                 contenedor.classList.add("d-none");
-
                 botonMostrarSolicitudes.innerHTML = `
                     <i class="bi bi-list-check me-2"></i>
                     Ver solicitudes
@@ -56,9 +47,7 @@ function formatearFechaSolicitud(fecha) {
     if (!fecha) {
         return "Fecha no disponible";
     }
-
     let fechaReal;
-
     if (typeof fecha.toDate === "function") {
         fechaReal = fecha.toDate();
     } else if (fecha instanceof Date) {
@@ -66,7 +55,6 @@ function formatearFechaSolicitud(fecha) {
     } else {
         return "Fecha no disponible";
     }
-
     return fechaReal.toLocaleDateString("es-UY", {
         day: "2-digit",
         month: "2-digit",
@@ -75,24 +63,17 @@ function formatearFechaSolicitud(fecha) {
 }
 
 async function cargarSolicitudes() {
-
     if (!contenedor) return;
-
     try {
-
         const consulta =
             query(
                 collection(db, "solicitudesBecas"),
                 where("estado", "==", "pendiente")
             );
-
         const resultado =
             await getDocs(consulta);
-
         contenedor.innerHTML = "";
-
         if (resultado.empty) {
-
             contenedor.innerHTML = `
                 <div class="col-12 text-center">
                     <div class="alert alert-info">
@@ -100,133 +81,96 @@ async function cargarSolicitudes() {
                     </div>
                 </div>
             `;
-
             return;
         }
-
         resultado.forEach(async (documento) => {
-
             const solicitud = documento.data();
-
             const fechaSolicitud =
                 formatearFechaSolicitud(solicitud.fechaSolicitud);
-
             let nombreCurso = solicitud.curso;
-
             const cursoId = solicitud.cursoId || solicitud.curso;
-
             if (cursoId) {
-
                 try {
-
                     const referenciaCurso =
                         doc(
                             db,
                             "cursoscc",
                             cursoId
                         );
-
                     const resultadoCurso =
                         await getDoc(referenciaCurso);
-
                     if (resultadoCurso.exists()) {
-
                         const datosCurso =
                             resultadoCurso.data();
-
                         nombreCurso =
                             datosCurso.titulo ||
                             datosCurso.nombre ||
                             datosCurso.nombreCurso ||
                             solicitud.curso;
-
                     }
 
                 } catch (error) {
-
                     console.error(
                         "Error al obtener el nombre del curso:",
                         error
                     );
-
                 }
             }
 
             const tarjeta =
                 document.createElement("div");
-
             tarjeta.className =
                 "col-12 col-md-6 col-lg-4";
-
             tarjeta.innerHTML = `
-
                 <article class="card h-100 shadow-sm">
-
                     <div class="card-body">
-
                         <div class="d-flex justify-content-between align-items-start mb-3">
-
                             <div>
                                 <h3 class="h5 mb-1">
                                     ${solicitud.nombre || "Estudiante no disponible"}
                                 </h3>
-
                                 <span class="badge text-bg-warning">
                                     Pendiente
                                 </span>
                             </div>
-
                             <i class="bi bi-award fs-3 text-warning"></i>
-
                         </div>
-
                         <p class="mb-2">
                             <strong>Correo:</strong>
                             ${solicitud.correo || "Correo no disponible"}
                         </p>
-
                         <p class="mb-2">
                             <strong>Fecha de solicitud:</strong>
                             ${fechaSolicitud}
                         </p>
-
                         <p class="mb-2">
                             <strong>Curso:</strong>
                             ${nombreCurso || "Curso no disponible"}
                         </p>
-
                         <p class="mb-2">
                             <strong>Tipo de beca:</strong>
                             ${solicitud.tipoBeca || "No especificado"}
                         </p>
-
                         <p class="mb-3">
                             <strong>Motivo:</strong>
                             ${solicitud.motivo || "No especificado"}
                         </p>
-
                         <div class="d-flex gap-2">
-
                             <button
                                 type="button"
                                 class="btn btn-success flex-fill js-aprobar-beca">
                                 <i class="bi bi-check-circle me-2"></i>
                                 Aprobar
                             </button>
-
                             <button
                                 type="button"
                                 class="btn btn-danger flex-fill js-rechazar-beca">
                                 <i class="bi bi-x-circle me-2"></i>
                                 Rechazar
                             </button>
-
                         </div>
-
                     </div>
-
                 </article>
-
             `;
 
             const botonAprobar =
@@ -253,13 +197,10 @@ async function cargarSolicitudes() {
                     documento.id
                 )
             );
-
             contenedor.appendChild(tarjeta);
-
         });
 
     } catch (error) {
-
         console.error(
             "Error al cargar las solicitudes de becas:",
             error
@@ -282,7 +223,6 @@ async function aprobarSolicitud(
     const confirmar = confirm(
         `¿Querés aprobar la beca para el curso "${solicitud.curso}"?`
     );
-
     if (!confirmar) {
         return;
     }
@@ -291,7 +231,6 @@ async function aprobarSolicitud(
         const cursoId =
             solicitud.cursoId ||
             solicitud.curso;
-
         if (!cursoId) {
             alert(
                 "No se encontró el curso asociado a la solicitud."
@@ -332,8 +271,6 @@ async function aprobarSolicitud(
             db,
             async (transaccion) => {
 
-                // Todas las lecturas deben realizarse
-                // antes que las escrituras.
                 const resultadoCurso =
                     await transaccion.get(
                         referenciaCurso
@@ -359,7 +296,6 @@ async function aprobarSolicitud(
                 const datosSolicitud =
                     resultadoSolicitud.data();
 
-                // Evita aprobar y descontar dos veces
                 if (
                     datosSolicitud.estado !==
                     "pendiente"
@@ -396,7 +332,6 @@ async function aprobarSolicitud(
                     }
                 );
 
-                // Aprobar la solicitud
                 transaccion.update(
                     referenciaSolicitud,
                     {
@@ -406,7 +341,6 @@ async function aprobarSolicitud(
                     }
                 );
 
-                // Agregar la beca al perfil
                 transaccion.update(
                     referenciaUsuario,
                     {
@@ -423,7 +357,6 @@ async function aprobarSolicitud(
                     }
                 );
 
-                // Registrar la adquisición
                 transaccion.set(
                     referenciaAdquisicion,
                     {

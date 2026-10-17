@@ -20,9 +20,6 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-
-// ELEMENTOS DEL HTML
-
 const estadoCargaForo =
     document.getElementById("estadoCargaForo");
 
@@ -65,26 +62,18 @@ const cantidadPublicaciones =
 const sinPublicaciones =
     document.getElementById("sinPublicaciones");
 
-
-// OBTENER ID DEL CURSO
 const parametros =
     new URLSearchParams(window.location.search);
 
 const cursoId =
     parametros.get("curso");
 
-
 let usuarioActual = null;
 let datosUsuarioActual = null;
 let cancelarEscuchaPublicaciones = null;
 let cancelarEscuchasRespuestas = [];
 
-
-// INICIAR PÁGINA
-
-
 iniciarPagina();
-
 
 function iniciarPagina() {
 
@@ -96,10 +85,8 @@ function iniciarPagina() {
         return;
     }
 
-
     enlaceContenidoCurso.href =
         `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}`;
-
 
     onAuthStateChanged(auth, async (usuario) => {
 
@@ -107,19 +94,14 @@ function iniciarPagina() {
             window.location.href = "ingresar.html";
             return;
         }
-
-
         usuarioActual = usuario;
 
-
         try {
-
             const referenciaUsuario =
                 doc(db, "usuarios", usuario.uid);
 
             const referenciaCurso =
                 doc(db, "cursoscc", cursoId);
-
 
             const [
                 resultadoUsuario,
@@ -129,7 +111,6 @@ function iniciarPagina() {
                 getDoc(referenciaCurso)
             ]);
 
-
             if (!resultadoUsuario.exists()) {
                 mostrarError(
                     "No se encontraron los datos del usuario."
@@ -137,7 +118,6 @@ function iniciarPagina() {
 
                 return;
             }
-
 
             if (!resultadoCurso.exists()) {
                 mostrarError(
@@ -147,7 +127,6 @@ function iniciarPagina() {
                 return;
             }
 
-
             datosUsuarioActual =
                 resultadoUsuario.data();
 
@@ -156,14 +135,12 @@ function iniciarPagina() {
                 ...resultadoCurso.data()
             };
 
-
             const tieneAcceso =
                 await comprobarAcceso(
                     datosUsuarioActual,
                     curso,
                     usuario.uid
                 );
-
 
             if (!tieneAcceso) {
                 mostrarError(
@@ -177,7 +154,6 @@ function iniciarPagina() {
             nombreCursoForo.textContent =
                 curso.titulo || "Curso";
 
-
             await cargarModulos(curso.id);
 
             escucharPublicaciones();
@@ -185,7 +161,6 @@ function iniciarPagina() {
             estadoCargaForo.classList.add("d-none");
             mensajeErrorForo.classList.add("d-none");
             contenidoForo.classList.remove("d-none");
-
 
         } catch (error) {
 
@@ -201,17 +176,11 @@ function iniciarPagina() {
     });
 }
 
-
-// ======================================================
-// COMPROBAR ACCESO
-// ======================================================
-
 async function comprobarAcceso(
     datosUsuario,
     curso,
     uid
 ) {
-
     const rol =
         (
             datosUsuario.tipoUsuario ||
@@ -222,8 +191,6 @@ async function comprobarAcceso(
             .trim()
             .toLowerCase();
 
-
-    // Docente y administrador pueden entrar.
     if (
         rol.includes("admin") ||
         rol.includes("docente")
@@ -231,12 +198,9 @@ async function comprobarAcceso(
         return true;
     }
 
-
-    // Los demás usuarios deben ser estudiantes.
     if (rol !== "estudiante") {
         return false;
     }
-
 
     const referenciaAdquisiciones =
         collection(db, "adquisiciones");
@@ -248,10 +212,8 @@ async function comprobarAcceso(
             where("usuarioId", "==", uid)
         );
 
-
     const resultadoAdquisiciones =
         await getDocs(consultaAdquisiciones);
-
 
     const adquisicionAprobada =
         resultadoAdquisiciones.docs.some(
@@ -267,14 +229,8 @@ async function comprobarAcceso(
             }
         );
 
-
     return adquisicionAprobada;
 }
-
-
-// ======================================================
-// CARGAR MÓDULOS EN EL SELECT
-// ======================================================
 
 async function cargarModulos(idCurso) {
 
@@ -286,10 +242,8 @@ async function cargarModulos(idCurso) {
             "modulos"
         );
 
-
     const resultadoModulos =
         await getDocs(referenciaModulos);
-
 
     const modulos =
         resultadoModulos.docs.map(
@@ -314,13 +268,11 @@ async function cargarModulos(idCurso) {
             }
         );
 
-
     modulos.sort(
         (a, b) =>
             Number(a.numero) -
             Number(b.numero)
     );
-
 
     modulos.forEach((modulo) => {
 
@@ -336,11 +288,6 @@ async function cargarModulos(idCurso) {
         moduloPublicacion.appendChild(opcion);
     });
 }
-
-
-// ======================================================
-// REGISTRAR PUBLICACIÓN
-// ======================================================
 
 formPublicacionForo.addEventListener(
     "submit",
@@ -358,7 +305,6 @@ formPublicacionForo.addEventListener(
             return;
         }
 
-
         const titulo =
             tituloPublicacion.value.trim();
 
@@ -372,7 +318,6 @@ formPublicacionForo.addEventListener(
             moduloPublicacion.selectedOptions[0]
                 ?.textContent || "Foro general";
 
-
         if (
             titulo.length < 3 ||
             mensaje.length < 3
@@ -385,7 +330,6 @@ formPublicacionForo.addEventListener(
             return;
         }
 
-
         btnPublicarMensaje.disabled = true;
 
         btnPublicarMensaje.innerHTML = `
@@ -395,7 +339,6 @@ formPublicacionForo.addEventListener(
             ></span>
             Publicando...
         `;
-
 
         try {
 
@@ -409,13 +352,11 @@ formPublicacionForo.addEventListener(
                     .trim()
                     .toLowerCase();
 
-
             const nombreAutor =
                 obtenerNombreUsuario(
                     datosUsuarioActual,
                     usuarioActual
                 );
-
 
             const referenciaForo =
                 collection(
@@ -460,13 +401,8 @@ const publicacionCreada =
         }
     );
 
-
-// Crear una notificación para el docente
-// solamente cuando publica un estudiante.
 if (rol === "estudiante") {
-
     try {
-
         await addDoc(
             collection(db, "notificaciones"),
             {
@@ -508,10 +444,6 @@ if (rol === "estudiante") {
 
     } catch (errorNotificacion) {
 
-        /*
-         * Si falla la notificación, la publicación
-         * igualmente queda registrada.
-         */
         console.error(
             "La publicación fue creada, pero no se pudo crear la notificación:",
             errorNotificacion
@@ -519,15 +451,12 @@ if (rol === "estudiante") {
     }
 }
             
-
-
             formPublicacionForo.reset();
 
             mostrarMensajeFormulario(
                 "El mensaje fue publicado correctamente.",
                 "success"
             );
-
 
         } catch (error) {
 
@@ -541,7 +470,6 @@ if (rol === "estudiante") {
                 "danger"
             );
 
-
         } finally {
 
             btnPublicarMensaje.disabled = false;
@@ -554,11 +482,6 @@ if (rol === "estudiante") {
     }
 );
 
-
-// ======================================================
-// ESCUCHAR PUBLICACIONES EN TIEMPO REAL
-// ======================================================
-
 function escucharPublicaciones() {
 
     const referenciaForo =
@@ -569,13 +492,11 @@ function escucharPublicaciones() {
             "foro"
         );
 
-
     const consultaForo =
         query(
             referenciaForo,
             orderBy("fechaCreacion", "desc")
         );
-
 
     cancelarEscuchaPublicaciones =
         onSnapshot(
@@ -594,19 +515,15 @@ function escucharPublicaciones() {
                                 publicacion.activo !== false
                         );
 
-
                 mostrarPublicaciones(
                     publicaciones
                 );
             },
-
             (error) => {
-
                 console.error(
                     "Error al escuchar el foro:",
                     error
                 );
-
                 mostrarMensajeFormulario(
                     "No fue posible actualizar las publicaciones.",
                     "danger"
@@ -614,11 +531,6 @@ function escucharPublicaciones() {
             }
         );
 }
-
-
-// ======================================================
-// MOSTRAR PUBLICACIONES
-// ======================================================
 
 function mostrarPublicaciones(publicaciones) {
 
@@ -633,15 +545,12 @@ function mostrarPublicaciones(publicaciones) {
     cantidadPublicaciones.textContent =
         publicaciones.length;
 
-
     if (publicaciones.length === 0) {
         sinPublicaciones.classList.remove("d-none");
         return;
     }
 
-
     sinPublicaciones.classList.add("d-none");
-
 
     publicaciones.forEach((publicacion) => {
 
@@ -652,11 +561,6 @@ function mostrarPublicaciones(publicaciones) {
     });
 }
 
-
-// ======================================================
-// CREAR TARJETA DE PUBLICACIÓN
-// ======================================================
-
 function crearTarjetaPublicacion(publicacion) {
 
     const articulo =
@@ -665,13 +569,11 @@ function crearTarjetaPublicacion(publicacion) {
     articulo.className =
         "card shadow-sm border-0";
 
-
     const cuerpo =
         document.createElement("div");
 
     cuerpo.className =
         "card-body p-4";
-
 
     const encabezado =
         document.createElement("div");
@@ -679,10 +581,8 @@ function crearTarjetaPublicacion(publicacion) {
     encabezado.className =
         "d-flex justify-content-between align-items-start gap-3 mb-3";
 
-
     const datosAutor =
         document.createElement("div");
-
 
     const autor =
         document.createElement("p");
@@ -694,18 +594,15 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.autorNombre ||
         "Usuario";
 
-
     const informacion =
         document.createElement("p");
 
     informacion.className =
         "small text-muted mb-0";
 
-
     const rol =
         (publicacion.autorRol || "")
             .toLowerCase();
-
 
     const nombreRol =
         rol.includes("docente")
@@ -714,18 +611,14 @@ function crearTarjetaPublicacion(publicacion) {
                 ? "Administrador"
                 : "Estudiante";
 
-
     informacion.textContent =
         `${nombreRol} · ${formatearFecha(publicacion.fechaCreacion)}`;
-
 
     datosAutor.appendChild(autor);
     datosAutor.appendChild(informacion);
 
-
     const insignia =
         document.createElement("span");
-
 
     if (
         rol.includes("docente") ||
@@ -747,10 +640,8 @@ function crearTarjetaPublicacion(publicacion) {
             "Estudiante";
     }
 
-
     encabezado.appendChild(datosAutor);
     encabezado.appendChild(insignia);
-
 
     const titulo =
         document.createElement("h2");
@@ -762,7 +653,6 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.titulo ||
         "Publicación";
 
-
     const modulo =
         document.createElement("p");
 
@@ -773,7 +663,6 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.moduloNombre ||
         "Foro general";
 
-
     const mensaje =
         document.createElement("p");
 
@@ -782,7 +671,6 @@ function crearTarjetaPublicacion(publicacion) {
 
     mensaje.textContent =
         publicacion.mensaje || "";
-
 
     cuerpo.appendChild(encabezado);
     cuerpo.appendChild(titulo);
@@ -809,8 +697,6 @@ tituloRespuestas.innerHTML = `
 
 cuerpo.appendChild(tituloRespuestas);
 
-
-// Contenedor dinámico de respuestas
 const contenedorRespuestas =
     document.createElement("div");
 
@@ -819,21 +705,17 @@ contenedorRespuestas.className =
 
 cuerpo.appendChild(contenedorRespuestas);
 
-
-// Formulario para responder
 const formularioRespuesta =
     document.createElement("form");
 
 formularioRespuesta.className =
     "mt-3";
 
-
 const grupoRespuesta =
     document.createElement("div");
 
 grupoRespuesta.className =
     "input-group";
-
 
 const campoRespuesta =
     document.createElement("textarea");
@@ -855,7 +737,6 @@ campoRespuesta.setAttribute(
     "Escribir una respuesta"
 );
 
-
 const botonResponder =
     document.createElement("button");
 
@@ -869,7 +750,6 @@ botonResponder.innerHTML = `
     <i class="bi bi-send-fill me-1"></i>
     Responder
 `;
-
 
 grupoRespuesta.appendChild(
     campoRespuesta
@@ -887,7 +767,6 @@ cuerpo.appendChild(
     formularioRespuesta
 );
 
-
 formularioRespuesta.addEventListener(
     "submit",
     async (event) => {
@@ -902,7 +781,6 @@ formularioRespuesta.addEventListener(
             return;
         }
 
-
         botonResponder.disabled =
             true;
 
@@ -912,7 +790,6 @@ formularioRespuesta.addEventListener(
                 aria-hidden="true"
             ></span>
         `;
-
 
         try {
 
@@ -971,7 +848,6 @@ async function guardarRespuesta(
         );
     }
 
-
     const rol =
         (
             datosUsuarioActual.tipoUsuario ||
@@ -982,13 +858,11 @@ async function guardarRespuesta(
             .trim()
             .toLowerCase();
 
-
     const nombreAutor =
         obtenerNombreUsuario(
             datosUsuarioActual,
             usuarioActual
         );
-
 
     const referenciaRespuestas =
         collection(
@@ -999,7 +873,6 @@ async function guardarRespuesta(
             publicacion.id,
             "respuestas"
         );
-
 
     await addDoc(
         referenciaRespuestas,
@@ -1025,10 +898,6 @@ async function guardarRespuesta(
     );
 }
 
-
-
-// ESCUCHAR RESPUESTAS
-
 function escucharRespuestas(
     publicacionId,
     contenedor
@@ -1044,7 +913,6 @@ function escucharRespuestas(
             "respuestas"
         );
 
-
     const consultaRespuestas =
         query(
             referenciaRespuestas,
@@ -1053,7 +921,6 @@ function escucharRespuestas(
                 "asc"
             )
         );
-
 
     const cancelar =
         onSnapshot(
@@ -1077,7 +944,6 @@ function escucharRespuestas(
                                 false
                         );
 
-
                 mostrarRespuestas(
                     respuestas,
                     contenedor
@@ -1099,15 +965,10 @@ function escucharRespuestas(
             }
         );
 
-
     cancelarEscuchasRespuestas.push(
         cancelar
     );
 }
-
-
-
-// MOSTRAR RESPUESTAS
 
 function mostrarRespuestas(
     respuestas,
@@ -1115,7 +976,6 @@ function mostrarRespuestas(
 ) {
 
     contenedor.replaceChildren();
-
 
     if (respuestas.length === 0) {
 
@@ -1133,7 +993,6 @@ function mostrarRespuestas(
         return;
     }
 
-
     respuestas.forEach(
         (respuesta) => {
 
@@ -1142,7 +1001,6 @@ function mostrarRespuestas(
 
             caja.className =
                 "border rounded p-3 bg-light";
-
 
             const encabezado =
                 document.createElement("div");
@@ -1161,13 +1019,11 @@ function mostrarRespuestas(
                 respuesta.autorNombre ||
                 "Usuario";
 
-
             const rol =
                 (
                     respuesta.autorRol ||
                     "estudiante"
                 ).toLowerCase();
-
 
             const etiqueta =
                 document.createElement("span");
@@ -1185,7 +1041,6 @@ function mostrarRespuestas(
                         ? "Administrador"
                         : "Estudiante";
 
-
             const mensaje =
                 document.createElement("p");
 
@@ -1194,7 +1049,6 @@ function mostrarRespuestas(
 
             mensaje.textContent =
                 respuesta.mensaje || "";
-
 
             const fecha =
                 document.createElement("small");
@@ -1207,7 +1061,6 @@ function mostrarRespuestas(
                     respuesta.fechaCreacion
                 );
 
-
             encabezado.appendChild(autor);
             encabezado.appendChild(etiqueta);
 
@@ -1219,7 +1072,6 @@ function mostrarRespuestas(
         }
     );
 }
-// OBTENER NOMBRE DEL USUARIO
 
 function obtenerNombreUsuario(
     datosUsuario,
@@ -1235,7 +1087,6 @@ function obtenerNombreUsuario(
             .join(" ")
             .trim();
 
-
     return (
         nombreCompleto ||
         datosUsuario.nombreCompleto ||
@@ -1245,16 +1096,13 @@ function obtenerNombreUsuario(
     );
 }
 
-
 function formatearFecha(fecha) {
 
     if (!fecha) {
         return "Publicando...";
     }
 
-
     let fechaJavaScript;
-
 
     if (
         typeof fecha.toDate === "function"
@@ -1267,7 +1115,6 @@ function formatearFecha(fecha) {
             new Date(fecha);
     }
 
-
     return fechaJavaScript.toLocaleString(
         "es-UY",
         {
@@ -1276,11 +1123,6 @@ function formatearFecha(fecha) {
         }
     );
 }
-
-
-
-// MENSAJES DEL FORMULARIO
-
 
 function mostrarMensajeFormulario(
     texto,
@@ -1294,8 +1136,6 @@ function mostrarMensajeFormulario(
         `alert alert-${tipo} mt-3`;
 }
 
-// MOSTRAR ERROR GENERAL
-
 function mostrarError(mensaje) {
 
     estadoCargaForo.classList.add("d-none");
@@ -1306,8 +1146,6 @@ function mostrarError(mensaje) {
 
     mensajeErrorForo.classList.remove("d-none");
 }
-
-// DETENER ESCUCHA AL SALIR
 
 window.addEventListener(
     "beforeunload",

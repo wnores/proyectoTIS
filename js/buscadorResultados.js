@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {
             titulo: 'Inicio',
             descripcion:
-                'Página principal de Cursos de Ciencias de la Computación.',
+                'Página principal de Cursos de Ciencias de la Computación',
             palabras:
                 'inicio cursos aprendizaje tecnologia',
             url: 'index.html'
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {
             titulo: 'Acerca de',
             descripcion:
-                'Conocé más sobre nuestra propuesta educativa.',
+                'Conocé más sobre nuestra propuesta educativa',
             palabras:
                 'acerca propuesta nosotros informacion',
             url: 'acercaDe.html'
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {
             titulo: 'Becas',
             descripcion:
-                'Información sobre becas y oportunidades para acceder a los cursos.',
+                'Información sobre becas y oportunidades para acceder a los cursos',
             palabras:
                 'beca becas ayuda oportunidades beneficio',
             url: 'beca.html'
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {
             titulo: 'Catálogo de cursos',
             descripcion:
-                'Explorá todos los cursos disponibles.',
+                'Explorá todos los cursos disponibles',
             palabras:
                 'catalogo cursos programacion informatica tecnologia',
             url: 'catalogo.html'
@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return contenidoPagina.includes(busqueda);
     });
 
-    // Buscar cursos directamente en Firestore
     try {
 
         const referenciaCursos = collection(db, 'cursoscc');
@@ -90,7 +89,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             ...doc.data()
         }));
 
-        // Solo se muestran cursos activos
         const cursosActivos = cursos.filter(curso => {
 
             return (

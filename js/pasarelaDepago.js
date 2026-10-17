@@ -1,9 +1,7 @@
 import { auth, db } from "./firebase-config.js";
-
 import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
 import {
   doc,
   getDoc,
@@ -12,7 +10,6 @@ import {
   serverTimestamp,
   runTransaction
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -54,18 +51,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const errorComprobante =
     document.getElementById("errorComprobante");
 
-
-  // ======================================================
-  // CONFIGURACIÓN CLOUDINARY
-  // ======================================================
-
   const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
   const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
-
-
-  // ======================================================
-  // DATOS INICIALES
-  // ======================================================
 
   const parametros =
     new URLSearchParams(window.location.search);
@@ -76,26 +63,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   let curso = null;
   let usuarioActual = null;
 
-
-  // ======================================================
-  // VERIFICAR USUARIO AUTENTICADO
-  // ======================================================
-
   onAuthStateChanged(auth, (usuario) => {
-
     usuarioActual = usuario;
-
     if (!usuario) {
-
       window.location.href =
         "ingresar.html";
     }
   });
-
-
-  // ======================================================
-  // VERIFICAR ID DEL CURSO
-  // ======================================================
 
   if (!cursoId) {
 
@@ -110,45 +84,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       errorBox.classList.remove("d-none");
     }
-
     return;
   }
 
-
-  // ======================================================
-  // CARGAR CURSO DESDE FIRESTORE
-  // ======================================================
-
   try {
-
     const cursoRef =
       doc(db, "cursoscc", cursoId);
-
     const docSnap =
       await getDoc(cursoRef);
 
-
     if (!docSnap.exists()) {
-
       if (cargando) {
         cargando.classList.add("d-none");
       }
-
       if (errorBox && mensajeError) {
-
         mensajeError.textContent =
           "El curso solicitado no existe o fue desactivado.";
-
         errorBox.classList.remove("d-none");
       }
-
       return;
     }
-
-
     curso =
       docSnap.data();
-
 
     const elTitulo =
       document.getElementById("cursoTitulo");
@@ -159,7 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const elImg =
       document.getElementById("cursoImg");
 
-
     const precioFormateado =
       Number(curso.precio || 0).toLocaleString(
         "es-UY",
@@ -169,7 +125,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       );
 
-
     if (elTitulo) {
 
       elTitulo.textContent =
@@ -178,20 +133,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         "Curso sin título";
     }
 
-
     if (elPrecio) {
 
       elPrecio.textContent =
         precioFormateado;
     }
 
-
     if (elImg) {
-
       const rutaImagen =
         curso.URL_imagen ??
         curso.imagen_url;
-
 
       if (rutaImagen) {
 
@@ -212,95 +163,65 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-
     if (cargando) {
       cargando.classList.add("d-none");
     }
-
     if (tarjetaCurso) {
       tarjetaCurso.classList.remove("d-none");
     }
-
     if (seccionPago) {
       seccionPago.classList.remove("d-none");
     }
 
-
   } catch (error) {
-
     console.error(
       "Error al consultar el curso desde Firestore:",
       error
     );
 
-
     if (cargando) {
       cargando.classList.add("d-none");
     }
 
-
     if (errorBox && mensajeError) {
-
       mensajeError.textContent =
         "Ocurrió un error al cargar la información de pago. Intente nuevamente.";
-
       errorBox.classList.remove("d-none");
     }
-
     return;
   }
 
-
-  // ======================================================
-  // CAMBIO DE MÉTODO DE PAGO
-  // ======================================================
-
   radiosMetodo.forEach((radio) => {
-
     radio.addEventListener("change", (e) => {
-
       if (desplegableTarjeta) {
         desplegableTarjeta.classList.add("d-none");
       }
-
       if (desplegableTransferencia) {
         desplegableTransferencia.classList.add("d-none");
       }
 
-
       const metodo =
         e.target.value;
-
 
       if (
         metodo === "tarjeta" &&
         desplegableTarjeta
       ) {
-
         desplegableTarjeta.classList.remove(
           "d-none"
         );
-
       } else if (
         metodo === "transferencia" &&
         desplegableTransferencia
       ) {
-
         desplegableTransferencia.classList.remove(
           "d-none"
         );
       }
 
-
       validarFormulario();
     });
-
   });
-
-
-  // ======================================================
-  // FUNCIONES DE VALIDACIÓN INDIVIDUAL CON FEEDBACK VISUAL
-  // ======================================================
 
   function aplicarClasesValidacion(input, esValido) {
     if (!input) return;
@@ -349,11 +270,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
-
-  // ======================================================
-  // VALIDACIÓN NOMBRE (SÓLO LETRAS Y ESPACIOS)
-  // ======================================================
-
   if (inputNombre) {
     inputNombre.addEventListener("input", (e) => {
       // Elimina cualquier carácter que no sea una letra (con tildes/ñ) o espacio
@@ -361,11 +277,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       validarFormulario();
     });
   }
-
-
-  // ======================================================
-  // VALIDACIÓN NÚMERO DE TARJETA (16 DÍGITOS)
-  // ======================================================
 
   if (inputNumero) {
 
@@ -396,11 +307,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   }
 
-
-  // ======================================================
-  // VALIDACIÓN VENCIMIENTO (MAYOR O IGUAL A LA FECHA ACTUAL)
-  // ======================================================
-
   if (inputVencimiento) {
 
     inputVencimiento.addEventListener(
@@ -413,7 +319,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             ""
           );
 
-
         if (valor.length >= 3) {
 
           valor =
@@ -422,26 +327,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             valor.substring(2, 4);
         }
 
-
         e.target.value =
           valor.substring(
             0,
             5
           );
 
-
         validarFormulario();
       }
     );
   }
 
-
-  // ======================================================
-  // VALIDACIÓN CVV
-  // ======================================================
-
   if (inputCvv) {
-
     inputCvv.addEventListener(
       "input",
       (e) => {
@@ -457,16 +354,10 @@ document.addEventListener("DOMContentLoaded", async () => {
               4
             );
 
-
         validarFormulario();
       }
     );
   }
-
-
-  // ======================================================
-  // VALIDACIÓN COMPROBANTE
-  // ======================================================
 
   if (inputComprobante) {
 
@@ -477,20 +368,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const archivo =
           inputComprobante.files[0];
 
-
         if (!archivo) {
 
           validarFormulario();
           return;
         }
 
-
         const tiposPermitidos = [
           "image/jpeg",
           "image/png",
           "image/jpg"
         ];
-
 
         if (
           !tiposPermitidos.includes(
@@ -505,7 +393,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
           }
 
-
           inputComprobante.value = "";
 
         } else {
@@ -518,16 +405,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
 
-
         validarFormulario();
       }
     );
   }
-
-
-  // ======================================================
-  // VALIDAR FORMULARIO GENERAL
-  // ======================================================
 
   function validarFormulario() {
 
@@ -535,12 +416,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-
     const radioSeleccionado =
       document.querySelector(
         'input[name="metodoPago"]:checked'
       );
-
 
     if (!radioSeleccionado) {
 
@@ -550,21 +429,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-
     const metodo =
       radioSeleccionado.value;
-
-
-    // ----------------------------------------------------
-    // TARJETA
-    // ----------------------------------------------------
 
     if (metodo === "tarjeta") {
 
       const nombreTexto = inputNombre ? inputNombre.value.trim() : "";
-      // Valida que tenga al menos 3 caracteres y contenga únicamente letras/espacios
       const nombreValido = nombreTexto.length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombreTexto);
-
 
       const numeroLimpio =
         inputNumero
@@ -574,14 +445,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             )
           : "";
 
-
       const numeroValido = numeroLimpio.length === 16;
-
 
       const vencimientoValido =
         inputVencimiento &&
         esVencimientoValido(inputVencimiento.value.trim());
-
 
       const cvvValido =
         inputCvv &&
@@ -589,7 +457,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           .trim()
           .length >= 3;
 
-      // Aplicar clases de estado visual en tiempo real
       aplicarClasesValidacion(inputNombre, nombreValido);
       aplicarClasesValidacion(inputNumero, numeroValido);
       aplicarClasesValidacion(inputVencimiento, vencimientoValido);
@@ -603,18 +470,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           cvvValido
         );
 
-
-    // ----------------------------------------------------
-    // TRANSFERENCIA
-    // ----------------------------------------------------
-
     } else if (metodo === "transferencia") {
 
       const archivo =
         inputComprobante
           ? inputComprobante.files[0]
           : null;
-
 
       const tieneComprobanteValido =
         archivo &&
@@ -626,16 +487,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           archivo.type
         );
 
-
       btnConfirmar.disabled =
         !tieneComprobanteValido;
     }
   }
-
-
-  // ======================================================
-  // SUBIR COMPROBANTE A CLOUDINARY
-  // ======================================================
 
   async function subirComprobanteACloudinary(
     archivo
@@ -647,22 +502,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
     }
 
-
     const formulario =
       new FormData();
-
 
     formulario.append(
       "file",
       archivo
     );
 
-
     formulario.append(
       "upload_preset",
       CLOUDINARY_UPLOAD_PRESET
     );
-
 
     const respuesta =
       await fetch(
@@ -673,7 +524,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       );
 
-
     if (!respuesta.ok) {
 
       throw new Error(
@@ -681,10 +531,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
     }
 
-
     const datos =
       await respuesta.json();
-
 
     if (!datos.secure_url) {
 
@@ -693,14 +541,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
     }
 
-
     return datos.secure_url;
   }
-
-
-  // ======================================================
-  // CONFIRMAR PAGO Y REGISTRAR ADQUISICIÓN
-  // ======================================================
 
   if (formPago) {
 
@@ -710,19 +552,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         e.preventDefault();
 
-
-        // -----------------------------------------------
-        // VERIFICAR USUARIO
-        // -----------------------------------------------
-
         const usuario =
           auth.currentUser;
-
 
         if (!usuario) {
 
           alert(
-            "Debés iniciar sesión para realizar la compra."
+            "Debés iniciar sesión para realizar la compra"
           );
 
           window.location.href =
@@ -731,16 +567,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-
-        // -----------------------------------------------
-        // OBTENER MÉTODO DE PAGO
-        // -----------------------------------------------
-
         const metodo =
           document.querySelector(
             'input[name="metodoPago"]:checked'
           )?.value;
-
 
         if (!metodo) {
 
@@ -751,14 +581,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-
-        // -----------------------------------------------
-        // DETERMINAR ESTADO
-        // -----------------------------------------------
-
         let estado =
           "aprobada";
-
 
         if (metodo === "transferencia") {
 
@@ -766,19 +590,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             "pendiente";
         }
 
-
         btnConfirmar.disabled =
           true;
 
         btnConfirmar.textContent =
           "Procesando...";
 
-
         try {
-
-          // ---------------------------------------------
-          // DATOS BASE DE LA ADQUISICIÓN
-          // ---------------------------------------------
 
           const datosAdquisicion = {
 
@@ -811,11 +629,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               estado
           };
 
-
-          // =================================================
-          // PAGO CON TARJETA
-          // =================================================
-
           if (metodo === "tarjeta") {
 
             const referenciaAdquisicion =
@@ -826,14 +639,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 )
               );
 
-
             const referenciaCurso =
               doc(
                 db,
                 "cursoscc",
                 cursoId
               );
-
 
             await runTransaction(
               db,
@@ -844,7 +655,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     referenciaCurso
                   );
 
-
                 if (!resultadoCurso.exists()) {
 
                   throw new Error(
@@ -852,10 +662,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                   );
                 }
 
-
                 const datosCurso =
                   resultadoCurso.data();
-
 
                 const cuposActuales =
                   Number(
@@ -863,14 +671,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     0
                   );
 
-
                 if (cuposActuales <= 0) {
 
                   throw new Error(
                     "SIN_CUPOS"
                   );
                 }
-
 
                 transaccion.update(
                   referenciaCurso,
@@ -880,7 +686,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                   }
                 );
 
-
                 transaccion.set(
                   referenciaAdquisicion,
                   datosAdquisicion
@@ -888,57 +693,33 @@ document.addEventListener("DOMContentLoaded", async () => {
               }
             );
 
-
             window.location.href =
               `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
 
-
             return;
           }
-
-
-          // =================================================
-          // PAGO POR TRANSFERENCIA
-          // =================================================
 
           if (metodo === "transferencia") {
 
             const archivo =
               inputComprobante?.files?.[0];
 
-
             if (!archivo) {
-
               throw new Error(
                 "NO_HAY_COMPROBANTE"
               );
             }
-
-
-            // ---------------------------------------------
-            // SUBIR COMPROBANTE
-            // ---------------------------------------------
 
             const comprobanteUrl =
               await subirComprobanteACloudinary(
                 archivo
               );
 
-
-            // ---------------------------------------------
-            // AGREGAR DATOS DEL COMPROBANTE
-            // ---------------------------------------------
-
             datosAdquisicion.comprobanteUrl =
               comprobanteUrl;
 
             datosAdquisicion.comprobanteNombre =
               archivo.name;
-
-
-            // ---------------------------------------------
-            // REGISTRAR ADQUISICIÓN
-            // ---------------------------------------------
 
             const referenciaAdquisicion =
               await addDoc(
@@ -949,70 +730,54 @@ document.addEventListener("DOMContentLoaded", async () => {
                 datosAdquisicion
               );
 
-
             window.location.href =
               `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
-
             return;
           }
-
 
           throw new Error(
             "METODO_PAGO_NO_VALIDO"
           );
 
-
         } catch (error) {
-
           console.error(
             "Error al registrar la adquisición:",
             error
           );
 
-
           if (
             error.message ===
             "SIN_CUPOS"
           ) {
-
             alert(
               "Este curso ya no tiene cupos disponibles."
             );
-
           } else if (
             error.message ===
             "ERROR_CLOUDINARY"
           ) {
-
             alert(
               "No fue posible subir el comprobante. Intentá nuevamente."
             );
-
           } else if (
             error.message ===
             "URL_COMPROBANTE_NO_GENERADA"
           ) {
-
             alert(
               "No se pudo obtener el comprobante. Intentá nuevamente."
             );
-
           } else if (
             error.message ===
             "NO_HAY_COMPROBANTE"
           ) {
-
             alert(
               "Debés seleccionar un comprobante válido."
             );
-
           } else {
-
             alert(
               "No fue posible registrar la adquisición. Intentá nuevamente."
             );
           }
-
 
           btnConfirmar.disabled =
             false;
@@ -1023,5 +788,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     );
   }
-
 });

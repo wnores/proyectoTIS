@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cursosFiltrados.length === 0) {
       contenedor.replaceChildren();
-      mostrarMensaje('No se encontraron cursos que coincidan con la búsqueda.');
+      mostrarMensaje('No se encontraron cursos que coincidan con la búsqueda');
       contenedorPaginacion.classList.add('d-none');
       return;
     }

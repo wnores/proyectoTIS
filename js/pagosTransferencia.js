@@ -23,40 +23,26 @@ const contenedor =
 const botonMostrarPagos =
     document.getElementById("btnMostrarPagosTransferencia");
 
-
-// ======================================================
-// MOSTRAR / OCULTAR PAGOS
-// ======================================================
-
 if (botonMostrarPagos) {
 
     botonMostrarPagos.addEventListener(
         "click",
         () => {
-
             const estaOculto =
                 contenedor.classList.contains("d-none");
-
-
             if (estaOculto) {
-
                 contenedor.classList.remove(
                     "d-none"
                 );
-
                 botonMostrarPagos.innerHTML = `
                     <i class="bi bi-chevron-up me-2"></i>
                     Ocultar pagos
                 `;
-
                 cargarPagosPendientes();
-
             } else {
-
                 contenedor.classList.add(
                     "d-none"
                 );
-
                 botonMostrarPagos.innerHTML = `
                     <i class="bi bi-credit-card me-2"></i>
                     Ver pagos pendientes
@@ -66,40 +52,27 @@ if (botonMostrarPagos) {
     );
 }
 
-
-// ======================================================
-// VERIFICAR USUARIO Y PERMISOS
-// ======================================================
-
 onAuthStateChanged(
     auth,
     async (usuario) => {
-
         if (!usuario) {
-
             mostrarMensaje(
                 "Debés iniciar sesión para acceder a esta sección."
             );
-
             return;
         }
 
-
         try {
-
             const referenciaUsuario =
                 doc(
                     db,
                     "usuarios",
                     usuario.uid
                 );
-
-
             const resultadoUsuario =
                 await getDoc(
                     referenciaUsuario
                 );
-
 
             if (!resultadoUsuario.exists()) {
 
@@ -110,10 +83,8 @@ onAuthStateChanged(
                 return;
             }
 
-
             const datosUsuario =
                 resultadoUsuario.data();
-
 
             const tipoUsuario =
                 (
@@ -125,7 +96,6 @@ onAuthStateChanged(
                     .trim()
                     .toLowerCase();
 
-
             if (tipoUsuario !== "docente/admin") {
 
                 mostrarMensaje(
@@ -135,14 +105,12 @@ onAuthStateChanged(
                 return;
             }
 
-
         } catch (error) {
 
             console.error(
                 "Error al verificar permisos:",
                 error
             );
-
 
             mostrarMensaje(
                 "No fue posible verificar los permisos."
@@ -151,13 +119,7 @@ onAuthStateChanged(
     }
 );
 
-
-// ======================================================
-// CARGAR PAGOS PENDIENTES
-// ======================================================
-
 async function cargarPagosPendientes() {
-
     try {
 
         const referenciaAdquisiciones =
@@ -165,7 +127,6 @@ async function cargarPagosPendientes() {
                 db,
                 "adquisiciones"
             );
-
 
         const consulta =
             query(
@@ -182,12 +143,10 @@ async function cargarPagosPendientes() {
                 )
             );
 
-
         const resultado =
             await getDocs(
                 consulta
             );
-
 
         if (resultado.empty) {
 
@@ -198,9 +157,7 @@ async function cargarPagosPendientes() {
             return;
         }
 
-
         contenedor.innerHTML = "";
-
 
         for (
             const documento
@@ -212,7 +169,6 @@ async function cargarPagosPendientes() {
                 ...documento.data()
             };
 
-
             let nombreUsuario =
                 "Usuario no disponible";
 
@@ -220,11 +176,8 @@ async function cargarPagosPendientes() {
                 adquisicion.usuarioCorreo ||
                 "Correo no disponible";
 
-
             if (adquisicion.usuarioId) {
-
                 try {
-
                     const referenciaUsuario =
                         doc(
                             db,
@@ -232,12 +185,10 @@ async function cargarPagosPendientes() {
                             adquisicion.usuarioId
                         );
 
-
                     const resultadoUsuario =
                         await getDoc(
                             referenciaUsuario
                         );
-
 
                     if (
                         resultadoUsuario.exists()
@@ -246,19 +197,16 @@ async function cargarPagosPendientes() {
                         const datosUsuario =
                             resultadoUsuario.data();
 
-
                         nombreUsuario =
                             `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`
                                 .trim() ||
                             "Usuario sin nombre";
-
 
                         correoUsuario =
                             datosUsuario.email ||
                             adquisicion.usuarioCorreo ||
                             "Correo no disponible";
                     }
-
 
                 } catch (error) {
 
@@ -269,7 +217,6 @@ async function cargarPagosPendientes() {
                 }
             }
 
-
             const tarjeta =
                 crearTarjetaPago(
                     documento.id,
@@ -278,12 +225,10 @@ async function cargarPagosPendientes() {
                     correoUsuario
                 );
 
-
             contenedor.appendChild(
                 tarjeta
             );
         }
-
 
     } catch (error) {
 
@@ -292,17 +237,11 @@ async function cargarPagosPendientes() {
             error
         );
 
-
         mostrarMensaje(
             "No fue posible cargar los pagos pendientes."
         );
     }
 }
-
-
-// ======================================================
-// CREAR TARJETA DEL PAGO
-// ======================================================
 
 function crearTarjetaPago(
     idAdquisicion,
@@ -314,32 +253,25 @@ function crearTarjetaPago(
     const columna =
         document.createElement("div");
 
-
     columna.className =
         "col-12 col-md-6 col-lg-4";
-
 
     const tarjeta =
         document.createElement("article");
 
-
     tarjeta.className =
         "card h-100 shadow-sm";
-
 
     const cuerpo =
         document.createElement("div");
 
-
     cuerpo.className =
         "card-body";
-
 
     const fecha =
         formatearFecha(
             adquisicion.fechaAdquisicion
         );
-
 
     const tituloCurso =
         escaparHTML(
@@ -347,46 +279,32 @@ function crearTarjetaPago(
             "Curso sin título"
         );
 
-
     const nombre =
         escaparHTML(
             nombreUsuario
         );
-
 
     const correo =
         escaparHTML(
             correoUsuario
         );
 
-
     const importe =
         formatearPrecio(
             adquisicion.precio
         );
 
-
     let comprobanteHTML = "";
-
-
-    // ==================================================
-    // COMPROBANTE
-    // ==================================================
 
     if (
         adquisicion.comprobanteUrl
     ) {
-
         comprobanteHTML = `
-
             <div class="mb-3">
-
                 <strong>
                     Comprobante:
                 </strong>
-
                 <div class="mt-2">
-
                     <a
                         href="${escaparHTML(adquisicion.comprobanteUrl)}"
                         target="_blank"
@@ -396,9 +314,7 @@ function crearTarjetaPago(
                         <i class="bi bi-file-earmark-image me-2"></i>
                         Ver comprobante
                     </a>
-
                 </div>
-
                 ${
                     adquisicion.comprobanteNombre
                         ? `
@@ -410,137 +326,79 @@ function crearTarjetaPago(
                         `
                         : ""
                 }
-
             </div>
-
         `;
-
     } else {
-
         comprobanteHTML = `
-
             <div class="alert alert-warning py-2 mb-3">
-
                 <i class="bi bi-exclamation-triangle me-2"></i>
-
                 No se encontró un comprobante asociado.
-
             </div>
-
         `;
     }
 
-
     cuerpo.innerHTML = `
-
         <div class="d-flex justify-content-between align-items-start mb-3">
-
             <div>
-
                 <h3 class="h5 mb-1">
                     ${tituloCurso}
                 </h3>
-
                 <span class="badge text-bg-warning">
                     Pendiente
                 </span>
-
             </div>
-
             <i class="bi bi-bank fs-3 text-success"></i>
-
         </div>
-
-
         <p class="mb-2">
-
             <strong>
                 Estudiante:
             </strong>
-
             ${nombre}
-
         </p>
-
-
         <p class="mb-2">
-
             <strong>
                 Correo:
             </strong>
-
             ${correo}
-
         </p>
-
-
         <p class="mb-2">
-
             <strong>
                 Importe:
             </strong>
-
             ${importe}
-
         </p>
-
-
         <p class="mb-3">
-
             <strong>
                 Fecha:
             </strong>
-
             ${fecha}
-
         </p>
-
-
         ${comprobanteHTML}
-
-
         <div class="d-flex gap-2">
-
             <button
                 type="button"
                 class="btn btn-success flex-fill btn-aprobar-transferencia"
             >
-
                 <i class="bi bi-check-circle me-2"></i>
-
                 Aprobar
-
             </button>
-
-
             <button
                 type="button"
                 class="btn btn-danger flex-fill btn-rechazar-transferencia"
             >
-
                 <i class="bi bi-x-circle me-2"></i>
-
                 Rechazar
-
             </button>
-
         </div>
-
     `;
-
-
     const botonAprobar =
         cuerpo.querySelector(
             ".btn-aprobar-transferencia"
         );
-
-
     const botonRechazar =
         cuerpo.querySelector(
             ".btn-rechazar-transferencia"
         );
-
-
     botonAprobar.addEventListener(
         "click",
         () =>
@@ -549,7 +407,6 @@ function crearTarjetaPago(
                 botonAprobar
             )
     );
-
 
     botonRechazar.addEventListener(
         "click",
@@ -560,45 +417,31 @@ function crearTarjetaPago(
             )
     );
 
-
     tarjeta.appendChild(
         cuerpo
     );
-
 
     columna.appendChild(
         tarjeta
     );
 
-
     return columna;
 }
-
-
-// ======================================================
-// APROBAR PAGO
-// ======================================================
 
 async function aprobarPago(
     idAdquisicion,
     boton
 ) {
-
     const confirmar =
         confirm(
             "¿Confirmás que la transferencia bancaria fue recibida?"
         );
 
-
     if (!confirmar) {
         return;
     }
-
-
     try {
-
         boton.disabled = true;
-
 
         boton.innerHTML = `
             <span
@@ -608,7 +451,6 @@ async function aprobarPago(
             Aprobando...
         `;
 
-
         const referenciaAdquisicion =
             doc(
                 db,
@@ -616,16 +458,13 @@ async function aprobarPago(
                 idAdquisicion
             );
 
-
         await runTransaction(
             db,
             async (transaccion) => {
-
                 const resultadoAdquisicion =
                     await transaccion.get(
                         referenciaAdquisicion
                     );
-
 
                 if (
                     !resultadoAdquisicion.exists()
@@ -636,10 +475,8 @@ async function aprobarPago(
                     );
                 }
 
-
                 const adquisicion =
                     resultadoAdquisicion.data();
-
 
                 if (
                     adquisicion.estado !==
@@ -651,7 +488,6 @@ async function aprobarPago(
                     );
                 }
 
-
                 if (
                     !adquisicion.cursoId
                 ) {
@@ -660,7 +496,6 @@ async function aprobarPago(
                         "CURSO_NO_EXISTE"
                     );
                 }
-
 
                 const referenciaCurso =
                     doc(
@@ -704,7 +539,6 @@ async function aprobarPago(
                     );
                 }
 
-
                 transaccion.update(
                     referenciaCurso,
                     {
@@ -712,7 +546,6 @@ async function aprobarPago(
                             cuposActuales - 1
                     }
                 );
-
 
                 transaccion.update(
                     referenciaAdquisicion,
@@ -724,14 +557,11 @@ async function aprobarPago(
             }
         );
 
-
         alert(
             "El pago fue aprobado correctamente."
         );
 
-
         await cargarPagosPendientes();
-
 
     } catch (error) {
 
@@ -739,7 +569,6 @@ async function aprobarPago(
             "Error al aprobar el pago:",
             error
         );
-
 
         if (
             error.message ===
@@ -784,10 +613,8 @@ async function aprobarPago(
             );
         }
 
-
         boton.disabled =
             false;
-
 
         boton.innerHTML = `
             <i class="bi bi-check-circle me-2"></i>
@@ -795,11 +622,6 @@ async function aprobarPago(
         `;
     }
 }
-
-
-// ======================================================
-// RECHAZAR PAGO
-// ======================================================
 
 async function rechazarPago(
     idAdquisicion,
@@ -811,17 +633,14 @@ async function rechazarPago(
             "¿Confirmás que querés rechazar este pago por transferencia?"
         );
 
-
     if (!confirmar) {
         return;
     }
-
 
     try {
 
         boton.disabled =
             true;
-
 
         boton.innerHTML = `
             <span
@@ -831,14 +650,12 @@ async function rechazarPago(
             Rechazando...
         `;
 
-
         const referenciaAdquisicion =
             doc(
                 db,
                 "adquisiciones",
                 idAdquisicion
             );
-
 
         await updateDoc(
             referenciaAdquisicion,
@@ -848,14 +665,11 @@ async function rechazarPago(
             }
         );
 
-
         alert(
             "El pago fue rechazado correctamente."
         );
 
-
         await cargarPagosPendientes();
-
 
     } catch (error) {
 
@@ -864,15 +678,12 @@ async function rechazarPago(
             error
         );
 
-
         alert(
             "No fue posible rechazar el pago. Intentá nuevamente."
         );
 
-
         boton.disabled =
             false;
-
 
         boton.innerHTML = `
             <i class="bi bi-x-circle me-2"></i>
@@ -880,11 +691,6 @@ async function rechazarPago(
         `;
     }
 }
-
-
-// ======================================================
-// FORMATEAR PRECIO
-// ======================================================
 
 function formatearPrecio(precio) {
 
@@ -899,17 +705,11 @@ function formatearPrecio(precio) {
     );
 }
 
-
-// ======================================================
-// FORMATEAR FECHA
-// ======================================================
-
 function formatearFecha(timestamp) {
 
     if (!timestamp) {
         return "No disponible";
     }
-
 
     try {
 
@@ -925,7 +725,6 @@ function formatearFecha(timestamp) {
                 );
         }
 
-
         if (
             timestamp.seconds
         ) {
@@ -939,24 +738,17 @@ function formatearFecha(timestamp) {
             );
         }
 
-
         return new Date(
             timestamp
         ).toLocaleString(
             "es-UY"
         );
 
-
     } catch {
 
         return "No disponible";
     }
 }
-
-
-// ======================================================
-// ESCAPAR HTML
-// ======================================================
 
 function escaparHTML(texto) {
 
@@ -985,17 +777,11 @@ function escaparHTML(texto) {
         );
 }
 
-
-// ======================================================
-// MOSTRAR MENSAJE
-// ======================================================
-
 function mostrarMensaje(mensaje) {
 
     if (!contenedor) {
         return;
     }
-
 
     contenedor.innerHTML = `
 

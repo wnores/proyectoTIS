@@ -24,7 +24,6 @@ const imagenCurso = document.getElementById("imagenCurso");
 const nombreImagenCurso = document.getElementById("nombreImagenCurso");
 const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
 
-// Campos de la Actividad Final (PDF)
 const actividadPdf = document.getElementById("actividadPdf");
 const nombreActividadPdf = document.getElementById("nombreActividadPdf");
 const contenedorPreviaPdf = document.getElementById("contenedorPreviaPdf");
@@ -115,7 +114,7 @@ function iniciarPagina() {
                     }
                     await cargarListaCursos();
                 } else {
-                    alert("No tenés permiso para modificar cursos.");
+                    alert("No tenés permiso para modificar cursos");
                     window.location.href = "catalogo.html";
                 }
             } else {
@@ -693,12 +692,10 @@ if (formModificarCurso) {
                 urlImagenFinal = await subirImagenACloudinary(archivoImagenCurso);
             }
 
-            // Subida directa apuntando exclusivamente a RAW para archivos PDF
             if (archivoActividadPdf) {
                 urlPdfFinal = await subirPdfACloudinary(archivoActividadPdf);
             }
 
-            // 1. Guardar datos principales del curso en 'cursoscc'
             await updateDoc(doc(db, "cursoscc", cursoSeleccionadoId), {
                 titulo: titulo,
                 descripcion: descripcion,
@@ -710,7 +707,6 @@ if (formModificarCurso) {
                 actividad_pdf_url: urlPdfFinal
             });
 
-            // 2. Eliminar módulos y temas marcados para borrar
             for (const idModEliminar of modulosEliminados) {
                 await deleteDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", idModEliminar));
             }
@@ -721,7 +717,6 @@ if (formModificarCurso) {
             }
             temasEliminados = [];
 
-            // 3. Guardar/Actualizar Módulos y sus Temas
             const modulosRef = collection(db, "cursoscc", cursoSeleccionadoId, "modulos");
 
             for (let i = 0; i < listaModulos.length; i++) {

@@ -51,7 +51,7 @@ function iniciarPagina() {
           }
           await cargarCategorias();
         } else {
-          alert("No tenés permiso para crear cursos.");
+          alert("No tenés permiso para crear cursos");
           window.location.href = "catalogo.html";
         }
       } else {
@@ -64,9 +64,6 @@ function iniciarPagina() {
   });
 }
 
-/**
- * Obtiene todas las categorías únicas de la colección 'cursoscc' y llena el selector
- */
 async function cargarCategorias() {
   try {
     const snapshot = await getDocs(collection(db, "cursoscc"));
@@ -187,7 +184,6 @@ function renumerarModulos() {
   cantidadModulos = modulos.length;
 }
 
-// Procesamiento del formulario y guardado en la colección 'cursoscc'
 if (formPublicarCurso) {
   formPublicarCurso.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -252,8 +248,6 @@ if (formPublicarCurso) {
       if (archivoImagenCurso) {
         imagenUrl = await subirImagenACloudinary(archivoImagenCurso);
       }
-
-      // Guardado principal en la colección 'cursoscc'
       const referenciaCurso = await addDoc(collection(db, "cursoscc"), {
         titulo: titulo,
         descripcion: descripcion,
@@ -268,7 +262,6 @@ if (formPublicarCurso) {
         creadoEn: serverTimestamp()
       });
 
-      // Guardado de subcolección 'modulos' dentro del documento de la colección 'cursoscc'
       const referenciaModulos = collection(
         db,
         "cursoscc",

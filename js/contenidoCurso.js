@@ -806,32 +806,222 @@ function renderizarTemasDelModulo(temas) {
     contenedorTemas.replaceChildren();
 
     if (!Array.isArray(temas) || temas.length === 0) {
-        const mensaje = document.createElement("p");
-        mensaje.className = "text-muted";
-        mensaje.textContent = "Este módulo no tiene temas disponibles.";
-        contenedorTemas.appendChild(mensaje);
+        contenedorTemas.innerHTML = `
+            <div class="alert alert-secondary mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                Este módulo todavía no tiene temas asignados.
+            </div>
+        `;
         return;
     }
 
-    temas.forEach((tema, idx) => {
-        const divTema = document.createElement("div");
-        divTema.className = "mb-4 pb-3 border-bottom";
+    temas.forEach((tema, indice) => {
+        const cardTema = document.createElement("article");
+        cardTema.className = "card mb-4 border-1 shadow-sm";
+
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body p-4";
 
         const titulo = document.createElement("h3");
-        titulo.className = "h5 fw-bold text-dark";
-        titulo.textContent = `${idx + 1}. ${tema.nombre}`;
-        divTema.appendChild(titulo);
+        titulo.className = "h5 text-primary mb-2";
+        titulo.textContent = `${indice + 1}. ${tema.nombre}`;
+
+        cardBody.appendChild(titulo);
 
         if (tema.descripcion) {
-            const desc = document.createElement("p");
-            desc.className = "text-secondary";
-            desc.textContent = tema.descripcion;
-            divTema.appendChild(desc);
+            const descripcion = document.createElement("p");
+            descripcion.className = "text-muted mb-3";
+            descripcion.textContent = tema.descripcion;
+
+            cardBody.appendChild(descripcion);
         }
 
-        contenedorTemas.appendChild(divTema);
+        if (
+            Array.isArray(tema.objetivos) &&
+            tema.objetivos.length > 0
+        ) {
+            const objetivosValidos = tema.objetivos.filter(
+                (objetivo) =>
+                    typeof objetivo === "string" &&
+                    objetivo.trim() !== ""
+            );
+
+            if (objetivosValidos.length > 0) {
+                const cajaObjetivos =
+                    document.createElement("div");
+
+                cajaObjetivos.className =
+                    "alert alert-info py-2 px-3 mb-3";
+
+                const tituloObjetivos =
+                    document.createElement("h4");
+
+                tituloObjetivos.className =
+                    "h6 mb-2 fw-bold text-dark";
+
+                tituloObjetivos.innerHTML = `
+                    <i class="bi bi-bullseye me-2 text-primary"></i>
+                    Objetivos del tema:
+                `;
+
+                const listaObjetivos =
+                    document.createElement("ul");
+
+                listaObjetivos.className = "mb-0 small";
+
+                objetivosValidos.forEach((objetivo) => {
+                    const elemento =
+                        document.createElement("li");
+
+                    elemento.textContent = objetivo;
+
+                    listaObjetivos.appendChild(elemento);
+                });
+
+                cajaObjetivos.appendChild(tituloObjetivos);
+                cajaObjetivos.appendChild(listaObjetivos);
+
+                cardBody.appendChild(cajaObjetivos);
+            }
+        }
+
+        const tituloMateriales =
+            document.createElement("h4");
+
+        tituloMateriales.className =
+            "h6 fw-bold mb-3 text-secondary";
+
+        tituloMateriales.textContent =
+            "Materiales del tema:";
+
+        cardBody.appendChild(tituloMateriales);
+
+        const filaMateriales =
+            document.createElement("div");
+
+        filaMateriales.className = "row g-3";
+
+        const materiales = Array.isArray(tema.recursos)
+            ? tema.recursos.filter(
+                (recurso) =>
+                    recurso &&
+                    recurso.url
+            )
+            : [];
+
+        if (materiales.length === 0) {
+            const columna =
+                document.createElement("div");
+
+            columna.className = "col-12";
+
+            columna.innerHTML = `
+                <div class="alert alert-light text-muted small mb-0 border">
+                    <i class="bi bi-info-circle me-1"></i>
+                    No hay materiales disponibles para este tema.
+                </div>
+            `;
+
+            filaMateriales.appendChild(columna);
+
+        } else {
+            materiales.forEach((recurso) => {
+                const columna =
+                    document.createElement("div");
+
+                columna.className =
+                    "col-12 col-md-6";
+
+                const tarjeta =
+                    document.createElement("div");
+
+                tarjeta.className =
+                    "card h-100 border";
+
+                const cuerpo =
+                    document.createElement("div");
+
+                cuerpo.className =
+                    "card-body d-flex flex-column p-3";
+
+                const icono =
+                    document.createElement("i");
+
+                icono.className =
+                    obtenerIconoRecurso(recurso.tipo);
+
+                const nombre =
+                    document.createElement("h5");
+
+                nombre.className =
+                    "card-title h6 mb-2";
+
+                nombre.textContent =
+                    recurso.nombre ||
+                    "Material del tema";
+
+                const enlace =
+                    document.createElement("a");
+
+                enlace.className =
+                    "btn btn-outline-primary btn-sm mt-auto w-100";
+
+                enlace.href = recurso.url;
+                enlace.target = "_blank";
+                enlace.rel = "noopener noreferrer";
+
+                enlace.textContent =
+                    obtenerTextoBotonRecurso(
+                        recurso.tipo
+                    );
+
+                cuerpo.appendChild(icono);
+                cuerpo.appendChild(nombre);
+                cuerpo.appendChild(enlace);
+
+                tarjeta.appendChild(cuerpo);
+                columna.appendChild(tarjeta);
+
+                filaMateriales.appendChild(columna);
+            });
+        }
+
+        cardBody.appendChild(filaMateriales);
+        cardTema.appendChild(cardBody);
+
+        contenedorTemas.appendChild(cardTema);
     });
 }
+
+function obtenerIconoRecurso(tipo) {
+    const iconos = {
+        pdf: "bi bi-file-earmark-pdf fs-3 text-danger mb-2",
+        video: "bi bi-play-btn-fill fs-3 text-danger mb-2",
+        drive: "bi bi-google fs-3 text-success mb-2",
+        presentacion: "bi bi-easel fs-3 text-warning mb-2",
+        url: "bi bi-link-45deg fs-3 text-primary mb-2",
+        python: "bi bi-filetype-py fs-3 text-primary mb-2"
+    };
+
+    return (
+        iconos[tipo] ||
+        "bi bi-file-earmark fs-3 text-primary mb-2"
+    );
+}
+
+function obtenerTextoBotonRecurso(tipo) {
+    const textos = {
+        pdf: "Abrir PDF",
+        video: "Ver video",
+        drive: "Abrir en Drive",
+        presentacion: "Ver presentación",
+        url: "Visitar enlace",
+        python: "Descargar Python"
+    };
+
+    return textos[tipo] || "Abrir material";
+}
+
 
 function actualizarProgreso(indiceModulo, totalModulos) {
     const barraProgreso = document.getElementById("barraProgreso");

@@ -262,5 +262,177 @@ Se corrigió descripcionDeCurso.js para que también busque los cursos en Firest
 Se completó manualmente el campo categoria en Firestore para los cursos que no lo tenían cargado.
 
 ## Sprint 3 (28/09/2026 al 11/10/2026)
+### Comprobante de compra (Anny)
+
+Se desarrolló la página `comprobanteCompra.html` junto con su correspondiente lógica en JavaScript.
+
+Después de registrar una adquisición, el usuario es redirigido al comprobante mediante el identificador de la operación almacenada en Firestore.
+
+El comprobante permite visualizar:
+
+- Nombre del estudiante.
+- Curso adquirido.
+- Precio del curso.
+- Método de pago seleccionado.
+- Estado de la adquisición.
+- Fecha de la operación.
+- Identificador del comprobante.
+
+También se incorporaron mensajes de error para los casos en los que no se indica un comprobante, la adquisición no existe o el usuario no tiene permiso para consultarla.
+
+### Actualización de cupos disponibles (Anny)
+
+Se implementó la actualización automática de los cupos disponibles cuando una compra con tarjeta es aprobada.
+
+La operación se realiza mediante una transacción de Cloud Firestore, permitiendo:
+
+- Verificar que el curso exista.
+- Comprobar que queden cupos disponibles.
+- Descontar exactamente un cupo.
+- Registrar la adquisición.
+- Evitar que dos estudiantes ocupen simultáneamente el último cupo.
+- Mostrar un mensaje cuando el curso ya no dispone de lugares.
+
+Las transferencias pendientes no descuentan el cupo hasta que la operación sea aprobada.
+
+### Restricción para solicitar becas (Anny)
+
+Se incorporó una validación para impedir que un estudiante solicite una beca para un curso que ya adquirió.
+
+La aplicación consulta las adquisiciones del usuario en Firestore y, cuando detecta una compra aprobada, oculta o deshabilita la opción “Solicitar una beca”.
+
+Esto evita solicitudes duplicadas o incompatibles con el estado del estudiante dentro del curso.
+
+### Acceso al contenido de los cursos (Anny)
+
+Se desarrollaron las páginas `contenidoCurso.html` y su correspondiente archivo JavaScript para mostrar el contenido académico de cada curso.
+
+El acceso se controla según la autenticación, el rol y la relación del usuario con el curso:
+
+- El visitante puede consultar el catálogo y el detalle general.
+- El estudiante solamente puede acceder al material de los cursos adquiridos.
+- El docente/admin puede consultar y administrar los contenidos.
+- Los accesos no autorizados muestran un mensaje y redirigen al usuario.
+
+### Organización del contenido por módulos y temas (Anny)
+
+Se amplió la estructura de los cursos en Cloud Firestore utilizando subcolecciones de módulos y temas.
+
+Cada módulo puede contener:
+
+- Título.
+- Descripción.
+- Objetivos.
+- Temas.
+- Materiales teóricos.
+- Videos.
+- Proyecto o actividad final.
+
+Esta estructura permite que cada curso posea una cantidad diferente de módulos, temas y recursos.
+
+### Gestión de materiales educativos (Anny)
+
+Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
+
+Los recursos pueden incluir:
+
+- Documentos PDF.
+- Videos educativos.
+- Actividades prácticas.
+- Materiales teóricos.
+
+Los archivos y enlaces se recuperan dinámicamente desde Firestore y se presentan dentro del contenido correspondiente.
+
+### Elaboración de contenidos educativos (Anny)
+
+Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
+
+- Introducción a la Ciberseguridad.
+- Desarrollo Web.
+- Introducción a la Programación en Python
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)
+
+### Integración, comunicación y mejoras finales
+
+### Foro interno de los cursos (Anny)
+
+Se incorporó un foro dentro del contenido de cada curso para facilitar la comunicación entre estudiantes y docentes.
+
+Los usuarios autorizados pueden:
+
+- Publicar mensajes.
+- Consultar las publicaciones del curso.
+- Responder mensajes.
+- Identificar el autor y la fecha de publicación.
+- Eliminar sus propias publicaciones.
+- Participar únicamente en los cursos a los que tienen acceso.
+
+Cada foro se almacena como una subcolección del curso correspondiente en Cloud Firestore, evitando que las publicaciones de diferentes cursos se mezclen.
+
+### Respuestas a publicaciones (Anny)
+
+Se agregó la posibilidad de responder las publicaciones del foro.
+
+Las respuestas quedan asociadas al mensaje original e incluyen:
+
+- Identificador del autor.
+- Nombre del usuario.
+- Contenido de la respuesta.
+- Fecha de publicación.
+
+Esta funcionalidad permite generar intercambios entre los estudiantes y el docente dentro de cada curso.
+
+### Notificaciones del foro (Anny)
+
+Se incorporó un sistema de notificaciones para informar al docente/admin sobre la existencia de nuevas publicaciones en los foros.
+
+Las notificaciones se muestran mediante una campana ubicada en el encabezado y permiten identificar:
+
+- El curso relacionado.
+- El autor del mensaje.
+- El contenido o resumen de la publicación.
+- La fecha del mensaje.
+- Su estado de lectura.
+
+Esto permite que el docente pueda conocer la actividad de los foros sin tener que ingresar individualmente a cada curso.
+
+### Reglas de seguridad para foros y notificaciones (Anny)
+
+Se actualizaron las reglas de seguridad de Cloud Firestore para controlar el acceso a:
+
+- Publicaciones del foro.
+- Respuestas.
+- Notificaciones.
+- Módulos y temas.
+- Adquisiciones.
+- Solicitudes de becas.
+
+Las reglas comprueban que el usuario esté autenticado y controlan las acciones según el autor del contenido o el rol docente/admin.
+
+Los usuarios pueden modificar o eliminar únicamente sus propias publicaciones, mientras que el docente/admin dispone de permisos de moderación.
+
+### Corrección del acceso a “Mis cursos” (Anny)
+
+Se corrigió el enlace de la opción “Mis cursos”, que anteriormente redirigía incorrectamente al perfil.
+
+La opción dirige ahora a la sección correspondiente, donde el estudiante puede consultar los cursos adquiridos y acceder a sus contenidos.
+
+### Integración y pruebas realizadas (Anny)
+
+Se realizaron pruebas sobre los principales flujos implementados:
+
+- Creación y modificación de cursos.
+- Incorporación de módulos y temas.
+- Carga de PDF, videos y actividades.
+- Acceso al contenido según el rol.
+- Registro y consulta de adquisiciones.
+- Generación del comprobante de compra.
+- Descuento de cupos disponibles.
+- Restricción de solicitudes de beca.
+- Publicación y visualización de mensajes en el foro.
+- Visualización de notificaciones.
+- Navegación desde “Mis cursos”.
+- Mensajes de error y estados de carga.
+
+También se revisaron errores de consola, enlaces, permisos de Firestore y la integración entre las diferentes páginas.

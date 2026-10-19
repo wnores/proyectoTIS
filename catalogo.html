@@ -11,7 +11,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="catalogo.html">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
             <div class="container">
                 <a class="navbar-brand" href="index.html">
                     <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
@@ -30,7 +30,7 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
-                        <li class="nav-item"><a class="nav-link active" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
+                        <li class="nav-item"><a class="nav-link active" data-page="catalogo" href="catalogo.html" aria-current="page">Catálogo de cursos</a></li>
                         <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                         <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                     </ul>
@@ -103,9 +103,9 @@
 
     <div class="col-12 col-md-8 mx-auto">
     <div class="input-group input-group-sm">
-        <span class="input-group-text bg-white fw-semibold text-secondary" id="labelBuscar">
+        <label class="input-group-text bg-white fw-semibold text-secondary" id="labelBuscar">
             Buscar:
-        </span>
+        </label>
         <input type="search" class="form-control form-control-sm" id="inputBuscarCursos" placeholder="Título o descripción..." aria-label="Buscar por título o descripción" aria-describedby="labelBuscar">
     </div>
 </div>
@@ -139,8 +139,11 @@
         </section>
 
         <section class="container py-4" aria-labelledby="tituloCursosDisponibles">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <span class="badge bg-success fs-6" id="contadorCursos">0 cursos</span>
+            <h2 id="tituloCursosDisponibles" class="visually-hidden">
+                Cursos disponibles</h2>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+        <span class="badge bg-success fs-6" id="contadorCursos" aria-live="polite" >0 cursos</span>
     </div>
 
     <p id="estadoCarga" class="text-center text-muted">Cargando cursos...</p>

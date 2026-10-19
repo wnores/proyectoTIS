@@ -39,7 +39,7 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
-                    <li class="nav-item"><a class="nav-link active" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
@@ -77,6 +77,7 @@
     </nav>
     </header>
 
+<main id="contenidoAdministrador" class="flex-grow-1 d-none">
     <!-- ============================================ -->
     <!-- DASHBOARD DE ESTADÍSTICAS -->
     <!-- ============================================ -->
@@ -85,12 +86,12 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
-                    <h2 class="h4 fw-bold mb-1">
+                    <h1 id="tituloEstadisticas" class="h4 fw-bold mb-1"></h1>
                         <i class="bi bi-bar-chart-fill text-primary"></i> Estadísticas
                     </h2>
                     <p class="text-secondary mb-0 small">Resumen general de la plataforma.</p>
                 </div>
-                <button class="btn btn-outline-secondary btn-sm" id="btnRefrescarStats">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefrescarStats">
                     <i class="bi bi-arrow-clockwise"></i> Refrescar
                 </button>
             </div>
@@ -197,8 +198,6 @@
     </section>
 
 
-    <main id="contenidoAdministrador" class="flex-grow-1">
-
     <section class="py-5" aria-labelledby="tituloAdministrarCursos">
         <div class="container">
 
@@ -278,14 +277,14 @@
     </section>
 
     <!-- GESTIÓN DE ESTUDIANTES -->
-    <section class="py-5">
+    <section class="py-5"aria-labelledby="tituloGestionEstudiantes">
         <div class="container">
 
             <div class="text-center mb-5">
 
                 <i class="bi bi-people-fill fs-1 text-primary"></i>
 
-                <h2 class="mt-3">
+                <h2 id="tituloGestionEstudiantes" class="mt-3">
                     Gestión de estudiantes
                 </h2>
 
@@ -409,12 +408,12 @@
         <!-- ============================================ -->
         <!-- GESTIÓN DE USUARIOS -->
         <!-- ============================================ -->
-        <section class="py-5 bg-light">
+        <section class="py-5 bg-light" aria-labelledby="tituloGestionUsuarios">
             <div class="container">
 
                 <div class="text-center mb-5">
                     <i class="bi bi-people-fill fs-1 text-primary" aria-hidden="true"></i>
-                    <h2 class="mt-3">Gestión de usuarios</h2>
+                    <h2 id="tituloGestionUsuarios" class="mt-3">Gestión de usuarios</h2>
                     <p class="text-muted">
                         Habilitá o deshabilitá el acceso de los usuarios a la plataforma.
                     </p>
@@ -425,12 +424,12 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-5">
-                                <label class="form-label fw-bold small text-uppercase">Buscar</label>
-                                <input type="text" id="buscadorUsuarios" class="form-control"
+                                <label for="buscadorUsuarios" class="form-label fw-bold small text-uppercase">Buscar</label>
+                                <input type="search" id="buscadorUsuarios" class="form-control"
                                     placeholder="Nombre, apellido o email...">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-bold small text-uppercase">Estado</label>
+                                <label for="filtroEstadoUsuarios" class="form-label fw-bold small text-uppercase">Estado</label>
                                 <select id="filtroEstadoUsuarios" class="form-select">
                                     <option value="todos">Todos los estados</option>
                                     <option value="activos">Solo activos</option>
@@ -438,7 +437,7 @@
                                 </select>
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
-                                <button id="btnLimpiarUsuarios" class="btn btn-outline-secondary w-100">
+                                <button type="button" id="btnLimpiarUsuarios" class="btn btn-outline-secondary w-100">
                                     <i class="bi bi-x-circle"></i> Limpiar filtros
                                 </button>
                             </div>
@@ -469,11 +468,11 @@
                     <table class="table table-hover align-middle bg-white shadow-sm rounded tabla-usuarios">
                         <thead class="table-dark">
                             <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th class="text-center">Estado</th>
-                                <th class="text-center">Acciones</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Rol</th>
+                                <th scope="col" class="text-center">Estado</th>
+                                <th scope="col" class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="listadoUsuarios"></tbody>
@@ -489,12 +488,12 @@
         </section>
 
         <!-- Modal de confirmación -->
-        <div class="modal fade" id="modalUsuario" tabindex="-1">
+        <div class="modal fade" id="modalUsuario" tabindex="-1"  aria-labelledby="modalUsuarioTitulo" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalUsuarioTitulo">Confirmar acción</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <p id="modalUsuarioMensaje">¿Estás seguro?</p>

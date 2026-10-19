@@ -51,16 +51,14 @@
 
             <div
                 id="estadoCarga"
-                class="text-center py-5">
+                class="text-center py-5"
+                role="status"
+                aria-live="polite">
 
                 <div
                     class="spinner-border text-primary"
-                    role="status">
-
-                    <span class="visually-hidden">
-                        Cargando comprobante...
-                    </span>
-
+                    aria-hidden="true">
+                                
                 </div>
 
                 <p class="mt-3">
@@ -168,7 +166,7 @@
                             class="btn btn-outline-primary"
                             id="btnImprimirComprobante">
 
-                            <i class="bi bi-printer me-1"></i>
+                            <i class="bi bi-printer me-1" aria-hidden="true"></i>
                             Imprimir
 
                         </button>

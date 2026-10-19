@@ -351,6 +351,19 @@ Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, pri
 - Desarrollo Web.
 - Introducción a la Programación en Python
 
+### Gestión de materiales educativos (Giovanna)
+
+Se agrega en conjunto con Anny la visualización de materiales educativos desde la administración de cursos, se incorpora: Documentos PDF, videos, actividades prácticas y materiales educativos. 
+Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
+
+### Elaboración de contenidos educativos (Giovanna)
+
+Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
+
+- Programación con Scratch.
+- Excel para el trabajo y el estudio.
+- Introducción a la placa Microbit.
+
 ## Sprint 4 (12/10/2026 al 23/10/2026)
 
 ### Integración, comunicación y mejoras finales
@@ -436,3 +449,26 @@ Se realizaron pruebas sobre los principales flujos implementados:
 - Mensajes de error y estados de carga.
 
 También se revisaron errores de consola, enlaces, permisos de Firestore y la integración entre las diferentes páginas.
+
+### Certificado de aprobación (Giovanna)
+- Página `certificado.html` con su lógica en `js/certificado.js`: el estudiante puede ver y descargar su certificado en PDF.
+- Incluye logo, nombre, cédula, curso, carga horaria, calificación, fecha de emisión, firma ficticia y código de verificación.
+- Los datos salen de Firestore (`usuarios`, `cursos` y `certificados`) y el PDF se genera en el navegador con `html2pdf.js`.
+- El certificado se emite cuando el docente carga una nota mayor a 6.
+
+### Reglas de seguridad para certificados (Giovanna)
+
+Se actualizaron las reglas de seguridad de Cloud Firestore para controlar el acceso a:
+- Certificados.
+
+### Pruebas (Giovanna)
+
+Se realizaron pruebas sobre los principales flujos implementados:
+
+- Modificación de cursos.
+- Incorporación de módulos y temas.
+- Carga de PDF, videos y actividades.
+- Acceso al contenido según el rol.
+- Vista y descarga de Certificados. 
+
+

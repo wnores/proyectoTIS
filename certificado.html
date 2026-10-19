@@ -56,7 +56,15 @@
             align-items: flex-end;
             font-size: 15px;
         }
-        .certificado .firma { width: 280px; border-top: 1px solid #222; padding-top: 6px; }
+        .certificado .firma { position: relative; width: 280px; border-top: 1px solid #222; padding-top: 6px; }
+        .certificado .firma-garabato {
+    position: absolute;
+    left: 30px;
+    bottom: 100%;
+    margin-bottom: -4px;
+    width: 220px;
+    height: 70px;
+}
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100" data-page="certificado.html">
@@ -195,7 +203,13 @@
                                     <div>Fecha de emisión: <strong id="certFecha"></strong></div>
                                     <div>Código de verificación: <strong id="certCodigo"></strong></div>
                                 </div>
-                                <div class="firma">Taller Integrador de Sistemas</div>
+                                <div class="firma">
+    <svg class="firma-garabato" viewBox="0 0 220 70" fill="none" stroke="#1f3a93" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 48 C 20 10, 34 6, 36 30 C 38 56, 24 60, 30 40 C 38 14, 56 12, 54 36 C 52 52, 66 50, 72 36 C 78 24, 86 40, 94 36 C 104 30, 110 44, 120 38 C 132 30, 138 20, 146 34 C 154 48, 164 44, 176 28 C 184 18, 196 30, 212 22"/>
+        <path d="M30 58 C 80 52, 140 60, 200 50" stroke-width="1.8"/>
+    </svg>
+    Taller Integrador de Sistemas
+</div>
                             </div>
 
                         </div>

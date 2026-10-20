@@ -1,271 +1,495 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Revisá los datos de tu curso y gestioná el pago en Cursos CC.">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
+
     <title>Cursos CC | Pasarela de pago</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100" data-page="pasarelaDePago.html">
-    
-<header>    
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
-            </a>
-            <button class="navbar-toggler" type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#mainNav"
-                aria-controls="mainNav"
-                aria-expanded="false"
-                aria-label="Mostrar menú de navegación">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                    <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
-                </ul>
 
-                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
-                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
-                    <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
-                </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+            aria-label="Navegación principal">
 
-                <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-                    <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
-                    <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
-                </div>
+            <div class="container">
 
-                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-                        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5"></i>
-                        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
-                    </button>
+                <a class="navbar-brand" href="index.html">
+                    <img src="recursos/imagenes/logo.jpg"
+                        alt="Cursos de Ciencias de la Computación"
+                        class="logo">
+                </a>
 
-                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                                <i class="bi bi-person fs-5"></i>
-                                Mi perfil
+                <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNav"
+                    aria-controls="mainNav"
+                    aria-expanded="false"
+                    aria-label="Mostrar menú de navegación">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNav">
+
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="acercaDe" href="acercaDe.html">
+                                Acerca de
                             </a>
                         </li>
 
-                        <li id="menuMisCursos">
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
-                                <i class="bi bi-book fs-5"></i>
-                                Mis cursos
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="catalogo" href="catalogo.html">
+                                Catálogo de cursos
                             </a>
                         </li>
 
-                        <li id="menuAdminCursos" class="d-none">
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
-                                <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
-                                Administrar cursos
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="admin" href="beca.html">
+                                Becas
                             </a>
                         </li>
 
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                                <i class="bi bi-box-arrow-right fs-5"></i>
-                                Cerrar sesión
-                            </button>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="contacto" href="contacto.html">
+                                Contacto
+                            </a>
                         </li>
                     </ul>
+
+                    <div class="d-flex align-items-center gap-2 logged-out d-none"
+                        id="grupIngresar">
+                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+                            Iniciar sesión
+                            <img src="recursos/iconos/ingresar.png"
+                                alt="" aria-hidden="true">
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none"
+                        id="grupoRegistrarse">
+                        <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+                            Registrarse
+                            <img src="recursos/iconos/registrarse.png"
+                                alt="" aria-hidden="true">
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none"
+                        id="grupoUsuario">
+
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button"
+                            id="dropdownUsuario"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="true"
+                            aria-expanded="false">
+
+                            <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
+                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2"
+                            aria-labelledby="dropdownUsuario">
+
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="perfil.html">
+                                    <i class="bi bi-person fs-5" aria-hidden="true"></i>
+                                    Mi perfil
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="misCursos.html">
+                                    <i class="bi bi-book fs-5" aria-hidden="true"></i>
+                                    Mis cursos
+                                </a>
+                            </li>
+
+                            <li id="menuAdminCursos" class="d-none">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="administrarCurso.html">
+                                    <i class="bi bi-gear-wide-connected fs-5"
+                                        aria-hidden="true"></i>
+                                    Administrar cursos
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2"
+                                    type="button" id="btnCerrarSesion">
+                                    <i class="bi bi-box-arrow-right fs-5"
+                                        aria-hidden="true"></i>
+                                    Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<main class="flex-grow-1">
-    <section class="hero text-center" aria-labelledby="tituloPasarela">
-        <h1 id="tituloPasarela">Pasarela de Pago</h1>
-    </section>
+    <main class="flex-grow-1">
 
-    <section class="container py-5" aria-label="Resumen y pago de inscripción">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
-                
-                <div id="cargandoPasarela" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Cargando detalles del curso...</p>
-                </div>
+        <section class="container py-5" aria-labelledby="tituloPasarelaPago">
 
-                <div id="errorPasarela" class="alert alert-danger d-none shadow-sm" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span id="mensajeErrorPasarela">No se pudo obtener la información del curso.</span>
-                </div>
+            <header class="text-center mb-4">
+                <h1 id="tituloPasarelaPago" class="mb-3">Finalizar compra</h1>
+                <p class="text-muted">
+                    Revisá la información del curso y seleccioná el método de pago.
+                </p>
+            </header>
 
-                <div id="tarjetaCurso" class="card shadow-sm border-0 mb-4 d-none">
-                    <div class="card-header bg-primary text-white fw-bold d-flex align-items-center gap-2">
-                        <i class="bi bi-cart-check fs-5"></i> Resumen de la orden
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="flex-shrink-0" style="width: 80px; height: 80px;">
-                                <img id="cursoImg" src="" alt="Curso" class="w-100 h-100 object-fit-cover rounded border">
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 id="cursoTitulo" class="mb-1 text-primary fw-bold"></h5>
-                                <div id="detallePagoBeca" class="mt-3 d-none">
+            <div id="cargandoPasarela"
+                class="text-center py-4"
+                role="status"
+                aria-live="polite">
+                <div class="spinner-border text-primary" aria-hidden="true"></div>
+                <p class="mt-3">Cargando información del curso...</p>
+            </div>
+
+            <div id="errorPasarela" class="alert alert-danger d-none" role="alert">
+                <p id="mensajeErrorPasarela" class="mb-0"></p>
+            </div>
+
+            <div class="row justify-content-center g-4">
+
+                <div class="col-lg-5">
+                    <section class="card shadow-sm h-100"
+                        aria-labelledby="tituloResumenPago">
+
+                        <div class="card-header">
+                            <h2 id="tituloResumenPago" class="h5 mb-0">
+                                <i class="bi bi-receipt me-2" aria-hidden="true"></i>
+                                Resumen de la compra
+                            </h2>
+                        </div>
+
+                        <div class="card-body">
+                            <article id="tarjetaCurso">
+
+                                <img id="cursoImg"
+                                    class="img-fluid rounded mb-3 w-100"
+                                    src="recursos/imagenes/logo.jpg"
+                                    alt="Imagen del curso seleccionado">
+
+                                <h3 id="cursoTitulo" class="h5 mb-3">
+                                    Curso seleccionado
+                                </h3>
+
+                                <div id="detallePagoBeca"
+                                    class="alert alert-success d-none"
+                                    aria-live="polite">
+
+                                    <h3 class="h6">Beneficio de beca aplicado</h3>
+
                                     <p class="mb-1">
-                                        <strong>Precio original:</strong>
+                                        Precio original:
                                         <span id="precioOriginalBeca"></span>
                                     </p>
+
                                     <p class="mb-1">
-                                        <strong>Porcentaje de beca:</strong>
+                                        Descuento:
                                         <span id="porcentajeBeca"></span>
                                     </p>
-                                    <p class="mb-1 text-success">
-                                        <strong>Cubierto por la beca:</strong>
-                                        <span id="importeBeca"></span>
+
+                                    <p class="mb-0">
+                                        Importe de la beca:
+                                        <strong id="importeBeca"></strong>
                                     </p>
-                                    <hr>
                                 </div>
 
-                                <p id="etiquetaImportePago" class="mb-0 text-muted small">
-                                    Total a abonar:
-                                </p>
-                                <h4 id="cursoPrecio" class="fw-bold text-success mb-0"></h4>
+                                <hr>
 
-                            </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span id="etiquetaImportePago">Total a pagar:</span>
+                                    <strong id="cursoPrecio" class="fs-4 text-primary"></strong>
+                                </div>
+
+                            </article>
+
+                            <a href="catalogo.html"
+                                class="btn btn-outline-secondary w-100 mt-4">
+                                <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>
+                                Volver al catálogo
+                            </a>
                         </div>
-                    </div>
+                    </section>
                 </div>
 
-                <div id="seccionPago" class="card shadow-sm border-0 d-none">
-                    <div class="card-body p-4">
-                        <h5 class="card-title mb-4 fw-bold"><i class="bi bi-credit-card me-2"></i>Seleccioná un método de pago</h5>
-                        
-                        <form id="formPago">
+                <div class="col-lg-7">
+                    <section id="seccionPago"
+                        class="card shadow-sm d-none"
+                        aria-labelledby="tituloFormularioPago">
 
-                            <div class="list-group mb-4">
- 
-                                <label class="list-group-item d-flex align-items-center gap-3 py-3 border rounded mb-2">
-                                    <input class="form-check-input flex-shrink-0" type="radio" name="metodoPago" value="tarjeta" id="metodoTarjeta">
-                                    <div class="w-100">
-                                        <div class="d-flex align-items-center justify-content-between mb-1">
-                                            <strong class="mb-0">Tarjeta de Crédito / Débito</strong>
-                                            <div class="d-flex gap-1 align-items-center">
-                                                <img src="https://elemental.edu.uy/wp-content/plugins/woocommerce-mercadopago/assets/images/checkouts/custom/card-flags/visa.png?ver=8.9.1" alt="Visa" height="20">
-                                                <img src="https://elemental.edu.uy/wp-content/plugins/woocommerce-mercadopago/assets/images/checkouts/custom/card-flags/master.png?ver=8.9.1" alt="Mastercard" height="20">
-                                                <img src="https://elemental.edu.uy/wp-content/plugins/woocommerce-mercadopago/assets/images/checkouts/custom/card-flags/oca.png?ver=8.9.1" alt="OCA" height="20">
-                                            </div>
+                        <div class="card-header">
+                            <h2 id="tituloFormularioPago" class="h5 mb-0">
+                                <i class="bi bi-credit-card me-2" aria-hidden="true"></i>
+                                Datos del pago
+                            </h2>
+                        </div>
+
+                        <div class="card-body">
+
+                            <form id="formPago">
+
+                                <fieldset class="mb-4">
+                                    <legend class="h6 mb-3">
+                                        Seleccioná el método de pago
+                                    </legend>
+
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            name="metodoPago"
+                                            id="metodoTarjeta"
+                                            value="tarjeta"
+                                            checked>
+
+                                        <label class="form-check-label" for="metodoTarjeta">
+                                            <i class="bi bi-credit-card me-2"
+                                                aria-hidden="true"></i>
+                                            Tarjeta de crédito o débito
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            name="metodoPago"
+                                            id="metodoTransferencia"
+                                            value="transferencia">
+
+                                        <label class="form-check-label"
+                                            for="metodoTransferencia">
+                                            <i class="bi bi-bank me-2"
+                                                aria-hidden="true"></i>
+                                            Transferencia bancaria
+                                        </label>
+                                    </div>
+                                </fieldset>
+
+                                <section id="desplegableTarjeta"
+                                    aria-labelledby="tituloDatosTarjeta">
+
+                                    <h3 id="tituloDatosTarjeta" class="h6 mb-3">
+                                        Información de la tarjeta
+                                    </h3>
+
+                                    <div class="mb-3">
+                                        <label for="nombreTarjeta" class="form-label">
+                                            Nombre del titular
+                                        </label>
+
+                                        <input type="text"
+                                            class="form-control"
+                                            id="nombreTarjeta"
+                                            name="nombreTarjeta"
+                                            autocomplete="cc-name"
+                                            placeholder="Nombre del titular">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="numeroTarjeta" class="form-label">
+                                            Número de tarjeta
+                                        </label>
+
+                                        <input type="text"
+                                            class="form-control"
+                                            id="numeroTarjeta"
+                                            name="numeroTarjeta"
+                                            inputmode="numeric"
+                                            autocomplete="cc-number"
+                                            placeholder="Número de tarjeta">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="vencimiento" class="form-label">
+                                                Vencimiento
+                                            </label>
+
+                                            <input type="text"
+                                                class="form-control"
+                                                id="vencimiento"
+                                                name="vencimiento"
+                                                autocomplete="cc-exp"
+                                                placeholder="MM/AA">
                                         </div>
-                                        <small class="text-muted d-block">Aprobación instantánea</small>
-                                    </div>
-                                </label>
 
-                                <label class="list-group-item d-flex align-items-center gap-3 py-3 border rounded">
-                                    <input class="form-check-input flex-shrink-0" type="radio" name="metodoPago" value="transferencia" id="metodoTransferencia">
-                                    <div>
-                                        <strong class="mb-0">Transferencia Bancaria</strong>
-                                        <small class="text-muted d-block">BROU -Adjuntar comprobante-</small>
-                                    </div>
-                                </label>
-                            </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="cvv" class="form-label">
+                                                Código de seguridad
+                                            </label>
 
-                            <div id="desplegableTarjeta" class="p-3 bg-light rounded border mb-4 d-none">
-                                <h6 class="fw-bold mb-3 text-secondary">Datos de la tarjeta</h6>
-                                <div class="mb-3">
-                                    <label for="nombreTarjeta" class="form-label">Nombre del titular <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="nombreTarjeta" placeholder="Como figura en la tarjeta">
+                                            <input type="password"
+                                                class="form-control"
+                                                id="cvv"
+                                                name="cvv"
+                                                inputmode="numeric"
+                                                autocomplete="cc-csc"
+                                                placeholder="CVV">
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section id="desplegableTransferencia"
+                                    class="d-none"
+                                    aria-labelledby="tituloDatosTransferencia">
+
+                                    <h3 id="tituloDatosTransferencia" class="h6 mb-3">
+                                        Comprobante de transferencia
+                                    </h3>
+
+                                    <p>
+                                        Adjuntá una imagen del comprobante para enviar
+                                        la solicitud de verificación.
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <label for="comprobantePago" class="form-label">
+                                            Seleccionar comprobante
+                                        </label>
+
+                                        <input type="file"
+                                            class="form-control"
+                                            id="comprobantePago"
+                                            name="comprobantePago"
+                                            accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+
+                                        <div class="form-text">
+                                            Formatos permitidos: JPG o PNG.
+                                        </div>
+                                    </div>
+
+                                    <div id="errorComprobante"
+                                        class="alert alert-danger d-none"
+                                        role="alert">
+                                        El archivo debe ser una imagen JPG o PNG.
+                                    </div>
+                                </section>
+
+                                <div id="mensajeErrorPago"
+                                    class="alert alert-danger d-none"
+                                    role="alert"></div>
+
+                                <hr>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit"
+                                        id="btnConfirmarPago"
+                                        class="btn btn-primary btn-lg"
+                                        disabled>
+                                        <i class="bi bi-lock-fill me-2"
+                                            aria-hidden="true"></i>
+                                        Confirmar pago
+                                    </button>
+
+                                    <p class="small text-muted text-center mb-0">
+                                        Revisá los datos antes de confirmar.
+                                    </p>
                                 </div>
 
-                            <div class="mb-3">
-                                <label for="numeroTarjeta" class="form-label">Número de tarjeta <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="numeroTarjeta" placeholder="1234 5678 9012 3456" maxlength="20">
-                                    <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
-                                </div>
-                            </div>      
-
-                                <div class="row">
-                                    <div class="col-6 mb-3">
-                                        <label for="vencimiento" class="form-label">Vencimiento <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="vencimiento" placeholder="MM/AA" maxlength="5">
-                                    </div>
-                                    <div class="col-6 mb-3">
-                                        <label for="cvv" class="form-label">Código CVC/CVV <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="cvv" placeholder="123" maxlength="4">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="desplegableTransferencia" class="p-3 bg-light rounded border mb-4 d-none">
-                                <p class="mb-2 fw-bold text-secondary">Cuenta</p>
-                                <ul class="small text-muted mb-3 ps-3">
-                                    <li><strong>BROU CA UYU:</strong> 001523456-00001</li>
-                                </ul>
-                                
-                                <div class="mb-2">
-                                    <label for="comprobantePago" class="form-label fw-semibold text-dark">
-                                        Adjuntar comprobante de pago <span class="text-danger">*</span>
-                                    </label>
-                                    <input class="form-control" type="file" id="comprobantePago" accept="image/png, image/jpeg, image/jpg">
-                                    <div id="errorComprobante" class="form-text text-danger d-none">
-                                        Formato no válido. Solo se permiten imágenes JPG o PNG.
-                                    </div>
-                                    <div class="form-text">
-                                        Formatos soportados: .JPG o .PNG
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-2 d-flex align-items-center justify-content-center gap-2" id="btnConfirmarPago" disabled>
-                                <i class="bi bi-lock-fill"></i>
-                                <span>Confirmar inscripción</span>
-                            </button>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+                    </section>
                 </div>
-            </div>
-        </div>
-    </section>
-</main>
 
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-5">
-                <h5>Cursos de Ciencias de la Computación</h5>
-                <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
             </div>
-            <div class="col-lg-3">
-                <h5>Enlaces</h5>
-                <a href="politicaDePrivacidad.html">Política de privacidad</a>
-            </div>
-            <div class="col-lg-4">
-                <h5>Contacto</h5>
-                <p>Seguinos en nuestras redes</p>
-                <div class="footer-social">
-                    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                    <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
-                    <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <p class="footer-copy">
-            <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
-        </p>
-    </div>
-</footer>
+        </section>
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js" type="module"></script>
-<script src="js/pasarelaDePago.js" type="module"></script>
+    <footer class="footer mt-auto">
+        <div class="container py-4">
+
+            <div class="row g-4">
+
+                <section class="col-lg-5" aria-labelledby="tituloFooterCursos">
+                    <h2 id="tituloFooterCursos" class="h5">
+                        Cursos de Ciencias de la Computación
+                    </h2>
+                    <p>
+                        Formación y recursos para desarrollar habilidades digitales.
+                    </p>
+                </section>
+
+                <nav class="col-lg-3" aria-labelledby="tituloFooterEnlaces">
+                    <h2 id="tituloFooterEnlaces" class="h5">Enlaces</h2>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="politicaDePrivacidad.html">
+                                Política de privacidad
+                            </a>
+                        </li>
+                        <li>
+                            <a href="contacto.html">Contacto</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <section class="col-lg-4" aria-labelledby="tituloFooterRedes">
+                    <h2 id="tituloFooterRedes" class="h5">Redes sociales</h2>
+
+                    <nav class="footer-social" aria-label="Redes sociales">
+                        <a href="https://www.facebook.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Facebook">
+                            <i class="bi bi-facebook" aria-hidden="true"></i>
+                        </a>
+
+                        <a href="https://www.instagram.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram">
+                            <i class="bi bi-instagram" aria-hidden="true"></i>
+                        </a>
+
+                        <a href="https://www.youtube.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube">
+                            <i class="bi bi-youtube" aria-hidden="true"></i>
+                        </a>
+
+                        <a href="https://www.linkedin.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn">
+                            <i class="bi bi-linkedin" aria-hidden="true"></i>
+                        </a>
+                    </nav>
+                </section>
+
+            </div>
+
+            <hr>
+
+            <p class="footer-copy mb-0">
+                <img src="recursos/iconos/derechosAutor.png"
+                    alt="" aria-hidden="true">
+                2026 - Taller Integrador de Sistemas
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+    <script src="js/pasarelaDePago.js" type="module"></script>
+
 </body>
 </html>

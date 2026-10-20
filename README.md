@@ -321,3 +321,7 @@ Se implementó un dashboard de métricas en el panel de administración (`admini
 
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)
+
+### Configuración y Seguridad de Firestore
+
+Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.

@@ -1,0 +1,292 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+   // Helper: ¿el usuario actual es admin/docente?
+    function esAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipoUsuario == "docente/admin";
+    }
+  // Regla para la colección de cursos
+    match /cursos/{cursoId} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    // Regla para la colección de certificados
+    match /certificados/{certificadoId} {
+      // El estudiante puede leer su propio certificado, o el docente/admin puede ver cualquiera
+      allow read: if request.auth != null 
+        && (resource.data.usuarioId == request.auth.uid || esAdmin());
+      
+      // Solo el docente/admin puede emitir, modificar o eliminar certificados
+      allow create, update, delete: if esAdmin();
+    }
+
+
+    match /usuarios/{userId} {
+      // Lectura: cualquier logueado (evita la recursión)
+      allow read: if request.auth != null;
+
+      // Crear: solo el propio usuario
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Actualizar: el propio usuario o un admin
+      allow update: if request.auth != null
+                    && (request.auth.uid == userId || esAdmin());
+
+      // Borrar: el propio usuario
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /cursoscc/{cursoId} {
+
+      // Cualquiera puede consultar los cursos
+      allow read: if true;
+
+      // Admin/docente puede crear o eliminar cursos.
+      allow create, delete: if esAdmin();
+
+      // Admin/docente puede modificar cualquier dato.
+      // Un estudiante solamente puede descontar exactamente 1 cupo.
+      allow update: if esAdmin()
+                 || (
+                   request.auth != null
+                   && request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasOnly(["cupos_disponibles"])
+                   && request.resource.data.cupos_disponibles ==
+                      resource.data.cupos_disponibles - 1
+                 );
+
+      // Módulos
+      match /modulos/{moduloId} {
+        allow read: if true;
+        allow write: if esAdmin();
+
+        // Temas
+        match /temas/{temaId} {
+          allow read: if true;
+          allow write: if esAdmin();
+        }
+      }
+
+      
+match /entregas/{entregaId} {
+
+  // Leer la entrega propia o cualquier entrega como docente/admin.
+  allow read: if request.auth != null
+              && (entregaId == request.auth.uid || esAdmin());
+
+  // El docente/admin puede crear entregas si fuera necesario.
+  // El estudiante solo puede crear su propia entrega con campos permitidos.
+  allow create: if esAdmin()
+                || (
+                  request.auth != null
+                  && entregaId == request.auth.uid
+                  && request.resource.data.keys().hasOnly([
+                    "archivoUrl",
+                    "enlaceUrl",
+                    "fechaEnvio",
+                    "nombreEstudiante",
+                    "emailEstudiante"
+                  ])
+                );
+
+  // El docente/admin puede calificar.
+  // El estudiante solo puede modificar los campos de su entrega.
+  allow update: if esAdmin()
+                || (
+                  request.auth != null
+                  && entregaId == request.auth.uid
+                  && request.resource.data.diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "archivoUrl",
+                         "enlaceUrl",
+                         "fechaEnvio",
+                         "nombreEstudiante",
+                         "emailEstudiante"
+                       ])
+                );
+
+  // No permitir borrar entregas.
+  allow delete: if esAdmin();
+}
+
+
+      // Foro de los cursos
+      match /foro/{publicacionId} {
+        allow read: if request.auth != null;
+
+        allow create: if request.auth != null
+                   && request.resource.data.autorId == request.auth.uid;
+
+        allow update, delete: if request.auth != null
+                           && (resource.data.autorId == request.auth.uid
+                           || esAdmin()
+                           );
+            
+        match /respuestas/{respuestaId} {
+          allow read: if request.auth != null;
+
+          allow create: if request.auth != null
+                     && request.resource.data.autorId == request.auth.uid;
+
+          allow update, delete: if request.auth != null
+                             && (resource.data.autorId == request.auth.uid || esAdmin());
+        }
+      }
+    }
+
+   
+
+match /notificaciones/{notificacionId} {
+
+  // Crear notificaciones de solicitudes enviadas por estudiantes.
+  allow create: if request.auth != null
+    && (
+      (
+        request.resource.data.tipo in [
+          "entrega",
+          "beca",
+          "transferencia"
+        ]
+        && request.resource.data.estudianteId == request.auth.uid
+      )
+      ||
+      (
+        esAdmin()
+        && request.resource.data.tipo == "calificacion"
+        && request.resource.data.destinatarioRol == "estudiante"
+        && request.resource.data.destinatarioId is string
+      )
+      ||
+      (
+        esAdmin()
+        && request.resource.data.tipo == "beca"
+        && request.resource.data.destinatarioRol == "estudiante"
+        && request.resource.data.destinatarioId is string
+        && request.resource.data.estudianteId == request.resource.data.destinatarioId
+        && request.resource.data.solicitudId is string
+        && request.resource.data.porcentajeBeca is number
+      )
+    );
+
+// Los docentes/admin pueden gestionar todas las notificaciones.
+// Los estudiantes solo pueden leer las dirigidas a su UID.
+allow read: if esAdmin()
+    || (
+        request.auth != null
+        && resource.data.destinatarioRol == "estudiante"
+        && resource.data.destinatarioId == request.auth.uid
+    );
+
+// Marcar como leída una notificación propia sin modificar
+// su destinatario ni su contenido.
+allow update: if esAdmin()
+    || (
+        request.auth != null
+        && resource.data.destinatarioRol == "estudiante"
+        && resource.data.destinatarioId == request.auth.uid
+        && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly(["leida", "fechaLectura"])
+    );
+
+allow delete: if esAdmin();
+}
+
+
+
+
+match /adquisiciones/{adquisicionId} {
+
+  allow create: if request.auth != null
+    && (
+      request.resource.data.usuarioId == request.auth.uid
+      || esAdmin()
+    );
+
+  allow read: if request.auth != null
+    && (
+      resource.data.usuarioId == request.auth.uid
+      || esAdmin()
+    );
+
+  allow update: if esAdmin()
+    || (
+      request.auth != null
+      && resource.data.usuarioId == request.auth.uid
+      && resource.data.metodoPago == "beca"
+      && resource.data.saldoPendiente > 0
+      && resource.data.estadoPagoSaldo != "pagado"
+
+&& (
+    (
+         request.resource.data.diff(resource.data)
+        .affectedKeys()
+        .hasOnly([
+          "comprobanteUrl",
+          "comprobanteNombre",
+          "metodoPagoSaldo",
+          "estadoPagoSaldo",
+          "fechaEnvioComprobanteSaldo"
+        ])
+
+      && request.resource.data.metodoPagoSaldo == "transferencia"
+      && request.resource.data.estadoPagoSaldo == "pendiente"
+      && request.resource.data.comprobanteUrl is string
+      && request.resource.data.comprobanteNombre is string
+    )
+    ||
+
+              (
+              request.resource.data.diff(resource.data)
+                .affectedKeys()
+                .hasOnly([
+                  "saldoPendiente",
+                  "estadoPagoSaldo",
+                  "estado",
+                  "metodoPagoSaldo",
+                  "fechaPagoSaldo"
+                ])
+              && request.resource.data.metodoPagoSaldo == "tarjeta"
+              && request.resource.data.estadoPagoSaldo == "pagado"
+              && request.resource.data.saldoPendiente == 0
+              && request.resource.data.estado == "aprobada"
+            )
+       )     
+    );
+
+  allow delete: if esAdmin();
+}
+
+    
+    match /solicitudesBecas/{solicitudId} {
+
+      // El estudiante autenticado solo puede crear
+      // solicitudes a su propio nombre.
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.estado == "pendiente"
+                    && request.resource.data.curso is string
+                    && request.resource.data.curso.size() > 0
+                    && request.resource.data.tipoBeca is string
+                    && request.resource.data.motivo is string;
+
+      // El estudiante consulta sus solicitudes.
+      // Admin/docente puede consultar todas.
+      allow read: if request.auth != null
+                  && (
+                    resource.data.uid == request.auth.uid
+                    || esAdmin()
+                  );
+
+      // Solo admin/docente puede procesar solicitudes.
+      allow update, delete: if esAdmin();
+    }
+
+
+  }
+}

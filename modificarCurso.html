@@ -1,267 +1,629 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <meta
+        name="description"
+        content="Administrá y modificá la información, los módulos y los recursos de los cursos de Cursos CC."
+    >
+
+    <title>Cursos CC | Modificar curso</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
     <link rel="stylesheet" href="styles/estilos.css">
-    <title>Cursos CC | Modificar Curso</title>
 </head>
-<body class="d-flex flex-column min-vh-100" data-page="catalogo.html">
+
+<body class="d-flex flex-column min-vh-100" data-page="modificarCurso">
+
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <nav
+            class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+            aria-label="Navegación principal"
+        >
             <div class="container">
-                <a class="navbar-brand" href="index.html">
-                    <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
+
+                <a class="navbar-brand" href="index.html" aria-label="Cursos CC, página de inicio">
+                    <img
+                        src="recursos/imagenes/logo.jpg"
+                        alt="Cursos de Ciencias de la Computación"
+                        class="logo"
+                    >
                 </a>
 
-                <button class="navbar-toggler"
+                <button
+                    class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#mainNav"
                     aria-controls="mainNav"
                     aria-expanded="false"
-                    aria-label="Navegación principal">
-                    <span class="navbar-toggler-icon"></span>
+                    aria-label="Mostrar u ocultar el menú de navegación"
+                >
+                    <span class="navbar-toggler-icon" aria-hidden="true"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNav">
+
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
-                        <li class="nav-item"><a class="nav-link active" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
-                        <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                data-page="producto"
+                                href="acercaDe.html"
+                            >
+                                Acerca de
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                data-page="catalogo"
+                                href="catalogo.html"
+                            >
+                                Catálogo de cursos
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                data-page="admin"
+                                href="beca.html"
+                            >
+                                Becas
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                data-page="contacto"
+                                href="contacto.html"
+                            >
+                                Contacto
+                            </a>
+                        </li>
                     </ul>
 
-                    <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
-                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
-                            <img src="recursos/iconos/ingresar.png" alt="Ingresar">
+                    <div
+                        class="d-flex align-items-center gap-2 logged-out d-none"
+                        id="grupIngresar"
+                    >
+                        <a
+                            href="ingresar.html"
+                            class="btn btn-outline-light btn-sm"
+                        >
+                            Iniciar sesión
+                            <img src="recursos/iconos/ingresar.png" alt="">
                         </a>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-                        <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
-                            <img src="recursos/iconos/registrarse.png" alt="Registro">
+                    <div
+                        class="d-flex align-items-center gap-2 ms-2 logged-out d-none"
+                        id="grupoRegistrarse"
+                    >
+                        <a
+                            href="registrarse.html"
+                            class="btn btn-outline-light btn-sm"
+                        >
+                            Registrarse
+                            <img src="recursos/iconos/registrarse.png" alt="">
                         </a>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-                            type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                            <i class="bi bi-person-circle fs-5"></i>
+                    <div
+                        class="d-flex align-items-center gap-2 ms-2 position-relative d-none"
+                        id="grupoUsuario"
+                    >
+                        <button
+                            class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button"
+                            id="dropdownUsuario"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="true"
+                            aria-expanded="false"
+                        >
+                            <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
                             <span class="fs-6 fw-bold" id="nombreUsuario"></span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                        <ul
+                            class="dropdown-menu dropdown-menu-end shadow mt-2"
+                            aria-labelledby="dropdownUsuario"
+                        >
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                                    <i class="bi bi-person fs-5"></i> Ver perfil
+                                <a
+                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="perfil.html"
+                                >
+                                    <i class="bi bi-person fs-5" aria-hidden="true"></i>
+                                    Ver perfil
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
+
                             <li>
-                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                                    <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
+                                <hr class="dropdown-divider my-1">
+                            </li>
+
+                            <li>
+                                <button
+                                    class="dropdown-item text-danger d-flex align-items-center gap-2 py-2"
+                                    type="button"
+                                    id="btnCerrarSesion"
+                                >
+                                    <i
+                                        class="bi bi-box-arrow-right fs-5"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Cerrar sesión
                                 </button>
                             </li>
                         </ul>
                     </div>
+
                 </div>
             </div>
         </nav>
     </header>
 
-    <main id="contenidoAdministrador" class="flex-grow-1 d-none">
-        <section class="py-5">
+    <main
+        id="contenidoAdministrador"
+        class="flex-grow-1 d-none"
+        aria-labelledby="tituloPagina"
+    >
+        <section class="py-5" aria-labelledby="tituloPagina">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-10 col-lg-8">
-                        <div class="card shadow-sm">
+
+                        <article class="card shadow-sm">
                             <div class="card-body p-4 p-md-5">
 
-                                <h1 class="text-center mb-3">Modificar un curso</h1>
-                                <p class="text-center text-muted mb-4">
-                                    Seleccioná un curso y actualizá su información.
-                                </p>
+                                <header class="mb-4">
+                                    <h1
+                                        class="text-center mb-3"
+                                        id="tituloPagina"
+                                    >
+                                        Modificar un curso
+                                    </h1>
 
-                                <div id="mensajeCurso" class="alert d-none" role="alert"></div>
+                                    <p class="text-center text-muted mb-0">
+                                        Seleccioná un curso y actualizá su información.
+                                    </p>
+                                </header>
 
-                                <!-- SELECTOR DE CURSO -->
-                                <div class="mb-4">
+                                <div
+                                    id="mensajeCurso"
+                                    class="alert d-none"
+                                    role="alert"
+                                    aria-live="polite"
+                                ></div>
+
+                                <section
+                                    class="mb-4"
+                                    aria-labelledby="tituloSelectorCurso"
+                                >
+                                    <h2
+                                        id="tituloSelectorCurso"
+                                        class="h5 mb-3"
+                                    >
+                                        Seleccionar curso
+                                    </h2>
+
                                     <label for="selectorCurso" class="form-label">
-                                        Curso a modificar <span class="text-danger">*</span>
+                                        Curso a modificar
+                                        <span class="text-danger" aria-hidden="true">*</span>
+                                        <span class="visually-hidden">Campo obligatorio</span>
                                     </label>
-                                    <select class="form-select" id="selectorCurso">
+
+                                    <select
+                                        class="form-select"
+                                        id="selectorCurso"
+                                        name="selectorCurso"
+                                        required
+                                    >
                                         <option value="">Seleccioná un curso</option>
                                     </select>
-                                </div>
+                                </section>
 
-                                <form id="formModificarCurso" autocomplete="off" class="d-none">
+                                <form
+                                    id="formModificarCurso"
+                                    autocomplete="off"
+                                    class="d-none"
+                                >
+                                    <fieldset>
+                                        <legend class="h5 mb-3">
+                                            Información general del curso
+                                        </legend>
 
-                                    <!-- TÍTULO -->
-                                    <div class="mb-3">
-                                        <label for="titulo" class="form-label">
-                                            Título del curso <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="titulo" name="titulo" required>
-                                    </div>
-
-                                    <!-- DESCRIPCIÓN -->
-                                    <div class="mb-3">
-                                        <label for="descripcion" class="form-label">
-                                            Descripción <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
-                                    </div>
-
-                                    <!-- CATEGORÍA -->
-                                    <div class="mb-3">
-                                        <label for="categoria" class="form-label">
-                                            Categoría <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-select" id="categoria" name="categoria" required>
-                                            <option value="">Seleccioná una categoría</option>
-                                            <option value="Programación">Programación</option>
-                                            <option value="Desarrollo web">Desarrollo web</option>
-                                            <option value="Inteligencia Artificial">Inteligencia Artificial</option>
-                                            <option value="Bases de Datos">Bases de Datos</option>
-                                            <option value="Ofimática">Ofimática</option>
-                                            <option value="Hardware y Electrónica">Hardware y Electrónica</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="row">
-                                        <!-- PRECIO -->
-                                        <div class="col-12 col-md-6 mb-3">
-                                            <label for="precio" class="form-label">
-                                                Precio <span class="text-danger">*</span>
+                                        <div class="mb-3">
+                                            <label for="titulo" class="form-label">
+                                                Título del curso
+                                                <span class="text-danger" aria-hidden="true">*</span>
+                                                <span class="visually-hidden">Campo obligatorio</span>
                                             </label>
-                                            <input type="number" class="form-control" id="precio" name="precio" min="0" step="0.01" required>
+
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="titulo"
+                                                name="titulo"
+                                                autocomplete="off"
+                                                required
+                                            >
                                         </div>
 
-                                        <!-- DURACIÓN -->
-                                        <div class="col-12 col-md-6 mb-3">
-                                            <label for="duracion" class="form-label">
-                                                Duración en horas <span class="text-danger">*</span>
+                                        <div class="mb-3">
+                                            <label for="descripcion" class="form-label">
+                                                Descripción
+                                                <span class="text-danger" aria-hidden="true">*</span>
+                                                <span class="visually-hidden">Campo obligatorio</span>
                                             </label>
-                                            <input type="number" class="form-control" id="duracion" name="duracion" min="1" required>
+
+                                            <textarea
+                                                class="form-control"
+                                                id="descripcion"
+                                                name="descripcion"
+                                                rows="4"
+                                                required
+                                            ></textarea>
                                         </div>
-                                    </div>
 
-                                    <!-- CUPOS -->
-                                    <div class="mb-3">
-                                        <label for="cupos" class="form-label">
-                                            Cupos disponibles <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="number" class="form-control" id="cupos" name="cupos" min="1" required>
-                                    </div>
+                                        <div class="mb-3">
+                                            <label for="categoria" class="form-label">
+                                                Categoría
+                                                <span class="text-danger" aria-hidden="true">*</span>
+                                                <span class="visually-hidden">Campo obligatorio</span>
+                                            </label>
 
-                                    <!-- IMAGEN -->
-                                    <div class="mb-4">
-                                        <label class="form-label">Imagen del curso</label>
+                                            <select
+                                                class="form-select"
+                                                id="categoria"
+                                                name="categoria"
+                                                required
+                                            >
+                                                <option value="">Seleccioná una categoría</option>
+                                                <option value="Programación">Programación</option>
+                                                <option value="Desarrollo web">Desarrollo web</option>
+                                                <option value="Inteligencia Artificial">Inteligencia Artificial</option>
+                                                <option value="Bases de Datos">Bases de Datos</option>
+                                                <option value="Ofimática">Ofimática</option>
+                                                <option value="Hardware y Electrónica">Hardware y Electrónica</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-12 col-md-6 mb-3">
+                                                <label for="precio" class="form-label">
+                                                    Precio
+                                                    <span class="text-danger" aria-hidden="true">*</span>
+                                                    <span class="visually-hidden">Campo obligatorio</span>
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    id="precio"
+                                                    name="precio"
+                                                    min="0"
+                                                    step="0.01"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="col-12 col-md-6 mb-3">
+                                                <label for="duracion" class="form-label">
+                                                    Duración en horas
+                                                    <span class="text-danger" aria-hidden="true">*</span>
+                                                    <span class="visually-hidden">Campo obligatorio</span>
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    id="duracion"
+                                                    name="duracion"
+                                                    min="1"
+                                                    step="1"
+                                                    required
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="cupos" class="form-label">
+                                                Cupos disponibles
+                                                <span class="text-danger" aria-hidden="true">*</span>
+                                                <span class="visually-hidden">Campo obligatorio</span>
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                class="form-control"
+                                                id="cupos"
+                                                name="cupos"
+                                                min="1"
+                                                step="1"
+                                                required
+                                            >
+                                        </div>
+                                    </fieldset>
+
+                                    <section
+                                        class="mb-4"
+                                        aria-labelledby="tituloImagenCurso"
+                                    >
+                                        <h2 id="tituloImagenCurso" class="h5 mb-3">
+                                            Imagen del curso
+                                        </h2>
+
                                         <div>
-                                            <label for="imagenCurso" class="btn btn-outline-primary">
-                                                <i class="bi bi-folder2-open me-2"></i> Seleccionar imagen
+                                            <label
+                                                for="imagenCurso"
+                                                class="btn btn-outline-primary"
+                                            >
+                                                <i
+                                                    class="bi bi-folder2-open me-2"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Seleccionar imagen
                                             </label>
-                                            <input type="file" id="imagenCurso" class="d-none" accept="image/*">
+
+                                            <input
+                                                type="file"
+                                                id="imagenCurso"
+                                                name="imagenCurso"
+                                                class="d-none"
+                                                accept="image/*"
+                                                aria-describedby="nombreImagenCurso"
+                                            >
                                         </div>
-                                        <p id="nombreImagenCurso" class="form-text mb-2">
+
+                                        <p
+                                            id="nombreImagenCurso"
+                                            class="form-text mb-2"
+                                            aria-live="polite"
+                                        >
                                             No se seleccionó ninguna imagen nueva.
                                         </p>
-                                        <img id="vistaPreviaCurso" class="img-fluid rounded d-none" style="max-height: 220px;" alt="Vista previa de la imagen del curso">
-                                    </div>
 
-                                    <div class="mb-4">
-                                        <h2 class="h5">Módulos del curso</h2>
+                                        <img
+                                            id="vistaPreviaCurso"
+                                            class="img-fluid rounded d-none"
+                                            style="max-height: 220px;"
+                                            alt="Vista previa de la imagen del curso"
+                                        >
+                                    </section>
+
+                                    <section
+                                        class="mb-4"
+                                        aria-labelledby="tituloModulos"
+                                    >
+                                        <h2 id="tituloModulos" class="h5 mb-3">
+                                            Módulos del curso
+                                        </h2>
+
                                         <div id="contenedorModulos"></div>
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarModulo">
-                                            <i class="bi bi-plus-circle me-1"></i> Agregar módulo
-                                        </button>
-                                    </div>
 
-                                   
-                                    <div class="mb-4 border p-3 rounded bg-light">
-                                        <h2 class="h5 mb-2"><i class="bi bi-file-earmark-pdf text-danger me-1"></i> Actividad Final</h2>
-                                        <p class="text-muted small mb-3">Adjuntá una consigna o evaluación en formato PDF para este curso.</p>
-                                        
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-primary btn-sm mt-2"
+                                            id="btnAgregarModulo"
+                                        >
+                                            <i
+                                                class="bi bi-plus-circle me-1"
+                                                aria-hidden="true"
+                                            ></i>
+                                            Agregar módulo
+                                        </button>
+                                    </section>
+
+                                    <section
+                                        class="mb-4 border p-3 rounded bg-light"
+                                        aria-labelledby="tituloActividadFinal"
+                                    >
+                                        <h2
+                                            id="tituloActividadFinal"
+                                            class="h5 mb-2"
+                                        >
+                                            <i
+                                                class="bi bi-file-earmark-pdf text-danger me-1"
+                                                aria-hidden="true"
+                                            ></i>
+                                            Actividad final
+                                        </h2>
+
+                                        <p class="text-muted small mb-3">
+                                            Adjuntá una consigna o evaluación en formato PDF para este curso.
+                                        </p>
+
                                         <div class="mb-2">
-                                            <label for="actividadPdf" class="btn btn-outline-secondary btn-sm">
-                                                <i class="bi bi-paperclip me-1"></i> Adjuntar PDF
+                                            <label
+                                                for="actividadPdf"
+                                                class="btn btn-outline-secondary btn-sm"
+                                            >
+                                                <i
+                                                    class="bi bi-paperclip me-1"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Adjuntar PDF
                                             </label>
-                                            <input type="file" id="actividadPdf" class="d-none" accept="application/pdf">
+
+                                            <input
+                                                type="file"
+                                                id="actividadPdf"
+                                                name="actividadPdf"
+                                                class="d-none"
+                                                accept="application/pdf"
+                                                aria-describedby="nombreActividadPdf"
+                                            >
                                         </div>
 
-                                        <p id="nombreActividadPdf" class="form-text text-muted mb-2">
+                                        <p
+                                            id="nombreActividadPdf"
+                                            class="form-text text-muted mb-2"
+                                            aria-live="polite"
+                                        >
                                             No se seleccionó ningún archivo PDF.
                                         </p>
 
-                                        <!-- Previsualización / enlace al PDF cargado previamente -->
-                                        <div id="contenedorPreviaPdf" class="d-none mt-2">
-                                            <a id="enlacePdfActual" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Ver PDF actual
+                                        <div
+                                            id="contenedorPreviaPdf"
+                                            class="d-none mt-2"
+                                        >
+                                            <a
+                                                id="enlacePdfActual"
+                                                href="#"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="btn btn-sm btn-outline-danger"
+                                            >
+                                                <i
+                                                    class="bi bi-file-earmark-pdf-fill me-1"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Ver PDF actual
+                                                <span class="visually-hidden">(se abre en una nueva pestaña)</span>
                                             </a>
                                         </div>
-                                    </div>
+                                    </section>
 
-                                    <!-- BOTONES -->
-                                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                                        <button type="submit" class="btn btn-primary" id="btnGuardarCambios">
-                                            <i class="bi bi-check-circle-fill me-2"></i> Guardar cambios
-                                        </button>
-                                        <a href="administrarCursos.html" class="btn btn-outline-secondary">
-                                            Cancelar
-                                        </a>
-                                    </div>
+                                    <footer class="border-top pt-4">
+                                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                                id="btnGuardarCambios"
+                                            >
+                                                <i
+                                                    class="bi bi-check-circle-fill me-2"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Guardar cambios
+                                            </button>
+
+                                            <a
+                                                href="administrarCursos.html"
+                                                class="btn btn-outline-secondary"
+                                            >
+                                                Cancelar
+                                            </a>
+
+                                        </div>
+                                    </footer>
 
                                 </form>
-
                             </div>
-                        </div>
+                        </article>
+
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="footer">
+    <footer class="footer mt-auto">
         <div class="container">
             <div class="row">
-                <div class="col-lg-5">
-                    <h5>Cursos de Ciencias de la Computación</h5>
-                    <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
-                </div>
 
-                <div class="col-lg-3">
-                    <h5>Enlaces</h5>
-                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
-                </div>
+                <section class="col-lg-5 mb-4" aria-labelledby="tituloInstitucion">
+                    <h2 id="tituloInstitucion" class="h5">
+                        Cursos de Ciencias de la Computación
+                    </h2>
 
-                <div class="col-lg-4">
-                    <h5>Contacto</h5>
-                    <p>Seguinos en nuestras redes</p>
-                    <div class="footer-social">
-                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                            <i class="bi bi-facebook"></i>
+                    <p>
+                        Desarrollá nuevas habilidades y preparate para el mundo digital.
+                    </p>
+                </section>
+
+                <nav
+                    class="col-lg-3 mb-4"
+                    aria-labelledby="tituloEnlacesFooter"
+                >
+                    <h2 id="tituloEnlacesFooter" class="h5">
+                        Enlaces
+                    </h2>
+
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="politicaDePrivacidad.html">
+                                Política de privacidad
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <section class="col-lg-4 mb-4" aria-labelledby="tituloContactoFooter">
+                    <h2 id="tituloContactoFooter" class="h5">
+                        Contacto
+                    </h2>
+
+                    <p>Seguinos en nuestras redes.</p>
+
+                    <nav class="footer-social" aria-label="Redes sociales">
+                        <a
+                            href="https://www.facebook.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Facebook (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-facebook" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
+
+                        <a
+                            href="https://www.instagram.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-instagram" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                            <i class="bi bi-youtube"></i>
+
+                        <a
+                            href="https://www.youtube.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-youtube" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                            <i class="bi bi-linkedin"></i>
+
+                        <a
+                            href="https://www.linkedin.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-linkedin" aria-hidden="true"></i>
                         </a>
-                    </div>
-                </div>
+                    </nav>
+                </section>
+
             </div>
 
             <hr>
 
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
+                <img
+                    src="recursos/iconos/derechosAutor.png"
+                    alt=""
+                    aria-hidden="true"
+                >
+                2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>
@@ -269,5 +631,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js" type="module"></script>
     <script src="js/modificarCurso.js" type="module"></script>
+
 </body>
 </html>
+```

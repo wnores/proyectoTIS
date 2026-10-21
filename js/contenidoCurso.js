@@ -41,13 +41,11 @@ iniciarPagina();
 
 function iniciarPagina() {
     onAuthStateChanged(auth, async (usuario) => {
-        // Redirigir de inmediato si no hay sesión iniciada
         if (!usuario) {
             window.location.replace("ingresar.html");
             return;
         }
 
-        // Si la sesión está iniciada, mostramos el contenedor principal
         if (contenedorPrincipalVista) {
             contenedorPrincipalVista.classList.remove("d-none");
         }
@@ -96,7 +94,6 @@ function iniciarPagina() {
             const modulos = await obtenerModulosConTemas(curso.id);
             mostrarCurso(curso, modulos);
 
-            // Verificar y mostrar el estado del certificado en la barra lateral
             verificarEstadoCertificadoBarraLateral(usuario.uid, cursoId);
 
         } catch (error) {
@@ -366,7 +363,7 @@ function mostrarListaModulos(modulos, curso) {
     });
 
     const urlActividad = curso.actividad_pdf_url || curso.actividad || curso.actividad_url || curso.pdf_actividad || "";
-    
+
     const botonActividad = document.createElement("button");
     botonActividad.type = "button";
     botonActividad.className = "list-group-item list-group-item-action p-3";
@@ -480,18 +477,22 @@ async function renderizarSeccionEstudiante(contenedor) {
         }
 
         let htmlCalificacion = '';
-        if (entrega && entrega.nota !== undefined && entrega.nota !== null) {
+        // Verificamos si la tarea ya fue calificada
+        const tareaCalificada = entrega && entrega.nota !== undefined && entrega.nota !== null;
+        let cursoAprobado = false;
+
+        if (tareaCalificada) {
             const notaNum = Number(entrega.nota);
-            const aprobado = notaNum >= 6;
+            cursoAprobado = notaNum >= 6;
 
             htmlCalificacion = `
-                <div class="alert ${aprobado ? 'alert-success border-success' : 'alert-danger border-danger'} mb-4 p-3 shadow-sm">
+                <div class="alert ${cursoAprobado ? 'alert-success border-success' : 'alert-danger border-danger'} mb-4 p-3 shadow-sm">
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="bi ${aprobado ? 'bi-award-fill text-success' : 'bi-x-circle-fill text-danger'} fs-4"></i>
-                        <h4 class="h5 m-0 fw-bold ${aprobado ? 'text-success' : 'text-danger'}">Calificación Asignada</h4>
+                        <i class="bi ${cursoAprobado ? 'bi-award-fill text-success' : 'bi-x-circle-fill text-danger'} fs-4"></i>
+                        <h4 class="h5 m-0 fw-bold ${cursoAprobado ? 'text-success' : 'text-danger'}">Calificación Asignada</h4>
                     </div>
-                    <div class="fs-4 fw-bold text-dark mb-2">Nota: <span class="badge ${aprobado ? 'bg-success' : 'bg-danger'}">${entrega.nota} / 10</span></div>
-                    <p class="mb-2"><strong>Estado:</strong> ${aprobado ? '¡Aprobado! Ya podés ver tu certificado en el menú lateral.' : 'No aprobaste el curso.'}</p>
+                    <div class="fs-4 fw-bold text-dark mb-2">Nota: <span class="badge ${cursoAprobado ? 'bg-success' : 'bg-danger'}">${entrega.nota} / 10</span></div>
+                    <p class="mb-2"><strong>Estado:</strong> ${cursoAprobado ? '¡Aprobado! Ya podés ver tu certificado en el menú lateral.' : 'No aprobaste el curso.'}</p>
                     ${entrega.comentario ? `<p class="mb-0 text-secondary"><strong>Devolución del docente:</strong> ${entrega.comentario}</p>` : ''}
                 </div>
             `;
@@ -516,29 +517,44 @@ async function renderizarSeccionEstudiante(contenedor) {
             `;
         }
 
+        // Título y texto del botón según si ya se calificó
+        let tituloFormulario = 'Realizar entrega';
+        let textoBoton = 'Enviar Entrega';
+        let iconoBoton = 'bi-send-fill';
+
+        if (tareaCalificada) {
+            tituloFormulario = 'Actividad Calificada';
+            textoBoton = 'Actividad Calificada';
+            iconoBoton = 'bi-lock-fill';
+        } else if (entrega) {
+            tituloFormulario = 'Reemplazar / Reenviar entrega';
+            textoBoton = 'Actualizar Entrega';
+            iconoBoton = 'bi-arrow-repeat';
+        }
+
         contenedor.innerHTML = `
             <h3 class="h5 fw-bold text-primary mb-3">2. Entrega del estudiante</h3>
             ${htmlCalificacion}
             ${htmlArchivosEnviados}
             
             <form id="formEntregaActividad" class="bg-white p-3 rounded border shadow-xs">
-                <h5 class="h6 fw-bold mb-3 text-secondary">${entrega ? 'Reemplazar / Reenviar entrega' : 'Realizar entrega'}</h5>
+                <h5 class="h6 fw-bold mb-3 text-secondary">${tituloFormulario}</h5>
                 
                 <div class="mb-3">
                     <label for="archivoEntrega" class="form-label fw-bold small text-muted">Subir archivo de resolución (PDF)</label>
-                    <input type="file" class="form-control" id="archivoEntrega" accept=".pdf">
+                    <input type="file" class="form-control" id="archivoEntrega" accept=".pdf" ${tareaCalificada ? 'disabled' : ''}>
                 </div>
                 
                 <div class="text-center my-2 text-muted small fw-bold">- O -</div>
 
                 <div class="mb-3">
                     <label for="enlaceEntrega" class="form-label fw-bold small text-muted">Enlace / URL del proyecto o repositorio</label>
-                    <input type="url" class="form-control" id="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto" value="${entrega?.enlaceUrl || ''}">
+                    <input type="url" class="form-control" id="enlaceEntrega" placeholder="https://github.com/tu-usuario/proyecto" value="${entrega?.enlaceUrl || ''}" ${tareaCalificada ? 'disabled' : ''}>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2" id="btnEnviarEntrega">
-                    <i class="bi bi-send-fill"></i>
-                    <span>${entrega ? 'Actualizar Entrega' : 'Enviar Entrega'}</span>
+                <button type="submit" class="btn ${tareaCalificada ? 'btn-secondary' : 'btn-success'} w-100 d-flex align-items-center justify-content-center gap-2" id="btnEnviarEntrega" ${tareaCalificada ? 'disabled' : ''}>
+                    <i class="bi ${iconoBoton}"></i>
+                    <span>${textoBoton}</span>
                 </button>
             </form>
             
@@ -550,6 +566,11 @@ async function renderizarSeccionEstudiante(contenedor) {
         const enlaceEntrega = document.getElementById("enlaceEntrega");
         const mensajeEntrega = document.getElementById("mensajeEntrega");
         const btnEnviar = document.getElementById("btnEnviarEntrega");
+
+        // Si la tarea ya fue calificada, cortamos la ejecución para no escuchar el submit
+        if (tareaCalificada) {
+            return;
+        }
 
         formEntrega.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -599,6 +620,7 @@ async function renderizarSeccionEstudiante(contenedor) {
                     cursoId: cursoId,
                     cursoTitulo: nombreCursoRuta.textContent || "Curso",
                     titulo: entrega ? "Entrega actualizada para revisar" : "Nueva entrega para calificar",
+                    mensaje: `${nombreEstudiante} envió la actividad final para "${nombreCursoRuta.textContent || 'el curso'}".`,
                     leida: false,
                     fechaCreacion: serverTimestamp(),
                     enlace: `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}&actividad=final`
@@ -607,7 +629,7 @@ async function renderizarSeccionEstudiante(contenedor) {
                 await lote.commit();
 
                 mensajeEntrega.className = "mt-3 alert alert-success d-block";
-                mensajeEntrega.textContent = "¡Tu entrega se guardó correctamente!";
+                mensajeEntrega.textContent = "¡Tu entrega se guardó correctamente y fue notificada al docente!";
 
                 setTimeout(() => {
                     renderizarSeccionEstudiante(contenedor);
@@ -618,7 +640,7 @@ async function renderizarSeccionEstudiante(contenedor) {
                 mensajeEntrega.className = "mt-3 alert alert-danger d-block";
                 mensajeEntrega.textContent = "Ocurrió un error al guardar la entrega. Volvé a intentarlo.";
                 btnEnviar.disabled = false;
-                btnEnviar.innerHTML = `<i class="bi bi-send-fill"></i><span>Enviar Entrega</span>`;
+                btnEnviar.innerHTML = `<i class="bi ${iconoBoton}"></i><span>${textoBoton}</span>`;
             }
         });
 
@@ -655,7 +677,7 @@ async function renderizarSeccionAdministrador(contenedor) {
                             <span class="fw-bold text-dark fs-6">
                                 <i class="bi bi-person-circle me-1 text-primary"></i> ${data.nombreEstudiante || 'Estudiante'} (${data.emailEstudiante || estUid})
                             </span>
-                            <span class="badge ${data.nota !== undefined && data.nota !== null ? 'bg-success' : 'bg-warning text-dark'}">
+                            <span class="badge ${data.nota !== undefined && data.nota !== null ? (data.nota >= 6 ? 'bg-success' : 'bg-danger') : 'bg-warning text-dark'}">
                                 ${data.nota !== undefined && data.nota !== null ? `Calificado: ${data.nota}/10` : 'Pendiente de revisión'}
                             </span>
                         </div>
@@ -745,10 +767,16 @@ async function renderizarSeccionAdministrador(contenedor) {
                     lote.set(refNotificacion, {
                         tipo: "calificacion",
                         destinatarioRol: "estudiante",
+                        destinatarioUid: estUid,
                         destinatarioId: estUid,
                         cursoId: cursoId,
                         cursoTitulo: nombreCursoRuta.textContent || "Tu curso",
-                        titulo: cursoAprobado ? "¡Felicitaciones! Curso aprobado y certificado disponible" : "Tu actividad fue calificada",
+                        titulo: cursoAprobado 
+                            ? "¡Felicitaciones! Curso aprobado" 
+                            : "Tu actividad final fue calificada",
+                        mensaje: cursoAprobado 
+                            ? `Obtuviste una nota de ${notaVal}/10. Tu certificado ya se encuentra disponible para descargar.`
+                            : `Obtuviste una nota de ${notaVal}/10. El curso no fue aprobado, revisá la devolución del docente.`,
                         nota: notaVal,
                         leida: false,
                         fechaCreacion: serverTimestamp(),
@@ -757,8 +785,10 @@ async function renderizarSeccionAdministrador(contenedor) {
 
                     await lote.commit();
 
-                    msgBox.className = "mensaje-calificacion mt-2 small text-center alert alert-success py-1 mb-0 d-block";
-                    msgBox.textContent = "¡Calificación guardada y certificado emitido con éxito!";
+                    msgBox.className = `mensaje-calificacion mt-2 small text-center alert ${cursoAprobado ? 'alert-success' : 'alert-warning'} py-1 mb-0 d-block`;
+                    msgBox.textContent = cursoAprobado 
+                        ? "¡Calificación guardada y certificado emitido!" 
+                        : "¡Calificación guardada! (No aprobó el curso, notificación enviada).";
 
                     setTimeout(() => {
                         msgBox.className = "mensaje-calificacion mt-2 small text-center d-none alert py-1 mb-0";

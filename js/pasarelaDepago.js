@@ -50,9 +50,52 @@ document.addEventListener("DOMContentLoaded", async () => {
   let adquisicionExistente = null;
   let esPagoSaldoBeca = false;
 
-  // ======================================================
-  // VERIFICAR USUARIO AUTENTICADO Y ROL (ACCESO EXCLUSIVO ALUMNOS)
-  // ======================================================
+  // MODAL DE ALERTA CENTRADA DINÁMICA
+  function mostrarAlertaCentrada(mensaje, tipo = "exito", callbackAccion = null) {
+    const idModal = "alertaCentradaPasarela";
+    let modalExistente = document.getElementById(idModal);
+    if (modalExistente) modalExistente.remove();
+
+    const configuracion = {
+        exito: { icono: "bi-check-circle-fill", colorTexto: "text-success", colorBorde: "border-success", bgIcono: "bg-success bg-opacity-10", titulo: "¡Comprobante Enviado!" },
+        error: { icono: "bi-x-circle-fill", colorTexto: "text-danger", colorBorde: "border-danger", bgIcono: "bg-danger bg-opacity-10", titulo: "Error de Procesamiento" },
+        advertencia: { icono: "bi-exclamation-triangle-fill", colorTexto: "text-warning", colorBorde: "border-warning", bgIcono: "bg-warning bg-opacity-10", titulo: "Atención" },
+        info: { icono: "bi-info-circle-fill", colorTexto: "text-info", colorBorde: "border-info", bgIcono: "bg-info bg-opacity-10", titulo: "Información" }
+    };
+
+    const cfg = configuracion[tipo] || configuracion.info;
+
+    const htmlModal = `
+        <div class="modal fade" id="${idModal}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg text-center p-4 border-top border-4 ${cfg.colorBorde}" style="border-radius: 1.25rem;">
+                    <div class="modal-body p-2">
+                        <div class="mb-3">
+                            <span class="p-3 rounded-circle d-inline-block ${cfg.bgIcono} ${cfg.colorTexto} fs-1">
+                                <i class="bi ${cfg.icono}"></i>
+                            </span>
+                        </div>
+                        <h4 class="fw-bold mb-2">${cfg.titulo}</h4>
+                        <p class="text-secondary mb-4 fs-6">${mensaje}</p>
+                        <button type="button" class="btn btn-dark px-4 rounded-pill fw-bold" data-bs-dismiss="modal">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", htmlModal);
+    const modalElem = document.getElementById(idModal);
+    const bsModal = new bootstrap.Modal(modalElem);
+
+    if (callbackAccion) {
+        modalElem.addEventListener("hidden.bs.modal", callbackAccion, { once: true });
+    }
+
+    bsModal.show();
+  }
+
+  // VERIFICAR USUARIO AUTENTICADO Y ROL
   onAuthStateChanged(auth, async (usuario) => {
     usuarioActual = usuario;
 
@@ -69,7 +112,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const datos = docSnap.data();
         const rol = (datos.tipoUsuario || datos.rol || "").toLowerCase().trim();
 
-        // Los usuarios "docente/admin" no pueden acceder a la pasarela
         if (rol.includes("docente/admin")) {
           mostrarAccesoDenegado("Los administradores y docentes no tienen acceso a la pasarela de pago.", "index.html");
           return;
@@ -81,11 +123,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
-    // Ocultar toda la sección principal con el título "Finalizar compra"
     const seccionPrincipal = document.getElementById("seccionPrincipalPasarela");
-    if (seccionPrincipal) {
-      seccionPrincipal.classList.add("d-none");
-    }
+    if (seccionPrincipal) seccionPrincipal.classList.add("d-none");
 
     if (cargando) cargando.classList.add("d-none");
     if (seccionPago) seccionPago.classList.add("d-none");
@@ -97,46 +136,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     contenedorMensaje.className = "container py-5";
     contenedorMensaje.classList.remove("d-none");
     contenedorMensaje.innerHTML = `
-        <style>
-            @keyframes entradaSmooth {
-                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-                100% { opacity: 1; transform: translateY(0) scale(1); }
-            }
-            @keyframes pulsoAtencion {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.08); }
-                100% { transform: scale(1); }
-            }
-            .card-microinteraccion {
-                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                border-radius: 1rem;
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            }
-            .icono-alerta-animado {
-                animation: pulsoAtencion 1.8s infinite ease-in-out;
-                display: inline-block;
-            }
-        </style>
         <div class="row justify-content-center my-5">
             <div class="col-12 col-md-8 col-lg-6">
-                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                <div class="card border-0 shadow-lg text-center p-4">
                     <div class="card-body">
-                        <div class="mb-3">
-                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
-                                <i class="bi bi-shield-lock-fill"></i>
-                            </span>
-                        </div>
+                        <span class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1 d-inline-block mb-3">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </span>
                         <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
                         <p class="text-secondary mb-4">${mensajeTexto}</p>
-                        
-                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
-                        </div>
-
-                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
-                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
-                        </a>
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">Ir ahora</a>
                     </div>
                 </div>
             </div>
@@ -148,7 +157,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 3500);
   }
 
-  // VERIFICAR ID DEL CURSO
   if (!cursoId) {
     if (cargando) cargando.classList.add("d-none");
     if (errorBox && mensajeError) {
@@ -158,7 +166,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // CARGAR CURSO DESDE FIRESTORE
   try {
     if (adquisicionId) {
       const adquisicionRef = doc(db, "adquisiciones", adquisicionId);
@@ -248,7 +255,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // CAMBIO DE MÉTODO DE PAGO
   radiosMetodo.forEach((radio) => {
     radio.addEventListener("change", (e) => {
       if (desplegableTarjeta) desplegableTarjeta.classList.add("d-none");
@@ -262,7 +268,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // VALIDACIONES E INPUTS
   function aplicarClasesValidacion(input, esValido) {
     if (!input) return;
     if (input.value.trim() === "") {
@@ -394,21 +399,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     return datos.secure_url;
   }
 
-  // PROCESAR FORMULARIO DE PAGO
   if (formPago) {
     formPago.addEventListener("submit", async (e) => {
       e.preventDefault();
       const usuario = auth.currentUser;
 
       if (!usuario) {
-        alert("Debés iniciar sesión para realizar la compra.");
-        window.location.href = "ingresar.html";
+        mostrarAlertaCentrada("Debés iniciar sesión para realizar la compra.", "advertencia", () => {
+            window.location.href = "ingresar.html";
+        });
         return;
       }
 
       const metodo = document.querySelector('input[name="metodoPago"]:checked')?.value;
       if (!metodo) {
-        alert("Seleccioná un método de pago.");
+        mostrarAlertaCentrada("Seleccioná un método de pago.", "advertencia");
         return;
       }
 
@@ -435,18 +440,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             await runTransaction(db, async (transaccion) => {
               const resultadoAdquisicion = await transaccion.get(referenciaAdquisicion);
               if (!resultadoAdquisicion.exists()) throw new Error("ADQUISICION_NO_EXISTE");
-
-              const datosActuales = resultadoAdquisicion.data();
-              if (
-                datosActuales.usuarioId !== usuario.uid ||
-                datosActuales.cursoId !== cursoId ||
-                datosActuales.metodoPago !== "beca"
-              ) throw new Error("ADQUISICION_NO_AUTORIZADA");
-
-              if (
-                datosActuales.estadoPagoSaldo === "pagado" ||
-                Number(datosActuales.saldoPendiente) <= 0
-              ) throw new Error("SALDO_NO_PENDIENTE");
 
               transaccion.update(referenciaAdquisicion, {
                 saldoPendiente: 0,
@@ -489,23 +482,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           const comprobanteUrl = await subirComprobanteACloudinary(archivo);
 
+          let idNotif = null;
+
           if (esPagoSaldoBeca) {
             const referenciaAdquisicion = doc(db, "adquisiciones", adquisicionId);
             await runTransaction(db, async (transaccion) => {
               const resultadoAdquisicion = await transaccion.get(referenciaAdquisicion);
               if (!resultadoAdquisicion.exists()) throw new Error("ADQUISICION_NO_EXISTE");
-
-              const datosActuales = resultadoAdquisicion.data();
-              if (
-                datosActuales.usuarioId !== usuario.uid ||
-                datosActuales.cursoId !== cursoId ||
-                datosActuales.metodoPago !== "beca"
-              ) throw new Error("ADQUISICION_NO_AUTORIZADA");
-
-              if (
-                datosActuales.estadoPagoSaldo === "pagado" ||
-                Number(datosActuales.saldoPendiente) <= 0
-              ) throw new Error("SALDO_NO_PENDIENTE");
 
               transaccion.update(referenciaAdquisicion, {
                 comprobanteUrl: comprobanteUrl,
@@ -515,33 +498,40 @@ document.addEventListener("DOMContentLoaded", async () => {
                 fechaEnvioComprobanteSaldo: serverTimestamp()
               });
             });
+            idNotif = adquisicionId;
+          } else {
+            datosAdquisicion.comprobanteUrl = comprobanteUrl;
+            datosAdquisicion.comprobanteNombre = archivo.name;
 
-            alert("El comprobante fue enviado. El saldo seguirá pendiente hasta que se verifique la transferencia.");
-            window.location.href = `comprobanteCompra.html?id=${adquisicionId}`;
-            return;
+            const referenciaAdquisicion = await addDoc(
+              collection(db, "adquisiciones"),
+              datosAdquisicion
+            );
+            idNotif = referenciaAdquisicion.id;
           }
 
-          datosAdquisicion.comprobanteUrl = comprobanteUrl;
-          datosAdquisicion.comprobanteNombre = archivo.name;
+          // Notificar al administrador mandándolo a administrarCursos.html
+          await addDoc(collection(db, "notificaciones"), {
+            tipo: "transferencia",
+            destinatarioRol: "docente/admin",
+            estudianteUid: usuario.uid,
+            titulo: "Nuevo Pago por Transferencia Pendiente",
+            mensaje: `El estudiante ${usuario.email} envió un comprobante de pago para "${curso.titulo || 'el curso'}".`,
+            leida: false,
+            fechaCreacion: serverTimestamp(),
+            enlace: "administrarCursos.html"
+          });
 
-          const referenciaAdquisicion = await addDoc(
-            collection(db, "adquisiciones"),
-            datosAdquisicion
+          mostrarAlertaCentrada(
+            "El comprobante fue enviado correctamente. Un administrador verificará la transferencia a la brevedad.", 
+            "exito", 
+            () => { window.location.href = `comprobanteCompra.html?id=${idNotif}`; }
           );
-
-          window.location.href = `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
           return;
         }
       } catch (error) {
         console.error("Error al registrar la adquisición:", error);
-        if (error.message === "SIN_CUPOS") alert("Este curso ya no tiene cupos disponibles.");
-        else if (error.message === "ERROR_CLOUDINARY") alert("No fue posible subir el comprobante. Intentá nuevamente.");
-        else if (error.message === "URL_COMPROBANTE_NO_GENERADA") alert("No se pudo obtener la URL del comprobante. Intentá nuevamente.");
-        else if (error.message === "NO_HAY_COMPROBANTE") alert("Debés seleccionar un comprobante válido.");
-        else if (error.message === "ADQUISICION_NO_EXISTE") alert("No se encontró la adquisición que intentás pagar.");
-        else if (error.message === "ADQUISICION_NO_AUTORIZADA") alert("No tenés autorización para pagar esta adquisición.");
-        else if (error.message === "SALDO_NO_PENDIENTE") alert("Esta adquisición no tiene un saldo pendiente.");
-        else alert("No fue posible registrar el pago. Verificá los permisos de Firestore e intentá nuevamente.");
+        mostrarAlertaCentrada("No fue posible registrar el pago. Verificá tu conexión e intentá nuevamente.", "error");
 
         btnConfirmar.disabled = false;
         btnConfirmar.textContent = "Confirmar pago";

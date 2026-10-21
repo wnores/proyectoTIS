@@ -1,1151 +1,326 @@
-import {auth, db} from "./firebase-config.js";
-import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import {
-    doc,
-    getDoc,
-    collection,
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { 
+    collection, 
+    addDoc, 
+    doc, 
+    getDoc, 
     getDocs,
-    addDoc,
-    query,
-    where,
-    orderBy,
+    query, 
+    where, 
     onSnapshot,
-    serverTimestamp
+    serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-const contenedorPrincipalVista =
-    document.getElementById("contenedorPrincipalVista");
-
-const estadoCargaForo =
-    document.getElementById("estadoCargaForo");
-
-const mensajeErrorForo =
-    document.getElementById("mensajeErrorForo");
-
-const contenidoForo =
-    document.getElementById("contenidoForo");
-
-const nombreCursoForo =
-    document.getElementById("nombreCursoForo");
-
-const enlaceContenidoCurso =
-    document.getElementById("enlaceContenidoCurso");
-
-const formPublicacionForo =
-    document.getElementById("formPublicacionForo");
-
-const tituloPublicacion =
-    document.getElementById("tituloPublicacion");
-
-const mensajePublicacion =
-    document.getElementById("mensajePublicacion");
-
-const moduloPublicacion =
-    document.getElementById("moduloPublicacion");
-
-const btnPublicarMensaje =
-    document.getElementById("btnPublicarMensaje");
-
-const mensajePublicacionForo =
-    document.getElementById("mensajePublicacionForo");
-
-const listaPublicaciones =
-    document.getElementById("listaPublicaciones");
-
-const cantidadPublicaciones =
-    document.getElementById("cantidadPublicaciones");
-
-const sinPublicaciones =
-    document.getElementById("sinPublicaciones");
-
-const parametros =
-    new URLSearchParams(window.location.search);
-
-const cursoId =
-    parametros.get("curso");
 
 let usuarioActual = null;
 let datosUsuarioActual = null;
-let cancelarEscuchaPublicaciones = null;
-let cancelarEscuchasRespuestas = [];
+let rolActual = "estudiante";
+let cursoIdActual = null;
+let cursoTituloActual = "";
+let desuscripcionForo = null;
 
-iniciarPagina();
+document.addEventListener("DOMContentLoaded", () => {
+    const parametros = new URLSearchParams(window.location.search);
+    cursoIdActual = parametros.get("id") || parametros.get("curso");
 
-function iniciarPagina() {
-
-    if (enlaceContenidoCurso && cursoId) {
-        enlaceContenidoCurso.href =
-            `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}`;
+    if (!cursoIdActual) {
+        window.location.href = "index.html";
+        return;
     }
 
-    onAuthStateChanged(auth, async (usuario) => {
+    configurarNavegacionEnlace();
+    inicializarForo();
+});
 
-        if (!usuario) {
-            window.location.replace("ingresar.html");
+function configurarNavegacionEnlace() {
+    const enlaceContenido = document.getElementById("enlaceContenidoCurso");
+    if (enlaceContenido) {
+        enlaceContenido.href = `contenidoCurso.html?id=${cursoIdActual}`;
+    }
+}
+
+function esUsuarioAdminODocente(rol) {
+    if (!rol) return false;
+    const r = rol.toLowerCase().trim();
+    return r.includes("admin") || r.includes("docente") || r.includes("profesor");
+}
+
+function inicializarForo() {
+    const contenedorPrincipal = document.getElementById("contenedorPrincipalVista");
+    const estadoCarga = document.getElementById("estadoCargaForo");
+    const contenidoForo = document.getElementById("contenidoForo");
+    const mensajeError = document.getElementById("mensajeErrorForo");
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "ingresar.html";
             return;
         }
 
-        if (contenedorPrincipalVista) {
-            contenedorPrincipalVista.classList.remove("d-none");
-        }
-
-        if (!cursoId) {
-            mostrarError(
-                "No se indicó a qué curso pertenece el foro."
-            );
-            return;
-        }
-
-        usuarioActual = usuario;
+        usuarioActual = user;
 
         try {
-            const referenciaUsuario =
-                doc(db, "usuarios", usuario.uid);
+            const docUserRef = doc(db, "usuarios", user.uid);
+            const docUserSnap = await getDoc(docUserRef);
 
-            const referenciaCurso =
-                doc(db, "cursoscc", cursoId);
-
-            const [
-                resultadoUsuario,
-                resultadoCurso
-            ] = await Promise.all([
-                getDoc(referenciaUsuario),
-                getDoc(referenciaCurso)
-            ]);
-
-            if (!resultadoUsuario.exists()) {
-                mostrarError(
-                    "No se encontraron los datos del usuario."
-                );
-                return;
+            if (docUserSnap.exists()) {
+                datosUsuarioActual = docUserSnap.data();
+                rolActual = (datosUsuarioActual.tipoUsuario || datosUsuarioActual.rol || "").toLowerCase().trim();
             }
 
-            if (!resultadoCurso.exists()) {
-                mostrarError(
-                    "El curso solicitado no existe."
-                );
-                return;
+            const esDocenteOAdmin = esUsuarioAdminODocente(rolActual);
+
+            if (esDocenteOAdmin) {
+                const breadcrumbMisCursos = document.getElementById("itemMisCursosBreadcrumb");
+                if (breadcrumbMisCursos) breadcrumbMisCursos.classList.add("d-none");
             }
 
-            datosUsuarioActual =
-                resultadoUsuario.data();
-
-            const rol = (datosUsuarioActual.tipoUsuario || datosUsuarioActual.rol || "estudiante")
-                .toString()
-                .trim()
-                .toLowerCase();
-
-            gestionarEnlaceMisCursos(rol);
-
-            const curso = {
-                id: resultadoCurso.id,
-                ...resultadoCurso.data()
-            };
-
-            const tieneAcceso =
-                await comprobarAcceso(
-                    datosUsuarioActual,
-                    curso,
-                    usuario.uid
+            if (!esDocenteOAdmin) {
+                const qAdquisicion = query(
+                    collection(db, "adquisiciones"),
+                    where("usuarioId", "==", user.uid),
+                    where("cursoId", "==", cursoIdActual)
                 );
-
-            if (!tieneAcceso) {
-                mostrarError(
-                    "No tenés acceso al foro de este curso."
-                );
-                return;
-            }
-
-            nombreCursoForo.textContent =
-                curso.titulo || "Curso";
-
-            await cargarModulos(curso.id);
-
-            escucharPublicaciones();
-
-            estadoCargaForo.classList.add("d-none");
-            mensajeErrorForo.classList.add("d-none");
-            contenidoForo.classList.remove("d-none");
-        } catch (error) {
-
-            console.error(
-                "Error al iniciar el foro:",
-                error
-            );
-
-            mostrarError(
-                "No fue posible cargar el foro del curso."
-            );
-        }
-    });
-}
-
-function gestionarEnlaceMisCursos(rol) {
-    const esEstudiante = rol === "estudiante";
-
-    const itemMenuMisCursos = document.getElementById("menuMisCursos");
-    if (itemMenuMisCursos) {
-        if (esEstudiante) {
-            itemMenuMisCursos.classList.remove("d-none");
-        } else {
-            itemMenuMisCursos.classList.add("d-none");
-        }
-    }
-
-    const enlaceBreadcrumb = document.querySelector('.breadcrumb a[href="misCursos.html"]');
-    if (enlaceBreadcrumb) {
-        const itemBreadcrumb = enlaceBreadcrumb.parentElement;
-        if (esEstudiante) {
-            enlaceBreadcrumb.classList.remove("d-none");
-            if (itemBreadcrumb) itemBreadcrumb.classList.remove("d-none");
-        } else {
-            enlaceBreadcrumb.classList.add("d-none");
-            if (itemBreadcrumb) itemBreadcrumb.classList.add("d-none");
-        }
-    }
-}
-
-async function comprobarAcceso(
-    datosUsuario,
-    curso,
-    uid
-) {
-
-    const rol =
-        (
-            datosUsuario.tipoUsuario ||
-            datosUsuario.rol ||
-            ""
-        )
-            .toString()
-            .trim()
-            .toLowerCase();
-
-    if (
-        rol.includes("admin") ||
-        rol.includes("docente")
-    ) {
-        return true;
-    }
-
-    if (rol !== "estudiante") {
-        return false;
-    }
-
-    const referenciaAdquisiciones =
-        collection(db, "adquisiciones");
-
-    const consultaAdquisiciones =
-        query(
-            referenciaAdquisiciones,
-            where("usuarioId", "==", uid)
-        );
-
-    const resultadoAdquisiciones =
-        await getDocs(consultaAdquisiciones);
-
-    const adquisicionAprobada =
-        resultadoAdquisiciones.docs.some(
-            (documento) => {
-
-                const adquisicion =
-                    documento.data();
-
-                return (
-                    adquisicion.cursoId === curso.id &&
-                    adquisicion.estado === "aprobada"
-                );
-            }
-        );
-
-    return adquisicionAprobada;
-}
-
-async function cargarModulos(idCurso) {
-
-    const referenciaModulos =
-        collection(
-            db,
-            "cursoscc",
-            idCurso,
-            "modulos"
-        );
-
-    const resultadoModulos =
-        await getDocs(referenciaModulos);
-
-    const modulos =
-        resultadoModulos.docs.map(
-            (documento, indice) => {
-                const datos =
-                    documento.data();
-                return {
-                    id: documento.id,
-                    numero:
-                        datos.numero ||
-                        indice + 1,
-                    nombre:
-                        datos.nombre ||
-                        datos.titulo ||
-                        datos.modulo ||
-                        "Módulo"
-                };
-            }
-        );
-
-    modulos.sort(
-        (a, b) =>
-            Number(a.numero) -
-            Number(b.numero)
-    );
-
-    modulos.forEach((modulo) => {
-
-        const opcion =
-            document.createElement("option");
-
-        opcion.value =
-            modulo.id;
-
-        opcion.textContent =
-            `Módulo ${modulo.numero}: ${modulo.nombre}`;
-
-        moduloPublicacion.appendChild(opcion);
-    });
-}
-
-formPublicacionForo.addEventListener(
-    "submit",
-    async (event) => {
-
-        event.preventDefault();
-
-        if (!usuarioActual) {
-            mostrarMensajeFormulario(
-                "Debés iniciar sesión para publicar.",
-                "danger"
-            );
-
-            return;
-        }
-
-        const titulo =
-            tituloPublicacion.value.trim();
-
-        const mensaje =
-            mensajePublicacion.value.trim();
-
-        const moduloSeleccionado =
-            moduloPublicacion.value;
-
-        const textoModulo =
-            moduloPublicacion.selectedOptions[0]
-                ?.textContent || "Foro general";
-
-        if (
-            titulo.length < 3 ||
-            mensaje.length < 3
-        ) {
-            mostrarMensajeFormulario(
-                "Escribí un título y un mensaje válidos.",
-                "danger"
-            );
-            return;
-        }
-
-        btnPublicarMensaje.disabled = true;
-        btnPublicarMensaje.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm me-2"
-                aria-hidden="true"
-            ></span>
-            Publicando...
-        `;
-
-        try {
-            const rol =
-                (
-                    datosUsuarioActual.tipoUsuario ||
-                    datosUsuarioActual.rol ||
-                    "estudiante"
-                )
-                    .toString()
-                    .trim()
-                    .toLowerCase();
-
-            const nombreAutor =
-                obtenerNombreUsuario(
-                    datosUsuarioActual,
-                    usuarioActual
-                );
-
-            const referenciaForo =
-                collection(
-                    db,
-                    "cursoscc",
-                    cursoId,
-                    "foro"
-                );
-
-            const publicacionCreada =
-                await addDoc(
-                    referenciaForo,
-                    {
-                        autorId:
-                            usuarioActual.uid,
-
-                        autorNombre:
-                            nombreAutor,
-
-                        autorRol:
-                            rol,
-
-                        titulo:
-                            titulo,
-
-                        mensaje:
-                            mensaje,
-
-                        moduloId:
-                            moduloSeleccionado,
-
-                        moduloNombre:
-                            moduloSeleccionado
-                                ? textoModulo
-                                : "Foro general",
-
-                        fechaCreacion:
-                            serverTimestamp(),
-
-                        activo:
-                            true
-                    }
-                );
-
-            if (rol === "estudiante") {
-                try {
-                    await addDoc(
-                        collection(db, "notificaciones"),
-                        {
-                            destinatarioRol:
-                                "docente/admin",
-
-                            tipo:
-                                "nueva_publicacion_foro",
-
-                            cursoId:
-                                cursoId,
-
-                            cursoTitulo:
-                                nombreCursoForo.textContent ||
-                                "Curso",
-
-                            publicacionId:
-                                publicacionCreada.id,
-
-                            titulo:
-                                titulo,
-
-                            autorId:
-                                usuarioActual.uid,
-
-                            autorNombre:
-                                nombreAutor,
-
-                            enlace:
-                                `foroCurso.html?curso=${encodeURIComponent(cursoId)}`,
-
-                            leida:
-                                false,
-
-                            fechaCreacion:
-                                serverTimestamp()
-                        }
-                    );
-                } catch (errorNotificacion) {
-                    console.error(
-                        "La publicación fue creada, pero no se pudo crear la notificación:",
-                        errorNotificacion
-                    );
+                const snapAdquisicion = await getDocs(qAdquisicion);
+
+                if (snapAdquisicion.empty) {
+                    alert("Debés estar inscripto en este curso para acceder al foro.");
+                    window.location.href = `descripcionDeCurso.html?id=${cursoIdActual}`;
+                    return;
                 }
             }
-            
-            formPublicacionForo.reset();
-            mostrarMensajeFormulario(
-                "El mensaje fue publicado correctamente.",
-                "success"
-            );
-        } catch (error) {
-            console.error(
-                "Error al publicar en el foro:",
-                error
-            );
-            mostrarMensajeFormulario(
-                "No se pudo publicar el mensaje. Intentá nuevamente.",
-                "danger"
-            );
 
-        } finally {
-            btnPublicarMensaje.disabled = false;
-            btnPublicarMensaje.innerHTML = `
-                <i class="bi bi-send-fill me-2"></i>
-                Publicar mensaje
-            `;
-        }
-    }
-);
+            const docCursoRef = doc(db, "cursoscc", cursoIdActual);
+            const docCursoSnap = await getDoc(docCursoRef);
 
-function escucharPublicaciones() {
-    const referenciaForo =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro"
-        );
-
-    const consultaForo =
-        query(
-            referenciaForo,
-            orderBy("fechaCreacion", "desc")
-        );
-
-    cancelarEscuchaPublicaciones =
-        onSnapshot(
-            consultaForo,
-
-            (resultado) => {
-
-                const publicaciones =
-                    resultado.docs
-                        .map((documento) => ({
-                            id: documento.id,
-                            ...documento.data()
-                        }))
-                        .filter(
-                            (publicacion) =>
-                                publicacion.activo !== false
-                        );
-
-                mostrarPublicaciones(
-                    publicaciones
-                );
-            },
-
-            (error) => {
-
-                console.error(
-                    "Error al escuchar el foro:",
-                    error
-                );
-
-                mostrarMensajeFormulario(
-                    "No fue posible actualizar las publicaciones.",
-                    "danger"
-                );
+            if (docCursoSnap.exists()) {
+                cursoTituloActual = docCursoSnap.data().titulo || "Curso sin título";
+                const nombreCursoElem = document.getElementById("nombreCursoForo");
+                if (nombreCursoElem) nombreCursoElem.textContent = cursoTituloActual;
             }
-        );
-}
 
-function mostrarPublicaciones(publicaciones) {
+            if (contenedorPrincipal) contenedorPrincipal.classList.remove("d-none");
+            if (estadoCarga) estadoCarga.classList.add("d-none");
+            if (contenidoForo) contenidoForo.classList.remove("d-none");
 
-    cancelarEscuchasRespuestas.forEach(
-        (cancelar) => cancelar()
-    );
+            escucharPublicacionesForo();
+            configurarFormularioPublicacion();
 
-    cancelarEscuchasRespuestas = [];
-
-    listaPublicaciones.replaceChildren();
-
-    cantidadPublicaciones.textContent =
-        publicaciones.length;
-
-    if (publicaciones.length === 0) {
-        sinPublicaciones.classList.remove("d-none");
-        return;
-    }
-
-    sinPublicaciones.classList.add("d-none");
-
-    publicaciones.forEach((publicacion) => {
-
-        const tarjeta =
-            crearTarjetaPublicacion(publicacion);
-
-        listaPublicaciones.appendChild(tarjeta);
+        } catch (error) {
+            console.error("Error al inicializar el foro:", error);
+            if (mensajeError) {
+                mensajeError.textContent = "Ocurrió un error al cargar el foro.";
+                mensajeError.classList.remove("d-none");
+            }
+            if (estadoCarga) estadoCarga.classList.add("d-none");
+            if (contenedorPrincipal) contenedorPrincipal.classList.remove("d-none");
+        }
     });
 }
 
-function crearTarjetaPublicacion(publicacion) {
-    const articulo =
-        document.createElement("article");
+function obtenerNombreRealUsuario() {
+    if (datosUsuarioActual) {
+        const n = datosUsuarioActual.nombre || datosUsuarioActual.Nombre || datosUsuarioActual.perfil?.nombre || "";
+        const a = datosUsuarioActual.apellido || datosUsuarioActual.Apellido || datosUsuarioActual.perfil?.apellido || "";
+        const completo = `${n} ${a}`.trim();
 
-    articulo.className =
-        "card shadow-sm border-0";
+        if (completo) return completo;
 
-    const cuerpo =
-        document.createElement("div");
-
-    cuerpo.className =
-        "card-body p-4";
-
-    const encabezado =
-        document.createElement("div");
-
-    encabezado.className =
-        "d-flex justify-content-between align-items-start gap-3 mb-3";
-
-    const datosAutor =
-        document.createElement("div");
-
-    const autor =
-        document.createElement("p");
-
-    autor.className =
-        "fw-bold mb-1";
-
-    autor.textContent =
-        publicacion.autorNombre ||
-        "Usuario";
-
-    const informacion =
-        document.createElement("p");
-
-    informacion.className =
-        "small text-muted mb-0";
-
-    const rol =
-        (publicacion.autorRol || "")
-            .toLowerCase();
-
-    const nombreRol =
-        rol.includes("docente")
-            ? "Docente"
-            : rol.includes("admin")
-                ? "Administrador"
-                : "Estudiante";
-
-    informacion.textContent =
-        `${nombreRol} · ${formatearFecha(publicacion.fechaCreacion)}`;
-
-    datosAutor.appendChild(autor);
-    datosAutor.appendChild(informacion);
-
-    const insignia =
-        document.createElement("span");
-
-    if (
-        rol.includes("docente") ||
-        rol.includes("admin")
-    ) {
-        insignia.className =
-            "badge bg-primary";
-
-        insignia.textContent =
-            rol.includes("docente")
-                ? "Docente"
-                : "Administrador";
-
-    } else {
-        insignia.className =
-            "badge bg-secondary";
-
-        insignia.textContent =
-            "Estudiante";
+        if (datosUsuarioActual.nombreCompleto) return datosUsuarioActual.nombreCompleto.trim();
+        if (datosUsuarioActual.nombreUsuario) return datosUsuarioActual.nombreUsuario.trim();
     }
 
-    encabezado.appendChild(datosAutor);
-    encabezado.appendChild(insignia);
+    if (usuarioActual?.displayName) {
+        return usuarioActual.displayName.trim();
+    }
 
-    const titulo =
-        document.createElement("h2");
+    return "";
+}
 
-    titulo.className =
-        "h5 mb-2";
+function escucharPublicacionesForo() {
+    const listaPublicaciones = document.getElementById("listaPublicaciones");
+    const sinPublicaciones = document.getElementById("sinPublicaciones");
+    const cantidadElem = document.getElementById("cantidadPublicaciones");
 
-    titulo.textContent =
-        publicacion.titulo ||
-        "Publicación";
+    if (!listaPublicaciones) return;
 
-    const modulo =
-        document.createElement("p");
+    if (desuscripcionForo) desuscripcionForo();
 
-    modulo.className =
-        "small text-primary mb-3";
+    const foroRef = collection(db, "cursoscc", cursoIdActual, "foro");
 
-    modulo.textContent =
-        publicacion.moduloNombre ||
-        "Foro general";
+    desuscripcionForo = onSnapshot(foroRef, (snapshot) => {
+        const publicaciones = [];
 
-    const mensaje =
-        document.createElement("p");
+        snapshot.forEach((docSnap) => {
+            publicaciones.push({ id: docSnap.id, ...docSnap.data() });
+        });
 
-    mensaje.className =
-        "mb-0";
+        publicaciones.sort((a, b) => (b.fecha?.toMillis() || 0) - (a.fecha?.toMillis() || 0));
 
-    mensaje.textContent =
-        publicacion.mensaje || "";
+        if (cantidadElem) cantidadElem.textContent = publicaciones.length;
 
-    cuerpo.appendChild(encabezado);
-    cuerpo.appendChild(titulo);
-    cuerpo.appendChild(modulo);
-    cuerpo.appendChild(mensaje);
+        listaPublicaciones.innerHTML = "";
 
-    const separador =
-        document.createElement("hr");
-    separador.className =
-        "my-4";
+        if (publicaciones.length === 0) {
+            if (sinPublicaciones) sinPublicaciones.classList.remove("d-none");
+            return;
+        }
 
-    cuerpo.appendChild(separador);
+        if (sinPublicaciones) sinPublicaciones.classList.add("d-none");
 
-    const tituloRespuestas =
-        document.createElement("h3");
+        publicaciones.forEach((pub) => {
+            const card = document.createElement("div");
+            card.className = "card shadow-sm border-0 mb-3";
 
-    tituloRespuestas.className =
-        "h6 fw-bold mb-3";
+            const esDoc = pub.esDocente === true;
+            const insigniaRol = esDoc 
+                ? `<span class="badge bg-primary ms-2"><i class="bi bi-star-fill me-1"></i>Docente / Admin</span>` 
+                : `<span class="badge bg-secondary ms-2">Estudiante</span>`;
 
-    tituloRespuestas.innerHTML = `
-        <i class="bi bi-reply-fill me-2"></i>
-        Respuestas
-    `;
-
-    cuerpo.appendChild(tituloRespuestas);
-
-    const contenedorRespuestas =
-        document.createElement("div");
-
-    contenedorRespuestas.className =
-        "d-flex flex-column gap-2 mb-3";
-
-    cuerpo.appendChild(contenedorRespuestas);
-
-    const formularioRespuesta =
-        document.createElement("form");
-
-    formularioRespuesta.className =
-        "mt-3";
-
-    const grupoRespuesta =
-        document.createElement("div");
-
-    grupoRespuesta.className =
-        "input-group";
-
-    const campoRespuesta =
-        document.createElement("textarea");
-
-    campoRespuesta.className =
-        "form-control";
-
-    campoRespuesta.rows = 2;
-
-    campoRespuesta.maxLength = 500;
-
-    campoRespuesta.placeholder =
-        "Escribí una respuesta...";
-
-    campoRespuesta.required = true;
-
-    campoRespuesta.setAttribute(
-        "aria-label",
-        "Escribir una respuesta"
-    );
-
-    const botonResponder =
-        document.createElement("button");
-
-    botonResponder.type =
-        "submit";
-
-    botonResponder.className =
-        "btn btn-primary";
-
-    botonResponder.innerHTML = `
-        <i class="bi bi-send-fill me-1"></i>
-        Responder
-    `;
-
-    grupoRespuesta.appendChild(
-        campoRespuesta
-    );
-
-    grupoRespuesta.appendChild(
-        botonResponder
-    );
-
-    formularioRespuesta.appendChild(
-        grupoRespuesta
-    );
-
-    cuerpo.appendChild(
-        formularioRespuesta
-    );
-
-    formularioRespuesta.addEventListener(
-        "submit",
-        async (event) => {
-            event.preventDefault();
-            const textoRespuesta =
-                campoRespuesta.value.trim();
-            if (textoRespuesta.length < 2) {
-                return;
+            let fechaStr = "Reciente";
+            if (pub.fecha?.toDate) {
+                fechaStr = pub.fecha.toDate().toLocaleDateString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
             }
-            botonResponder.disabled =
-                true;
-            botonResponder.innerHTML = `
-                <span
-                    class="spinner-border spinner-border-sm"
-                    aria-hidden="true"
-                ></span>
+
+            const nombreMostrar = pub.autor || pub.nombreAutor || (esDoc ? "Docente / Admin" : "Estudiante");
+
+            card.innerHTML = `
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong class="text-dark fs-6">${nombreMostrar}</strong>
+                            ${insigniaRol}
+                        </div>
+                        <small class="text-muted">${fechaStr}</small>
+                    </div>
+                    <h5 class="card-title fw-bold text-primary mb-2">${pub.titulo || "Consulta"}</h5>
+                    <p class="card-text text-secondary mb-0" style="white-space: pre-wrap;">${pub.mensaje || ""}</p>
+                </div>
             `;
-            try {
-                await guardarRespuesta(
-                    publicacion,
-                    textoRespuesta
-                );
-                campoRespuesta.value = "";
-            } catch (error) {
-                console.error(
-                    "Error al guardar la respuesta:",
-                    error
-                );
-                alert(
-                    "No se pudo publicar la respuesta."
-                );
-            } finally {
-                botonResponder.disabled =
-                    false;
-                botonResponder.innerHTML = `
-                    <i class="bi bi-send-fill me-1"></i>
-                    Responder
-                `;
+
+            listaPublicaciones.appendChild(card);
+        });
+    }, (error) => {
+        console.error("Error al escuchar publicaciones del foro:", error);
+    });
+}
+
+function configurarFormularioPublicacion() {
+    const form = document.getElementById("formPublicacionForo");
+    if (!form) return;
+
+    if (form.dataset.registrado === "true") return;
+    form.dataset.registrado = "true";
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const inputTitulo = document.getElementById("tituloPublicacion");
+        const inputMensaje = document.getElementById("mensajePublicacion");
+        const contenedorMensajeForm = document.getElementById("mensajePublicacionForo");
+        const btnSubmit = document.getElementById("btnPublicarMensaje");
+
+        const titulo = inputTitulo?.value.trim();
+        const mensaje = inputMensaje?.value.trim();
+
+        if (!titulo || !mensaje) return;
+
+        if (btnSubmit) btnSubmit.disabled = true;
+
+        try {
+            let nombreAutor = obtenerNombreRealUsuario();
+
+            if (!nombreAutor) {
+                try {
+                    const uSnap = await getDoc(doc(db, "usuarios", usuarioActual.uid));
+                    if (uSnap.exists()) {
+                        datosUsuarioActual = uSnap.data();
+                        nombreAutor = obtenerNombreRealUsuario();
+                    }
+                } catch (errUser) {
+                    console.error("Error recuperando documento de usuario:", errUser);
+                }
             }
-        }
-    );
-    articulo.appendChild(cuerpo);
-    escucharRespuestas(
-        publicacion.id,
-        contenedorRespuestas
-    );
-    return articulo;
-}
 
-async function guardarRespuesta(
-    publicacion,
-    textoRespuesta
-) {
-    if (
-        !usuarioActual ||
-        !datosUsuarioActual
-    ) {
-        throw new Error(
-            "USUARIO_NO_AUTENTICADO"
-        );
-    }
+            const esDocenteOAdmin = esUsuarioAdminODocente(rolActual);
 
-    const rol =
-        (
-            datosUsuarioActual.tipoUsuario ||
-            datosUsuarioActual.rol ||
-            "estudiante"
-        )
-            .toString()
-            .trim()
-            .toLowerCase();
-
-    const nombreAutor =
-        obtenerNombreUsuario(
-            datosUsuarioActual,
-            usuarioActual
-        );
-
-    const referenciaRespuestas =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro",
-            publicacion.id,
-            "respuestas"
-        );
-
-    await addDoc(
-        referenciaRespuestas,
-        {
-            autorId:
-                usuarioActual.uid,
-
-            autorNombre:
-                nombreAutor,
-
-            autorRol:
-                rol,
-
-            mensaje:
-                textoRespuesta,
-
-            fechaCreacion:
-                serverTimestamp(),
-
-            activo:
-                true
-        }
-    );
-}
-
-function escucharRespuestas(
-    publicacionId,
-    contenedor
-) {
-
-    const referenciaRespuestas =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro",
-            publicacionId,
-            "respuestas"
-        );
-
-    const consultaRespuestas =
-        query(
-            referenciaRespuestas,
-            orderBy(
-                "fechaCreacion",
-                "asc"
-            )
-        );
-
-    const cancelar =
-        onSnapshot(
-            consultaRespuestas,
-            (resultado) => {
-                const respuestas =
-                    resultado.docs
-                        .map(
-                            (documento) => ({
-                                id:
-                                    documento.id,
-
-                                ...documento.data()
-                            })
-                        )
-                        .filter(
-                            (respuesta) =>
-                                respuesta.activo !==
-                                false
-                        );
-
-                mostrarRespuestas(
-                    respuestas,
-                    contenedor
-                );
-            },
-
-            (error) => {
-
-                console.error(
-                    "Error al cargar respuestas:",
-                    error
-                );
-
-                contenedor.innerHTML = `
-                    <p class="small text-danger mb-0">
-                        No se pudieron cargar las respuestas.
-                    </p>
-                `;
+            if (!nombreAutor) {
+                nombreAutor = esDocenteOAdmin ? "Docente / Admin" : "Estudiante";
             }
-        );
 
-    cancelarEscuchasRespuestas.push(
-        cancelar
-    );
-}
+            // 1. Guardar publicación en Firestore
+            await addDoc(collection(db, "cursoscc", cursoIdActual, "foro"), {
+                uid: usuarioActual.uid,
+                autorId: usuarioActual.uid,
+                autor: nombreAutor,
+                titulo: titulo,
+                mensaje: mensaje,
+                esDocente: esDocenteOAdmin,
+                fecha: serverTimestamp()
+            });
 
-function mostrarRespuestas(
-    respuestas,
-    contenedor
-) {
-    contenedor.replaceChildren();
-
-    if (respuestas.length === 0) {
-
-        const mensaje =
-            document.createElement("p");
-
-        mensaje.className =
-            "small text-muted mb-0";
-
-        mensaje.textContent =
-            "Todavía no hay respuestas.";
-
-        contenedor.appendChild(mensaje);
-
-        return;
-    }
-
-    respuestas.forEach(
-        (respuesta) => {
-
-            const caja =
-                document.createElement("div");
-
-            caja.className =
-                "border rounded p-3 bg-light";
-
-            const encabezado =
-                document.createElement("div");
-
-            encabezado.className =
-                "d-flex justify-content-between align-items-center gap-2 mb-2";
-
-            const autor =
-                document.createElement("strong");
-
-            autor.className =
-                "small";
-
-            autor.textContent =
-                respuesta.autorNombre ||
-                "Usuario";
-
-            const rol =
-                (
-                    respuesta.autorRol ||
-                    "estudiante"
-                ).toLowerCase();
-
-            const etiqueta =
-                document.createElement("span");
-
-            etiqueta.className =
-                rol.includes("docente") ||
-                rol.includes("admin")
-                    ? "badge bg-primary"
-                    : "badge bg-secondary";
-
-            etiqueta.textContent =
-                rol.includes("docente")
-                    ? "Docente"
-                    : rol.includes("admin")
-                        ? "Administrador"
-                        : "Estudiante";
-
-            const mensaje =
-                document.createElement("p");
-
-            mensaje.className =
-                "mb-1";
-
-            mensaje.textContent =
-                respuesta.mensaje || "";
-
-            const fecha =
-                document.createElement("small");
-
-            fecha.className =
-                "text-muted";
-
-            fecha.textContent =
-                formatearFecha(
-                    respuesta.fechaCreacion
+            // 2. ENVIAR NOTIFICACIÓN SEGÚN EL ROL QUE ESCRIBE
+            if (!esDocenteOAdmin) {
+                // Si escribe un ESTUDIANTE -> Notifica al ROL de docentes/admins
+                await addDoc(collection(db, "notificaciones"), {
+                    tipo: "foro_consulta",
+                    destinatarioRol: "docente/admin",
+                    estudianteUid: usuarioActual.uid,
+                    titulo: "Nueva consulta en el Foro",
+                    mensaje: `${nombreAutor} hizo una publicación en "${cursoTituloActual}".`,
+                    leida: false,
+                    fechaCreacion: serverTimestamp(),
+                    enlace: `foroCurso.html?id=${cursoIdActual}`
+                });
+            } else {
+                // Si escribe un DOCENTE/ADMIN -> Notifica a los ESTUDIANTES inscritos en el curso
+                const qInscriptos = query(
+                    collection(db, "adquisiciones"),
+                    where("cursoId", "==", cursoIdActual)
                 );
+                const snapInscriptos = await getDocs(qInscriptos);
 
-            encabezado.appendChild(autor);
-            encabezado.appendChild(etiqueta);
+                snapInscriptos.forEach(async (docInsc) => {
+                    const datosInsc = docInsc.data();
+                    if (datosInsc.usuarioId && datosInsc.usuarioId !== usuarioActual.uid) {
+                        await addDoc(collection(db, "notificaciones"), {
+                            tipo: "foro_respuesta",
+                            destinatarioUid: datosInsc.usuarioId,
+                            titulo: "Nueva publicación del docente",
+                            mensaje: `El equipo docente publicó un mensaje en el foro de "${cursoTituloActual}".`,
+                            leida: false,
+                            fechaCreacion: serverTimestamp(),
+                            enlace: `foroCurso.html?id=${cursoIdActual}`
+                        });
+                    }
+                });
+            }
 
-            caja.appendChild(encabezado);
-            caja.appendChild(mensaje);
-            caja.appendChild(fecha);
+            if (inputTitulo) inputTitulo.value = "";
+            if (inputMensaje) inputMensaje.value = "";
 
-            contenedor.appendChild(caja);
+            if (contenedorMensajeForm) {
+                contenedorMensajeForm.className = "alert alert-success mt-3 p-2 small text-center";
+                contenedorMensajeForm.textContent = "Mensaje publicado con éxito.";
+                setTimeout(() => {
+                    if (contenedorMensajeForm) contenedorMensajeForm.textContent = "";
+                }, 3000);
+            }
+
+        } catch (error) {
+            console.error("Error al publicar mensaje en el foro:", error);
+            if (contenedorMensajeForm) {
+                contenedorMensajeForm.className = "alert alert-danger mt-3 p-2 small text-center";
+                contenedorMensajeForm.textContent = "No se pudo publicar el mensaje. Revisa tu conexión.";
+            }
+        } finally {
+            if (btnSubmit) btnSubmit.disabled = false;
         }
-    );
+    });
 }
-
-function obtenerNombreUsuario(
-    datosUsuario,
-    usuario
-) {
-
-    const nombreCompleto =
-        [
-            datosUsuario.nombre,
-            datosUsuario.apellido
-        ]
-            .filter(Boolean)
-            .join(" ")
-            .trim();
-
-    return (
-        nombreCompleto ||
-        datosUsuario.nombreCompleto ||
-        usuario.displayName ||
-        usuario.email ||
-        "Usuario"
-    );
-}
-
-function formatearFecha(fecha) {
-    if (!fecha) {
-        return "Publicando...";
-    }
-
-    let fechaJavaScript;
-
-    if (
-        typeof fecha.toDate === "function"
-    ) {
-        fechaJavaScript =
-            fecha.toDate();
-
-    } else {
-        fechaJavaScript =
-            new Date(fecha);
-    }
-
-    return fechaJavaScript.toLocaleString(
-        "es-UY",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    );
-}
-
-function mostrarMensajeFormulario(
-    texto,
-    tipo
-) {
-    mensajePublicacionForo.textContent =
-        texto;
-
-    mensajePublicacionForo.className =
-        `alert alert-${tipo} mt-3`;
-}
-
-function mostrarError(mensaje) {
-
-    estadoCargaForo.classList.add("d-none");
-    contenidoForo.classList.add("d-none");
-
-    mensajeErrorForo.textContent =
-        mensaje;
-
-    mensajeErrorForo.classList.remove("d-none");
-}
-
-window.addEventListener(
-    "beforeunload",
-    () => {
-
-        if (cancelarEscuchaPublicaciones) {
-            cancelarEscuchaPublicaciones();
-        }
-        cancelarEscuchasRespuestas.forEach(
-            (cancelar) => cancelar()
-        );      
-        cancelarEscuchasRespuestas = [];
-    }
-);

@@ -176,7 +176,7 @@
                                 </a>
                             </li>
 
-                            <li>
+                            <li id="menuMisCursos">
                                 <a
                                     class="dropdown-item d-flex align-items-center gap-2 py-2"
                                     href="misCursos.html"
@@ -219,7 +219,8 @@
     </header>
 
     <main class="flex-grow-1 bg-light">
-        <div class="container py-4">
+        <!-- Ocultamos la vista completa por defecto si no hay sesión -->
+        <div class="container py-4 d-none" id="contenedorPrincipalVista">
 
             <!-- Ruta de navegación -->
             <nav aria-label="Ruta de navegación">
@@ -539,4 +540,3 @@
 
 </body>
 </html>
-

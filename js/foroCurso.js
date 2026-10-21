@@ -1,12 +1,5 @@
-import {
-    auth,
-    db
-} from "./firebase-config.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
+import {auth, db} from "./firebase-config.js";
+import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
     doc,
     getDoc,
@@ -20,8 +13,8 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-
-// ELEMENTOS DEL HTML
+const contenedorPrincipalVista =
+    document.getElementById("contenedorPrincipalVista");
 
 const estadoCargaForo =
     document.getElementById("estadoCargaForo");
@@ -65,61 +58,52 @@ const cantidadPublicaciones =
 const sinPublicaciones =
     document.getElementById("sinPublicaciones");
 
-
-// OBTENER ID DEL CURSO
 const parametros =
     new URLSearchParams(window.location.search);
 
 const cursoId =
     parametros.get("curso");
 
-
 let usuarioActual = null;
 let datosUsuarioActual = null;
 let cancelarEscuchaPublicaciones = null;
 let cancelarEscuchasRespuestas = [];
 
-
-// INICIAR PÁGINA
-
-
 iniciarPagina();
-
 
 function iniciarPagina() {
 
-    if (!cursoId) {
-        mostrarError(
-            "No se indicó a qué curso pertenece el foro."
-        );
-
-        return;
+    if (enlaceContenidoCurso && cursoId) {
+        enlaceContenidoCurso.href =
+            `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}`;
     }
-
-
-    enlaceContenidoCurso.href =
-        `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}`;
-
 
     onAuthStateChanged(auth, async (usuario) => {
 
         if (!usuario) {
-            window.location.href = "ingresar.html";
+            window.location.replace("ingresar.html");
             return;
         }
 
+        if (contenedorPrincipalVista) {
+            contenedorPrincipalVista.classList.remove("d-none");
+        }
+
+        if (!cursoId) {
+            mostrarError(
+                "No se indicó a qué curso pertenece el foro."
+            );
+            return;
+        }
 
         usuarioActual = usuario;
 
-
         try {
-
             const referenciaUsuario =
                 doc(db, "usuarios", usuario.uid);
 
             const referenciaCurso =
                 doc(db, "cursoscc", cursoId);
-
 
             const [
                 resultadoUsuario,
@@ -129,33 +113,34 @@ function iniciarPagina() {
                 getDoc(referenciaCurso)
             ]);
 
-
             if (!resultadoUsuario.exists()) {
                 mostrarError(
                     "No se encontraron los datos del usuario."
                 );
-
                 return;
             }
-
 
             if (!resultadoCurso.exists()) {
                 mostrarError(
                     "El curso solicitado no existe."
                 );
-
                 return;
             }
 
-
             datosUsuarioActual =
                 resultadoUsuario.data();
+
+            const rol = (datosUsuarioActual.tipoUsuario || datosUsuarioActual.rol || "estudiante")
+                .toString()
+                .trim()
+                .toLowerCase();
+
+            gestionarEnlaceMisCursos(rol);
 
             const curso = {
                 id: resultadoCurso.id,
                 ...resultadoCurso.data()
             };
-
 
             const tieneAcceso =
                 await comprobarAcceso(
@@ -164,19 +149,15 @@ function iniciarPagina() {
                     usuario.uid
                 );
 
-
             if (!tieneAcceso) {
                 mostrarError(
                     "No tenés acceso al foro de este curso."
                 );
-
                 return;
             }
 
-
             nombreCursoForo.textContent =
                 curso.titulo || "Curso";
-
 
             await cargarModulos(curso.id);
 
@@ -185,8 +166,6 @@ function iniciarPagina() {
             estadoCargaForo.classList.add("d-none");
             mensajeErrorForo.classList.add("d-none");
             contenidoForo.classList.remove("d-none");
-
-
         } catch (error) {
 
             console.error(
@@ -201,10 +180,30 @@ function iniciarPagina() {
     });
 }
 
+function gestionarEnlaceMisCursos(rol) {
+    const esEstudiante = rol === "estudiante";
 
-// ======================================================
-// COMPROBAR ACCESO
-// ======================================================
+    const itemMenuMisCursos = document.getElementById("menuMisCursos");
+    if (itemMenuMisCursos) {
+        if (esEstudiante) {
+            itemMenuMisCursos.classList.remove("d-none");
+        } else {
+            itemMenuMisCursos.classList.add("d-none");
+        }
+    }
+
+    const enlaceBreadcrumb = document.querySelector('.breadcrumb a[href="misCursos.html"]');
+    if (enlaceBreadcrumb) {
+        const itemBreadcrumb = enlaceBreadcrumb.parentElement;
+        if (esEstudiante) {
+            enlaceBreadcrumb.classList.remove("d-none");
+            if (itemBreadcrumb) itemBreadcrumb.classList.remove("d-none");
+        } else {
+            enlaceBreadcrumb.classList.add("d-none");
+            if (itemBreadcrumb) itemBreadcrumb.classList.add("d-none");
+        }
+    }
+}
 
 async function comprobarAcceso(
     datosUsuario,
@@ -222,8 +221,6 @@ async function comprobarAcceso(
             .trim()
             .toLowerCase();
 
-
-    // Docente y administrador pueden entrar.
     if (
         rol.includes("admin") ||
         rol.includes("docente")
@@ -231,16 +228,12 @@ async function comprobarAcceso(
         return true;
     }
 
-
-    // Los demás usuarios deben ser estudiantes.
     if (rol !== "estudiante") {
         return false;
     }
 
-
     const referenciaAdquisiciones =
         collection(db, "adquisiciones");
-
 
     const consultaAdquisiciones =
         query(
@@ -248,10 +241,8 @@ async function comprobarAcceso(
             where("usuarioId", "==", uid)
         );
 
-
     const resultadoAdquisiciones =
         await getDocs(consultaAdquisiciones);
-
 
     const adquisicionAprobada =
         resultadoAdquisiciones.docs.some(
@@ -267,14 +258,8 @@ async function comprobarAcceso(
             }
         );
 
-
     return adquisicionAprobada;
 }
-
-
-// ======================================================
-// CARGAR MÓDULOS EN EL SELECT
-// ======================================================
 
 async function cargarModulos(idCurso) {
 
@@ -286,25 +271,19 @@ async function cargarModulos(idCurso) {
             "modulos"
         );
 
-
     const resultadoModulos =
         await getDocs(referenciaModulos);
-
 
     const modulos =
         resultadoModulos.docs.map(
             (documento, indice) => {
-
                 const datos =
                     documento.data();
-
                 return {
                     id: documento.id,
-
                     numero:
                         datos.numero ||
                         indice + 1,
-
                     nombre:
                         datos.nombre ||
                         datos.titulo ||
@@ -314,13 +293,11 @@ async function cargarModulos(idCurso) {
             }
         );
 
-
     modulos.sort(
         (a, b) =>
             Number(a.numero) -
             Number(b.numero)
     );
-
 
     modulos.forEach((modulo) => {
 
@@ -337,17 +314,11 @@ async function cargarModulos(idCurso) {
     });
 }
 
-
-// ======================================================
-// REGISTRAR PUBLICACIÓN
-// ======================================================
-
 formPublicacionForo.addEventListener(
     "submit",
     async (event) => {
 
         event.preventDefault();
-
 
         if (!usuarioActual) {
             mostrarMensajeFormulario(
@@ -357,7 +328,6 @@ formPublicacionForo.addEventListener(
 
             return;
         }
-
 
         const titulo =
             tituloPublicacion.value.trim();
@@ -372,7 +342,6 @@ formPublicacionForo.addEventListener(
             moduloPublicacion.selectedOptions[0]
                 ?.textContent || "Foro general";
 
-
         if (
             titulo.length < 3 ||
             mensaje.length < 3
@@ -381,13 +350,10 @@ formPublicacionForo.addEventListener(
                 "Escribí un título y un mensaje válidos.",
                 "danger"
             );
-
             return;
         }
 
-
         btnPublicarMensaje.disabled = true;
-
         btnPublicarMensaje.innerHTML = `
             <span
                 class="spinner-border spinner-border-sm me-2"
@@ -396,9 +362,7 @@ formPublicacionForo.addEventListener(
             Publicando...
         `;
 
-
         try {
-
             const rol =
                 (
                     datosUsuarioActual.tipoUsuario ||
@@ -409,13 +373,11 @@ formPublicacionForo.addEventListener(
                     .trim()
                     .toLowerCase();
 
-
             const nombreAutor =
                 obtenerNombreUsuario(
                     datosUsuarioActual,
                     usuarioActual
                 );
-
 
             const referenciaForo =
                 collection(
@@ -425,127 +387,106 @@ formPublicacionForo.addEventListener(
                     "foro"
                 );
 
-const publicacionCreada =
-    await addDoc(
-        referenciaForo,
-        {
-            autorId:
-                usuarioActual.uid,
+            const publicacionCreada =
+                await addDoc(
+                    referenciaForo,
+                    {
+                        autorId:
+                            usuarioActual.uid,
 
-            autorNombre:
-                nombreAutor,
+                        autorNombre:
+                            nombreAutor,
 
-            autorRol:
-                rol,
+                        autorRol:
+                            rol,
 
-            titulo:
-                titulo,
+                        titulo:
+                            titulo,
 
-            mensaje:
-                mensaje,
+                        mensaje:
+                            mensaje,
 
-            moduloId:
-                moduloSeleccionado,
+                        moduloId:
+                            moduloSeleccionado,
 
-            moduloNombre:
-                moduloSeleccionado
-                    ? textoModulo
-                    : "Foro general",
+                        moduloNombre:
+                            moduloSeleccionado
+                                ? textoModulo
+                                : "Foro general",
 
-            fechaCreacion:
-                serverTimestamp(),
+                        fechaCreacion:
+                            serverTimestamp(),
 
-            activo:
-                true
-        }
-    );
+                        activo:
+                            true
+                    }
+                );
 
+            if (rol === "estudiante") {
+                try {
+                    await addDoc(
+                        collection(db, "notificaciones"),
+                        {
+                            destinatarioRol:
+                                "docente/admin",
 
-// Crear una notificación para el docente
-// solamente cuando publica un estudiante.
-if (rol === "estudiante") {
+                            tipo:
+                                "nueva_publicacion_foro",
 
-    try {
+                            cursoId:
+                                cursoId,
 
-        await addDoc(
-            collection(db, "notificaciones"),
-            {
-                destinatarioRol:
-                    "docente/admin",
+                            cursoTitulo:
+                                nombreCursoForo.textContent ||
+                                "Curso",
 
-                tipo:
-                    "nueva_publicacion_foro",
+                            publicacionId:
+                                publicacionCreada.id,
 
-                cursoId:
-                    cursoId,
+                            titulo:
+                                titulo,
 
-                cursoTitulo:
-                    nombreCursoForo.textContent ||
-                    "Curso",
+                            autorId:
+                                usuarioActual.uid,
 
-                publicacionId:
-                    publicacionCreada.id,
+                            autorNombre:
+                                nombreAutor,
 
-                titulo:
-                    titulo,
+                            enlace:
+                                `foroCurso.html?curso=${encodeURIComponent(cursoId)}`,
 
-                autorId:
-                    usuarioActual.uid,
+                            leida:
+                                false,
 
-                autorNombre:
-                    nombreAutor,
-
-                enlace:
-                    `foroCurso.html?curso=${encodeURIComponent(cursoId)}`,
-
-                leida:
-                    false,
-
-                fechaCreacion:
-                    serverTimestamp()
+                            fechaCreacion:
+                                serverTimestamp()
+                        }
+                    );
+                } catch (errorNotificacion) {
+                    console.error(
+                        "La publicación fue creada, pero no se pudo crear la notificación:",
+                        errorNotificacion
+                    );
+                }
             }
-        );
-
-    } catch (errorNotificacion) {
-
-        /*
-         * Si falla la notificación, la publicación
-         * igualmente queda registrada.
-         */
-        console.error(
-            "La publicación fue creada, pero no se pudo crear la notificación:",
-            errorNotificacion
-        );
-    }
-}
             
-
-
             formPublicacionForo.reset();
-
             mostrarMensajeFormulario(
                 "El mensaje fue publicado correctamente.",
                 "success"
             );
-
-
         } catch (error) {
-
             console.error(
                 "Error al publicar en el foro:",
                 error
             );
-
             mostrarMensajeFormulario(
                 "No se pudo publicar el mensaje. Intentá nuevamente.",
                 "danger"
             );
 
-
         } finally {
-
             btnPublicarMensaje.disabled = false;
-
             btnPublicarMensaje.innerHTML = `
                 <i class="bi bi-send-fill me-2"></i>
                 Publicar mensaje
@@ -554,13 +495,7 @@ if (rol === "estudiante") {
     }
 );
 
-
-// ======================================================
-// ESCUCHAR PUBLICACIONES EN TIEMPO REAL
-// ======================================================
-
 function escucharPublicaciones() {
-
     const referenciaForo =
         collection(
             db,
@@ -569,13 +504,11 @@ function escucharPublicaciones() {
             "foro"
         );
 
-
     const consultaForo =
         query(
             referenciaForo,
             orderBy("fechaCreacion", "desc")
         );
-
 
     cancelarEscuchaPublicaciones =
         onSnapshot(
@@ -593,7 +526,6 @@ function escucharPublicaciones() {
                             (publicacion) =>
                                 publicacion.activo !== false
                         );
-
 
                 mostrarPublicaciones(
                     publicaciones
@@ -615,16 +547,11 @@ function escucharPublicaciones() {
         );
 }
 
-
-// ======================================================
-// MOSTRAR PUBLICACIONES
-// ======================================================
-
 function mostrarPublicaciones(publicaciones) {
 
     cancelarEscuchasRespuestas.forEach(
-    (cancelar) => cancelar()
-);
+        (cancelar) => cancelar()
+    );
 
     cancelarEscuchasRespuestas = [];
 
@@ -633,15 +560,12 @@ function mostrarPublicaciones(publicaciones) {
     cantidadPublicaciones.textContent =
         publicaciones.length;
 
-
     if (publicaciones.length === 0) {
         sinPublicaciones.classList.remove("d-none");
         return;
     }
 
-
     sinPublicaciones.classList.add("d-none");
-
 
     publicaciones.forEach((publicacion) => {
 
@@ -652,19 +576,12 @@ function mostrarPublicaciones(publicaciones) {
     });
 }
 
-
-// ======================================================
-// CREAR TARJETA DE PUBLICACIÓN
-// ======================================================
-
 function crearTarjetaPublicacion(publicacion) {
-
     const articulo =
         document.createElement("article");
 
     articulo.className =
         "card shadow-sm border-0";
-
 
     const cuerpo =
         document.createElement("div");
@@ -672,17 +589,14 @@ function crearTarjetaPublicacion(publicacion) {
     cuerpo.className =
         "card-body p-4";
 
-
     const encabezado =
         document.createElement("div");
 
     encabezado.className =
         "d-flex justify-content-between align-items-start gap-3 mb-3";
 
-
     const datosAutor =
         document.createElement("div");
-
 
     const autor =
         document.createElement("p");
@@ -694,18 +608,15 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.autorNombre ||
         "Usuario";
 
-
     const informacion =
         document.createElement("p");
 
     informacion.className =
         "small text-muted mb-0";
 
-
     const rol =
         (publicacion.autorRol || "")
             .toLowerCase();
-
 
     const nombreRol =
         rol.includes("docente")
@@ -714,18 +625,14 @@ function crearTarjetaPublicacion(publicacion) {
                 ? "Administrador"
                 : "Estudiante";
 
-
     informacion.textContent =
         `${nombreRol} · ${formatearFecha(publicacion.fechaCreacion)}`;
-
 
     datosAutor.appendChild(autor);
     datosAutor.appendChild(informacion);
 
-
     const insignia =
         document.createElement("span");
-
 
     if (
         rol.includes("docente") ||
@@ -747,10 +654,8 @@ function crearTarjetaPublicacion(publicacion) {
             "Estudiante";
     }
 
-
     encabezado.appendChild(datosAutor);
     encabezado.appendChild(insignia);
-
 
     const titulo =
         document.createElement("h2");
@@ -762,7 +667,6 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.titulo ||
         "Publicación";
 
-
     const modulo =
         document.createElement("p");
 
@@ -773,7 +677,6 @@ function crearTarjetaPublicacion(publicacion) {
         publicacion.moduloNombre ||
         "Foro general";
 
-
     const mensaje =
         document.createElement("p");
 
@@ -782,7 +685,6 @@ function crearTarjetaPublicacion(publicacion) {
 
     mensaje.textContent =
         publicacion.mensaje || "";
-
 
     cuerpo.appendChild(encabezado);
     cuerpo.appendChild(titulo);
@@ -797,171 +699,141 @@ function crearTarjetaPublicacion(publicacion) {
     cuerpo.appendChild(separador);
 
     const tituloRespuestas =
-    document.createElement("h3");
+        document.createElement("h3");
 
-tituloRespuestas.className =
-    "h6 fw-bold mb-3";
+    tituloRespuestas.className =
+        "h6 fw-bold mb-3";
 
-tituloRespuestas.innerHTML = `
-    <i class="bi bi-reply-fill me-2"></i>
-    Respuestas
-`;
+    tituloRespuestas.innerHTML = `
+        <i class="bi bi-reply-fill me-2"></i>
+        Respuestas
+    `;
 
-cuerpo.appendChild(tituloRespuestas);
+    cuerpo.appendChild(tituloRespuestas);
 
+    const contenedorRespuestas =
+        document.createElement("div");
 
-// Contenedor dinámico de respuestas
-const contenedorRespuestas =
-    document.createElement("div");
+    contenedorRespuestas.className =
+        "d-flex flex-column gap-2 mb-3";
 
-contenedorRespuestas.className =
-    "d-flex flex-column gap-2 mb-3";
+    cuerpo.appendChild(contenedorRespuestas);
 
-cuerpo.appendChild(contenedorRespuestas);
+    const formularioRespuesta =
+        document.createElement("form");
 
+    formularioRespuesta.className =
+        "mt-3";
 
-// Formulario para responder
-const formularioRespuesta =
-    document.createElement("form");
+    const grupoRespuesta =
+        document.createElement("div");
 
-formularioRespuesta.className =
-    "mt-3";
+    grupoRespuesta.className =
+        "input-group";
 
+    const campoRespuesta =
+        document.createElement("textarea");
 
-const grupoRespuesta =
-    document.createElement("div");
+    campoRespuesta.className =
+        "form-control";
 
-grupoRespuesta.className =
-    "input-group";
+    campoRespuesta.rows = 2;
 
+    campoRespuesta.maxLength = 500;
 
-const campoRespuesta =
-    document.createElement("textarea");
+    campoRespuesta.placeholder =
+        "Escribí una respuesta...";
 
-campoRespuesta.className =
-    "form-control";
+    campoRespuesta.required = true;
 
-campoRespuesta.rows = 2;
+    campoRespuesta.setAttribute(
+        "aria-label",
+        "Escribir una respuesta"
+    );
 
-campoRespuesta.maxLength = 500;
+    const botonResponder =
+        document.createElement("button");
 
-campoRespuesta.placeholder =
-    "Escribí una respuesta...";
+    botonResponder.type =
+        "submit";
 
-campoRespuesta.required = true;
+    botonResponder.className =
+        "btn btn-primary";
 
-campoRespuesta.setAttribute(
-    "aria-label",
-    "Escribir una respuesta"
-);
+    botonResponder.innerHTML = `
+        <i class="bi bi-send-fill me-1"></i>
+        Responder
+    `;
 
+    grupoRespuesta.appendChild(
+        campoRespuesta
+    );
 
-const botonResponder =
-    document.createElement("button");
+    grupoRespuesta.appendChild(
+        botonResponder
+    );
 
-botonResponder.type =
-    "submit";
+    formularioRespuesta.appendChild(
+        grupoRespuesta
+    );
 
-botonResponder.className =
-    "btn btn-primary";
+    cuerpo.appendChild(
+        formularioRespuesta
+    );
 
-botonResponder.innerHTML = `
-    <i class="bi bi-send-fill me-1"></i>
-    Responder
-`;
-
-
-grupoRespuesta.appendChild(
-    campoRespuesta
-);
-
-grupoRespuesta.appendChild(
-    botonResponder
-);
-
-formularioRespuesta.appendChild(
-    grupoRespuesta
-);
-
-cuerpo.appendChild(
-    formularioRespuesta
-);
-
-
-formularioRespuesta.addEventListener(
-    "submit",
-    async (event) => {
-
-        event.preventDefault();
-
-        const textoRespuesta =
-            campoRespuesta.value.trim();
-
-
-        if (textoRespuesta.length < 2) {
-            return;
-        }
-
-
-        botonResponder.disabled =
-            true;
-
-        botonResponder.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm"
-                aria-hidden="true"
-            ></span>
-        `;
-
-
-        try {
-
-            await guardarRespuesta(
-                publicacion,
-                textoRespuesta
-            );
-
-            campoRespuesta.value = "";
-
-        } catch (error) {
-
-            console.error(
-                "Error al guardar la respuesta:",
-                error
-            );
-
-            alert(
-                "No se pudo publicar la respuesta."
-            );
-
-        } finally {
-
+    formularioRespuesta.addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
+            const textoRespuesta =
+                campoRespuesta.value.trim();
+            if (textoRespuesta.length < 2) {
+                return;
+            }
             botonResponder.disabled =
-                false;
-
+                true;
             botonResponder.innerHTML = `
-                <i class="bi bi-send-fill me-1"></i>
-                Responder
+                <span
+                    class="spinner-border spinner-border-sm"
+                    aria-hidden="true"
+                ></span>
             `;
+            try {
+                await guardarRespuesta(
+                    publicacion,
+                    textoRespuesta
+                );
+                campoRespuesta.value = "";
+            } catch (error) {
+                console.error(
+                    "Error al guardar la respuesta:",
+                    error
+                );
+                alert(
+                    "No se pudo publicar la respuesta."
+                );
+            } finally {
+                botonResponder.disabled =
+                    false;
+                botonResponder.innerHTML = `
+                    <i class="bi bi-send-fill me-1"></i>
+                    Responder
+                `;
+            }
         }
-    }
-);
-
-articulo.appendChild(cuerpo);
-
-escucharRespuestas(
-    publicacion.id,
-    contenedorRespuestas
-);
-
-return articulo;
+    );
+    articulo.appendChild(cuerpo);
+    escucharRespuestas(
+        publicacion.id,
+        contenedorRespuestas
+    );
+    return articulo;
 }
 
 async function guardarRespuesta(
     publicacion,
     textoRespuesta
 ) {
-
     if (
         !usuarioActual ||
         !datosUsuarioActual
@@ -970,7 +842,6 @@ async function guardarRespuesta(
             "USUARIO_NO_AUTENTICADO"
         );
     }
-
 
     const rol =
         (
@@ -982,13 +853,11 @@ async function guardarRespuesta(
             .trim()
             .toLowerCase();
 
-
     const nombreAutor =
         obtenerNombreUsuario(
             datosUsuarioActual,
             usuarioActual
         );
-
 
     const referenciaRespuestas =
         collection(
@@ -999,7 +868,6 @@ async function guardarRespuesta(
             publicacion.id,
             "respuestas"
         );
-
 
     await addDoc(
         referenciaRespuestas,
@@ -1025,10 +893,6 @@ async function guardarRespuesta(
     );
 }
 
-
-
-// ESCUCHAR RESPUESTAS
-
 function escucharRespuestas(
     publicacionId,
     contenedor
@@ -1044,7 +908,6 @@ function escucharRespuestas(
             "respuestas"
         );
 
-
     const consultaRespuestas =
         query(
             referenciaRespuestas,
@@ -1054,13 +917,10 @@ function escucharRespuestas(
             )
         );
 
-
     const cancelar =
         onSnapshot(
             consultaRespuestas,
-
             (resultado) => {
-
                 const respuestas =
                     resultado.docs
                         .map(
@@ -1076,7 +936,6 @@ function escucharRespuestas(
                                 respuesta.activo !==
                                 false
                         );
-
 
                 mostrarRespuestas(
                     respuestas,
@@ -1099,23 +958,16 @@ function escucharRespuestas(
             }
         );
 
-
     cancelarEscuchasRespuestas.push(
         cancelar
     );
 }
 
-
-
-// MOSTRAR RESPUESTAS
-
 function mostrarRespuestas(
     respuestas,
     contenedor
 ) {
-
     contenedor.replaceChildren();
-
 
     if (respuestas.length === 0) {
 
@@ -1133,7 +985,6 @@ function mostrarRespuestas(
         return;
     }
 
-
     respuestas.forEach(
         (respuesta) => {
 
@@ -1143,13 +994,11 @@ function mostrarRespuestas(
             caja.className =
                 "border rounded p-3 bg-light";
 
-
             const encabezado =
                 document.createElement("div");
 
             encabezado.className =
                 "d-flex justify-content-between align-items-center gap-2 mb-2";
-
 
             const autor =
                 document.createElement("strong");
@@ -1161,13 +1010,11 @@ function mostrarRespuestas(
                 respuesta.autorNombre ||
                 "Usuario";
 
-
             const rol =
                 (
                     respuesta.autorRol ||
                     "estudiante"
                 ).toLowerCase();
-
 
             const etiqueta =
                 document.createElement("span");
@@ -1185,7 +1032,6 @@ function mostrarRespuestas(
                         ? "Administrador"
                         : "Estudiante";
 
-
             const mensaje =
                 document.createElement("p");
 
@@ -1194,7 +1040,6 @@ function mostrarRespuestas(
 
             mensaje.textContent =
                 respuesta.mensaje || "";
-
 
             const fecha =
                 document.createElement("small");
@@ -1207,7 +1052,6 @@ function mostrarRespuestas(
                     respuesta.fechaCreacion
                 );
 
-
             encabezado.appendChild(autor);
             encabezado.appendChild(etiqueta);
 
@@ -1219,7 +1063,6 @@ function mostrarRespuestas(
         }
     );
 }
-// OBTENER NOMBRE DEL USUARIO
 
 function obtenerNombreUsuario(
     datosUsuario,
@@ -1235,7 +1078,6 @@ function obtenerNombreUsuario(
             .join(" ")
             .trim();
 
-
     return (
         nombreCompleto ||
         datosUsuario.nombreCompleto ||
@@ -1245,16 +1087,12 @@ function obtenerNombreUsuario(
     );
 }
 
-
 function formatearFecha(fecha) {
-
     if (!fecha) {
         return "Publicando...";
     }
 
-
     let fechaJavaScript;
-
 
     if (
         typeof fecha.toDate === "function"
@@ -1267,7 +1105,6 @@ function formatearFecha(fecha) {
             new Date(fecha);
     }
 
-
     return fechaJavaScript.toLocaleString(
         "es-UY",
         {
@@ -1277,24 +1114,16 @@ function formatearFecha(fecha) {
     );
 }
 
-
-
-// MENSAJES DEL FORMULARIO
-
-
 function mostrarMensajeFormulario(
     texto,
     tipo
 ) {
-
     mensajePublicacionForo.textContent =
         texto;
 
     mensajePublicacionForo.className =
         `alert alert-${tipo} mt-3`;
 }
-
-// MOSTRAR ERROR GENERAL
 
 function mostrarError(mensaje) {
 
@@ -1306,8 +1135,6 @@ function mostrarError(mensaje) {
 
     mensajeErrorForo.classList.remove("d-none");
 }
-
-// DETENER ESCUCHA AL SALIR
 
 window.addEventListener(
     "beforeunload",

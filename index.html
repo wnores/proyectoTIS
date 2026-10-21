@@ -59,45 +59,60 @@
                         </a>
                     </div>
 
+                    <!-- Notificaciones (Campanita) -->
+                    <div class="position-relative ms-2 d-none" id="grupoNotificaciones">
+                        <button class="btn btn-outline-light btn-sm position-relative py-2 px-3" type="button" id="dropdownNotificaciones" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell fs-5"></i>
+                            <span id="contadorNotificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownNotificaciones" id="listaNotificaciones" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                            <li class="dropdown-header fw-bold text-dark">Notificaciones</li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="text-center text-muted p-2 small" id="sinNotificaciones">No tenés notificaciones</li>
+                        </ul>
+                    </div>
 
-<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-        <i class="bi bi-person-circle fs-5"></i>
-        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
-    </button>
+                    <!-- Menú de Usuario -->
+                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                        </button>
 
-    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-        <li>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                <i class="bi bi-person fs-5"></i>
-                Mi perfil
-            </a>
-        </li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                                    <i class="bi bi-person fs-5"></i>
+                                    Mi perfil
+                                </a>
+                            </li>
 
-        <li id="menuMisCursos">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
-                <i class="bi bi-book fs-5"></i>
-                Mis cursos
-            </a>
-        </li>
+                            <li id="menuMisCursos">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
+                                    <i class="bi bi-book fs-5"></i>
+                                    Mis cursos
+                                </a>
+                            </li>
 
-        <li id="menuAdminCursos" class="d-none">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
-                <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
-                Administrar cursos
-            </a>
-        </li>
+                            <li id="menuAdminCursos" class="d-none">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                                    <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
+                                    Administrar cursos
+                                </a>
+                            </li>
 
-        <li><hr class="dropdown-divider"></li>
-        <li>
-            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                <i class="bi bi-box-arrow-right fs-5"></i>
-                Cerrar sesión
-            </button>
-        </li>
-    </ul>
-</div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                                    <i class="bi bi-box-arrow-right fs-5"></i>
+                                    Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
 
                 </div>
             </div>
@@ -110,14 +125,16 @@
                 <div class="row g-4 align-items-center">
                     
                     <div class="buscador-hero mb-4 d-flex justify-content-center">
-                        <form class="row mb-0 justify-content-center w-100" id="formBuscador" role="search">
+                        <form class="row mb-0 justify-content-center w-100" id="formBuscador" action="resultados.html" method="GET" role="search">
                             <div class="col-12 col-sm-8 col-md-5 d-flex">
                                 <input
                                     class="form-control form-control-sm w-100"
                                     type="search"
                                     id="inputBuscador"
+                                    name="buscar"
                                     placeholder="Buscar dentro del sitio"
-                                    aria-label="Buscar en el sitio">
+                                    aria-label="Buscar en el sitio"
+                                    required>
                                 <button
                                     class="btn btn-primary btn-sm ms-1 flex-shrink-0"
                                     type="submit">
@@ -262,7 +279,7 @@
                                     trabajando tanto en el frontend como
                                     en el backend.
                                 </p>
-                                <a href="contenidoCurso.html?id=TmTrPvK6qRGym1vh46xg" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=TmTrPvK6qRGym1vh46xg" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -278,7 +295,7 @@
                                     Aprendé los fundamentos de Python y desarrollá
                                     tus primeros programas.
                                 </p>
-                                <a href="contenidoCurso.html?id=KNbiyU16ldDV2rDAJlo6" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=KNbiyU16ldDV2rDAJlo6" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -295,7 +312,7 @@
                                     inteligencia artificial y sus principales
                                     aplicaciones.
                                 </p>
-                                <a href="contenidoCurso.html?id=JkflevazdTpp8HBg6Oo9" class="btn btn-primary">Ver curso</a>
+                                <a href="descripcionDeCurso.html?id=JkflevazdTpp8HBg6Oo9" class="btn btn-primary">Ver curso</a>
                             </div>
                         </article>
                     </div>
@@ -329,7 +346,7 @@
                             <h3>Diferentes niveles</h3>
                             <p>
                                 Encontrá propuestas para comenzar desde cero
-                                o continuar avanzando.
+                                o continuar advancing.
                             </p>
                         </article>
                     </div>

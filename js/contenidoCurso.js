@@ -15,6 +15,7 @@ import {
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
 const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
+const contenedorPrincipalVista = document.getElementById("contenedorPrincipalVista");
 const estadoCarga = document.getElementById("estadoCarga");
 const mensajeError = document.getElementById("mensajeError");
 const contenidoCurso = document.getElementById("contenidoCurso");
@@ -39,14 +40,20 @@ if (btnForoCurso && cursoId) {
 iniciarPagina();
 
 function iniciarPagina() {
-    if (!cursoId) {
-        mostrarError("No se indicó qué curso se debe mostrar.");
-        return;
-    }
-
     onAuthStateChanged(auth, async (usuario) => {
+        // Redirigir de inmediato si no hay sesión iniciada
         if (!usuario) {
-            window.location.href = "ingresar.html";
+            window.location.replace("ingresar.html");
+            return;
+        }
+
+        // Si la sesión está iniciada, mostramos el contenedor principal
+        if (contenedorPrincipalVista) {
+            contenedorPrincipalVista.classList.remove("d-none");
+        }
+
+        if (!cursoId) {
+            mostrarError("No se indicó qué curso se debe mostrar.");
             return;
         }
 
@@ -1021,7 +1028,6 @@ function obtenerTextoBotonRecurso(tipo) {
 
     return textos[tipo] || "Abrir material";
 }
-
 
 function actualizarProgreso(indiceModulo, totalModulos) {
     const barraProgreso = document.getElementById("barraProgreso");

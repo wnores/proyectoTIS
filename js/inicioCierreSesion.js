@@ -20,12 +20,10 @@
 
             const user = userCredential.user;
 
-            // Verificamos si el usuario está activo
             const userRef = doc(db, "usuarios", user.uid);
             const userSnap = await getDoc(userRef);
 
             if (userSnap.exists() && userSnap.data().activo === false) {
-                // Deshabilitado: cerramos sesión y mostramos mensaje
                 await signOut(auth);
                 showMessage("Tu cuenta está deshabilitada. Contacta al administrador.", "error");
                 return;

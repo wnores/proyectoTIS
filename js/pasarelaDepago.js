@@ -1,496 +1,552 @@
-```html
-<!DOCTYPE html>
-<html lang="es">
+import { auth, db } from "./firebase-config.js";
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Revisá los datos de tu curso y gestioná el pago en Cursos CC.">
+import {
+  doc,
+  getDoc,
+  addDoc,
+  collection,
+  serverTimestamp,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="styles/estilos.css">
+document.addEventListener("DOMContentLoaded", async () => {
 
-    <title>Cursos CC | Pasarela de pago</title>
-</head>
+  const cargando = document.getElementById("cargandoPasarela");
+  const errorBox = document.getElementById("errorPasarela");
+  const mensajeError = document.getElementById("mensajeErrorPasarela");
+  const tarjetaCurso = document.getElementById("tarjetaCurso");
+  const seccionPago = document.getElementById("seccionPago");
 
-<body class="d-flex flex-column min-vh-100" data-page="pasarelaDePago.html">
+  const formPago = document.getElementById("formPago");
+  const radiosMetodo = document.querySelectorAll(
+    'input[name="metodoPago"]'
+  );
 
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
-            aria-label="Navegación principal">
+  const desplegableTarjeta = document.getElementById("desplegableTarjeta");
+  const desplegableTransferencia = document.getElementById("desplegableTransferencia");
+  const btnConfirmar = document.getElementById("btnConfirmarPago");
 
-            <div class="container">
+  const inputNombre = document.getElementById("nombreTarjeta");
+  const inputNumero = document.getElementById("numeroTarjeta");
+  const inputVencimiento = document.getElementById("vencimiento");
+  const inputCvv = document.getElementById("cvv");
+  const inputComprobante = document.getElementById("comprobantePago");
+  const errorComprobante = document.getElementById("errorComprobante");
 
-                <a class="navbar-brand" href="index.html">
-                    <img src="recursos/imagenes/logo.jpg"
-                        alt="Cursos de Ciencias de la Computación"
-                        class="logo">
-                </a>
+  // CONFIGURACIÓN CLOUDINARY
+  const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
+  const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
-                <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNav"
-                    aria-controls="mainNav"
-                    aria-expanded="false"
-                    aria-label="Mostrar menú de navegación">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+  // DATOS INICIALES
+  const parametros = new URLSearchParams(window.location.search);
+  const cursoId = parametros.get("curso");
+  const adquisicionId = parametros.get("adquisicion");
 
-                <div class="collapse navbar-collapse" id="mainNav">
+  let curso = null;
+  let usuarioActual = null;
+  let adquisicionExistente = null;
+  let esPagoSaldoBeca = false;
 
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" data-page="acercaDe" href="acercaDe.html">
-                                Acerca de
-                            </a>
-                        </li>
+  // ======================================================
+  // VERIFICAR USUARIO AUTENTICADO Y ROL (ACCESO EXCLUSIVO ALUMNOS)
+  // ======================================================
+  onAuthStateChanged(auth, async (usuario) => {
+    usuarioActual = usuario;
 
-                        <li class="nav-item">
-                            <a class="nav-link" data-page="catalogo" href="catalogo.html">
-                                Catálogo de cursos
-                            </a>
-                        </li>
+    if (!usuario) {
+      mostrarAccesoDenegado("Debés iniciar sesión para acceder a la pasarela de pago.", "ingresar.html");
+      return;
+    }
 
-                        <li class="nav-item">
-                            <a class="nav-link" data-page="admin" href="beca.html">
-                                Becas
-                            </a>
-                        </li>
+    try {
+      const docRef = doc(db, "usuarios", usuario.uid);
+      const docSnap = await getDoc(docRef);
 
-                        <li class="nav-item">
-                            <a class="nav-link" data-page="contacto" href="contacto.html">
-                                Contacto
-                            </a>
-                        </li>
-                    </ul>
+      if (docSnap.exists()) {
+        const datos = docSnap.data();
+        const rol = (datos.tipoUsuario || datos.rol || "").toLowerCase().trim();
 
-                    <div class="d-flex align-items-center gap-2 logged-out d-none"
-                        id="grupIngresar">
-                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-                            Iniciar sesión
-                            <img src="recursos/iconos/ingresar.png"
-                                alt="" aria-hidden="true">
+        // Los usuarios "docente/admin" no pueden acceder a la pasarela
+        if (rol.includes("docente/admin")) {
+          mostrarAccesoDenegado("Los administradores y docentes no tienen acceso a la pasarela de pago.", "index.html");
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar permisos en pasarela:", error);
+    }
+  });
+
+  function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+    // Ocultar toda la sección principal con el título "Finalizar compra"
+    const seccionPrincipal = document.getElementById("seccionPrincipalPasarela");
+    if (seccionPrincipal) {
+      seccionPrincipal.classList.add("d-none");
+    }
+
+    if (cargando) cargando.classList.add("d-none");
+    if (seccionPago) seccionPago.classList.add("d-none");
+    if (tarjetaCurso) tarjetaCurso.classList.add("d-none");
+
+    const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+    if (!contenedorMensaje) return;
+
+    contenedorMensaje.className = "container py-5";
+    contenedorMensaje.classList.remove("d-none");
+    contenedorMensaje.innerHTML = `
+        <style>
+            @keyframes entradaSmooth {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes pulsoAtencion {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+                100% { transform: scale(1); }
+            }
+            .card-microinteraccion {
+                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            }
+            .icono-alerta-animado {
+                animation: pulsoAtencion 1.8s infinite ease-in-out;
+                display: inline-block;
+            }
+        </style>
+        <div class="row justify-content-center my-5">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                        </div>
+                        <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                        <p class="text-secondary mb-4">${mensajeTexto}</p>
+                        
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                        </div>
+
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
                         </a>
                     </div>
-
-                    <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none"
-                        id="grupoRegistrarse">
-                        <a href="registrarse.html" class="btn btn-outline-light btn-sm">
-                            Registrarse
-                            <img src="recursos/iconos/registrarse.png"
-                                alt="" aria-hidden="true">
-                        </a>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none"
-                        id="grupoUsuario">
-
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-                            type="button"
-                            id="dropdownUsuario"
-                            data-bs-toggle="dropdown"
-                            data-bs-auto-close="true"
-                            aria-expanded="false">
-
-                            <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
-                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
-                        </button>
-
-                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2"
-                            aria-labelledby="dropdownUsuario">
-
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                    href="perfil.html">
-                                    <i class="bi bi-person fs-5" aria-hidden="true"></i>
-                                    Mi perfil
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                    href="misCursos.html">
-                                    <i class="bi bi-book fs-5" aria-hidden="true"></i>
-                                    Mis cursos
-                                </a>
-                            </li>
-
-                            <li id="menuAdminCursos" class="d-none">
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                    href="administrarCurso.html">
-                                    <i class="bi bi-gear-wide-connected fs-5"
-                                        aria-hidden="true"></i>
-                                    Administrar cursos
-                                </a>
-                            </li>
-
-                            <li><hr class="dropdown-divider"></li>
-
-                            <li>
-                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2"
-                                    type="button" id="btnCerrarSesion">
-                                    <i class="bi bi-box-arrow-right fs-5"
-                                        aria-hidden="true"></i>
-                                    Cerrar sesión
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <main class="flex-grow-1">
-
-        <section class="container py-5" aria-labelledby="tituloPasarelaPago">
-
-            <header class="text-center mb-4">
-                <h1 id="tituloPasarelaPago" class="mb-3">Finalizar compra</h1>
-                <p class="text-muted">
-                    Revisá la información del curso y seleccioná el método de pago.
-                </p>
-            </header>
-
-            <div id="cargandoPasarela"
-                class="text-center py-4"
-                role="status"
-                aria-live="polite">
-                <div class="spinner-border text-primary" aria-hidden="true"></div>
-                <p class="mt-3">Cargando información del curso...</p>
-            </div>
-
-            <div id="errorPasarela" class="alert alert-danger d-none" role="alert">
-                <p id="mensajeErrorPasarela" class="mb-0"></p>
-            </div>
-
-            <div class="row justify-content-center g-4">
-
-                <div class="col-lg-5">
-                    <section class="card shadow-sm h-100"
-                        aria-labelledby="tituloResumenPago">
-
-                        <div class="card-header">
-                            <h2 id="tituloResumenPago" class="h5 mb-0">
-                                <i class="bi bi-receipt me-2" aria-hidden="true"></i>
-                                Resumen de la compra
-                            </h2>
-                        </div>
-
-                        <div class="card-body">
-                            <article id="tarjetaCurso">
-
-                                <img id="cursoImg"
-                                    class="img-fluid rounded mb-3 w-100"
-                                    src="recursos/imagenes/logo.jpg"
-                                    alt="Imagen del curso seleccionado">
-
-                                <h3 id="cursoTitulo" class="h5 mb-3">
-                                    Curso seleccionado
-                                </h3>
-
-                                <div id="detallePagoBeca"
-                                    class="alert alert-success d-none"
-                                    aria-live="polite">
-
-                                    <h3 class="h6">Beneficio de beca aplicado</h3>
-
-                                    <p class="mb-1">
-                                        Precio original:
-                                        <span id="precioOriginalBeca"></span>
-                                    </p>
-
-                                    <p class="mb-1">
-                                        Descuento:
-                                        <span id="porcentajeBeca"></span>
-                                    </p>
-
-                                    <p class="mb-0">
-                                        Importe de la beca:
-                                        <strong id="importeBeca"></strong>
-                                    </p>
-                                </div>
-
-                                <hr>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span id="etiquetaImportePago">Total a pagar:</span>
-                                    <strong id="cursoPrecio" class="fs-4 text-primary"></strong>
-                                </div>
-
-                            </article>
-
-                            <a href="catalogo.html"
-                                class="btn btn-outline-secondary w-100 mt-4">
-                                <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>
-                                Volver al catálogo
-                            </a>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="col-lg-7">
-                    <section id="seccionPago"
-                        class="card shadow-sm d-none"
-                        aria-labelledby="tituloFormularioPago">
-
-                        <div class="card-header">
-                            <h2 id="tituloFormularioPago" class="h5 mb-0">
-                                <i class="bi bi-credit-card me-2" aria-hidden="true"></i>
-                                Datos del pago
-                            </h2>
-                        </div>
-
-                        <div class="card-body">
-
-                            <form id="formPago">
-
-                                <fieldset class="mb-4">
-                                    <legend class="h6 mb-3">
-                                        Seleccioná el método de pago
-                                    </legend>
-
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input"
-                                            type="radio"
-                                            name="metodoPago"
-                                            id="metodoTarjeta"
-                                            value="tarjeta"
-                                            checked>
-
-                                        <label class="form-check-label" for="metodoTarjeta">
-                                            <i class="bi bi-credit-card me-2"
-                                                aria-hidden="true"></i>
-                                            Tarjeta de crédito o débito
-                                        </label>
-                                    </div>
-
-                                    <div class="form-check">
-                                        <input class="form-check-input"
-                                            type="radio"
-                                            name="metodoPago"
-                                            id="metodoTransferencia"
-                                            value="transferencia">
-
-                                        <label class="form-check-label"
-                                            for="metodoTransferencia">
-                                            <i class="bi bi-bank me-2"
-                                                aria-hidden="true"></i>
-                                            Transferencia bancaria
-                                        </label>
-                                    </div>
-                                </fieldset>
-
-                                <section id="desplegableTarjeta"
-                                    aria-labelledby="tituloDatosTarjeta">
-
-                                    <h3 id="tituloDatosTarjeta" class="h6 mb-3">
-                                        Información de la tarjeta
-                                    </h3>
-
-                                    <div class="mb-3">
-                                        <label for="nombreTarjeta" class="form-label">
-                                            Nombre del titular
-                                        </label>
-
-                                        <input type="text"
-                                            class="form-control"
-                                            id="nombreTarjeta"
-                                            name="nombreTarjeta"
-                                            autocomplete="cc-name"
-                                            placeholder="Nombre del titular">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="numeroTarjeta" class="form-label">
-                                            Número de tarjeta
-                                        </label>
-
-                                        <input type="text"
-                                            class="form-control"
-                                            id="numeroTarjeta"
-                                            name="numeroTarjeta"
-                                            inputmode="numeric"
-                                            autocomplete="cc-number"
-                                            placeholder="Número de tarjeta">
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-6 mb-3">
-                                            <label for="vencimiento" class="form-label">
-                                                Vencimiento
-                                            </label>
-
-                                            <input type="text"
-                                                class="form-control"
-                                                id="vencimiento"
-                                                name="vencimiento"
-                                                autocomplete="cc-exp"
-                                                placeholder="MM/AA">
-                                        </div>
-
-                                        <div class="col-sm-6 mb-3">
-                                            <label for="cvv" class="form-label">
-                                                Código de seguridad
-                                            </label>
-
-                                            <input type="password"
-                                                class="form-control"
-                                                id="cvv"
-                                                name="cvv"
-                                                inputmode="numeric"
-                                                autocomplete="cc-csc"
-                                                placeholder="CVV">
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <section id="desplegableTransferencia"
-                                    class="d-none"
-                                    aria-labelledby="tituloDatosTransferencia">
-
-                                    <h3 id="tituloDatosTransferencia" class="h6 mb-3">
-                                        Comprobante de transferencia
-                                    </h3>
-
-                                    <p>
-                                        Adjuntá una imagen del comprobante para enviar
-                                        la solicitud de verificación.
-                                    </p>
-
-                                    <div class="mb-3">
-                                        <label for="comprobantePago" class="form-label">
-                                            Seleccionar comprobante
-                                        </label>
-
-                                        <input type="file"
-                                            class="form-control"
-                                            id="comprobantePago"
-                                            name="comprobantePago"
-                                            accept=".jpg,.jpeg,.png,image/jpeg,image/png">
-
-                                        <div class="form-text">
-                                            Formatos permitidos: JPG o PNG.
-                                        </div>
-                                    </div>
-
-                                    <div id="errorComprobante"
-                                        class="alert alert-danger d-none"
-                                        role="alert">
-                                        El archivo debe ser una imagen JPG o PNG.
-                                    </div>
-                                </section>
-
-                                <div id="mensajeErrorPago"
-                                    class="alert alert-danger d-none"
-                                    role="alert"></div>
-
-                                <hr>
-
-                                <div class="d-grid gap-2">
-                                    <button type="submit"
-                                        id="btnConfirmarPago"
-                                        class="btn btn-primary btn-lg"
-                                        disabled>
-                                        <i class="bi bi-lock-fill me-2"
-                                            aria-hidden="true"></i>
-                                        Confirmar pago
-                                    </button>
-
-                                    <p class="small text-muted text-center mb-0">
-                                        Revisá los datos antes de confirmar.
-                                    </p>
-                                </div>
-
-                            </form>
-                        </div>
-                    </section>
-                </div>
-
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer mt-auto">
-        <div class="container py-4">
-
-            <div class="row g-4">
-
-                <section class="col-lg-5" aria-labelledby="tituloFooterCursos">
-                    <h2 id="tituloFooterCursos" class="h5">
-                        Cursos de Ciencias de la Computación
-                    </h2>
-                    <p>
-                        Formación y recursos para desarrollar habilidades digitales.
-                    </p>
-                </section>
-
-                <nav class="col-lg-3" aria-labelledby="tituloFooterEnlaces">
-                    <h2 id="tituloFooterEnlaces" class="h5">Enlaces</h2>
-                    <ul class="list-unstyled">
-                        <li>
-                            <a href="politicaDePrivacidad.html">
-                                Política de privacidad
-                            </a>
-                        </li>
-                        <li>
-                            <a href="contacto.html">Contacto</a>
-                        </li>
-                    </ul>
-                </nav>
-
-                <section class="col-lg-4" aria-labelledby="tituloFooterRedes">
-                    <h2 id="tituloFooterRedes" class="h5">Redes sociales</h2>
-
-                    <nav class="footer-social" aria-label="Redes sociales">
-                        <a href="https://www.facebook.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Facebook">
-                            <i class="bi bi-facebook" aria-hidden="true"></i>
-                        </a>
-
-                        <a href="https://www.instagram.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Instagram">
-                            <i class="bi bi-instagram" aria-hidden="true"></i>
-                        </a>
-
-                        <a href="https://www.youtube.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="YouTube">
-                            <i class="bi bi-youtube" aria-hidden="true"></i>
-                        </a>
-
-                        <a href="https://www.linkedin.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="LinkedIn">
-                            <i class="bi bi-linkedin" aria-hidden="true"></i>
-                        </a>
-                    </nav>
-                </section>
-
-            </div>
-
-            <hr>
-
-            <p class="footer-copy mb-0">
-                <img src="recursos/iconos/derechosAutor.png"
-                    alt="" aria-hidden="true">
-                2026 - Taller Integrador de Sistemas
-            </p>
         </div>
-    </footer>
+    `;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js" type="module"></script>
-    <script src="js/pasarelaDePago.js" type="module"></script>
+    setTimeout(() => {
+      window.location.href = destinoRedireccion;
+    }, 3500);
+  }
 
-</body>
-</html>
-```
+  // VERIFICAR ID DEL CURSO
+  if (!cursoId) {
+    if (cargando) cargando.classList.add("d-none");
+    if (errorBox && mensajeError) {
+      mensajeError.textContent = "No se especificó ningún curso para realizar el pago.";
+      errorBox.classList.remove("d-none");
+    }
+    return;
+  }
+
+  // CARGAR CURSO DESDE FIRESTORE
+  try {
+    if (adquisicionId) {
+      const adquisicionRef = doc(db, "adquisiciones", adquisicionId);
+      const adquisicionSnap = await getDoc(adquisicionRef);
+
+      if (!adquisicionSnap.exists()) throw new Error("ADQUISICION_NO_EXISTE");
+
+      adquisicionExistente = { id: adquisicionSnap.id, ...adquisicionSnap.data() };
+      const usuario = auth.currentUser;
+
+      if (!usuario || adquisicionExistente.usuarioId !== usuario.uid) throw new Error("ADQUISICION_NO_AUTORIZADA");
+      if (adquisicionExistente.cursoId !== cursoId) throw new Error("CURSO_NO_COINCIDE");
+      if (
+        adquisicionExistente.metodoPago !== "beca" ||
+        Number(adquisicionExistente.saldoPendiente) <= 0 ||
+        adquisicionExistente.estadoPagoSaldo === "pagado"
+      ) throw new Error("SALDO_NO_PENDIENTE");
+
+      esPagoSaldoBeca = true;
+    }
+
+    const cursoRef = doc(db, "cursoscc", cursoId);
+    const docSnap = await getDoc(cursoRef);
+
+    if (!docSnap.exists()) {
+      if (cargando) cargando.classList.add("d-none");
+      if (errorBox && mensajeError) {
+        mensajeError.textContent = "El curso solicitado no existe o fue desactivado.";
+        errorBox.classList.remove("d-none");
+      }
+      return;
+    }
+
+    curso = docSnap.data();
+
+    const formatoUYU = (importe) =>
+      Number(importe).toLocaleString("es-UY", { style: "currency", currency: "UYU" });
+
+    if (esPagoSaldoBeca) {
+      const saldoPendiente = Number(adquisicionExistente.saldoPendiente);
+      if (!Number.isFinite(saldoPendiente) || saldoPendiente <= 0) throw new Error("SALDO_NO_PENDIENTE");
+
+      const detalleBeca = document.getElementById("detallePagoBeca");
+      const precioOriginalBeca = document.getElementById("precioOriginalBeca");
+      const porcentajeBeca = document.getElementById("porcentajeBeca");
+      const importeBeca = document.getElementById("importeBeca");
+      const etiquetaImportePago = document.getElementById("etiquetaImportePago");
+
+      if (detalleBeca) detalleBeca.classList.remove("d-none");
+      if (precioOriginalBeca) precioOriginalBeca.textContent = formatoUYU(adquisicionExistente.precio);
+      if (porcentajeBeca) porcentajeBeca.textContent = `${adquisicionExistente.porcentajeBeca}%`;
+      if (importeBeca) importeBeca.textContent = formatoUYU(adquisicionExistente.importeBeca);
+      if (etiquetaImportePago) etiquetaImportePago.textContent = "Saldo pendiente a abonar:";
+    }
+
+    const elTitulo = document.getElementById("cursoTitulo");
+    const elPrecio = document.getElementById("cursoPrecio");
+    const elImg = document.getElementById("cursoImg");
+
+    if (elTitulo) elTitulo.textContent = curso.titulo || curso.nombre || "Curso sin título";
+
+    if (elPrecio) {
+      const importeAMostrar = esPagoSaldoBeca
+        ? Number(adquisicionExistente.saldoPendiente)
+        : Number(curso.precio || 0);
+
+      elPrecio.textContent = formatoUYU(importeAMostrar);
+    }
+
+    if (elImg) {
+      const rutaImagen = curso.URL_imagen ?? curso.imagen_url;
+      elImg.src = rutaImagen ? rutaImagen : "recursos/imagenes/logo.jpg";
+      elImg.alt = curso.titulo || "Cursos CC";
+    }
+
+    if (cargando) cargando.classList.add("d-none");
+    if (tarjetaCurso) tarjetaCurso.classList.remove("d-none");
+    if (seccionPago) seccionPago.classList.remove("d-none");
+
+  } catch (error) {
+    console.error("Error al consultar el curso desde Firestore:", error);
+    if (cargando) cargando.classList.add("d-none");
+    if (errorBox && mensajeError) {
+      mensajeError.textContent = "Ocurrió un error al cargar la información de pago. Intente nuevamente.";
+      errorBox.classList.remove("d-none");
+    }
+    return;
+  }
+
+  // CAMBIO DE MÉTODO DE PAGO
+  radiosMetodo.forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      if (desplegableTarjeta) desplegableTarjeta.classList.add("d-none");
+      if (desplegableTransferencia) desplegableTransferencia.classList.add("d-none");
+
+      const metodo = e.target.value;
+      if (metodo === "tarjeta" && desplegableTarjeta) desplegableTarjeta.classList.remove("d-none");
+      else if (metodo === "transferencia" && desplegableTransferencia) desplegableTransferencia.classList.remove("d-none");
+
+      validarFormulario();
+    });
+  });
+
+  // VALIDACIONES E INPUTS
+  function aplicarClasesValidacion(input, esValido) {
+    if (!input) return;
+    if (input.value.trim() === "") {
+      input.classList.remove("is-valid", "is-invalid");
+      return;
+    }
+    if (esValido) {
+      input.classList.add("is-valid");
+      input.classList.remove("is-invalid");
+    } else {
+      input.classList.add("is-invalid");
+      input.classList.remove("is-valid");
+    }
+  }
+
+  function esVencimientoValido(vencimientoTexto) {
+    if (!vencimientoTexto || vencimientoTexto.length !== 5) return false;
+    const [mesTexto, anioTexto] = vencimientoTexto.split("/");
+    const mes = parseInt(mesTexto, 10);
+    const anio2D = parseInt(anioTexto, 10);
+
+    if (isNaN(mes) || mes < 1 || mes > 12 || isNaN(anio2D)) return false;
+
+    const anioIngresado = 2000 + anio2D;
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth() + 1;
+
+    if (anioIngresado < anioActual) return false;
+    if (anioIngresado === anioActual && mes < mesActual) return false;
+
+    return true;
+  }
+
+  if (inputNombre) {
+    inputNombre.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+      validarFormulario();
+    });
+  }
+
+  if (inputNumero) {
+    inputNumero.addEventListener("input", (e) => {
+      let valor = e.target.value.replace(/\D/g, "").substring(0, 16);
+      e.target.value = valor.replace(/(.{4})/g, "$1 ").trim();
+      validarFormulario();
+    });
+  }
+
+  if (inputVencimiento) {
+    inputVencimiento.addEventListener("input", (e) => {
+      let valor = e.target.value.replace(/\D/g, "");
+      if (valor.length >= 3) valor = valor.substring(0, 2) + "/" + valor.substring(2, 4);
+      e.target.value = valor.substring(0, 5);
+      validarFormulario();
+    });
+  }
+
+  if (inputCvv) {
+    inputCvv.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "").substring(0, 4);
+      validarFormulario();
+    });
+  }
+
+  if (inputComprobante) {
+    inputComprobante.addEventListener("change", () => {
+      const archivo = inputComprobante.files[0];
+      if (!archivo) {
+        validarFormulario();
+        return;
+      }
+      const tiposPermitidos = ["image/jpeg", "image/png", "image/jpg"];
+      if (!tiposPermitidos.includes(archivo.type)) {
+        if (errorComprobante) errorComprobante.classList.remove("d-none");
+        inputComprobante.value = "";
+      } else {
+        if (errorComprobante) errorComprobante.classList.add("d-none");
+      }
+      validarFormulario();
+    });
+  }
+
+  function validarFormulario() {
+    if (!btnConfirmar) return;
+    const radioSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
+    if (!radioSeleccionado) {
+      btnConfirmar.disabled = true;
+      return;
+    }
+
+    const metodo = radioSeleccionado.value;
+
+    if (metodo === "tarjeta") {
+      const nombreTexto = inputNombre ? inputNombre.value.trim() : "";
+      const nombreValido = nombreTexto.length >= 3 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombreTexto);
+      const numeroLimpio = inputNumero ? inputNumero.value.replace(/\s/g, "") : "";
+      const numeroValido = numeroLimpio.length === 16;
+      const vencimientoValido = inputVencimiento && esVencimientoValido(inputVencimiento.value.trim());
+      const cvvValido = inputCvv && inputCvv.value.trim().length >= 3;
+
+      aplicarClasesValidacion(inputNombre, nombreValido);
+      aplicarClasesValidacion(inputNumero, numeroValido);
+      aplicarClasesValidacion(inputVencimiento, vencimientoValido);
+      aplicarClasesValidacion(inputCvv, cvvValido);
+
+      btnConfirmar.disabled = !(nombreValido && numeroValido && vencimientoValido && cvvValido);
+    } else if (metodo === "transferencia") {
+      const archivo = inputComprobante ? inputComprobante.files[0] : null;
+      const tieneComprobanteValido = archivo && ["image/jpeg", "image/png", "image/jpg"].includes(archivo.type);
+      btnConfirmar.disabled = !tieneComprobanteValido;
+    }
+  }
+
+  async function subirComprobanteACloudinary(archivo) {
+    if (!archivo) throw new Error("NO_HAY_COMPROBANTE");
+    const formulario = new FormData();
+    formulario.append("file", archivo);
+    formulario.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const respuesta = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formulario }
+    );
+
+    if (!respuesta.ok) throw new Error("ERROR_CLOUDINARY");
+    const datos = await respuesta.json();
+    if (!datos.secure_url) throw new Error("URL_COMPROBANTE_NO_GENERADA");
+    return datos.secure_url;
+  }
+
+  // PROCESAR FORMULARIO DE PAGO
+  if (formPago) {
+    formPago.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const usuario = auth.currentUser;
+
+      if (!usuario) {
+        alert("Debés iniciar sesión para realizar la compra.");
+        window.location.href = "ingresar.html";
+        return;
+      }
+
+      const metodo = document.querySelector('input[name="metodoPago"]:checked')?.value;
+      if (!metodo) {
+        alert("Seleccioná un método de pago.");
+        return;
+      }
+
+      let estado = metodo === "transferencia" ? "pendiente" : "aprobada";
+
+      btnConfirmar.disabled = true;
+      btnConfirmar.textContent = "Procesando...";
+
+      try {
+        const datosAdquisicion = {
+          usuarioId: usuario.uid,
+          usuarioCorreo: usuario.email || "",
+          cursoId: cursoId,
+          cursoTitulo: curso.titulo || curso.nombre || "Curso sin título",
+          precio: Number(curso.precio || 0),
+          metodoPago: metodo,
+          fechaAdquisicion: serverTimestamp(),
+          estado: estado
+        };
+
+        if (metodo === "tarjeta") {
+          if (esPagoSaldoBeca) {
+            const referenciaAdquisicion = doc(db, "adquisiciones", adquisicionId);
+            await runTransaction(db, async (transaccion) => {
+              const resultadoAdquisicion = await transaccion.get(referenciaAdquisicion);
+              if (!resultadoAdquisicion.exists()) throw new Error("ADQUISICION_NO_EXISTE");
+
+              const datosActuales = resultadoAdquisicion.data();
+              if (
+                datosActuales.usuarioId !== usuario.uid ||
+                datosActuales.cursoId !== cursoId ||
+                datosActuales.metodoPago !== "beca"
+              ) throw new Error("ADQUISICION_NO_AUTORIZADA");
+
+              if (
+                datosActuales.estadoPagoSaldo === "pagado" ||
+                Number(datosActuales.saldoPendiente) <= 0
+              ) throw new Error("SALDO_NO_PENDIENTE");
+
+              transaccion.update(referenciaAdquisicion, {
+                saldoPendiente: 0,
+                estadoPagoSaldo: "pagado",
+                estado: "aprobada",
+                metodoPagoSaldo: "tarjeta",
+                fechaPagoSaldo: serverTimestamp()
+              });
+            });
+
+            window.location.href = `comprobanteCompra.html?id=${adquisicionId}`;
+            return;
+          }
+
+          const referenciaAdquisicion = doc(collection(db, "adquisiciones"));
+          const referenciaCurso = doc(db, "cursoscc", cursoId);
+
+          await runTransaction(db, async (transaccion) => {
+            const resultadoCurso = await transaccion.get(referenciaCurso);
+            if (!resultadoCurso.exists()) throw new Error("CURSO_NO_EXISTE");
+
+            const datosCurso = resultadoCurso.data();
+            const cuposActuales = Number(datosCurso.cupos_disponibles || 0);
+            if (cuposActuales <= 0) throw new Error("SIN_CUPOS");
+
+            transaccion.update(referenciaCurso, {
+              cupos_disponibles: cuposActuales - 1
+            });
+
+            transaccion.set(referenciaAdquisicion, datosAdquisicion);
+          });
+
+          window.location.href = `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
+          return;
+        }
+
+        if (metodo === "transferencia") {
+          const archivo = inputComprobante?.files?.[0];
+          if (!archivo) throw new Error("NO_HAY_COMPROBANTE");
+
+          const comprobanteUrl = await subirComprobanteACloudinary(archivo);
+
+          if (esPagoSaldoBeca) {
+            const referenciaAdquisicion = doc(db, "adquisiciones", adquisicionId);
+            await runTransaction(db, async (transaccion) => {
+              const resultadoAdquisicion = await transaccion.get(referenciaAdquisicion);
+              if (!resultadoAdquisicion.exists()) throw new Error("ADQUISICION_NO_EXISTE");
+
+              const datosActuales = resultadoAdquisicion.data();
+              if (
+                datosActuales.usuarioId !== usuario.uid ||
+                datosActuales.cursoId !== cursoId ||
+                datosActuales.metodoPago !== "beca"
+              ) throw new Error("ADQUISICION_NO_AUTORIZADA");
+
+              if (
+                datosActuales.estadoPagoSaldo === "pagado" ||
+                Number(datosActuales.saldoPendiente) <= 0
+              ) throw new Error("SALDO_NO_PENDIENTE");
+
+              transaccion.update(referenciaAdquisicion, {
+                comprobanteUrl: comprobanteUrl,
+                comprobanteNombre: archivo.name,
+                metodoPagoSaldo: "transferencia",
+                estadoPagoSaldo: "pendiente",
+                fechaEnvioComprobanteSaldo: serverTimestamp()
+              });
+            });
+
+            alert("El comprobante fue enviado. El saldo seguirá pendiente hasta que se verifique la transferencia.");
+            window.location.href = `comprobanteCompra.html?id=${adquisicionId}`;
+            return;
+          }
+
+          datosAdquisicion.comprobanteUrl = comprobanteUrl;
+          datosAdquisicion.comprobanteNombre = archivo.name;
+
+          const referenciaAdquisicion = await addDoc(
+            collection(db, "adquisiciones"),
+            datosAdquisicion
+          );
+
+          window.location.href = `comprobanteCompra.html?id=${referenciaAdquisicion.id}`;
+          return;
+        }
+      } catch (error) {
+        console.error("Error al registrar la adquisición:", error);
+        if (error.message === "SIN_CUPOS") alert("Este curso ya no tiene cupos disponibles.");
+        else if (error.message === "ERROR_CLOUDINARY") alert("No fue posible subir el comprobante. Intentá nuevamente.");
+        else if (error.message === "URL_COMPROBANTE_NO_GENERADA") alert("No se pudo obtener la URL del comprobante. Intentá nuevamente.");
+        else if (error.message === "NO_HAY_COMPROBANTE") alert("Debés seleccionar un comprobante válido.");
+        else if (error.message === "ADQUISICION_NO_EXISTE") alert("No se encontró la adquisición que intentás pagar.");
+        else if (error.message === "ADQUISICION_NO_AUTORIZADA") alert("No tenés autorización para pagar esta adquisición.");
+        else if (error.message === "SALDO_NO_PENDIENTE") alert("Esta adquisición no tiene un saldo pendiente.");
+        else alert("No fue posible registrar el pago. Verificá los permisos de Firestore e intentá nuevamente.");
+
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar pago";
+      }
+    });
+  }
+
+});

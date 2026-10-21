@@ -42,7 +42,6 @@ if (!cursoId) {
             const datosCert = resCertificado.data();
             const notaObtenida = Number(datosCert.nota ?? 0);
 
-            // Definimos la nota mínima de aprobación (ej: 6)
             const NOTA_MINIMA = 6;
 
             if (notaObtenida < NOTA_MINIMA) {

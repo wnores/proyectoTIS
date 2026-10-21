@@ -1,10 +1,24 @@
-import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { auth } from "./firebase-config.js";
 
+const contenedorPrincipalVista = document.querySelector("#contenedorPrincipalVista");
 const recoverForm = document.querySelector("#recoverForm");
 const emailInput = document.querySelector("#email");
 const messageBox = document.querySelector("#messageBox");
 const btnSubmit = document.querySelector("#btnSubmit");
+
+// Control de acceso según sesión iniciada
+onAuthStateChanged(auth, (usuario) => {
+    if (usuario) {
+        // Redirigir al inicio si ya hay una sesión activa
+        window.location.replace("index.html");
+    } else {
+        // Mostrar la vista solo si NO hay sesión
+        if (contenedorPrincipalVista) {
+            contenedorPrincipalVista.classList.remove("d-none");
+        }
+    }
+});
 
 recoverForm.addEventListener("submit", async (event) => {
     event.preventDefault();

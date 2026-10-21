@@ -53,14 +53,78 @@ let urlVistaPrevia = null;
 iniciarPagina();
 
 /**
+ * Muestra la tarjeta animada de acceso restringido y redirige al usuario.
+ */
+function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+  if (contenidoAdministrador) {
+    contenidoAdministrador.classList.add("d-none");
+  }
+
+  const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+  if (!contenedorMensaje) return;
+
+  contenedorMensaje.className = "container py-5";
+  contenedorMensaje.classList.remove("d-none");
+  contenedorMensaje.innerHTML = `
+      <style>
+          @keyframes entradaSmooth {
+              0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+              100% { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes pulsoAtencion {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.08); }
+              100% { transform: scale(1); }
+          }
+          .card-microinteraccion {
+              animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+              border-radius: 1rem;
+              background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+          }
+          .icono-alerta-animado {
+              animation: pulsoAtencion 1.8s infinite ease-in-out;
+              display: inline-block;
+          }
+      </style>
+      <div class="row justify-content-center my-5">
+          <div class="col-12 col-md-8 col-lg-6">
+              <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                  <div class="card-body">
+                      <div class="mb-3">
+                          <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                              <i class="bi bi-shield-lock-fill"></i>
+                          </span>
+                      </div>
+                      <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                      <p class="text-secondary mb-4">${mensajeTexto}</p>
+                      
+                      <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                          <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                      </div>
+
+                      <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                          <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  `;
+
+  setTimeout(() => {
+    window.location.href = destinoRedireccion;
+  }, 3500);
+}
+
+/**
  * Valida la sesión y el rol del usuario.
- * Permite el acceso a administradores y docentes.
+ * Permite el acceso exclusivo a administradores y docentes.
  */
 function iniciarPagina() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      alert("Debés iniciar sesión para acceder.");
-      window.location.href = "ingresar.html";
+      mostrarAccesoDenegado("Debés iniciar sesión para publicar un curso.", "ingresar.html");
       return;
     }
 
@@ -69,7 +133,7 @@ function iniciarPagina() {
       const documentoUsuario = await getDoc(referenciaUsuario);
 
       if (!documentoUsuario.exists()) {
-        window.location.href = "catalogo.html";
+        mostrarAccesoDenegado("No se encontraron datos de usuario registrados.", "catalogo.html");
         return;
       }
 
@@ -88,12 +152,11 @@ function iniciarPagina() {
 
         await cargarCategorias();
       } else {
-        alert("No tenés permiso para crear cursos.");
-        window.location.href = "catalogo.html";
+        mostrarAccesoDenegado("Solo los docentes y administradores tienen acceso para crear y publicar cursos.", "catalogo.html");
       }
     } catch (error) {
       console.error("Error al validar sesión y rol:", error);
-      window.location.href = "catalogo.html";
+      mostrarAccesoDenegado("Ocurrió un error al verificar tus permisos de acceso.", "catalogo.html");
     }
   });
 }
@@ -507,7 +570,6 @@ if (formPublicarCurso) {
           await subirImagenACloudinary(archivoImagenCurso);
       }
 
-      // Guarda los datos generales del curso.
       const referenciaCurso = await addDoc(
         collection(db, "cursoscc"),
         {
@@ -525,7 +587,6 @@ if (formPublicarCurso) {
         }
       );
 
-      // Guarda los módulos en la subcolección del curso.
       const referenciaModulos = collection(
         db,
         "cursoscc",
@@ -561,7 +622,6 @@ if (formPublicarCurso) {
         vistaPreviaCurso.removeAttribute("src");
       }
 
-      // Conserva el primer módulo y elimina los demás.
       const modulosAgregados =
         contenedorModulos.querySelectorAll(
           ".modulo-item:not(:first-child)"

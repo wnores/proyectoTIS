@@ -124,8 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoriasUnicas = new Set();
     
     todosLosCursos.forEach(curso => {
-      if (curso.categoria) {
-        categoriasUnicas.add(curso.categoria);
+      const cat = curso.categoria || curso.categorias;
+      if (Array.isArray(cat)) {
+        cat.forEach(c => c && categoriasUnicas.add(c.trim()));
+      } else if (typeof cat === 'string' && cat.trim()) {
+        categoriasUnicas.add(cat.trim());
       }
     });
 
@@ -150,11 +153,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const descripcion = normalizarTexto(curso.descripcion ?? "");
       const coincideTexto = titulo.includes(texto) || descripcion.includes(texto);
       
-      const categoriaCursoSlug = normalizarTexto(curso.categoria ?? "").replace(/\s+/g, '-');
+      // Obtener las categorías del curso
+      let categoriasDelCurso = [];
+      const catField = curso.categoria || curso.categorias;
+      if (Array.isArray(catField)) {
+        categoriasDelCurso = catField.map(c => normalizarTexto(c).replace(/\s+/g, '-'));
+      } else if (typeof catField === 'string' && catField.trim()) {
+        categoriasDelCurso = [normalizarTexto(catField).replace(/\s+/g, '-')];
+      }
+
       const coincideCategoria = !categoriaSeleccionada || 
                                  categoriaSeleccionada === "todas" || 
-                                 categoriaCursoSlug.includes(categoriaSeleccionada) ||
-                                 obtenerCategoria(curso) === categoriaSeleccionada;
+                                 categoriasDelCurso.includes(categoriaSeleccionada);
 
       return coincideTexto && coincideCategoria;
     });
@@ -293,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const categoriaEl = tarjeta.querySelector('.js-categoria');
     if (categoriaEl) {
-      categoriaEl.textContent = curso.categoria ?? 'Sin categoría';
+      categoriaEl.textContent = Array.isArray(curso.categoria) ? curso.categoria.join(', ') : (curso.categoria ?? 'Sin categoría');
     }
 
     tarjeta.querySelector('.js-titulo').textContent = curso.titulo ?? 'Sin título';
@@ -303,8 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnVerMas = tarjeta.querySelector('.js-ver-curso');
     
-    // Si el usuario es admin o docente, va a ver la estructura directamente a contenidoCurso.html
-    // Si es estudiante o visitante sin loguear, va a la ficha de compra/descripción
     if (rolUsuario.includes("admin") || rolUsuario.includes("docente")) {
       btnVerMas.href = `contenidoCurso.html?id=${curso.id}`;
     } else {
@@ -314,34 +322,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return tarjeta;
   }
 
-  function obtenerCategoria(curso) {
-    const categoria = normalizarTexto(curso.categoria ?? "");
-    const titulo = normalizarTexto(curso.titulo ?? "");
-
-    if (categoria.includes('desarrollo web') || titulo.includes('desarrollo web')) return "desarrollo-web";
-    if (categoria.includes('inteligencia artificial') || titulo.includes("inteligencia artificial") || titulo.includes("machine learning")) return "inteligencia-artificial";
-    if (categoria.includes('base de datos') || titulo.includes("base de datos") || titulo.includes('mysql')) return "base-datos";
-    if (categoria.includes('ofimatica') || titulo.includes('excel') || titulo.includes('word')) return "ofimatica";
-    if (categoria.includes('hardware') || titulo.includes('electronica') || titulo.includes('micro:bit') || titulo.includes('scratch')) return "hardware-electronica";
-    
-    return "programacion";
-  }
-
   function obtenerCategoriaVisual(curso) {
-    const categoria = obtenerCategoria(curso);
-    const configuraciones = {
-      "programacion": { claseCategoria: 'categoria-programacion', icono: '💻' },
-      "desarrollo-web": { claseCategoria: 'categoria-web', icono: '🌐' },
-      "inteligencia-artificial": { claseCategoria: 'categoria-ia', icono: '🤖' },
-      "base-datos": { claseCategoria: 'categoria-datos', icono: '🗄️' },
-      "ofimatica": { claseCategoria: 'categoria-ofimatica', icono: '📊' },
-      "hardware-electronica": { claseCategoria: 'categoria-hardware', icono: '🔌' }
-    };
-    return configuraciones[categoria] || configuraciones["programacion"];
+    const catStr = normalizarTexto(curso.categoria ?? "");
+    if (catStr.includes('web')) return { claseCategoria: 'categoria-web', icono: '🌐' };
+    if (catStr.includes('inteligencia') || catStr.includes('ia')) return { claseCategoria: 'categoria-ia', icono: '🤖' };
+    if (catStr.includes('base') || catStr.includes('datos')) return { claseCategoria: 'categoria-datos', icono: '🗄️' };
+    if (catStr.includes('ofim') || catStr.includes('excel')) return { claseCategoria: 'categoria-ofimatica', icono: '📊' };
+    if (catStr.includes('hardware') || catStr.includes('robotica')) return { claseCategoria: 'categoria-hardware', icono: '🔌' };
+    
+    return { claseCategoria: 'categoria-programacion', icono: '💻' };
   }
 
   function normalizarTexto(texto) {
-    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (!texto) return "";
+    return texto.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
   function mostrarMensaje(texto) {

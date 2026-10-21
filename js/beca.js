@@ -1,9 +1,7 @@
 import { auth, db } from './firebase-config.js';
-
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
 import {
     collection,
     addDoc,
@@ -14,7 +12,6 @@ import {
     getDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
 
 function obtenerCursoDesdeURL() {
     const parametros = new URLSearchParams(window.location.search);
@@ -44,10 +41,8 @@ async function controlarAccesoBoton(usuario) {
         return;
     }
 
-    // El botón siempre se mantiene visible
     botonSolicitar.hidden = false;
 
-    // Si no hay sesión iniciada, dejar desactivado
     if (!usuario) {
         botonSolicitar.disabled = true;
         return;
@@ -64,7 +59,6 @@ async function controlarAccesoBoton(usuario) {
 
         const esEstudiante = rol === "estudiante";
 
-        // Se desactiva si NO es estudiante (por ejemplo docente/admin)
         botonSolicitar.disabled = !esEstudiante;
 
     } catch (error) {

@@ -13,6 +13,7 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+const contenidoPerfil = document.getElementById("contenidoPerfil");
 
 function normalizarDepartamento(departamento) {
     if (!departamento) return "";
@@ -35,7 +36,7 @@ function normalizarDepartamento(departamento) {
         salto: "Salto",
         sanjose: "San José",
         soriano: "Soriano",
-        tacuarembo: "Tacuarembó",
+        tacuarembo: "Tacuarembo",
         treintaytres: "Treinta y Tres"
     };
 
@@ -74,8 +75,69 @@ const departamentosUruguay = [
     "Treinta y Tres"
 ];
 
-function cargarDatosEnPerfil(datosUsuario, user) {
+function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+    if (contenidoPerfil) {
+        contenidoPerfil.classList.add("d-none");
+    }
 
+    const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+    if (!contenedorMensaje) return;
+
+    contenedorMensaje.className = "container py-5";
+    contenedorMensaje.classList.remove("d-none");
+    contenedorMensaje.innerHTML = `
+        <style>
+            @keyframes entradaSmooth {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes pulsoAtencion {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+                100% { transform: scale(1); }
+            }
+            .card-microinteraccion {
+                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            }
+            .icono-alerta-animado {
+                animation: pulsoAtencion 1.8s infinite ease-in-out;
+                display: inline-block;
+            }
+        </style>
+        <div class="row justify-content-center my-5">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                        </div>
+                        <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                        <p class="text-secondary mb-4">${mensajeTexto}</p>
+                        
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                        </div>
+
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        window.location.href = destinoRedireccion;
+    }, 3500);
+}
+
+function cargarDatosEnPerfil(datosUsuario, user) {
     const nombre = document.getElementById("perfilNombre");
     if (nombre) {
         nombre.textContent = datosUsuario.nombre || "";
@@ -92,10 +154,8 @@ function cargarDatosEnPerfil(datosUsuario, user) {
     }
 
     const departamento = document.getElementById("perfilDepartamento");
-
     if (departamento) {
-        departamento.textContent =
-            normalizarDepartamento(datosUsuario.departamento);
+        departamento.textContent = normalizarDepartamento(datosUsuario.departamento);
     }
 
     const tipoDocumento = document.getElementById("perfilTipoDocumento");
@@ -115,20 +175,15 @@ function cargarDatosEnPerfil(datosUsuario, user) {
         rolPerfil.textContent = rolUsuario;
     }
 
-    // Nombre y rol debajo de la foto
-    const avatarWrapper = document.querySelector(".avatar-wrapper");
-    if (avatarWrapper) {
-        const contenedor = avatarWrapper.parentElement;
-        const nombreCompleto = contenedor.querySelector("h5");
-        const rol = nombreCompleto?.nextElementSibling;
+    // Cargar Nombre y Rol directamente debajo de la foto
+    const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+    if (perfilNombreFoto) {
+        perfilNombreFoto.textContent = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
+    }
 
-        if (nombreCompleto) {
-            nombreCompleto.textContent = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
-        }
-
-        if (rol) {
-            rol.textContent = rolUsuario;
-        }
+    const perfilRolFoto = document.getElementById("perfilRolFoto");
+    if (perfilRolFoto) {
+        perfilRolFoto.textContent = rolUsuario;
     }
 
     // Foto de perfil
@@ -151,7 +206,6 @@ function cargarDatosEnPerfil(datosUsuario, user) {
 }
 
 function editarNombre(user, referenciaUsuario) {
-
     const modalElemento = document.getElementById("modalEditarNombre");
     const inputNombre = document.getElementById("inputNuevoNombre");
     const btnGuardar = document.getElementById("btnGuardarNombre");
@@ -186,9 +240,9 @@ function editarNombre(user, referenciaUsuario) {
 
             document.getElementById("perfilNombre").textContent = nombreLimpio;
 
-            const nombreFoto = document.querySelector(".avatar-wrapper")?.parentElement?.querySelector("h5");
-            if (nombreFoto) {
-                nombreFoto.textContent = nombreCompleto;
+            const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+            if (perfilNombreFoto) {
+                perfilNombreFoto.textContent = nombreCompleto;
             }
 
             const nombreNavbar = document.getElementById("nombreUsuario");
@@ -210,7 +264,6 @@ function editarNombre(user, referenciaUsuario) {
 }
 
 function editarApellido(user, referenciaUsuario) {
-
     const modalElemento = document.getElementById("modalEditarApellido");
     const inputApellido = document.getElementById("inputNuevoApellido");
     const btnGuardar = document.getElementById("btnGuardarApellido");
@@ -245,9 +298,9 @@ function editarApellido(user, referenciaUsuario) {
 
             document.getElementById("perfilApellido").textContent = apellidoLimpio;
 
-            const nombreFoto = document.querySelector(".avatar-wrapper")?.parentElement?.querySelector("h5");
-            if (nombreFoto) {
-                nombreFoto.textContent = nombreCompleto;
+            const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+            if (perfilNombreFoto) {
+                perfilNombreFoto.textContent = nombreCompleto;
             }
 
             const nombreNavbar = document.getElementById("nombreUsuario");
@@ -269,7 +322,6 @@ function editarApellido(user, referenciaUsuario) {
 }
 
 function editarDepartamento(referenciaUsuario) {
-
     const spanDepartamento = document.getElementById("perfilDepartamento");
     const contenedor = spanDepartamento.parentElement;
     const departamentoActual = spanDepartamento.textContent.trim();
@@ -329,7 +381,6 @@ function editarDepartamento(referenciaUsuario) {
 }
 
 async function editarFotoPerfil(user, referenciaUsuario) {
-
     const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
     const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
@@ -400,7 +451,6 @@ async function editarFotoPerfil(user, referenciaUsuario) {
 }
 
 function configurarModificarPassword(user) {
-
     const boton = document.getElementById("btnModificarPassword");
     if (!boton) return;
 
@@ -479,7 +529,6 @@ function configurarModificarPassword(user) {
 }
 
 function abrirModalReautenticarPassword(user) {
-
     const modalElemento = document.getElementById("modalReautenticarPassword");
     const campoPassword = document.getElementById("passwordActualReautenticar");
     const mensaje = document.getElementById("mensajeReautenticarPassword");
@@ -587,7 +636,6 @@ function deshabilitarCuenta(user, referenciaUsuario) {
 
     if (!botonAbrir) return;
 
-    // 1. Abrir modal inicial de confirmación
     botonAbrir.addEventListener("click", () => {
         const modalElemento = document.getElementById("modalDeshabilitarCuenta");
         if (modalElemento) {
@@ -596,7 +644,6 @@ function deshabilitarCuenta(user, referenciaUsuario) {
         }
     });
 
-    // 2. Transición del primer modal al de contraseña
     if (botonConfirmar) {
         botonConfirmar.addEventListener("click", () => {
             if (inputPassword) {
@@ -625,7 +672,6 @@ function deshabilitarCuenta(user, referenciaUsuario) {
         });
     }
 
-    // 3. Reautenticar y actualizar 'activo: false' en Firestore
     if (botonReautenticar) {
         botonReautenticar.addEventListener("click", async () => {
             const password = inputPassword ? inputPassword.value.trim() : "";
@@ -689,7 +735,6 @@ function deshabilitarCuenta(user, referenciaUsuario) {
 }
 
 function configurarBotonesEdicion(user, referenciaUsuario) {
-
     const botonCamara = document.querySelector(".camera-btn");
     if (botonCamara) {
         botonCamara.addEventListener("click", () => {
@@ -714,7 +759,6 @@ function configurarBotonesEdicion(user, referenciaUsuario) {
 }
 
 function mostrarNotificacion(mensaje, tipo = "exito") {
-
     const toastElemento = document.getElementById("toastNotificacion");
     const toastMensaje = document.getElementById("toastMensaje");
     const toastIcono = document.getElementById("toastIcono");
@@ -740,6 +784,10 @@ function mostrarNotificacion(mensaje, tipo = "exito") {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        if (contenidoPerfil) {
+            contenidoPerfil.classList.remove("d-none");
+        }
+
         const referenciaUsuario = doc(db, "usuarios", user.uid);
         const docSnap = await getDoc(referenciaUsuario);
 
@@ -750,11 +798,10 @@ onAuthStateChanged(auth, async (user) => {
             configurarBotonesEdicion(user, referenciaUsuario);
             configurarModificarPassword(user);
             deshabilitarCuenta(user, referenciaUsuario);
-
         } else {
             console.warn("No se encontraron datos adicionales en Firestore para este usuario.");
         }
     } else {
-        window.location.href = "index.html";
+        mostrarAccesoDenegado("Debés iniciar sesión para ver tu perfil de usuario.", "ingresar.html");
     }
 });

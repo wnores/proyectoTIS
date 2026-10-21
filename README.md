@@ -355,6 +355,7 @@ Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, pri
 
 Se agrega en conjunto con Anny la visualización de materiales educativos desde la administración de cursos, se incorpora: Documentos PDF, videos, actividades prácticas y materiales educativos. 
 Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
+Se corrige con Anny el HTML semántico.
 
 ### Elaboración de contenidos educativos (Giovanna)
 
@@ -469,6 +470,13 @@ Se realizaron pruebas sobre los principales flujos implementados:
 - Incorporación de módulos y temas.
 - Carga de PDF, videos y actividades.
 - Acceso al contenido según el rol.
-- Vista y descarga de Certificados. 
+- Vista y descarga de Certificados.
 
+### Tareas a mejorar.
+
+Tarea 51: Descarga de materiales autorizados: Se realiza la funcionalidad solo para la Tarea de Entrega Final, al ser calificada y aprobada, se descarga el certificado. 
+
+Tarea 69: Cálculo automático de nota final: Esta funcionalidad no se llegó a implementar en el alcance actual del proyecto. Hoy el docente carga manualmente la calificación de cada estudiante, y el certificado de aprobación se emite cuando esa nota es mayor a 6.
+
+Queda planificada para una próxima etapa: calcular la nota final de forma automática a partir de las calificaciones de las instancias de evaluación de cada curso (por ejemplo, actividades y prueba final), según los criterios de ponderación que defina el equipo docente. La nota resultante se usaría para emitir el certificado sin necesidad de cargarla a mano.
 

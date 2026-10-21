@@ -532,3 +532,58 @@ Se realizaron pruebas sobre los principales flujos implementados:
 ### Configuración y Seguridad de Firestore
 
 Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
+
+## Gestión de becas y Mis cursos (Silvana)
+
+### Gestión de becas
+
+Implementación del sistema de solicitud, validación y administración de becas mediante JavaScript, Firebase Authentication y Cloud Firestore.
+
+- **Solicitud de becas:** formulario para solicitar becas asociadas a cursos, con selección del tipo de beneficio.
+- **Validación de solicitudes:** incorporación de restricciones para evitar solicitudes incompatibles según las solicitudes existentes, las becas aprobadas y las adquisiciones del estudiante.
+- **Control de becas activas:** prevención de solicitudes de otro tipo para un curso que ya cuenta con una beca activa, y de solicitudes para otros cursos cuando existe una beca activa del mismo tipo.
+- **Restricciones por pagos:** bloqueo de solicitudes de becas para cursos adquiridos mediante otros medios de pago.
+- **Control de roles:** restricción de solicitudes para usuarios con perfil docente o administrador.
+- **Aprobación de solicitudes:** actualización del estado de las solicitudes y registro de las becas aprobadas.
+- **Gestión de cupos:** actualización de los cupos disponibles al aprobar una beca.
+- **Registro de adquisiciones:** incorporación de las becas aprobadas a la colección `adquisiciones`, con método de pago `beca` y precio cero.
+- **Gestión de saldos pendientes:** integración de las becas con el control de saldos y el estado de pago correspondiente.
+- **Notificaciones:** implementación de notificaciones relacionadas con las solicitudes de becas y sus cambios de estado, mediante Firestore.
+- **Reutilización del beneficio:** posibilidad de volver a solicitar una beca una vez finalizado el curso, respetando las validaciones establecidas.
+
+### Mis cursos
+
+Desarrollo de una sección personal para que los estudiantes puedan consultar sus cursos adquiridos y el estado de sus solicitudes de becas.
+
+- **Visualización de cursos:** presentación de tarjetas con información obtenida de la colección `cursoscc` y vinculada a las adquisiciones y solicitudes del usuario.
+- **Seguimiento de solicitudes:** visualización de cursos asociados a solicitudes de becas pendientes, aprobadas o rechazadas.
+- **Estado de adquisición:** presentación de información sobre el estado de cada curso, el método de pago y la beca correspondiente, cuando aplica.
+- **Gestión de saldos:** visualización de información relacionada con las becas, los saldos pendientes y el estado de pago.
+- **Acceso al curso:** habilitación del acceso cuando se cumplen las condiciones correspondientes, incluyendo adquisiciones aprobadas y becas con saldo totalmente pagado.
+- **Ordenamiento:** organización de los cursos según su fecha de adquisición o registro.
+- **Integración con la navegación:** incorporación de la opción *Mis cursos* para estudiantes y diferenciación de las opciones disponibles para docentes y administradores.
+- **Actualización de la interfaz:** ajustes en el diseño, el ancho del contenedor y la distribución de las tarjetas para mantener la coherencia visual con el resto de la plataforma.
+- **Integración con el catálogo:** contemplación de restricciones para evitar que se ofrezcan nuevamente las opciones de inscripción o solicitud de beca cuando el usuario ya adquirió el curso.
+
+### Tecnologías utilizadas
+
+- JavaScript (ES Modules).
+- Firebase Authentication.
+- Cloud Firestore.
+- HTML5 y CSS3.
+
+### Elaboración de contenidos educativos (Silvana)
+
+Diseño y desarrollo de materiales didácticos para los cursos **Introducción a la Inteligencia Artificial** y **Machine Learning Aplicado**, destinados a la formación en Ciencias de la Computación.
+
+- **Introducción a la Inteligencia Artificial:** elaboración de contenidos teóricos y actividades prácticas organizados.
+- **Machine Learning Aplicado:** desarrollo de materiales organizados por temas y diferenciados en documentos teóricos y prácticos.
+- **Material teórico:** elaboración de explicaciones conceptuales, fundamentos, metodologías y ejemplos para facilitar la comprensión progresiva de los contenidos.
+- **Actividades prácticas:** diseño de ejercicios y propuestas de aplicación para relacionar los conceptos teóricos con situaciones concretas.
+- **Organización modular:** estructuración de los contenidos en módulos y temas, favoreciendo una secuencia de aprendizaje gradual.
+- **Generación automatizada de documentos:** utilización de Python y ReportLab para crear documentos PDF con formato uniforme, encabezados institucionales, tablas, estilos y numeración de páginas.
+- **Diseño visual:** aplicación de criterios de legibilidad, jerarquía de títulos y consistencia gráfica para mantener una presentación homogénea de los materiales educativos.
+
+**Tecnologías y herramientas utilizadas:** Python, ReportLab y generación automatizada de documentos PDF.
+
+

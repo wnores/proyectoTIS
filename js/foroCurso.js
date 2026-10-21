@@ -1,1324 +1,326 @@
-import {
-    auth,
-    db
-} from "./firebase-config.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-import {
-    doc,
-    getDoc,
-    collection,
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { 
+    collection, 
+    addDoc, 
+    doc, 
+    getDoc, 
     getDocs,
-    addDoc,
-    query,
-    where,
-    orderBy,
+    query, 
+    where, 
     onSnapshot,
-    serverTimestamp
+    serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-
-// ELEMENTOS DEL HTML
-
-const estadoCargaForo =
-    document.getElementById("estadoCargaForo");
-
-const mensajeErrorForo =
-    document.getElementById("mensajeErrorForo");
-
-const contenidoForo =
-    document.getElementById("contenidoForo");
-
-const nombreCursoForo =
-    document.getElementById("nombreCursoForo");
-
-const enlaceContenidoCurso =
-    document.getElementById("enlaceContenidoCurso");
-
-const formPublicacionForo =
-    document.getElementById("formPublicacionForo");
-
-const tituloPublicacion =
-    document.getElementById("tituloPublicacion");
-
-const mensajePublicacion =
-    document.getElementById("mensajePublicacion");
-
-const moduloPublicacion =
-    document.getElementById("moduloPublicacion");
-
-const btnPublicarMensaje =
-    document.getElementById("btnPublicarMensaje");
-
-const mensajePublicacionForo =
-    document.getElementById("mensajePublicacionForo");
-
-const listaPublicaciones =
-    document.getElementById("listaPublicaciones");
-
-const cantidadPublicaciones =
-    document.getElementById("cantidadPublicaciones");
-
-const sinPublicaciones =
-    document.getElementById("sinPublicaciones");
-
-
-// OBTENER ID DEL CURSO
-const parametros =
-    new URLSearchParams(window.location.search);
-
-const cursoId =
-    parametros.get("curso");
-
 
 let usuarioActual = null;
 let datosUsuarioActual = null;
-let cancelarEscuchaPublicaciones = null;
-let cancelarEscuchasRespuestas = [];
+let rolActual = "estudiante";
+let cursoIdActual = null;
+let cursoTituloActual = "";
+let desuscripcionForo = null;
 
+document.addEventListener("DOMContentLoaded", () => {
+    const parametros = new URLSearchParams(window.location.search);
+    cursoIdActual = parametros.get("id") || parametros.get("curso");
 
-// INICIAR PÁGINA
-
-
-iniciarPagina();
-
-
-function iniciarPagina() {
-
-    if (!cursoId) {
-        mostrarError(
-            "No se indicó a qué curso pertenece el foro."
-        );
-
+    if (!cursoIdActual) {
+        window.location.href = "index.html";
         return;
     }
 
+    configurarNavegacionEnlace();
+    inicializarForo();
+});
 
-    enlaceContenidoCurso.href =
-        `contenidoCurso.html?curso=${encodeURIComponent(cursoId)}`;
+function configurarNavegacionEnlace() {
+    const enlaceContenido = document.getElementById("enlaceContenidoCurso");
+    if (enlaceContenido) {
+        enlaceContenido.href = `contenidoCurso.html?id=${cursoIdActual}`;
+    }
+}
 
+function esUsuarioAdminODocente(rol) {
+    if (!rol) return false;
+    const r = rol.toLowerCase().trim();
+    return r.includes("admin") || r.includes("docente") || r.includes("profesor");
+}
 
-    onAuthStateChanged(auth, async (usuario) => {
+function inicializarForo() {
+    const contenedorPrincipal = document.getElementById("contenedorPrincipalVista");
+    const estadoCarga = document.getElementById("estadoCargaForo");
+    const contenidoForo = document.getElementById("contenidoForo");
+    const mensajeError = document.getElementById("mensajeErrorForo");
 
-        if (!usuario) {
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
             window.location.href = "ingresar.html";
             return;
         }
 
-
-        usuarioActual = usuario;
-
+        usuarioActual = user;
 
         try {
+            const docUserRef = doc(db, "usuarios", user.uid);
+            const docUserSnap = await getDoc(docUserRef);
 
-            const referenciaUsuario =
-                doc(db, "usuarios", usuario.uid);
-
-            const referenciaCurso =
-                doc(db, "cursoscc", cursoId);
-
-
-            const [
-                resultadoUsuario,
-                resultadoCurso
-            ] = await Promise.all([
-                getDoc(referenciaUsuario),
-                getDoc(referenciaCurso)
-            ]);
-
-
-            if (!resultadoUsuario.exists()) {
-                mostrarError(
-                    "No se encontraron los datos del usuario."
-                );
-
-                return;
+            if (docUserSnap.exists()) {
+                datosUsuarioActual = docUserSnap.data();
+                rolActual = (datosUsuarioActual.tipoUsuario || datosUsuarioActual.rol || "").toLowerCase().trim();
             }
 
+            const esDocenteOAdmin = esUsuarioAdminODocente(rolActual);
 
-            if (!resultadoCurso.exists()) {
-                mostrarError(
-                    "El curso solicitado no existe."
-                );
-
-                return;
+            if (esDocenteOAdmin) {
+                const breadcrumbMisCursos = document.getElementById("itemMisCursosBreadcrumb");
+                if (breadcrumbMisCursos) breadcrumbMisCursos.classList.add("d-none");
             }
 
-
-            datosUsuarioActual =
-                resultadoUsuario.data();
-
-            const curso = {
-                id: resultadoCurso.id,
-                ...resultadoCurso.data()
-            };
-
-
-            const tieneAcceso =
-                await comprobarAcceso(
-                    datosUsuarioActual,
-                    curso,
-                    usuario.uid
+            if (!esDocenteOAdmin) {
+                const qAdquisicion = query(
+                    collection(db, "adquisiciones"),
+                    where("usuarioId", "==", user.uid),
+                    where("cursoId", "==", cursoIdActual)
                 );
+                const snapAdquisicion = await getDocs(qAdquisicion);
 
-
-            if (!tieneAcceso) {
-                mostrarError(
-                    "No tenés acceso al foro de este curso."
-                );
-
-                return;
+                if (snapAdquisicion.empty) {
+                    alert("Debés estar inscripto en este curso para acceder al foro.");
+                    window.location.href = `descripcionDeCurso.html?id=${cursoIdActual}`;
+                    return;
+                }
             }
 
+            const docCursoRef = doc(db, "cursoscc", cursoIdActual);
+            const docCursoSnap = await getDoc(docCursoRef);
 
-            nombreCursoForo.textContent =
-                curso.titulo || "Curso";
+            if (docCursoSnap.exists()) {
+                cursoTituloActual = docCursoSnap.data().titulo || "Curso sin título";
+                const nombreCursoElem = document.getElementById("nombreCursoForo");
+                if (nombreCursoElem) nombreCursoElem.textContent = cursoTituloActual;
+            }
 
+            if (contenedorPrincipal) contenedorPrincipal.classList.remove("d-none");
+            if (estadoCarga) estadoCarga.classList.add("d-none");
+            if (contenidoForo) contenidoForo.classList.remove("d-none");
 
-            await cargarModulos(curso.id);
-
-            escucharPublicaciones();
-
-            estadoCargaForo.classList.add("d-none");
-            mensajeErrorForo.classList.add("d-none");
-            contenidoForo.classList.remove("d-none");
-
+            escucharPublicacionesForo();
+            configurarFormularioPublicacion();
 
         } catch (error) {
-
-            console.error(
-                "Error al iniciar el foro:",
-                error
-            );
-
-            mostrarError(
-                "No fue posible cargar el foro del curso."
-            );
+            console.error("Error al inicializar el foro:", error);
+            if (mensajeError) {
+                mensajeError.textContent = "Ocurrió un error al cargar el foro.";
+                mensajeError.classList.remove("d-none");
+            }
+            if (estadoCarga) estadoCarga.classList.add("d-none");
+            if (contenedorPrincipal) contenedorPrincipal.classList.remove("d-none");
         }
     });
 }
 
+function obtenerNombreRealUsuario() {
+    if (datosUsuarioActual) {
+        const n = datosUsuarioActual.nombre || datosUsuarioActual.Nombre || datosUsuarioActual.perfil?.nombre || "";
+        const a = datosUsuarioActual.apellido || datosUsuarioActual.Apellido || datosUsuarioActual.perfil?.apellido || "";
+        const completo = `${n} ${a}`.trim();
 
-// ======================================================
-// COMPROBAR ACCESO
-// ======================================================
+        if (completo) return completo;
 
-async function comprobarAcceso(
-    datosUsuario,
-    curso,
-    uid
-) {
-
-    const rol =
-        (
-            datosUsuario.tipoUsuario ||
-            datosUsuario.rol ||
-            ""
-        )
-            .toString()
-            .trim()
-            .toLowerCase();
-
-
-    // Docente y administrador pueden entrar.
-    if (
-        rol.includes("admin") ||
-        rol.includes("docente")
-    ) {
-        return true;
+        if (datosUsuarioActual.nombreCompleto) return datosUsuarioActual.nombreCompleto.trim();
+        if (datosUsuarioActual.nombreUsuario) return datosUsuarioActual.nombreUsuario.trim();
     }
 
-
-    // Los demás usuarios deben ser estudiantes.
-    if (rol !== "estudiante") {
-        return false;
+    if (usuarioActual?.displayName) {
+        return usuarioActual.displayName.trim();
     }
 
-
-    const referenciaAdquisiciones =
-        collection(db, "adquisiciones");
-
-
-    const consultaAdquisiciones =
-        query(
-            referenciaAdquisiciones,
-            where("usuarioId", "==", uid)
-        );
-
-
-    const resultadoAdquisiciones =
-        await getDocs(consultaAdquisiciones);
-
-
-    const adquisicionAprobada =
-        resultadoAdquisiciones.docs.some(
-            (documento) => {
-
-                const adquisicion =
-                    documento.data();
-
-                return (
-                    adquisicion.cursoId === curso.id &&
-                    adquisicion.estado === "aprobada"
-                );
-            }
-        );
-
-
-    return adquisicionAprobada;
+    return "";
 }
 
+function escucharPublicacionesForo() {
+    const listaPublicaciones = document.getElementById("listaPublicaciones");
+    const sinPublicaciones = document.getElementById("sinPublicaciones");
+    const cantidadElem = document.getElementById("cantidadPublicaciones");
 
-// ======================================================
-// CARGAR MÓDULOS EN EL SELECT
-// ======================================================
+    if (!listaPublicaciones) return;
 
-async function cargarModulos(idCurso) {
+    if (desuscripcionForo) desuscripcionForo();
 
-    const referenciaModulos =
-        collection(
-            db,
-            "cursoscc",
-            idCurso,
-            "modulos"
-        );
+    const foroRef = collection(db, "cursoscc", cursoIdActual, "foro");
 
+    desuscripcionForo = onSnapshot(foroRef, (snapshot) => {
+        const publicaciones = [];
 
-    const resultadoModulos =
-        await getDocs(referenciaModulos);
+        snapshot.forEach((docSnap) => {
+            publicaciones.push({ id: docSnap.id, ...docSnap.data() });
+        });
 
+        publicaciones.sort((a, b) => (b.fecha?.toMillis() || 0) - (a.fecha?.toMillis() || 0));
 
-    const modulos =
-        resultadoModulos.docs.map(
-            (documento, indice) => {
+        if (cantidadElem) cantidadElem.textContent = publicaciones.length;
 
-                const datos =
-                    documento.data();
+        listaPublicaciones.innerHTML = "";
 
-                return {
-                    id: documento.id,
-
-                    numero:
-                        datos.numero ||
-                        indice + 1,
-
-                    nombre:
-                        datos.nombre ||
-                        datos.titulo ||
-                        datos.modulo ||
-                        "Módulo"
-                };
-            }
-        );
-
-
-    modulos.sort(
-        (a, b) =>
-            Number(a.numero) -
-            Number(b.numero)
-    );
-
-
-    modulos.forEach((modulo) => {
-
-        const opcion =
-            document.createElement("option");
-
-        opcion.value =
-            modulo.id;
-
-        opcion.textContent =
-            `Módulo ${modulo.numero}: ${modulo.nombre}`;
-
-        moduloPublicacion.appendChild(opcion);
-    });
-}
-
-
-// ======================================================
-// REGISTRAR PUBLICACIÓN
-// ======================================================
-
-formPublicacionForo.addEventListener(
-    "submit",
-    async (event) => {
-
-        event.preventDefault();
-
-
-        if (!usuarioActual) {
-            mostrarMensajeFormulario(
-                "Debés iniciar sesión para publicar.",
-                "danger"
-            );
-
+        if (publicaciones.length === 0) {
+            if (sinPublicaciones) sinPublicaciones.classList.remove("d-none");
             return;
         }
 
+        if (sinPublicaciones) sinPublicaciones.classList.add("d-none");
 
-        const titulo =
-            tituloPublicacion.value.trim();
+        publicaciones.forEach((pub) => {
+            const card = document.createElement("div");
+            card.className = "card shadow-sm border-0 mb-3";
 
-        const mensaje =
-            mensajePublicacion.value.trim();
+            const esDoc = pub.esDocente === true;
+            const insigniaRol = esDoc 
+                ? `<span class="badge bg-primary ms-2"><i class="bi bi-star-fill me-1"></i>Docente / Admin</span>` 
+                : `<span class="badge bg-secondary ms-2">Estudiante</span>`;
 
-        const moduloSeleccionado =
-            moduloPublicacion.value;
-
-        const textoModulo =
-            moduloPublicacion.selectedOptions[0]
-                ?.textContent || "Foro general";
-
-
-        if (
-            titulo.length < 3 ||
-            mensaje.length < 3
-        ) {
-            mostrarMensajeFormulario(
-                "Escribí un título y un mensaje válidos.",
-                "danger"
-            );
-
-            return;
-        }
-
-
-        btnPublicarMensaje.disabled = true;
-
-        btnPublicarMensaje.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm me-2"
-                aria-hidden="true"
-            ></span>
-            Publicando...
-        `;
-
-
-        try {
-
-            const rol =
-                (
-                    datosUsuarioActual.tipoUsuario ||
-                    datosUsuarioActual.rol ||
-                    "estudiante"
-                )
-                    .toString()
-                    .trim()
-                    .toLowerCase();
-
-
-            const nombreAutor =
-                obtenerNombreUsuario(
-                    datosUsuarioActual,
-                    usuarioActual
-                );
-
-
-            const referenciaForo =
-                collection(
-                    db,
-                    "cursoscc",
-                    cursoId,
-                    "foro"
-                );
-
-const publicacionCreada =
-    await addDoc(
-        referenciaForo,
-        {
-            autorId:
-                usuarioActual.uid,
-
-            autorNombre:
-                nombreAutor,
-
-            autorRol:
-                rol,
-
-            titulo:
-                titulo,
-
-            mensaje:
-                mensaje,
-
-            moduloId:
-                moduloSeleccionado,
-
-            moduloNombre:
-                moduloSeleccionado
-                    ? textoModulo
-                    : "Foro general",
-
-            fechaCreacion:
-                serverTimestamp(),
-
-            activo:
-                true
-        }
-    );
-
-
-// Crear una notificación para el docente
-// solamente cuando publica un estudiante.
-if (rol === "estudiante") {
-
-    try {
-
-        await addDoc(
-            collection(db, "notificaciones"),
-            {
-                destinatarioRol:
-                    "docente/admin",
-
-                tipo:
-                    "nueva_publicacion_foro",
-
-                cursoId:
-                    cursoId,
-
-                cursoTitulo:
-                    nombreCursoForo.textContent ||
-                    "Curso",
-
-                publicacionId:
-                    publicacionCreada.id,
-
-                titulo:
-                    titulo,
-
-                autorId:
-                    usuarioActual.uid,
-
-                autorNombre:
-                    nombreAutor,
-
-                enlace:
-                    `foroCurso.html?curso=${encodeURIComponent(cursoId)}`,
-
-                leida:
-                    false,
-
-                fechaCreacion:
-                    serverTimestamp()
+            let fechaStr = "Reciente";
+            if (pub.fecha?.toDate) {
+                fechaStr = pub.fecha.toDate().toLocaleDateString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
             }
-        );
 
-    } catch (errorNotificacion) {
+            const nombreMostrar = pub.autor || pub.nombreAutor || (esDoc ? "Docente / Admin" : "Estudiante");
 
-        /*
-         * Si falla la notificación, la publicación
-         * igualmente queda registrada.
-         */
-        console.error(
-            "La publicación fue creada, pero no se pudo crear la notificación:",
-            errorNotificacion
-        );
-    }
-}
-            
-
-
-            formPublicacionForo.reset();
-
-            mostrarMensajeFormulario(
-                "El mensaje fue publicado correctamente.",
-                "success"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Error al publicar en el foro:",
-                error
-            );
-
-            mostrarMensajeFormulario(
-                "No se pudo publicar el mensaje. Intentá nuevamente.",
-                "danger"
-            );
-
-
-        } finally {
-
-            btnPublicarMensaje.disabled = false;
-
-            btnPublicarMensaje.innerHTML = `
-                <i class="bi bi-send-fill me-2"></i>
-                Publicar mensaje
+            card.innerHTML = `
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong class="text-dark fs-6">${nombreMostrar}</strong>
+                            ${insigniaRol}
+                        </div>
+                        <small class="text-muted">${fechaStr}</small>
+                    </div>
+                    <h5 class="card-title fw-bold text-primary mb-2">${pub.titulo || "Consulta"}</h5>
+                    <p class="card-text text-secondary mb-0" style="white-space: pre-wrap;">${pub.mensaje || ""}</p>
+                </div>
             `;
-        }
-    }
-);
 
-
-// ======================================================
-// ESCUCHAR PUBLICACIONES EN TIEMPO REAL
-// ======================================================
-
-function escucharPublicaciones() {
-
-    const referenciaForo =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro"
-        );
-
-
-    const consultaForo =
-        query(
-            referenciaForo,
-            orderBy("fechaCreacion", "desc")
-        );
-
-
-    cancelarEscuchaPublicaciones =
-        onSnapshot(
-            consultaForo,
-
-            (resultado) => {
-
-                const publicaciones =
-                    resultado.docs
-                        .map((documento) => ({
-                            id: documento.id,
-                            ...documento.data()
-                        }))
-                        .filter(
-                            (publicacion) =>
-                                publicacion.activo !== false
-                        );
-
-
-                mostrarPublicaciones(
-                    publicaciones
-                );
-            },
-
-            (error) => {
-
-                console.error(
-                    "Error al escuchar el foro:",
-                    error
-                );
-
-                mostrarMensajeFormulario(
-                    "No fue posible actualizar las publicaciones.",
-                    "danger"
-                );
-            }
-        );
-}
-
-
-// ======================================================
-// MOSTRAR PUBLICACIONES
-// ======================================================
-
-function mostrarPublicaciones(publicaciones) {
-
-    cancelarEscuchasRespuestas.forEach(
-    (cancelar) => cancelar()
-);
-
-    cancelarEscuchasRespuestas = [];
-
-    listaPublicaciones.replaceChildren();
-
-    cantidadPublicaciones.textContent =
-        publicaciones.length;
-
-
-    if (publicaciones.length === 0) {
-        sinPublicaciones.classList.remove("d-none");
-        return;
-    }
-
-
-    sinPublicaciones.classList.add("d-none");
-
-
-    publicaciones.forEach((publicacion) => {
-
-        const tarjeta =
-            crearTarjetaPublicacion(publicacion);
-
-        listaPublicaciones.appendChild(tarjeta);
+            listaPublicaciones.appendChild(card);
+        });
+    }, (error) => {
+        console.error("Error al escuchar publicaciones del foro:", error);
     });
 }
 
+function configurarFormularioPublicacion() {
+    const form = document.getElementById("formPublicacionForo");
+    if (!form) return;
 
-// ======================================================
-// CREAR TARJETA DE PUBLICACIÓN
-// ======================================================
+    if (form.dataset.registrado === "true") return;
+    form.dataset.registrado = "true";
 
-function crearTarjetaPublicacion(publicacion) {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const articulo =
-        document.createElement("article");
+        const inputTitulo = document.getElementById("tituloPublicacion");
+        const inputMensaje = document.getElementById("mensajePublicacion");
+        const contenedorMensajeForm = document.getElementById("mensajePublicacionForo");
+        const btnSubmit = document.getElementById("btnPublicarMensaje");
 
-    articulo.className =
-        "card shadow-sm border-0";
+        const titulo = inputTitulo?.value.trim();
+        const mensaje = inputMensaje?.value.trim();
 
+        if (!titulo || !mensaje) return;
 
-    const cuerpo =
-        document.createElement("div");
-
-    cuerpo.className =
-        "card-body p-4";
-
-
-    const encabezado =
-        document.createElement("div");
-
-    encabezado.className =
-        "d-flex justify-content-between align-items-start gap-3 mb-3";
-
-
-    const datosAutor =
-        document.createElement("div");
-
-
-    const autor =
-        document.createElement("p");
-
-    autor.className =
-        "fw-bold mb-1";
-
-    autor.textContent =
-        publicacion.autorNombre ||
-        "Usuario";
-
-
-    const informacion =
-        document.createElement("p");
-
-    informacion.className =
-        "small text-muted mb-0";
-
-
-    const rol =
-        (publicacion.autorRol || "")
-            .toLowerCase();
-
-
-    const nombreRol =
-        rol.includes("docente")
-            ? "Docente"
-            : rol.includes("admin")
-                ? "Administrador"
-                : "Estudiante";
-
-
-    informacion.textContent =
-        `${nombreRol} · ${formatearFecha(publicacion.fechaCreacion)}`;
-
-
-    datosAutor.appendChild(autor);
-    datosAutor.appendChild(informacion);
-
-
-    const insignia =
-        document.createElement("span");
-
-
-    if (
-        rol.includes("docente") ||
-        rol.includes("admin")
-    ) {
-        insignia.className =
-            "badge bg-primary";
-
-        insignia.textContent =
-            rol.includes("docente")
-                ? "Docente"
-                : "Administrador";
-
-    } else {
-        insignia.className =
-            "badge bg-secondary";
-
-        insignia.textContent =
-            "Estudiante";
-    }
-
-
-    encabezado.appendChild(datosAutor);
-    encabezado.appendChild(insignia);
-
-
-    const titulo =
-        document.createElement("h2");
-
-    titulo.className =
-        "h5 mb-2";
-
-    titulo.textContent =
-        publicacion.titulo ||
-        "Publicación";
-
-
-    const modulo =
-        document.createElement("p");
-
-    modulo.className =
-        "small text-primary mb-3";
-
-    modulo.textContent =
-        publicacion.moduloNombre ||
-        "Foro general";
-
-
-    const mensaje =
-        document.createElement("p");
-
-    mensaje.className =
-        "mb-0";
-
-    mensaje.textContent =
-        publicacion.mensaje || "";
-
-
-    cuerpo.appendChild(encabezado);
-    cuerpo.appendChild(titulo);
-    cuerpo.appendChild(modulo);
-    cuerpo.appendChild(mensaje);
-
-    const separador =
-        document.createElement("hr");
-    separador.className =
-        "my-4";
-
-    cuerpo.appendChild(separador);
-
-    const tituloRespuestas =
-    document.createElement("h3");
-
-tituloRespuestas.className =
-    "h6 fw-bold mb-3";
-
-tituloRespuestas.innerHTML = `
-    <i class="bi bi-reply-fill me-2"></i>
-    Respuestas
-`;
-
-cuerpo.appendChild(tituloRespuestas);
-
-
-// Contenedor dinámico de respuestas
-const contenedorRespuestas =
-    document.createElement("div");
-
-contenedorRespuestas.className =
-    "d-flex flex-column gap-2 mb-3";
-
-cuerpo.appendChild(contenedorRespuestas);
-
-
-// Formulario para responder
-const formularioRespuesta =
-    document.createElement("form");
-
-formularioRespuesta.className =
-    "mt-3";
-
-
-const grupoRespuesta =
-    document.createElement("div");
-
-grupoRespuesta.className =
-    "input-group";
-
-
-const campoRespuesta =
-    document.createElement("textarea");
-
-campoRespuesta.className =
-    "form-control";
-
-campoRespuesta.rows = 2;
-
-campoRespuesta.maxLength = 500;
-
-campoRespuesta.placeholder =
-    "Escribí una respuesta...";
-
-campoRespuesta.required = true;
-
-campoRespuesta.setAttribute(
-    "aria-label",
-    "Escribir una respuesta"
-);
-
-
-const botonResponder =
-    document.createElement("button");
-
-botonResponder.type =
-    "submit";
-
-botonResponder.className =
-    "btn btn-primary";
-
-botonResponder.innerHTML = `
-    <i class="bi bi-send-fill me-1"></i>
-    Responder
-`;
-
-
-grupoRespuesta.appendChild(
-    campoRespuesta
-);
-
-grupoRespuesta.appendChild(
-    botonResponder
-);
-
-formularioRespuesta.appendChild(
-    grupoRespuesta
-);
-
-cuerpo.appendChild(
-    formularioRespuesta
-);
-
-
-formularioRespuesta.addEventListener(
-    "submit",
-    async (event) => {
-
-        event.preventDefault();
-
-        const textoRespuesta =
-            campoRespuesta.value.trim();
-
-
-        if (textoRespuesta.length < 2) {
-            return;
-        }
-
-
-        botonResponder.disabled =
-            true;
-
-        botonResponder.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm"
-                aria-hidden="true"
-            ></span>
-        `;
-
+        if (btnSubmit) btnSubmit.disabled = true;
 
         try {
+            let nombreAutor = obtenerNombreRealUsuario();
 
-            await guardarRespuesta(
-                publicacion,
-                textoRespuesta
-            );
+            if (!nombreAutor) {
+                try {
+                    const uSnap = await getDoc(doc(db, "usuarios", usuarioActual.uid));
+                    if (uSnap.exists()) {
+                        datosUsuarioActual = uSnap.data();
+                        nombreAutor = obtenerNombreRealUsuario();
+                    }
+                } catch (errUser) {
+                    console.error("Error recuperando documento de usuario:", errUser);
+                }
+            }
 
-            campoRespuesta.value = "";
+            const esDocenteOAdmin = esUsuarioAdminODocente(rolActual);
+
+            if (!nombreAutor) {
+                nombreAutor = esDocenteOAdmin ? "Docente / Admin" : "Estudiante";
+            }
+
+            // 1. Guardar publicación en Firestore
+            await addDoc(collection(db, "cursoscc", cursoIdActual, "foro"), {
+                uid: usuarioActual.uid,
+                autorId: usuarioActual.uid,
+                autor: nombreAutor,
+                titulo: titulo,
+                mensaje: mensaje,
+                esDocente: esDocenteOAdmin,
+                fecha: serverTimestamp()
+            });
+
+            // 2. ENVIAR NOTIFICACIÓN SEGÚN EL ROL QUE ESCRIBE
+            if (!esDocenteOAdmin) {
+                // Si escribe un ESTUDIANTE -> Notifica al ROL de docentes/admins
+                await addDoc(collection(db, "notificaciones"), {
+                    tipo: "foro_consulta",
+                    destinatarioRol: "docente/admin",
+                    estudianteUid: usuarioActual.uid,
+                    titulo: "Nueva consulta en el Foro",
+                    mensaje: `${nombreAutor} hizo una publicación en "${cursoTituloActual}".`,
+                    leida: false,
+                    fechaCreacion: serverTimestamp(),
+                    enlace: `foroCurso.html?id=${cursoIdActual}`
+                });
+            } else {
+                // Si escribe un DOCENTE/ADMIN -> Notifica a los ESTUDIANTES inscritos en el curso
+                const qInscriptos = query(
+                    collection(db, "adquisiciones"),
+                    where("cursoId", "==", cursoIdActual)
+                );
+                const snapInscriptos = await getDocs(qInscriptos);
+
+                snapInscriptos.forEach(async (docInsc) => {
+                    const datosInsc = docInsc.data();
+                    if (datosInsc.usuarioId && datosInsc.usuarioId !== usuarioActual.uid) {
+                        await addDoc(collection(db, "notificaciones"), {
+                            tipo: "foro_respuesta",
+                            destinatarioUid: datosInsc.usuarioId,
+                            titulo: "Nueva publicación del docente",
+                            mensaje: `El equipo docente publicó un mensaje en el foro de "${cursoTituloActual}".`,
+                            leida: false,
+                            fechaCreacion: serverTimestamp(),
+                            enlace: `foroCurso.html?id=${cursoIdActual}`
+                        });
+                    }
+                });
+            }
+
+            if (inputTitulo) inputTitulo.value = "";
+            if (inputMensaje) inputMensaje.value = "";
+
+            if (contenedorMensajeForm) {
+                contenedorMensajeForm.className = "alert alert-success mt-3 p-2 small text-center";
+                contenedorMensajeForm.textContent = "Mensaje publicado con éxito.";
+                setTimeout(() => {
+                    if (contenedorMensajeForm) contenedorMensajeForm.textContent = "";
+                }, 3000);
+            }
 
         } catch (error) {
-
-            console.error(
-                "Error al guardar la respuesta:",
-                error
-            );
-
-            alert(
-                "No se pudo publicar la respuesta."
-            );
-
-        } finally {
-
-            botonResponder.disabled =
-                false;
-
-            botonResponder.innerHTML = `
-                <i class="bi bi-send-fill me-1"></i>
-                Responder
-            `;
-        }
-    }
-);
-
-articulo.appendChild(cuerpo);
-
-escucharRespuestas(
-    publicacion.id,
-    contenedorRespuestas
-);
-
-return articulo;
-}
-
-async function guardarRespuesta(
-    publicacion,
-    textoRespuesta
-) {
-
-    if (
-        !usuarioActual ||
-        !datosUsuarioActual
-    ) {
-        throw new Error(
-            "USUARIO_NO_AUTENTICADO"
-        );
-    }
-
-
-    const rol =
-        (
-            datosUsuarioActual.tipoUsuario ||
-            datosUsuarioActual.rol ||
-            "estudiante"
-        )
-            .toString()
-            .trim()
-            .toLowerCase();
-
-
-    const nombreAutor =
-        obtenerNombreUsuario(
-            datosUsuarioActual,
-            usuarioActual
-        );
-
-
-    const referenciaRespuestas =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro",
-            publicacion.id,
-            "respuestas"
-        );
-
-
-    await addDoc(
-        referenciaRespuestas,
-        {
-            autorId:
-                usuarioActual.uid,
-
-            autorNombre:
-                nombreAutor,
-
-            autorRol:
-                rol,
-
-            mensaje:
-                textoRespuesta,
-
-            fechaCreacion:
-                serverTimestamp(),
-
-            activo:
-                true
-        }
-    );
-}
-
-
-
-// ESCUCHAR RESPUESTAS
-
-function escucharRespuestas(
-    publicacionId,
-    contenedor
-) {
-
-    const referenciaRespuestas =
-        collection(
-            db,
-            "cursoscc",
-            cursoId,
-            "foro",
-            publicacionId,
-            "respuestas"
-        );
-
-
-    const consultaRespuestas =
-        query(
-            referenciaRespuestas,
-            orderBy(
-                "fechaCreacion",
-                "asc"
-            )
-        );
-
-
-    const cancelar =
-        onSnapshot(
-            consultaRespuestas,
-
-            (resultado) => {
-
-                const respuestas =
-                    resultado.docs
-                        .map(
-                            (documento) => ({
-                                id:
-                                    documento.id,
-
-                                ...documento.data()
-                            })
-                        )
-                        .filter(
-                            (respuesta) =>
-                                respuesta.activo !==
-                                false
-                        );
-
-
-                mostrarRespuestas(
-                    respuestas,
-                    contenedor
-                );
-            },
-
-            (error) => {
-
-                console.error(
-                    "Error al cargar respuestas:",
-                    error
-                );
-
-                contenedor.innerHTML = `
-                    <p class="small text-danger mb-0">
-                        No se pudieron cargar las respuestas.
-                    </p>
-                `;
+            console.error("Error al publicar mensaje en el foro:", error);
+            if (contenedorMensajeForm) {
+                contenedorMensajeForm.className = "alert alert-danger mt-3 p-2 small text-center";
+                contenedorMensajeForm.textContent = "No se pudo publicar el mensaje. Revisa tu conexión.";
             }
-        );
-
-
-    cancelarEscuchasRespuestas.push(
-        cancelar
-    );
-}
-
-
-
-// MOSTRAR RESPUESTAS
-
-function mostrarRespuestas(
-    respuestas,
-    contenedor
-) {
-
-    contenedor.replaceChildren();
-
-
-    if (respuestas.length === 0) {
-
-        const mensaje =
-            document.createElement("p");
-
-        mensaje.className =
-            "small text-muted mb-0";
-
-        mensaje.textContent =
-            "Todavía no hay respuestas.";
-
-        contenedor.appendChild(mensaje);
-
-        return;
-    }
-
-
-    respuestas.forEach(
-        (respuesta) => {
-
-            const caja =
-                document.createElement("div");
-
-            caja.className =
-                "border rounded p-3 bg-light";
-
-
-            const encabezado =
-                document.createElement("div");
-
-            encabezado.className =
-                "d-flex justify-content-between align-items-center gap-2 mb-2";
-
-
-            const autor =
-                document.createElement("strong");
-
-            autor.className =
-                "small";
-
-            autor.textContent =
-                respuesta.autorNombre ||
-                "Usuario";
-
-
-            const rol =
-                (
-                    respuesta.autorRol ||
-                    "estudiante"
-                ).toLowerCase();
-
-
-            const etiqueta =
-                document.createElement("span");
-
-            etiqueta.className =
-                rol.includes("docente") ||
-                rol.includes("admin")
-                    ? "badge bg-primary"
-                    : "badge bg-secondary";
-
-            etiqueta.textContent =
-                rol.includes("docente")
-                    ? "Docente"
-                    : rol.includes("admin")
-                        ? "Administrador"
-                        : "Estudiante";
-
-
-            const mensaje =
-                document.createElement("p");
-
-            mensaje.className =
-                "mb-1";
-
-            mensaje.textContent =
-                respuesta.mensaje || "";
-
-
-            const fecha =
-                document.createElement("small");
-
-            fecha.className =
-                "text-muted";
-
-            fecha.textContent =
-                formatearFecha(
-                    respuesta.fechaCreacion
-                );
-
-
-            encabezado.appendChild(autor);
-            encabezado.appendChild(etiqueta);
-
-            caja.appendChild(encabezado);
-            caja.appendChild(mensaje);
-            caja.appendChild(fecha);
-
-            contenedor.appendChild(caja);
+        } finally {
+            if (btnSubmit) btnSubmit.disabled = false;
         }
-    );
+    });
 }
-// OBTENER NOMBRE DEL USUARIO
-
-function obtenerNombreUsuario(
-    datosUsuario,
-    usuario
-) {
-
-    const nombreCompleto =
-        [
-            datosUsuario.nombre,
-            datosUsuario.apellido
-        ]
-            .filter(Boolean)
-            .join(" ")
-            .trim();
-
-
-    return (
-        nombreCompleto ||
-        datosUsuario.nombreCompleto ||
-        usuario.displayName ||
-        usuario.email ||
-        "Usuario"
-    );
-}
-
-
-function formatearFecha(fecha) {
-
-    if (!fecha) {
-        return "Publicando...";
-    }
-
-
-    let fechaJavaScript;
-
-
-    if (
-        typeof fecha.toDate === "function"
-    ) {
-        fechaJavaScript =
-            fecha.toDate();
-
-    } else {
-        fechaJavaScript =
-            new Date(fecha);
-    }
-
-
-    return fechaJavaScript.toLocaleString(
-        "es-UY",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    );
-}
-
-
-
-// MENSAJES DEL FORMULARIO
-
-
-function mostrarMensajeFormulario(
-    texto,
-    tipo
-) {
-
-    mensajePublicacionForo.textContent =
-        texto;
-
-    mensajePublicacionForo.className =
-        `alert alert-${tipo} mt-3`;
-}
-
-// MOSTRAR ERROR GENERAL
-
-function mostrarError(mensaje) {
-
-    estadoCargaForo.classList.add("d-none");
-    contenidoForo.classList.add("d-none");
-
-    mensajeErrorForo.textContent =
-        mensaje;
-
-    mensajeErrorForo.classList.remove("d-none");
-}
-
-// DETENER ESCUCHA AL SALIR
-
-window.addEventListener(
-    "beforeunload",
-    () => {
-
-        if (cancelarEscuchaPublicaciones) {
-            cancelarEscuchaPublicaciones();
-        }
-        cancelarEscuchasRespuestas.forEach(
-            (cancelar) => cancelar()
-        );      
-        cancelarEscuchasRespuestas = [];
-    }
-);

@@ -1,16 +1,6 @@
-import {
-    auth,
-    db
-} from "./firebase-config.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-import {
-    doc,
-    getDoc
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {auth, db} from "./firebase-config.js";
+import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import {doc, getDoc} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const estadoCarga =
     document.getElementById("estadoCarga");
@@ -62,10 +52,6 @@ onAuthStateChanged(auth, async (usuario) => {
 
         const adquisicion = resultado.data();
 
-        /*
-         * Impide que una persona consulte el comprobante
-         * perteneciente a otro usuario cambiando el ID de la URL.
-         */
         if (adquisicion.usuarioId !== usuario.uid) {
             mostrarError(
                 "No tenés permiso para consultar este comprobante."

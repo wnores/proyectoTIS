@@ -1,587 +1,214 @@
 import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getDoc, collection, query, where, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-import {
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+let desuscripcionNotificaciones = null;
 
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  updateDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+document.addEventListener("DOMContentLoaded", () => {
+    configurarNavegacionUsuario();
+});
 
-let cancelarEscuchaNotificaciones = null;
+function configurarNavegacionUsuario() {
+    const elementosDesconectado = document.querySelectorAll(".logged-out, #grupIngresar, #grupoRegistrarse");
+    const elementosConectado = document.querySelectorAll(".logged-in, #grupoUsuario, #grupoNotificaciones");
+    
+    const nombreUsuario = document.getElementById("nombreUsuario");
+    const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 
+    const itemMisCursos = document.getElementById("menuMisCursos");
+    const itemAdminCursos = document.getElementById("menuAdminCursos");
+    const itemsRequierenAdmin = document.querySelectorAll('[data-requiere-permiso="verPanelAdmin"]');
 
-/**
- * Actualiza los enlaces de las tarjetas en Cursos Destacados según el rol.
- */
-function actualizarEnlacesCursosDestacados(rol) {
-  const rolLimpio = (rol || "").toLowerCase().trim();
+    onAuthStateChanged(auth, async (user) => {
+        let rolUsuario = "estudiante";
 
-  const esAdminODocente =
-    rolLimpio.includes("docente") ||
-    rolLimpio.includes("admin");
-
-  const enlacesCursos = document.querySelectorAll(
-    ".destacados .curso-card a"
-  );
-
-  enlacesCursos.forEach((enlace) => {
-    try {
-      const url = new URL(enlace.href, window.location.origin);
-      const cursoId = url.searchParams.get("id");
-
-      if (cursoId) {
-        if (esAdminODocente) {
-          enlace.href =
-            `contenidoCurso.html?id=${encodeURIComponent(cursoId)}`;
-        } else {
-          enlace.href =
-            `descripcionDeCurso.html?id=${encodeURIComponent(cursoId)}`;
+        if (desuscripcionNotificaciones) {
+            desuscripcionNotificaciones();
+            desuscripcionNotificaciones = null;
         }
-      }
-    } catch (error) {
-      console.error("Error al actualizar enlace del curso:", error);
+
+        if (user) {
+            elementosDesconectado.forEach(el => el.classList.add("d-none"));
+            elementosConectado.forEach(el => el.classList.remove("d-none"));
+
+            try {
+                const userDocRef = doc(db, "usuarios", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (userSnap.exists()) {
+                    const datosUsuario = userSnap.data();
+                    rolUsuario = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toLowerCase().trim();
+                    const nombreCompleto = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim() || user.email;
+
+                    if (nombreUsuario) {
+                        nombreUsuario.textContent = nombreCompleto;
+                    }
+
+                    const esDocenteOAdmin = rolUsuario.includes("admin") || rolUsuario.includes("docente");
+
+                    if (esDocenteOAdmin) {
+                        if (itemMisCursos) itemMisCursos.classList.add("d-none");
+                        if (itemAdminCursos) itemAdminCursos.classList.remove("d-none");
+                        itemsRequierenAdmin.forEach(el => el.classList.remove("d-none"));
+                    } else {
+                        if (itemMisCursos) itemMisCursos.classList.remove("d-none");
+                        if (itemAdminCursos) itemAdminCursos.classList.add("d-none");
+                        itemsRequierenAdmin.forEach(el => el.classList.add("d-none"));
+                    }
+                } else {
+                    if (nombreUsuario) nombreUsuario.textContent = user.displayName || user.email;
+                }
+            } catch (error) {
+                console.error("Error al cargar datos de navegación del usuario:", error);
+                if (nombreUsuario) nombreUsuario.textContent = user.displayName || user.email;
+            }
+
+            escucharNotificaciones(user.uid, rolUsuario);
+
+        } else {
+            elementosDesconectado.forEach(el => el.classList.remove("d-none"));
+            elementosConectado.forEach(el => el.classList.add("d-none"));
+            
+            if (itemMisCursos) itemMisCursos.classList.add("d-none");
+            if (itemAdminCursos) itemAdminCursos.classList.add("d-none");
+            itemsRequierenAdmin.forEach(el => el.classList.add("d-none"));
+        }
+
+        actualizarEnlacesTarjetasCurso(rolUsuario);
+    });
+
+    if (btnCerrarSesion) {
+        btnCerrarSesion.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
     }
-  });
 }
 
+function escucharNotificaciones(uid, rol) {
+    const esDocenteOAdmin = rol.includes("admin") || rol.includes("docente");
+    const notificacionesRef = collection(db, "notificaciones");
 
-// CONTROL DE SESIÓN
-onAuthStateChanged(auth, async (user) => {
-  const grupoIngresar = document.getElementById("grupIngresar");
-  const grupoRegistrarse = document.getElementById("grupoRegistrarse");
-  const grupoUsuario = document.getElementById("grupoUsuario");
-  const nombreUsuario = document.getElementById("nombreUsuario");
-  const menuAdminCursos = document.getElementById("menuAdminCursos");
-  const menuMisCursos = document.getElementById("menuMisCursos");
-
-  detenerNotificacionesDocente();
-
-  if (user) {
-    if (grupoIngresar) {
-      grupoIngresar.classList.add("d-none");
+    let consulta;
+    if (esDocenteOAdmin) {
+        consulta = query(notificacionesRef, where("destinatarioRol", "==", "docente/admin"));
+    } else {
+        consulta = query(notificacionesRef, where("destinatarioUid", "==", uid));
     }
 
-    if (grupoRegistrarse) {
-      grupoRegistrarse.classList.add("d-none");
-    }
-
-    if (grupoUsuario) {
-      grupoUsuario.classList.remove("d-none");
-    }
-
-    try {
-      const referenciaUsuario = doc(db, "usuarios", user.uid);
-      const docSnap = await getDoc(referenciaUsuario);
-
-      if (docSnap.exists()) {
-        const datosUsuario = docSnap.data();
-
-        if (nombreUsuario) {
-          const nombreCompleto =
-            `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
-
-          nombreUsuario.textContent =
-            nombreCompleto ||
-            user.displayName ||
-            (user.email ? user.email.split("@")[0] : "Usuario");
-        }
-
-        const rol = (
-          datosUsuario.tipoUsuario ||
-          datosUsuario.rol ||
-          ""
-        ).toLowerCase().trim();
-
-        const esAdminODocente =
-          rol.includes("docente") ||
-          rol.includes("admin");
-
-        console.log("Sesión iniciada:", {
-          uid: user.uid,
-          rol
+    desuscripcionNotificaciones = onSnapshot(consulta, (snapshot) => {
+        const notificaciones = [];
+        snapshot.forEach((docSnap) => {
+            notificaciones.push({ id: docSnap.id, ...docSnap.data() });
         });
 
-        if (esAdminODocente) {
-          iniciarNotificacionesDocente(grupoUsuario);
-        } else if (rol === "estudiante") {
-          iniciarNotificacionesDocente(grupoUsuario, user.uid);
+        notificaciones.sort((a, b) => {
+            const fechaA = a.fechaCreacion?.toMillis() || 0;
+            const fechaB = b.fechaCreacion?.toMillis() || 0;
+            return fechaB - fechaA;
+        });
+
+        renderizarNotificaciones(notificaciones);
+    }, (error) => {
+        console.error("Error al consultar notificaciones en tiempo real:", error);
+    });
+}
+
+function renderizarNotificaciones(notificaciones) {
+    const contador = document.getElementById("contadorNotificaciones");
+    const lista = document.getElementById("listaNotificaciones");
+
+    if (!lista) return;
+
+    lista.innerHTML = `
+        <li class="dropdown-header fw-bold text-dark">Notificaciones</li>
+        <li><hr class="dropdown-divider"></li>
+    `;
+
+    const sinLeer = notificaciones.filter(n => n.leida !== true);
+
+    if (contador) {
+        if (sinLeer.length > 0) {
+            contador.textContent = sinLeer.length;
+            contador.classList.remove("d-none");
         } else {
-          detenerNotificacionesDocente();
+            contador.classList.add("d-none");
+            contador.textContent = "0";
         }
-
-        // ADMINISTRAR CURSOS
-        if (menuAdminCursos) {
-          menuAdminCursos.classList.toggle(
-            "d-none",
-            !esAdminODocente
-          );
-        }
-
-        // MIS CURSOS
-        if (menuMisCursos) {
-          menuMisCursos.classList.toggle(
-            "d-none",
-            esAdminODocente
-          );
-        }
-
-        // ACTUALIZAR ENLACES DE CURSOS DESTACADOS
-        actualizarEnlacesCursosDestacados(rol);
-
-      } else {
-        if (nombreUsuario) {
-          nombreUsuario.textContent =
-            user.displayName ||
-            (user.email ? user.email.split("@")[0] : "Usuario");
-        }
-
-        if (menuAdminCursos) {
-          menuAdminCursos.classList.add("d-none");
-        }
-
-        if (menuMisCursos) {
-          menuMisCursos.classList.remove("d-none");
-        }
-
-        actualizarEnlacesCursosDestacados(null);
-      }
-
-    } catch (error) {
-      console.error(
-        "Error al obtener datos del usuario desde Firestore:",
-        error
-      );
-
-      if (nombreUsuario) {
-        nombreUsuario.textContent =
-          user.displayName ||
-          (user.email ? user.email.split("@")[0] : "Usuario");
-      }
-
-      if (menuAdminCursos) {
-        menuAdminCursos.classList.add("d-none");
-      }
-
-      if (menuMisCursos) {
-        menuMisCursos.classList.remove("d-none");
-      }
-
-      actualizarEnlacesCursosDestacados(null);
     }
 
-  } else {
-    if (grupoIngresar) {
-      grupoIngresar.classList.remove("d-none");
+    if (notificaciones.length === 0) {
+        lista.innerHTML += `<li class="text-center text-muted p-2 small" id="sinNotificaciones">No tenés notificaciones</li>`;
+        return;
     }
 
-    if (grupoRegistrarse) {
-      grupoRegistrarse.classList.remove("d-none");
-    }
+    notificaciones.forEach((notif) => {
+        const li = document.createElement("li");
+        const enlace = notif.enlace || "#";
+        const estiloTexto = notif.leida ? "text-muted bg-light" : "fw-bold";
 
-    if (grupoUsuario) {
-      grupoUsuario.classList.add("d-none");
-    }
-
-    if (menuAdminCursos) {
-      menuAdminCursos.classList.add("d-none");
-    }
-
-    if (menuMisCursos) {
-      menuMisCursos.classList.add("d-none");
-    }
-
-    actualizarEnlacesCursosDestacados(null);
-  }
-});
-
-
-// EVENTOS DE LA PÁGINA
-document.addEventListener("DOMContentLoaded", () => {
-
-  // CERRAR SESIÓN
-  const btnCerrarSesion = document.getElementById("btnCerrarSesion");
-
-  if (btnCerrarSesion) {
-    btnCerrarSesion.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        window.location.href = "index.html";
-      } catch (error) {
-        console.error("Error al cerrar sesión:", error);
-      }
-    });
-  }
-
-  // BUSCADOR
-  const formBuscador = document.getElementById("formBuscador");
-  const inputBuscador = document.getElementById("inputBuscador");
-
-  if (formBuscador && inputBuscador) {
-    formBuscador.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const texto = inputBuscador.value.trim();
-
-      if (texto) {
-        window.location.href =
-          `resultados.html?buscar=${encodeURIComponent(texto)}`;
-      }
-    });
-  }
-});
-
-
-// INICIAR NOTIFICACIONES
-function iniciarNotificacionesDocente(
-  grupoUsuario,
-  estudianteUid = null
-) {
-  if (!grupoUsuario) {
-    console.error(
-      "No se pueden iniciar las notificaciones: no se encontró #grupoUsuario."
-    );
-    return;
-  }
-
-  detenerEscuchaNotificaciones();
-
-  let grupoNotificaciones = document.getElementById(
-    "grupoNotificaciones"
-  );
-
-  if (!grupoNotificaciones) {
-    grupoNotificaciones = document.createElement("div");
-    grupoNotificaciones.id = "grupoNotificaciones";
-    grupoNotificaciones.className = "dropdown me-2";
-
-    grupoNotificaciones.innerHTML = `
-      <button
-        class="btn btn-outline-light btn-sm position-relative"
-        type="button"
-        id="dropdownNotificaciones"
-        data-bs-toggle="dropdown"
-        data-bs-auto-close="outside"
-        aria-expanded="false"
-        aria-label="Notificaciones"
-      >
-        <i class="bi bi-bell-fill fs-5"></i>
-
-        <span
-          id="contadorNotificaciones"
-          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
-        >0</span>
-      </button>
-
-      <div
-        id="listaNotificaciones"
-        class="dropdown-menu dropdown-menu-end shadow p-0"
-        aria-labelledby="dropdownNotificaciones"
-        style="width: 340px; max-height: 420px; overflow-y: auto;"
-      >
-        <div class="p-3 border-bottom">
-          <h2 class="h6 mb-0">
-            <i class="bi bi-bell me-2"></i>
-            Notificaciones
-          </h2>
-        </div>
-
-        <div id="contenidoNotificaciones" class="p-2">
-          <p class="text-muted text-center small mb-0 p-3">
-            Cargando notificaciones...
-          </p>
-        </div>
-      </div>
-    `;
-
-    grupoUsuario.parentNode.insertBefore(
-      grupoNotificaciones,
-      grupoUsuario
-    );
-  }
-
-  grupoNotificaciones.classList.remove("d-none");
-
-  const referenciaNotificaciones = collection(
-    db,
-    "notificaciones"
-  );
-
-  // CONSULTA SEGÚN EL TIPO DE USUARIO
-  const consultaNotificaciones = estudianteUid
-    ? query(
-        referenciaNotificaciones,
-        where("destinatarioId", "==", estudianteUid),
-        where("destinatarioRol", "==", "estudiante")
-      )
-    : query(
-        referenciaNotificaciones,
-        where("destinatarioRol", "==", "docente/admin")
-      );
-
-  // DIAGNÓSTICO
-  console.log("Diagnóstico de notificaciones:", {
-    grupoUsuarioExiste: Boolean(grupoUsuario),
-    estudianteUid,
-    consultaPor: estudianteUid
-      ? "destinatarioId + destinatarioRol"
-      : "destinatarioRol"
-  });
-
-  cancelarEscuchaNotificaciones = onSnapshot(
-    consultaNotificaciones,
-
-    (resultado) => {
-      console.log(
-        "Documentos recibidos por Firestore:",
-        resultado.size
-      );
-
-      const notificaciones = resultado.docs
-        .map((documento) => ({
-          id: documento.id,
-          ...documento.data()
-        }))
-        .filter((notificacion) =>
-          notificacion.leida === false &&
-          (
-            estudianteUid
-              ? notificacion.destinatarioId === estudianteUid &&
-                notificacion.destinatarioRol === "estudiante"
-              : notificacion.destinatarioRol === "docente/admin"
-          )
-        );
-
-      console.log(
-        "Notificaciones sin leer:",
-        notificaciones.length
-      );
-
-      notificaciones.sort((a, b) =>
-        obtenerMilisegundos(b.fechaCreacion) -
-        obtenerMilisegundos(a.fechaCreacion)
-      );
-
-      mostrarNotificacionesDocente(notificaciones);
-    },
-
-    (error) => {
-      console.error(
-        "Error al escuchar las notificaciones:",
-        error
-      );
-
-      const contenido = document.getElementById(
-        "contenidoNotificaciones"
-      );
-
-      if (contenido) {
-        contenido.innerHTML = `
-          <p class="text-danger small mb-0 p-3">
-            No se pudieron cargar las notificaciones.
-          </p>
+        li.innerHTML = `
+            <a class="dropdown-item py-2 px-3 ${estiloTexto}" href="${enlace}" data-id="${notif.id}">
+                <div class="d-flex flex-column">
+                    <span class="small">${notif.titulo || "Notificación"}</span>
+                    <span class="text-secondary small fw-normal">${notif.mensaje || ""}</span>
+                </div>
+            </a>
         `;
-      }
-    }
-  );
-}
 
+        const enlaceElem = li.querySelector("a");
 
-// MOSTRAR NOTIFICACIONES
-function mostrarNotificacionesDocente(notificaciones) {
-  const contador = document.getElementById(
-    "contadorNotificaciones"
-  );
+        enlaceElem.addEventListener("click", async (e) => {
+            if (!notif.leida) {
+                e.preventDefault();
 
-  const contenido = document.getElementById(
-    "contenidoNotificaciones"
-  );
+                notif.leida = true;
+                const pendientesRestantes = notificaciones.filter(n => n.leida !== true).length;
 
-  if (!contador || !contenido) {
-    console.error(
-      "No se encontraron los elementos del contador o contenido de notificaciones."
-    );
-    return;
-  }
+                if (contador) {
+                    if (pendientesRestantes > 0) {
+                        contador.textContent = pendientesRestantes;
+                    } else {
+                        contador.classList.add("d-none");
+                        contador.textContent = "0";
+                    }
+                }
 
-  contador.textContent = notificaciones.length;
+                try {
+                    const docRef = doc(db, "notificaciones", notif.id);
+                    await updateDoc(docRef, { leida: true });
+                } catch (err) {
+                    console.error("Error al marcar notificación como leída:", err);
+                }
 
-  if (notificaciones.length === 0) {
-    contador.classList.add("d-none");
+                if (enlace && enlace !== "#") {
+                    window.location.href = enlace;
+                }
+            }
+        });
 
-    contenido.innerHTML = `
-      <p class="text-muted text-center small mb-0 p-3">
-        No hay notificaciones nuevas.
-      </p>
-    `;
-
-    return;
-  }
-
-  contador.classList.remove("d-none");
-  contenido.replaceChildren();
-
-  notificaciones.forEach((notificacion) => {
-    const boton = document.createElement("button");
-
-    boton.type = "button";
-    boton.className =
-      "dropdown-item text-wrap border-bottom p-3";
-
-    const encabezado = document.createElement("div");
-    encabezado.className = "d-flex align-items-start gap-2";
-
-    const icono = document.createElement("i");
-    icono.className =
-      "bi bi-chat-left-text-fill text-primary mt-1";
-
-    const datos = document.createElement("div");
-    datos.className = "flex-grow-1";
-
-    const titulo = document.createElement("p");
-    titulo.className = "fw-bold mb-1";
-    titulo.textContent =
-      notificacion.titulo || "Nueva notificación";
-
-    const detalle = document.createElement("p");
-    detalle.className = "small mb-1";
-
-    if (notificacion.tipo === "calificacion") {
-      detalle.textContent =
-        `${notificacion.cursoTitulo || "Tu curso"}: recibiste ` +
-        `${notificacion.nota}/10 en la Actividad Final Integradora. Ver actividad.`;
-
-    } else if (notificacion.tipo === "entrega") {
-      detalle.textContent =
-        `${notificacion.autorNombre || "Un estudiante"} envió una entrega en ` +
-        `${notificacion.cursoTitulo || "un curso"}. Abrí la actividad para revisar y calificar.`;
-
-    } else if (notificacion.tipo === "beca") {
-      if (notificacion.destinatarioRol === "estudiante") {
-        detalle.textContent =
-          `Tu solicitud de beca para ${notificacion.cursoTitulo || "el curso"} ` +
-          `fue aprobada con una cobertura del ${notificacion.porcentajeBeca}%.`;
-      } else {
-        detalle.textContent =
-          `${notificacion.autorNombre || "Un estudiante"} solicitó una beca para ` +
-          `${notificacion.cursoTitulo || "un curso"}.`;
-      }
-
-    } else {
-      detalle.textContent =
-        `${notificacion.autorNombre || "Estudiante"} publicó en ` +
-        `${notificacion.cursoTitulo || "un curso"}.`;
-    }
-
-    const fecha = document.createElement("p");
-    fecha.className = "small text-muted mb-0";
-    fecha.textContent = formatearFechaNotificacion(
-      notificacion.fechaCreacion
-    );
-
-    datos.appendChild(titulo);
-    datos.appendChild(detalle);
-    datos.appendChild(fecha);
-
-    encabezado.appendChild(icono);
-    encabezado.appendChild(datos);
-
-    boton.appendChild(encabezado);
-
-    boton.addEventListener("click", async () => {
-      try {
-        await updateDoc(
-          doc(db, "notificaciones", notificacion.id),
-          {
-            leida: true,
-            fechaLectura: serverTimestamp()
-          }
-        );
-      } catch (error) {
-        console.error(
-          "No se pudo marcar la notificación como leída:",
-          error
-        );
-      }
-
-      if (notificacion.enlace) {
-        window.location.href = notificacion.enlace;
-      } else if (notificacion.cursoId) {
-        window.location.href =
-          `foroCurso.html?curso=${encodeURIComponent(notificacion.cursoId)}`;
-      }
+        lista.appendChild(li);
     });
-
-    contenido.appendChild(boton);
-  });
 }
 
+function actualizarEnlacesTarjetasCurso(rol) {
+    const esDocenteOAdmin = rol.includes("admin") || rol.includes("docente");
+    const botonesVerCurso = document.querySelectorAll(".destacados .btn-primary, .curso-card a.btn");
 
-// DETENER LA ESCUCHA ACTIVA
-function detenerEscuchaNotificaciones() {
-  if (cancelarEscuchaNotificaciones) {
-    cancelarEscuchaNotificaciones();
-    cancelarEscuchaNotificaciones = null;
-  }
-}
+    botonesVerCurso.forEach((boton) => {
+        const url = new URL(boton.href, window.location.origin);
+        const cursoId = url.searchParams.get("id") || url.searchParams.get("curso");
 
-
-// OCULTAR Y DETENER NOTIFICACIONES
-function detenerNotificacionesDocente() {
-  detenerEscuchaNotificaciones();
-
-  const grupoNotificaciones = document.getElementById(
-    "grupoNotificaciones"
-  );
-
-  if (grupoNotificaciones) {
-    grupoNotificaciones.classList.add("d-none");
-  }
-}
-
-
-// OBTENER FECHA EN MILISEGUNDOS
-function obtenerMilisegundos(fecha) {
-  if (!fecha) {
-    return 0;
-  }
-
-  if (typeof fecha.toMillis === "function") {
-    return fecha.toMillis();
-  }
-
-  if (typeof fecha.toDate === "function") {
-    return fecha.toDate().getTime();
-  }
-
-  return new Date(fecha).getTime();
-}
-
-
-// FORMATEAR FECHA DE NOTIFICACIÓN
-function formatearFechaNotificacion(fecha) {
-  if (!fecha) {
-    return "Ahora";
-  }
-
-  let fechaJavaScript;
-
-  if (typeof fecha.toDate === "function") {
-    fechaJavaScript = fecha.toDate();
-  } else {
-    fechaJavaScript = new Date(fecha);
-  }
-
-  return fechaJavaScript.toLocaleString("es-UY", {
-    dateStyle: "short",
-    timeStyle: "short"
-  });
+        if (cursoId) {
+            if (esDocenteOAdmin) {
+                boton.href = `contenidoCurso.html?id=${cursoId}`;
+            } else {
+                boton.href = `descripcionDeCurso.html?id=${cursoId}`;
+            }
+        }
+    });
 }

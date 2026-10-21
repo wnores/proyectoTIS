@@ -1,13 +1,9 @@
-// js/estadisticas.js
 import { db } from "./firebase-config.js";
 import {
     collection,
     getDocs
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// =====================================================
-// CARGAR ESTADÍSTICAS
-// =====================================================
 export async function cargarEstadisticas() {
     try {
         const [usuarios, cursos, adquisiciones, solicitudes] = await Promise.all([
@@ -17,9 +13,6 @@ export async function cargarEstadisticas() {
             obtenerColeccion("solicitudesBecas")
         ]);
 
-        // =====================================================
-        // USUARIOS
-        // =====================================================
         const totalUsuarios = usuarios.length;
         const usuariosActivos = usuarios.filter(u => u.activo !== false).length;
 
@@ -29,26 +22,17 @@ export async function cargarEstadisticas() {
             return acc;
         }, {});
 
-        // =====================================================
-        // ADQUISICIONES (ventas y becas)
-        // =====================================================
         const adquisicionesAprobadas = adquisiciones.filter(a => a.estado === "aprobada");
 
-        // Estudiantes matriculados = con al menos 1 curso aprobado
         const uidsConCurso = new Set(adquisicionesAprobadas.map(a => a.usuarioId));
         const estudiantesMatriculados = uidsConCurso.size;
 
-        // Ingresos totales (solo pagos, no becas)
         const ingresos = adquisicionesAprobadas.reduce((sum, a) => {
             return sum + (Number(a.precio) || 0);
         }, 0);
 
-        // =====================================================
-        // CURSOS
-        // =====================================================
         const totalCursos = cursos.length;
 
-        // Ranking de cursos por cantidad de adquisiciones
         const conteoPorCurso = {};
         adquisicionesAprobadas.forEach(a => {
             const id = a.cursoId;
@@ -66,18 +50,12 @@ export async function cargarEstadisticas() {
                 };
             })
             .sort((a, b) => b.cantidad - a.cantidad)
-            .slice(0, 5); // Top 5
+            .slice(0, 5); 
 
-        // =====================================================
-        // BECAS
-        // =====================================================
         const becasOtorgadas = solicitudes.filter(s =>
             s.estado === "aprobada" || s.estado === "otorgada"
         ).length;
 
-        // =====================================================
-        // MOSTRAR EN EL DOM
-        // =====================================================
         document.querySelector("#statTotalUsuarios").textContent = totalUsuarios;
         document.querySelector("#statUsuariosActivos").textContent = usuariosActivos;
         document.querySelector("#statMatriculados").textContent = estudiantesMatriculados;
@@ -93,9 +71,6 @@ export async function cargarEstadisticas() {
     }
 }
 
-// =====================================================
-// HELPERS
-// =====================================================
 async function obtenerColeccion(nombre) {
     const ref = collection(db, nombre);
     const snap = await getDocs(ref);

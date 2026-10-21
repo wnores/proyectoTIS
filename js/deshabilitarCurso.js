@@ -1,12 +1,14 @@
-import { db } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
     collection,
     getDocs,
     doc,
+    getDoc,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-
+const contenidoDocente = document.querySelector("#contenidoDocente");
 const listadoCursos = document.querySelector("#listadoCursos");
 const contenedorTabla = document.querySelector("#contenedorTabla");
 const estadoCarga = document.querySelector("#estadoCarga");
@@ -22,7 +24,6 @@ const modalDetalle = document.querySelector("#modalDetalle");
 const nombreCursoEliminar = document.querySelector("#nombreCursoEliminar");
 const btnConfirmarEliminar = document.querySelector("#btnConfirmarEliminar");
 
-
 let todosLosCursos = [];                
 let cursosFiltrados = [];               
 let paginaActual = 1;
@@ -31,14 +32,115 @@ const CURSOS_POR_PAGINA = 5;
 let cursoSeleccionado = null;           
 let accion = null;                        
 
+// ==========================================
+// CONTROL DE ACCESO
+// ==========================================
+iniciarVerificacion();
 
+function iniciarVerificacion() {
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            mostrarAccesoDenegado("Debés iniciar sesión para acceder a esta página.", "ingresar.html");
+            return;
+        }
+
+        try {
+            const referenciaUsuario = doc(db, "usuarios", user.uid);
+            const docSnap = await getDoc(referenciaUsuario);
+
+            if (docSnap.exists()) {
+                const datosUsuario = docSnap.data();
+                const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toLowerCase().trim();
+
+                if (rol.includes("docente/admin")) {
+                    if (contenidoDocente) {
+                        contenidoDocente.classList.remove("d-none");
+                    }
+                    cargarCursos();
+                } else {
+                    mostrarAccesoDenegado("No tenés permisos para gestionar cursos.", "index.html");
+                }
+            } else {
+                mostrarAccesoDenegado("No se encontraron los datos de tu usuario.", "index.html");
+            }
+        } catch (error) {
+            console.error("Error al verificar permisos:", error);
+            mostrarAccesoDenegado("Ocurrió un error al verificar tus permisos.", "index.html");
+        }
+    });
+}
+
+function mostrarAccesoDenegado(mensaje, destinoRedireccion) {
+    if (contenidoDocente) {
+        contenidoDocente.classList.add("d-none");
+    }
+
+    const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+    if (!contenedorMensaje) return;
+
+    contenedorMensaje.className = "container py-5";
+    contenedorMensaje.classList.remove("d-none");
+    contenedorMensaje.innerHTML = `
+        <style>
+            @keyframes entradaSmooth {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes pulsoAtencion {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+                100% { transform: scale(1); }
+            }
+            .card-microinteraccion {
+                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            }
+            .icono-alerta-animado {
+                animation: pulsoAtencion 1.8s infinite ease-in-out;
+                display: inline-block;
+            }
+        </style>
+        <div class="row justify-content-center my-5">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                        </div>
+                        <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                        <p class="text-secondary mb-4">${mensaje}</p>
+                        
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                        </div>
+
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        window.location.href = destinoRedireccion;
+    }, 3500);
+}
+
+// ==========================================
+// CARGA Y GESTIÓN DE CURSOS
+// ==========================================
 async function cargarCursos() {
     try {
         estadoCarga.classList.remove("d-none");
         contenedorTabla.classList.add("d-none");
         mensajeVacio.classList.add("d-none");
 
-        // CAMBIO: Ahora apunta a la colección 'cursoscc'
         const cursosRef = collection(db, "cursoscc");
         const snapshot = await getDocs(cursosRef);
 
@@ -61,7 +163,6 @@ async function cargarCursos() {
             });
         });
 
-        // CAMBIO: Ordena alfabéticamente por 'titulo' (campo de cursoscc)
         todosLosCursos.sort((a, b) => (a.titulo || a.nombre || "").localeCompare(b.titulo || b.nombre || ""));
 
         cursosFiltrados = [...todosLosCursos];
@@ -80,7 +181,6 @@ async function cargarCursos() {
     }
 }
 
-
 function renderizarPagina() {
     const totalPaginas = Math.ceil(cursosFiltrados.length / CURSOS_POR_PAGINA) || 1;
 
@@ -94,7 +194,6 @@ function renderizarPagina() {
     contadorCursos.textContent = cursosFiltrados.length;
 
     contenedorTabla.classList.remove("d-none");
-
     listadoCursos.innerHTML = "";
 
     cursosPagina.forEach((curso) => {
@@ -131,7 +230,6 @@ function renderizarPagina() {
     conectarBotonesAccion();
     renderizarPaginacion(totalPaginas);
 }
-
 
 function renderizarPaginacion(totalPaginas) {
     paginacion.innerHTML = "";
@@ -171,7 +269,6 @@ function renderizarPaginacion(totalPaginas) {
     });
 }
 
-
 function conectarBotonesAccion() {
     document.querySelectorAll(".btn-accion").forEach((boton) => {
         boton.addEventListener("click", () => {
@@ -204,12 +301,10 @@ function conectarBotonesAccion() {
     });
 }
 
-
 btnConfirmarEliminar.addEventListener("click", async () => {
     if (!cursoSeleccionado || !accion) return;
 
     try {
-        // CAMBIO: Ahora actualiza en la colección 'cursoscc'
         const cursoRef = doc(db, "cursoscc", cursoSeleccionado.id);
         const nuevoEstado = accion === "habilitar";
 
@@ -233,5 +328,3 @@ btnConfirmarEliminar.addEventListener("click", async () => {
         alert("No se pudo actualizar el curso: " + error.message);
     }
 });
-
-cargarCursos();

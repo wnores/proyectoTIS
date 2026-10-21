@@ -13,7 +13,7 @@ import {
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
 const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
-const contenidoAdministrador = document.getElementById("contenidoAdministrador");
+const contenidoAdmin = document.getElementById("contenidoAdmin");
 const selectorCurso = document.getElementById("selectorCurso");
 const formModificarCurso = document.getElementById("formModificarCurso");
 const mensajeCurso = document.getElementById("mensajeCurso");
@@ -44,10 +44,104 @@ let listaModulos = [];
 let modulosEliminados = [];
 let temasEliminados = [];
 
-// Índice del módulo que se está editando en la página actual (0 a N-1)
 let moduloPaginaActual = 0;
 
 iniciarPagina();
+
+function iniciarPagina() {
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            mostrarAccesoDenegado("Debés iniciar sesión para acceder a esta sección.", "ingresar.html");
+            return;
+        }
+
+        try {
+            const docRef = doc(db, "usuarios", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const datos = docSnap.data();
+                const rol = (datos.tipoUsuario || datos.rol || "").toLowerCase().trim();
+
+                if (rol.includes("docente/admin")) {
+                    if (contenidoAdmin) {
+                        contenidoAdmin.classList.remove("d-none");
+                    }
+                    await cargarListaCursos();
+                } else {
+                    mostrarAccesoDenegado("No tenés permiso para modificar cursos.", "index.html");
+                }
+            } else {
+                mostrarAccesoDenegado("No se encontraron los datos de tu usuario.", "index.html");
+            }
+        } catch (error) {
+            console.error("Error al validar permisos de administrador:", error);
+            mostrarAccesoDenegado("Ocurrió un error al verificar tus permisos.", "index.html");
+        }
+    });
+}
+
+function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+    if (contenidoAdmin) {
+        contenidoAdmin.classList.add("d-none");
+    }
+
+    const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+    if (!contenedorMensaje) return;
+
+    contenedorMensaje.className = "container py-5";
+    contenedorMensaje.classList.remove("d-none");
+    contenedorMensaje.innerHTML = `
+        <style>
+            @keyframes entradaSmooth {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes pulsoAtencion {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+                100% { transform: scale(1); }
+            }
+            .card-microinteraccion {
+                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            }
+            .icono-alerta-animado {
+                animation: pulsoAtencion 1.8s infinite ease-in-out;
+                display: inline-block;
+            }
+        </style>
+        <div class="row justify-content-center my-5">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                        </div>
+                        <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                        <p class="text-secondary mb-4">${mensajeTexto}</p>
+                        
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                        </div>
+
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        window.location.href = destinoRedireccion;
+    }, 3500);
+}
 
 if (imagenCurso) {
     imagenCurso.addEventListener("change", (event) => {
@@ -69,7 +163,6 @@ if (imagenCurso) {
     });
 }
 
-// Evento para validar y capturar el archivo PDF exclusivo
 if (actividadPdf) {
     actividadPdf.addEventListener("change", (event) => {
         const archivo = event.target.files[0];
@@ -90,41 +183,6 @@ if (actividadPdf) {
 
         archivoActividadPdf = archivo;
         if (nombreActividadPdf) nombreActividadPdf.textContent = `Archivo seleccionado: ${archivo.name}`;
-    });
-}
-
-function iniciarPagina() {
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            alert("Debés iniciar sesión para acceder.");
-            window.location.href = "ingresar.html";
-            return;
-        }
-
-        try {
-            const docRef = doc(db, "usuarios", user.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                const datos = docSnap.data();
-                const rol = (datos.tipoUsuario || datos.rol || "").toLowerCase().trim();
-
-                if (rol.includes("admin") || rol.includes("docente")) {
-                    if (contenidoAdministrador) {
-                        contenidoAdministrador.classList.remove("d-none");
-                    }
-                    await cargarListaCursos();
-                } else {
-                    alert("No tenés permiso para modificar cursos.");
-                    window.location.href = "catalogo.html";
-                }
-            } else {
-                window.location.href = "catalogo.html";
-            }
-        } catch (error) {
-            console.error("Error al validar permisos de administrador:", error);
-            window.location.href = "catalogo.html";
-        }
     });
 }
 
@@ -693,12 +751,10 @@ if (formModificarCurso) {
                 urlImagenFinal = await subirImagenACloudinary(archivoImagenCurso);
             }
 
-            // Subida directa apuntando exclusivamente a RAW para archivos PDF
             if (archivoActividadPdf) {
                 urlPdfFinal = await subirPdfACloudinary(archivoActividadPdf);
             }
 
-            // 1. Guardar datos principales del curso en 'cursoscc'
             await updateDoc(doc(db, "cursoscc", cursoSeleccionadoId), {
                 titulo: titulo,
                 descripcion: descripcion,
@@ -710,7 +766,6 @@ if (formModificarCurso) {
                 actividad_pdf_url: urlPdfFinal
             });
 
-            // 2. Eliminar módulos y temas marcados para borrar
             for (const idModEliminar of modulosEliminados) {
                 await deleteDoc(doc(db, "cursoscc", cursoSeleccionadoId, "modulos", idModEliminar));
             }
@@ -721,7 +776,6 @@ if (formModificarCurso) {
             }
             temasEliminados = [];
 
-            // 3. Guardar/Actualizar Módulos y sus Temas
             const modulosRef = collection(db, "cursoscc", cursoSeleccionadoId, "modulos");
 
             for (let i = 0; i < listaModulos.length; i++) {

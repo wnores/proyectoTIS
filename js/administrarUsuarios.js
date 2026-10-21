@@ -1,4 +1,3 @@
-// js/administrarUsuarios.js
 import { db, auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
@@ -9,9 +8,6 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// =====================================================
-// ELEMENTOS DEL DOM
-// =====================================================
 const buscadorUsuarios = document.querySelector("#buscadorUsuarios");
 const filtroEstadoUsuarios = document.querySelector("#filtroEstadoUsuarios");
 const btnLimpiarUsuarios = document.querySelector("#btnLimpiarUsuarios");
@@ -22,7 +18,6 @@ const contenedorTablaUsuarios = document.querySelector("#contenedorTablaUsuarios
 const listadoUsuarios = document.querySelector("#listadoUsuarios");
 const paginacionUsuarios = document.querySelector("#paginacionUsuarios");
 
-// Modal
 const modalUsuarioEl = document.getElementById("modalUsuario");
 const modalUsuario = modalUsuarioEl ? new bootstrap.Modal(modalUsuarioEl) : null;
 const modalUsuarioTitulo = document.querySelector("#modalUsuarioTitulo");
@@ -31,20 +26,14 @@ const modalUsuarioDetalle = document.querySelector("#modalUsuarioDetalle");
 const nombreUsuarioAccion = document.querySelector("#nombreUsuarioAccion");
 const btnConfirmarAccionUsuario = document.querySelector("#btnConfirmarAccionUsuario");
 
-// =====================================================
-// ESTADO
-// =====================================================
 let todosLosUsuarios = [];
 let usuariosFiltrados = [];
 let paginaActual = 1;
 const USUARIOS_POR_PAGINA = 10;
 
 let usuarioSeleccionado = null;
-let accionSeleccionada = null; // "habilitar" | "deshabilitar"
+let accionSeleccionada = null; 
 
-// =====================================================
-// 1. CARGAR USUARIOS DESDE FIRESTORE
-// =====================================================
 async function cargarUsuarios() {
     if (!contenedorTablaUsuarios) return;
 
@@ -69,7 +58,6 @@ async function cargarUsuarios() {
             });
         });
 
-        // Orden alfabético por nombre
         todosLosUsuarios.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
 
         cargandoUsuarios.classList.add("d-none");
@@ -86,9 +74,6 @@ async function cargarUsuarios() {
     }
 }
 
-// =====================================================
-// 2. APLICAR FILTROS
-// =====================================================
 function aplicarFiltrosUsuarios() {
     const texto = buscadorUsuarios.value.trim().toLowerCase();
     const estado = filtroEstadoUsuarios.value;
@@ -112,9 +97,6 @@ function aplicarFiltrosUsuarios() {
     renderizarPagina();
 }
 
-// =====================================================
-// 3. RENDERIZAR PÁGINA
-// =====================================================
 function renderizarPagina() {
     const totalPaginas = Math.ceil(usuariosFiltrados.length / USUARIOS_POR_PAGINA) || 1;
     if (paginaActual > totalPaginas) paginaActual = totalPaginas;
@@ -183,9 +165,6 @@ function renderizarPagina() {
     renderizarPaginacion(totalPaginas);
 }
 
-// =====================================================
-// 4. PAGINACIÓN
-// =====================================================
 function renderizarPaginacion(totalPaginas) {
     paginacionUsuarios.innerHTML = "";
     if (totalPaginas <= 1) return;
@@ -223,9 +202,6 @@ function renderizarPaginacion(totalPaginas) {
     });
 }
 
-// =====================================================
-// 5. CONECTAR BOTONES DE ACCIÓN
-// =====================================================
 function conectarBotonesAccion() {
     document.querySelectorAll(".btn-accion-usuario").forEach((boton) => {
         boton.addEventListener("click", () => {
@@ -258,9 +234,6 @@ function conectarBotonesAccion() {
     });
 }
 
-// =====================================================
-// 6. CONFIRMAR ACCIÓN
-// =====================================================
 if (btnConfirmarAccionUsuario) {
     btnConfirmarAccionUsuario.addEventListener("click", async () => {
         if (!usuarioSeleccionado || !accionSeleccionada) return;
@@ -274,13 +247,11 @@ if (btnConfirmarAccionUsuario) {
                 fechaCambioEstado: new Date().toISOString()
             });
 
-            // Actualizamos localmente
             const usuarioLocal = todosLosUsuarios.find(u => u.uid === usuarioSeleccionado.uid);
             if (usuarioLocal) usuarioLocal.activo = nuevoEstado;
 
             if (modalUsuario) modalUsuario.hide();
 
-            // Re-renderizamos
             aplicarFiltrosUsuarios();
 
             usuarioSeleccionado = null;
@@ -293,9 +264,6 @@ if (btnConfirmarAccionUsuario) {
     });
 }
 
-// =====================================================
-// 7. FILTROS Y EVENTOS
-// =====================================================
 if (buscadorUsuarios) {
     buscadorUsuarios.addEventListener("input", aplicarFiltrosUsuarios);
 }
@@ -310,9 +278,6 @@ if (btnLimpiarUsuarios) {
     });
 }
 
-// =====================================================
-// 8. VERIFICAR ADMIN Y CARGAR
-// =====================================================
 onAuthStateChanged(auth, async (user) => {
     if (!user) return;
 

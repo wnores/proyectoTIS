@@ -9,80 +9,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const contenedor = document.getElementById('resultadosBusqueda');
     const textoBusqueda = document.getElementById('textoBusqueda');
     const sinResultados = document.getElementById('sinResultados');
+    const parrafoSinResultados = document.getElementById('parrafoSinResultados');
 
+    // Capturar el parámetro "buscar" de la URL
     const parametros = new URLSearchParams(window.location.search);
     const texto = parametros.get('buscar');
 
-    if (!texto) {
-        textoBusqueda.textContent =
-            'No se ingresó ningún término de búsqueda.';
+    // Si no se ingresó texto o la búsqueda está vacía
+    if (!texto || !texto.trim()) {
+        if (textoBusqueda) {
+            textoBusqueda.textContent = '';
+        }
+        if (parrafoSinResultados) {
+            parrafoSinResultados.textContent = 'No ingresaste ningún término de búsqueda.';
+        }
+        if (sinResultados) {
+            sinResultados.classList.remove('d-none');
+        }
         return;
     }
 
-    const busqueda = normalizarTexto(texto);
+    const busqueda = normalizarTexto(texto.trim());
 
-    textoBusqueda.textContent =
-        `Resultados para: "${texto}"`;
+    if (textoBusqueda) {
+        textoBusqueda.textContent = `Resultados para: "${texto}"`;
+    }
 
-    const paginas = [
-        {
-            titulo: 'Inicio',
-            descripcion:
-                'Página principal de Cursos de Ciencias de la Computación.',
-            palabras:
-                'inicio cursos aprendizaje tecnologia',
-            url: 'index.html'
-        },
-        {
-            titulo: 'Acerca de',
-            descripcion:
-                'Conocé más sobre nuestra propuesta educativa.',
-            palabras:
-                'acerca propuesta nosotros informacion',
-            url: 'acercaDe.html'
-        },
-        {
-            titulo: 'Becas',
-            descripcion:
-                'Información sobre becas y oportunidades para acceder a los cursos.',
-            palabras:
-                'beca becas ayuda oportunidades beneficio',
-            url: 'beca.html'
-        },
-        {
-            titulo: 'Contacto',
-            descripcion:
-                'Encontrá nuestros medios de contacto.',
-            palabras:
-                'contacto comunicacion consultar mensaje',
-            url: 'contacto.html'
-        },
-        {
-            titulo: 'Catálogo de cursos',
-            descripcion:
-                'Explorá todos los cursos disponibles.',
-            palabras:
-                'catalogo cursos programacion informatica tecnologia',
-            url: 'catalogo.html'
-        }
-    ];
+    let resultados = [];
 
-    let resultados = paginas.filter(pagina => {
-
-        const contenidoPagina = normalizarTexto(`
-            ${pagina.titulo}
-            ${pagina.descripcion}
-            ${pagina.palabras}
-        `);
-
-        return contenidoPagina.includes(busqueda);
-    });
-
-    // Buscar cursos directamente en Firestore
     try {
-
+        // Consultar la colección cursoscc en Firestore
         const referenciaCursos = collection(db, 'cursoscc');
-
         const snapshot = await getDocs(referenciaCursos);
 
         const cursos = snapshot.docs.map(doc => ({
@@ -90,107 +47,97 @@ document.addEventListener('DOMContentLoaded', async () => {
             ...doc.data()
         }));
 
-        // Solo se muestran cursos activos
-        const cursosActivos = cursos.filter(curso => {
+        // Filtrar cursos activos y que coincidan con el texto buscado
+        const cursosEncontrados = cursos.filter(curso => {
+            const esActivo = curso.activo !== false && curso.estado !== 'inactivo';
+            if (!esActivo) return false;
 
-            return (
-                curso.activo !== false &&
-                curso.estado !== 'inactivo'
-            );
+            const titulo = curso.titulo || curso.nombre || '';
+            const descripcion = curso.descripcion || '';
+            
+            let categoria = '';
+            if (Array.isArray(curso.categoria)) {
+                categoria = curso.categoria.join(' ');
+            } else if (Array.isArray(curso.categorias)) {
+                categoria = curso.categorias.join(' ');
+            } else {
+                categoria = curso.categoria || curso.categorias || '';
+            }
 
-        });
-
-        const cursosEncontrados = cursosActivos.filter(curso => {
+            const modalidad = curso.modalidad || '';
+            const duracion = curso.duracion_horas || curso.duracion || '';
 
             const contenidoCurso = normalizarTexto(`
-                ${curso.titulo ?? ''}
-                ${curso.descripcion ?? ''}
-                ${curso.categoria ?? ''}
-                ${curso.modalidad ?? ''}
-                ${curso.duracion_horas ?? ''}
+                ${titulo}
+                ${descripcion}
+                ${categoria}
+                ${modalidad}
+                ${duracion}
             `);
 
             return contenidoCurso.includes(busqueda);
         });
 
+        // Convertir coincidencias en objetos lista
         cursosEncontrados.forEach(curso => {
-
             resultados.push({
-                titulo:
-                    curso.titulo ??
-                    'Curso sin título',
-
-                descripcion:
-                    curso.descripcion ??
-                    'Curso disponible en nuestro catálogo.',
-
-                palabras: 'curso',
-
-                url:
-                    `descripcionDeCurso.html?id=${curso.id}`
+                titulo: curso.titulo || curso.nombre || 'Curso sin título',
+                descripcion: curso.descripcion || 'Curso disponible en nuestro catálogo.',
+                url: `descripcionDeCurso.html?id=${curso.id}`
             });
-
         });
 
     } catch (error) {
-
-        console.error(
-            'Error al cargar los cursos desde Firestore:',
-            error
-        );
-
+        console.error('Error al cargar los cursos desde Firestore:', error);
     }
 
+    // SI NO SE ENCONTRARON COINCIDENCIAS
     if (resultados.length === 0) {
-
-        sinResultados.classList.remove('d-none');
+        if (contenedor) contenedor.innerHTML = '';
+        if (parrafoSinResultados) {
+            parrafoSinResultados.textContent = 'Probá con otras palabras o revisá la búsqueda.';
+        }
+        if (sinResultados) sinResultados.classList.remove('d-none');
         return;
-
     }
 
-    resultados.forEach(resultado => {
+    // SI SE ENCONTRARON COINCIDENCIAS
+    if (sinResultados) {
+        sinResultados.classList.add('d-none');
+    }
 
-        const tarjeta = document.createElement('div');
-
-        tarjeta.className =
-            'col-12 col-md-6 col-lg-4';
-
-        tarjeta.innerHTML = `
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body d-flex flex-column">
-
-                    <h2 class="h5 card-title">
-                        ${resultado.titulo}
-                    </h2>
-
-                    <p class="card-text flex-grow-1">
-                        ${resultado.descripcion}
-                    </p>
-
-                    <a
-                        href="${resultado.url}"
-                        class="btn btn-primary mt-auto">
-                        Ver resultado
-                    </a>
-
+    if (contenedor) {
+        contenedor.innerHTML = '';
+        resultados.forEach(resultado => {
+            const tarjeta = document.createElement('div');
+            tarjeta.className = 'col-12 col-md-6 col-lg-4';
+            tarjeta.innerHTML = `
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">
+                            ${resultado.titulo}
+                        </h2>
+                        <p class="card-text flex-grow-1 text-secondary">
+                            ${resultado.descripcion}
+                        </p>
+                        <a href="${resultado.url}" class="btn btn-primary mt-auto">
+                            Ver curso
+                        </a>
+                    </div>
                 </div>
+            `;
+            contenedor.appendChild(tarjeta);
+        });
+    }
 
-            </div>
-        `;
-
-        contenedor.appendChild(tarjeta);
-
-    });
-
+    // Función para ignorar tildes, mayúsculas y acentos en la búsqueda
     function normalizarTexto(texto) {
-
+        if (!texto) return '';
         return texto
             .toString()
             .toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '');
-
     }
 
 });

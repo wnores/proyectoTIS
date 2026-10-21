@@ -66,7 +66,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link"
-                               data-page="carrito"
+                               data-page="contacto"
                                href="contacto.html">
                                 Contacto
                             </a>
@@ -112,7 +112,7 @@
                             aria-expanded="false">
 
                             <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
-                            <span class="fs-6" id="nombreUsuario"></span>
+                            <span class="fs-6 fw-bold" id="nombreUsuario"></span>
                         </button>
 
                         <ul
@@ -125,7 +125,27 @@
                                     href="perfil.html">
 
                                     <i class="bi bi-person fs-5" aria-hidden="true"></i>
-                                    Ver perfil
+                                    Mi perfil
+                                </a>
+                            </li>
+
+                            <li id="menuMisCursos">
+                                <a
+                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="misCursos.html">
+
+                                    <i class="bi bi-book fs-5" aria-hidden="true"></i>
+                                    Mis cursos
+                                </a>
+                            </li>
+
+                            <li id="menuAdminCursos" class="d-none">
+                                <a
+                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="administrarCursos.html">
+
+                                    <i class="bi bi-gear-wide-connected fs-5" aria-hidden="true"></i>
+                                    Administrar cursos
                                 </a>
                             </li>
 
@@ -150,262 +170,269 @@
         </nav>
     </header>
 
-    <main id="contenidoAdministrador" class="flex-grow-1 d-none">
-        <section class="py-5" aria-labelledby="tituloCrearCurso">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-10 col-lg-8">
+    <main class="flex-grow-1">
 
-                        <div class="card shadow-sm">
-                            <div class="card-body p-4 p-md-5">
+        <!-- MENSAJE DE ACCESO DENEGADO (MICROINTERACCIÓN) -->
+        <div id="mensajeSinPermiso" class="container py-5 d-none"></div>
 
-                                <h1 class="text-center mb-3" id="tituloCrearCurso">
-                                    Crear un curso
-                                </h1>
+        <!-- CONTENIDO VISIBLE SOLO PARA DOCENTE/ADMIN -->
+        <div id="contenidoAdministrador" class="d-none">
+            <section class="py-5" aria-labelledby="tituloCrearCurso">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-10 col-lg-8">
 
-                                <p class="text-center text-muted mb-4">
-                                    Completá los datos para agregar un nuevo curso a la plataforma.
-                                </p>
+                            <div class="card shadow-sm">
+                                <div class="card-body p-4 p-md-5">
 
-                                <p class="text-muted" id="ayudaCamposObligatorios">
-                                    Los campos marcados con
-                                    <span class="text-danger" aria-hidden="true">*</span>
-                                    son obligatorios.
-                                </p>
+                                    <h1 class="text-center mb-3" id="tituloCrearCurso">
+                                        Crear un curso
+                                    </h1>
 
-                                <div
-                                    id="mensajeCurso"
-                                    class="alert d-none"
-                                    role="alert"
-                                    aria-atomic="true">
-                                </div>
+                                    <p class="text-center text-muted mb-4">
+                                        Completá los datos para agregar un nuevo curso a la plataforma.
+                                    </p>
 
-                                <form
-                                    id="formPublicarCurso"
-                                    autocomplete="off"
-                                    aria-describedby="ayudaCamposObligatorios">
+                                    <p class="text-muted" id="ayudaCamposObligatorios">
+                                        Los campos marcados con
+                                        <span class="text-danger" aria-hidden="true">*</span>
+                                        son obligatorios.
+                                    </p>
 
-                                    <fieldset>
-                                        <legend class="visually-hidden">
-                                            Información general del curso
-                                        </legend>
+                                    <div
+                                        id="mensajeCurso"
+                                        class="alert d-none"
+                                        role="alert"
+                                        aria-atomic="true">
+                                    </div>
 
-                                        <div class="mb-3">
-                                            <label for="titulo" class="form-label">
-                                                Título del curso
-                                                <span class="text-danger" aria-hidden="true">*</span>
-                                            </label>
+                                    <form
+                                        id="formPublicarCurso"
+                                        autocomplete="off"
+                                        aria-describedby="ayudaCamposObligatorios">
 
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="titulo"
-                                                name="titulo"
-                                                placeholder="Ej.: Introducción a JavaScript"
-                                                required>
-                                        </div>
+                                        <fieldset>
+                                            <legend class="visually-hidden">
+                                                Información general del curso
+                                            </legend>
 
-                                        <div class="mb-3">
-                                            <label for="descripcion" class="form-label">
-                                                Descripción
-                                                <span class="text-danger" aria-hidden="true">*</span>
-                                            </label>
-
-                                            <textarea
-                                                class="form-control"
-                                                id="descripcion"
-                                                name="descripcion"
-                                                rows="4"
-                                                placeholder="Ingresá una descripción del curso"
-                                                required></textarea>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="categoria" class="form-label">
-                                                Categoría
-                                                <span class="text-danger" aria-hidden="true">*</span>
-                                            </label>
-
-                                            <select
-                                                class="form-select"
-                                                id="categoria"
-                                                name="categoria"
-                                                required>
-
-                                                <option value="">
-                                                    Cargando categorías...
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-12 col-md-6 mb-3">
-                                                <label for="precio" class="form-label">
-                                                    Precio
+                                            <div class="mb-3">
+                                                <label for="titulo" class="form-label">
+                                                    Título del curso
                                                     <span class="text-danger" aria-hidden="true">*</span>
                                                 </label>
 
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     class="form-control"
-                                                    id="precio"
-                                                    name="precio"
-                                                    min="0.01"
-                                                    step="0.01"
-                                                    placeholder="Ej.: 1500"
+                                                    id="titulo"
+                                                    name="titulo"
+                                                    placeholder="Ej.: Introducción a JavaScript"
                                                     required>
                                             </div>
 
-                                            <div class="col-12 col-md-6 mb-3">
-                                                <label for="duracion" class="form-label">
-                                                    Duración en horas
+                                            <div class="mb-3">
+                                                <label for="descripcion" class="form-label">
+                                                    Descripción
                                                     <span class="text-danger" aria-hidden="true">*</span>
                                                 </label>
 
-                                                <input
-                                                    type="number"
+                                                <textarea
                                                     class="form-control"
-                                                    id="duracion"
-                                                    name="duracion"
-                                                    min="1"
-                                                    step="1"
-                                                    placeholder="Ej.: 40"
-                                                    required>
+                                                    id="descripcion"
+                                                    name="descripcion"
+                                                    rows="4"
+                                                    placeholder="Ingresá una descripción del curso"
+                                                    required></textarea>
                                             </div>
-                                        </div>
 
-                                        <div class="mb-3">
-                                            <label for="cupos" class="form-label">
-                                                Cupos disponibles
-                                                <span class="text-danger" aria-hidden="true">*</span>
-                                            </label>
-
-                                            <input
-                                                type="number"
-                                                class="form-control"
-                                                id="cupos"
-                                                name="cupos"
-                                                min="1"
-                                                step="1"
-                                                placeholder="Ej.: 25"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <label for="imagenCurso" class="form-label">
-                                                Imagen del curso
-                                            </label>
-
-                                            <div>
-                                                <input
-                                                    type="file"
-                                                    id="imagenCurso"
-                                                    class="visually-hidden-focusable"
-                                                    accept="image/*"
-                                                    aria-describedby="nombreImagenCurso">
-
-                                                <label
-                                                    for="imagenCurso"
-                                                    class="btn btn-outline-primary">
-
-                                                    <i class="bi bi-folder2-open me-2" aria-hidden="true"></i>
-                                                    Seleccionar imagen
+                                            <div class="mb-3">
+                                                <label for="categoria" class="form-label">
+                                                    Categoría
+                                                    <span class="text-danger" aria-hidden="true">*</span>
                                                 </label>
+
+                                                <select
+                                                    class="form-select"
+                                                    id="categoria"
+                                                    name="categoria"
+                                                    required>
+
+                                                    <option value="">
+                                                        Cargando categorías...
+                                                    </option>
+                                                </select>
                                             </div>
 
-                                            <p id="nombreImagenCurso" class="form-text mb-2">
-                                                No se seleccionó ninguna imagen.
-                                            </p>
-
-                                            <img
-                                                id="vistaPreviaCurso"
-                                                class="img-fluid rounded d-none"
-                                                style="max-height: 220px;"
-                                                alt="Vista previa de la imagen del curso">
-                                        </div>
-                                    </fieldset>
-
-                                    <section class="mb-4" aria-labelledby="tituloModulos">
-                                        <h2 class="h5 mb-3" id="tituloModulos">
-                                            Módulos del curso
-                                        </h2>
-
-                                        <div id="contenedorModulos">
-                                            <fieldset class="modulo-item border rounded p-3 mb-3 bg-light">
-                                                <legend class="visually-hidden">
-                                                    Módulo 1
-                                                </legend>
-
-                                                <div class="mb-3">
-                                                    <label
-                                                        for="nombreModulo1"
-                                                        class="form-label fw-bold">
-
-                                                        Módulo 1: Nombre del módulo
+                                            <div class="row">
+                                                <div class="col-12 col-md-6 mb-3">
+                                                    <label for="precio" class="form-label">
+                                                        Precio
                                                         <span class="text-danger" aria-hidden="true">*</span>
                                                     </label>
 
                                                     <input
-                                                        type="text"
-                                                        class="form-control nombreModulo"
-                                                        id="nombreModulo1"
-                                                        placeholder="Ej.: Introducción a la programación"
+                                                        type="number"
+                                                        class="form-control"
+                                                        id="precio"
+                                                        name="precio"
+                                                        min="0.01"
+                                                        step="0.01"
+                                                        placeholder="Ej.: 1500"
                                                         required>
                                                 </div>
 
-                                                <div>
-                                                    <label
-                                                        for="temasModulo1"
-                                                        class="form-label">
-
-                                                        Temas del módulo (un tema por línea)
+                                                <div class="col-12 col-md-6 mb-3">
+                                                    <label for="duracion" class="form-label">
+                                                        Duración en horas
                                                         <span class="text-danger" aria-hidden="true">*</span>
                                                     </label>
 
-                                                    <textarea
-                                                        class="form-control temasModulo"
-                                                        id="temasModulo1"
-                                                        rows="3"
-                                                        placeholder="Variables&#10;Tipos de datos&#10;Operadores"
-                                                        required></textarea>
+                                                    <input
+                                                        type="number"
+                                                        class="form-control"
+                                                        id="duracion"
+                                                        name="duracion"
+                                                        min="1"
+                                                        step="1"
+                                                        placeholder="Ej.: 40"
+                                                        required>
                                                 </div>
-                                            </fieldset>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="cupos" class="form-label">
+                                                    Cupos disponibles
+                                                    <span class="text-danger" aria-hidden="true">*</span>
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    id="cupos"
+                                                    name="cupos"
+                                                    min="1"
+                                                    step="1"
+                                                    placeholder="Ej.: 25"
+                                                    required>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="imagenCurso" class="form-label">
+                                                    Imagen del curso
+                                                </label>
+
+                                                <div>
+                                                    <input
+                                                        type="file"
+                                                        id="imagenCurso"
+                                                        class="visually-hidden-focusable"
+                                                        accept="image/*"
+                                                        aria-describedby="nombreImagenCurso">
+
+                                                    <label
+                                                        for="imagenCurso"
+                                                        class="btn btn-outline-primary">
+
+                                                        <i class="bi bi-folder2-open me-2" aria-hidden="true"></i>
+                                                        Seleccionar imagen
+                                                    </label>
+                                                </div>
+
+                                                <p id="nombreImagenCurso" class="form-text mb-2">
+                                                    No se seleccionó ninguna imagen.
+                                                </p>
+
+                                                <img
+                                                    id="vistaPreviaCurso"
+                                                    class="img-fluid rounded d-none"
+                                                    style="max-height: 220px;"
+                                                    alt="Vista previa de la imagen del curso">
+                                            </div>
+                                        </fieldset>
+
+                                        <section class="mb-4" aria-labelledby="tituloModulos">
+                                            <h2 class="h5 mb-3" id="tituloModulos">
+                                                Módulos del curso
+                                            </h2>
+
+                                            <div id="contenedorModulos">
+                                                <fieldset class="modulo-item border rounded p-3 mb-3 bg-light">
+                                                    <legend class="visually-hidden">
+                                                        Módulo 1
+                                                    </legend>
+
+                                                    <div class="mb-3">
+                                                        <label
+                                                            for="nombreModulo1"
+                                                            class="form-label fw-bold">
+
+                                                            Módulo 1: Nombre del módulo
+                                                            <span class="text-danger" aria-hidden="true">*</span>
+                                                        </label>
+
+                                                        <input
+                                                            type="text"
+                                                            class="form-control nombreModulo"
+                                                            id="nombreModulo1"
+                                                            placeholder="Ej.: Introducción a la programación"
+                                                            required>
+                                                    </div>
+
+                                                    <div>
+                                                        <label
+                                                            for="temasModulo1"
+                                                            class="form-label">
+
+                                                            Temas del módulo (un tema por línea)
+                                                            <span class="text-danger" aria-hidden="true">*</span>
+                                                        </label>
+
+                                                        <textarea
+                                                            class="form-control temasModulo"
+                                                            id="temasModulo1"
+                                                            rows="3"
+                                                            placeholder="Variables&#10;Tipos de datos&#10;Operadores"
+                                                            required></textarea>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-primary btn-sm"
+                                                id="btnAgregarModulo">
+
+                                                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                                                Agregar módulo
+                                            </button>
+                                        </section>
+
+                                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                                id="btnPublicarCurso">
+
+                                                <i class="bi bi-cloud-arrow-up-fill me-2" aria-hidden="true"></i>
+                                                Crear curso
+                                            </button>
+
+                                            <a
+                                                href="administrarCursos.html"
+                                                class="btn btn-outline-secondary">
+                                                Cancelar
+                                            </a>
                                         </div>
-
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline-primary btn-sm"
-                                            id="btnAgregarModulo">
-
-                                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
-                                            Agregar módulo
-                                        </button>
-                                    </section>
-
-                                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                                        <button
-                                            type="submit"
-                                            class="btn btn-primary"
-                                            id="btnPublicarCurso">
-
-                                            <i class="bi bi-cloud-arrow-up-fill me-2" aria-hidden="true"></i>
-                                            Crear curso
-                                        </button>
-
-                                        <a
-                                            href="administrarCursos.html"
-                                            class="btn btn-outline-secondary">
-                                            Cancelar
-                                        </a>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 
     <footer class="footer">

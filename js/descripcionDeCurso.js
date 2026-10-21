@@ -221,12 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
               consultaAdquisicion
           );
 
-          // Comprobar si el estudiante ya adquirió el curso.
           const cursoAdquirido = resultadoAdquisicion.docs.some(
               (documento) => {
                   const adquisicion = documento.data();
 
-                  // Compras normales aprobadas.
                   if (
                       adquisicion.estado === "aprobada" &&
                       (
@@ -237,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
                       return true;
                   }
 
-                  // Becas con saldo completamente pagado.
                   if (
                       adquisicion.metodoPago === "beca" &&
                       Number(adquisicion.porcentajeBeca) > 0 &&
@@ -252,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
           );
 
           if (cursoAdquirido) {
-              // Ya adquirió el curso: ocultar inscripción y solicitud de beca.
               if (btnInscribirmeInferior) {
                   btnInscribirmeInferior.classList.add("d-none");
               }
@@ -261,12 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   btnBeca.classList.add("d-none");
               }
 
-              // Permitir acceder al contenido.
               if (btnAcceder) {
                   btnAcceder.classList.remove("d-none");
               }
           } else {
-              // Todavía no adquirió el curso.
               if (btnAcceder) {
                   btnAcceder.classList.add("d-none");
               }
@@ -291,7 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-// Carga la subcolección 'modulos' dentro de 'cursoscc/{cursoId}'
   async function renderizarTablaModulos(cursoId) {
     const seccionModulos = document.querySelector('.js-seccion-modulos');
     const tablaBody = document.querySelector('.js-tabla-modulos-body');
@@ -304,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      // Referencia a la subcolección 'modulos'
       const modulosRef = collection(db, 'cursoscc', cursoId, 'modulos');
       const modulosSnap = await getDocs(modulosRef);
 
@@ -314,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tablaBody.innerHTML = '';
 
-      // Ordenamos por la propiedad 'numero'
       const docs = modulosSnap.docs.map(doc => doc.data());
       docs.sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
 
@@ -325,12 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const tr = document.createElement('tr');
 
-        // Columna 1: Número y Módulo
         const tdModulo = document.createElement('td');
         tdModulo.className = 'fw-bold';
         tdModulo.textContent = textoModulo;
 
-        // Columna 2: Temas uno debajo del otro
         const tdTemas = document.createElement('td');
 
         let listaTemas = [];
@@ -346,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (listaTemas.length > 0) {
           const ul = document.createElement('ul');
-          ul.className = 'mb-0 ps-3'; // Quita margen inferior y ajusta sangría
+          ul.className = 'mb-0 ps-3'; 
           
           listaTemas.forEach(tema => {
             const li = document.createElement('li');

@@ -218,7 +218,8 @@ if (form) {
         nroDocumento,
         photoURL: photoURL,
         tipoUsuario: "estudiante",
-        creadoEn: new Date()
+        creadoEn: new Date(),
+        activo: true
       });
 
       mostrarRegistroExitoso(() => {

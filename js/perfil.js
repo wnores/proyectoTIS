@@ -3,21 +3,17 @@ import {
     onAuthStateChanged,
     updateProfile,
     updatePassword,
-    deleteUser,
     reauthenticateWithCredential,
     EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
 import {
     doc,
     getDoc,
-    updateDoc,
-    deleteDoc,
-    collection,
-    query,
-    where,
-    getDocs,
-    writeBatch
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const contenidoPerfil = document.getElementById("contenidoPerfil");
 
 function normalizarDepartamento(departamento) {
     if (!departamento) return "";
@@ -40,7 +36,7 @@ function normalizarDepartamento(departamento) {
         salto: "Salto",
         sanjose: "San José",
         soriano: "Soriano",
-        tacuarembo: "Tacuarembó",
+        tacuarembo: "Tacuarembo",
         treintaytres: "Treinta y Tres"
     };
 
@@ -58,21 +54,104 @@ function normalizarDepartamento(departamento) {
 }
 
 const departamentosUruguay = [
-    "Artigas", "Canelones", "Cerro Largo", "Colonia", "Durazno", 
-    "Flores", "Florida", "Lavalleja", "Maldonado", "Montevideo", 
-    "Paysandú", "Río Negro", "Rivera", "Rocha", "Salto", 
-    "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
+    "Artigas",
+    "Canelones",
+    "Cerro Largo",
+    "Colonia",
+    "Durazno",
+    "Flores",
+    "Florida",
+    "Lavalleja",
+    "Maldonado",
+    "Montevideo",
+    "Paysandú",
+    "Río Negro",
+    "Rivera",
+    "Rocha",
+    "Salto",
+    "San José",
+    "Soriano",
+    "Tacuarembó",
+    "Treinta y Tres"
 ];
+
+function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+    if (contenidoPerfil) {
+        contenidoPerfil.classList.add("d-none");
+    }
+
+    const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+    if (!contenedorMensaje) return;
+
+    contenedorMensaje.className = "container py-5";
+    contenedorMensaje.classList.remove("d-none");
+    contenedorMensaje.innerHTML = `
+        <style>
+            @keyframes entradaSmooth {
+                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes pulsoAtencion {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+                100% { transform: scale(1); }
+            }
+            .card-microinteraccion {
+                animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            }
+            .icono-alerta-animado {
+                animation: pulsoAtencion 1.8s infinite ease-in-out;
+                display: inline-block;
+            }
+        </style>
+        <div class="row justify-content-center my-5">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                        </div>
+                        <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                        <p class="text-secondary mb-4">${mensajeTexto}</p>
+                        
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                        </div>
+
+                        <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        window.location.href = destinoRedireccion;
+    }, 3500);
+}
 
 function cargarDatosEnPerfil(datosUsuario, user) {
     const nombre = document.getElementById("perfilNombre");
-    if (nombre) nombre.textContent = datosUsuario.nombre || "";
+    if (nombre) {
+        nombre.textContent = datosUsuario.nombre || "";
+    }
 
     const apellido = document.getElementById("perfilApellido");
-    if (apellido) apellido.textContent = datosUsuario.apellido || "";
+    if (apellido) {
+        apellido.textContent = datosUsuario.apellido || "";
+    }
 
     const email = document.getElementById("perfilEmail");
-    if (email) email.textContent = datosUsuario.email || user.email || "";
+    if (email) {
+        email.textContent = datosUsuario.email || user.email || "";
+    }
 
     const departamento = document.getElementById("perfilDepartamento");
     if (departamento) {
@@ -80,36 +159,30 @@ function cargarDatosEnPerfil(datosUsuario, user) {
     }
 
     const tipoDocumento = document.getElementById("perfilTipoDocumento");
-    if (tipoDocumento) tipoDocumento.textContent = datosUsuario.tipoDocumento || "";
-
-    const nroDocumento = document.getElementById("perfilNroDocumento");
-    if (nroDocumento) nroDocumento.textContent = datosUsuario.nroDocumento || "";
-
-    const rolUsuario = datosUsuario.tipoUsuario || datosUsuario.rol || "";
-
-    const rolPerfil = document.getElementById("perfilRol");
-    if (rolPerfil) rolPerfil.textContent = rolUsuario;
-
-    const btnServicios = document.getElementById("btnServiciosAdquiridos");
-    if (btnServicios) {
-        if (rolUsuario.toLowerCase() === "estudiante") {
-            btnServicios.classList.remove("d-none");
-        } else {
-            btnServicios.classList.add("d-none");
-        }
+    if (tipoDocumento) {
+        tipoDocumento.textContent = datosUsuario.tipoDocumento || "";
     }
 
-    const avatarWrapper = document.querySelector(".avatar-wrapper");
-    if (avatarWrapper) {
-        const contenedor = avatarWrapper.parentElement;
-        const nombreCompleto = contenedor.querySelector("h5");
-        const rol = nombreCompleto?.nextElementSibling;
+    const nroDocumento = document.getElementById("perfilNroDocumento");
+    if (nroDocumento) {
+        nroDocumento.textContent = datosUsuario.nroDocumento || "";
+    }
 
-        if (nombreCompleto) {
-            nombreCompleto.textContent = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
-        }
+    const rolUsuario = datosUsuario.tipoUsuario || datosUsuario.rol || "";
+    const rolPerfil = document.getElementById("perfilRol");
 
-        if (rol) rol.textContent = rolUsuario;
+    if (rolPerfil) {
+        rolPerfil.textContent = rolUsuario;
+    }
+
+    const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+    if (perfilNombreFoto) {
+        perfilNombreFoto.textContent = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
+    }
+
+    const perfilRolFoto = document.getElementById("perfilRolFoto");
+    if (perfilRolFoto) {
+        perfilRolFoto.textContent = rolUsuario;
     }
 
     const photoURL = datosUsuario.photoURL || user.photoURL;
@@ -118,7 +191,13 @@ function cargarDatosEnPerfil(datosUsuario, user) {
         if (avatar) {
             const contenedorAvatar = avatar.querySelector("div");
             if (contenedorAvatar) {
-                contenedorAvatar.innerHTML = `<img src="${photoURL}" alt="Foto de perfil" class="w-100 h-100 rounded-circle object-fit-cover">`;
+                contenedorAvatar.innerHTML = `
+                    <img
+                        src="${photoURL}"
+                        alt="Foto de perfil"
+                        class="w-100 h-100 rounded-circle object-fit-cover"
+                    >
+                `;
             }
         }
     }
@@ -159,14 +238,19 @@ function editarNombre(user, referenciaUsuario) {
 
             document.getElementById("perfilNombre").textContent = nombreLimpio;
 
-            const nombreFoto = document.querySelector(".avatar-wrapper")?.parentElement?.querySelector("h5");
-            if (nombreFoto) nombreFoto.textContent = nombreCompleto;
+            const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+            if (perfilNombreFoto) {
+                perfilNombreFoto.textContent = nombreCompleto;
+            }
 
             const nombreNavbar = document.getElementById("nombreUsuario");
-            if (nombreNavbar) nombreNavbar.textContent = nombreCompleto;
+            if (nombreNavbar) {
+                nombreNavbar.textContent = nombreCompleto;
+            }
 
             modal.hide();
             mostrarNotificacion("Nombre actualizado correctamente.", "exito");
+
         } catch (error) {
             console.error("Error al actualizar el nombre:", error);
             mostrarNotificacion("No se pudo actualizar el nombre.", "error");
@@ -212,14 +296,19 @@ function editarApellido(user, referenciaUsuario) {
 
             document.getElementById("perfilApellido").textContent = apellidoLimpio;
 
-            const nombreFoto = document.querySelector(".avatar-wrapper")?.parentElement?.querySelector("h5");
-            if (nombreFoto) nombreFoto.textContent = nombreCompleto;
+            const perfilNombreFoto = document.getElementById("perfilNombreFoto");
+            if (perfilNombreFoto) {
+                perfilNombreFoto.textContent = nombreCompleto;
+            }
 
             const nombreNavbar = document.getElementById("nombreUsuario");
-            if (nombreNavbar) nombreNavbar.textContent = nombreCompleto;
+            if (nombreNavbar) {
+                nombreNavbar.textContent = nombreCompleto;
+            }
 
             modal.hide();
             mostrarNotificacion("Apellido actualizado correctamente.", "exito");
+
         } catch (error) {
             console.error("Error al actualizar el apellido:", error);
             mostrarNotificacion("No se pudo actualizar el apellido.", "error");
@@ -247,6 +336,7 @@ function editarDepartamento(referenciaUsuario) {
         if (departamento.toLowerCase() === departamentoActual.toLowerCase()) {
             opcion.selected = true;
         }
+
         select.appendChild(opcion);
     });
 
@@ -276,11 +366,11 @@ function editarDepartamento(referenciaUsuario) {
 
             boton.innerHTML = '<i class="bi bi-pencil-square"></i>';
             boton.title = "Editar departamento";
-
             boton.onclick = null;
             boton.addEventListener("click", () => editarDepartamento(referenciaUsuario));
 
             mostrarNotificacion("Departamento actualizado correctamente.", "exito");
+
         } catch (error) {
             console.error("Error al actualizar el departamento:", error);
             mostrarNotificacion("No se pudo actualizar el departamento.", "error");
@@ -289,12 +379,13 @@ function editarDepartamento(referenciaUsuario) {
 }
 
 async function editarFotoPerfil(user, referenciaUsuario) {
-    const CLOUDINARY_CLOUD_NAME = "fd9bzuxj"; 
-    const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller"; 
+    const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
+    const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+
     input.click();
 
     input.addEventListener("change", async () => {
@@ -309,18 +400,19 @@ async function editarFotoPerfil(user, referenciaUsuario) {
         const avatarDiv = document.querySelector(".avatar-wrapper div");
 
         try {
-            if (avatarDiv) {
-                avatarDiv.style.opacity = "0.5";
-            }
+            if (avatarDiv) avatarDiv.style.opacity = "0.5";
 
             const formData = new FormData();
             formData.append("file", archivo);
             formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-            const respuesta = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                method: "POST",
-                body: formData
-            });
+            const respuesta = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
 
             if (!respuesta.ok) {
                 const errorData = await respuesta.json();
@@ -336,24 +428,28 @@ async function editarFotoPerfil(user, referenciaUsuario) {
 
             if (avatarDiv) {
                 avatarDiv.style.opacity = "1";
-                avatarDiv.innerHTML = `<img src="${urlFoto}" alt="Foto de perfil" class="w-100 h-100 rounded-circle object-fit-cover">`;
+                avatarDiv.innerHTML = `
+                    <img
+                        src="${urlFoto}"
+                        alt="Foto de perfil"
+                        class="w-100 h-100 rounded-circle object-fit-cover"
+                    >
+                `;
             }
 
             mostrarNotificacion("Foto de perfil actualizada correctamente.", "exito");
+
         } catch (error) {
             console.error("Error al actualizar la foto:", error);
             mostrarNotificacion("No se pudo actualizar la foto de perfil.", "error");
-            
-            if (avatarDiv) {
-                avatarDiv.style.opacity = "1";
-            }
+
+            if (avatarDiv) avatarDiv.style.opacity = "1";
         }
     });
 }
 
 function configurarModificarPassword(user) {
     const boton = document.getElementById("btnModificarPassword");
-
     if (!boton) return;
 
     boton.addEventListener("click", () => {
@@ -361,7 +457,6 @@ function configurarModificarPassword(user) {
     });
 
     const botonGuardar = document.getElementById("btnGuardarPassword");
-
     if (!botonGuardar) return;
 
     botonGuardar.addEventListener("click", async () => {
@@ -410,16 +505,12 @@ function configurarModificarPassword(user) {
 
             mensaje.textContent = "Contraseña actualizada correctamente.";
             mensaje.classList.add("text-success");
-
             botonGuardar.textContent = "Listo";
 
             setTimeout(() => {
                 const modalElemento = document.getElementById("modalPassword");
                 const modal = bootstrap.Modal.getInstance(modalElemento);
-
-                if (modal) {
-                    modal.hide();
-                }
+                if (modal) modal.hide();
 
                 botonGuardar.disabled = false;
                 botonGuardar.textContent = "Guardar contraseña";
@@ -427,10 +518,8 @@ function configurarModificarPassword(user) {
 
         } catch (error) {
             console.error("Error al modificar la contraseña:", error);
-
             botonGuardar.disabled = false;
             botonGuardar.textContent = "Guardar contraseña";
-
             mensaje.textContent = "No se pudo modificar la contraseña.";
             mensaje.classList.add("text-danger");
         }
@@ -443,9 +532,7 @@ function abrirModalReautenticarPassword(user) {
     const mensaje = document.getElementById("mensajeReautenticarPassword");
     const boton = document.getElementById("btnReautenticarPassword");
 
-    if (!modalElemento || !campoPassword || !mensaje || !boton) {
-        return;
-    }
+    if (!modalElemento || !campoPassword || !mensaje || !boton) return;
 
     campoPassword.value = "";
     campoPassword.classList.remove("is-invalid");
@@ -471,15 +558,12 @@ function abrirModalReautenticarPassword(user) {
 
         boton.disabled = true;
         boton.textContent = "Verificando...";
-
         mensaje.textContent = "";
         mensaje.className = "small mt-2";
-
         campoPassword.classList.remove("is-invalid");
 
         try {
             const credencial = EmailAuthProvider.credential(user.email, passwordActual);
-
             await reauthenticateWithCredential(user, credencial);
 
             mensaje.textContent = "Identidad verificada correctamente.";
@@ -504,14 +588,10 @@ function abrirModalReautenticarPassword(user) {
 
         } catch (error) {
             console.error("Error durante la reautenticación:", error);
-
             boton.disabled = false;
             boton.textContent = "Continuar";
 
-            if (
-                error.code === "auth/wrong-password" ||
-                error.code === "auth/invalid-credential"
-            ) {
+            if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
                 mensaje.textContent = "La contraseña actual es incorrecta.";
                 mensaje.className = "small mt-2 text-danger";
                 campoPassword.classList.add("is-invalid");
@@ -545,252 +625,111 @@ document.querySelectorAll(".btn-toggle-password").forEach((boton) => {
     });
 });
 
-function obtenerNombreTipoBeca(tipoBeca) {
-    const nombres = {
-        acceso: "Beca de acceso",
-        rendimiento: "Beca por rendimiento",
-        inclusion: "Beca de inclusión"
-    };
+function deshabilitarCuenta(user, referenciaUsuario) {
+    const botonAbrir = document.getElementById("btnDeshabilitarCuenta");
+    const botonConfirmar = document.getElementById("btnConfirmarDeshabilitarCuenta");
+    const botonReautenticar = document.getElementById("btnReautenticarDeshabilitar");
+    const inputPassword = document.getElementById("passwordDeshabilitarCuenta");
+    const mensajeDeshabilitar = document.getElementById("mensajeDeshabilitarCuenta");
 
-    return nombres[tipoBeca] || "Beca";
-}
+    if (!botonAbrir) return;
 
-function configurarServiciosAdquiridos(datosUsuario) {
-    const boton = document.getElementById("btnServiciosAdquiridos");
-
-    if (!boton) return;
-
-    boton.addEventListener("click", () => {
-        const contenedor = document.getElementById("listaServiciosAdquiridos");
-
-        if (!contenedor) return;
-
-        contenedor.innerHTML = "";
-
-        const servicios = datosUsuario.serviciosAdquiridos;
-
-        const tituloServicios = document.createElement("h6");
-        tituloServicios.className = "fw-bold mb-3";
-        tituloServicios.textContent = "Cursos adquiridos";
-
-        contenedor.appendChild(tituloServicios);
-
-        if (!Array.isArray(servicios) || servicios.length === 0) {
-            contenedor.innerHTML += `
-                <div class="text-center py-3">
-                    <i class="bi bi-mortarboard fs-1 text-secondary"></i>
-                    <p class="mt-3 mb-0">
-                        No tenés cursos adquiridos.
-                    </p>
-                </div>
-            `;
-        } else {
-            const lista = document.createElement("div");
-            lista.className = "list-group mb-4";
-
-            servicios.forEach((servicio) => {
-                const elemento = document.createElement("div");
-                elemento.className = "list-group-item d-flex align-items-center gap-2";
-
-                elemento.innerHTML = `
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                    <span>${servicio.curso || servicio}</span>
-                `;
-
-                lista.appendChild(elemento);
-            });
-
-            contenedor.appendChild(lista);
-        }
-
-        const becas = datosUsuario.becasAdquiridas;
-
-        if (Array.isArray(becas) && becas.length > 0) {
-            const separador = document.createElement("hr");
-            separador.className = "my-4";
-
-            contenedor.appendChild(separador);
-
-            const tituloBecas = document.createElement("h6");
-            tituloBecas.className = "fw-bold mb-3";
-            tituloBecas.textContent = "Becas otorgadas";
-
-            contenedor.appendChild(tituloBecas);
-
-            const listaBecas = document.createElement("div");
-            listaBecas.className = "list-group";
-
-            becas.forEach((beca) => {
-                const elemento = document.createElement("div");
-                elemento.className = "list-group-item";
-
-                elemento.innerHTML = `
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-award-fill text-warning"></i>
-                        <div>
-                            <div class="fw-semibold">
-                                ${beca.curso}
-                            </div>
-                            <small class="text-secondary">
-                                ${obtenerNombreTipoBeca(beca.tipoBeca)}
-                            </small>
-                        </div>
-                    </div>
-                `;
-
-                listaBecas.appendChild(elemento);
-            });
-
-            contenedor.appendChild(listaBecas);
-        }
-
-        const modalElemento = document.getElementById("modalServicios");
-
+    botonAbrir.addEventListener("click", () => {
+        const modalElemento = document.getElementById("modalDeshabilitarCuenta");
         if (modalElemento) {
             const modal = new bootstrap.Modal(modalElemento);
             modal.show();
         }
     });
-}
 
-async function eliminarBecasUsuario(uid) {
-    const referenciaBecas = collection(db, "solicitudesBecas");
+    if (botonConfirmar) {
+        botonConfirmar.addEventListener("click", () => {
+            if (inputPassword) {
+                inputPassword.value = "";
+                inputPassword.classList.remove("is-invalid");
+            }
 
-    const consulta = query(
-        referenciaBecas,
-        where("uid", "==", uid)
-    );
+            if (mensajeDeshabilitar) {
+                mensajeDeshabilitar.textContent = "";
+                mensajeDeshabilitar.className = "small mt-2";
+            }
 
-    const resultado = await getDocs(consulta);
+            const modalConfirmacion = document.getElementById("modalDeshabilitarCuenta");
+            if (modalConfirmacion) {
+                const instancia = bootstrap.Modal.getInstance(modalConfirmacion);
+                if (instancia) instancia.hide();
+            }
 
-    if (resultado.empty) return;
-
-    const batch = writeBatch(db);
-
-    resultado.forEach((documento) => {
-        batch.delete(documento.ref);
-    });
-
-    await batch.commit();
-}
-
-function configurarEliminarCuenta(user, referenciaUsuario) {
-    const boton = document.getElementById("btnEliminarCuenta");
-
-    if (!boton) return;
-
-    boton.addEventListener("click", () => {
-        const modalElemento = document.getElementById("modalEliminarCuenta");
-
-        if (!modalElemento) return;
-
-        const modal = new bootstrap.Modal(modalElemento);
-        modal.show();
-    });
-
-    const botonConfirmar = document.getElementById("btnConfirmarEliminarCuenta");
-    const botonReautenticar = document.getElementById("btnReautenticarEliminar");
-    const inputPassword = document.getElementById("passwordEliminarCuenta");
-    const mensajeEliminar = document.getElementById("mensajeEliminarCuenta");
-
-    if (!botonConfirmar || !botonReautenticar || !inputPassword) {
-        return;
+            setTimeout(() => {
+                const modalReautenticar = document.getElementById("modalReautenticarDeshabilitar");
+                if (modalReautenticar) {
+                    const modal = new bootstrap.Modal(modalReautenticar);
+                    modal.show();
+                }
+            }, 300);
+        });
     }
 
-    botonConfirmar.addEventListener("click", () => {
-        inputPassword.value = "";
-        inputPassword.classList.remove("is-invalid");
+    if (botonReautenticar) {
+        botonReautenticar.addEventListener("click", async () => {
+            const password = inputPassword ? inputPassword.value.trim() : "";
 
-        if (mensajeEliminar) {
-            mensajeEliminar.textContent = "";
-            mensajeEliminar.className = "small mt-2";
-        }
-
-        botonReautenticar.disabled = false;
-        botonReautenticar.textContent = "Continuar";
-
-        const modalConfirmacion = document.getElementById("modalEliminarCuenta");
-
-        if (modalConfirmacion) {
-            const instancia = bootstrap.Modal.getInstance(modalConfirmacion);
-            if (instancia) {
-                instancia.hide();
-            }
-        }
-
-        setTimeout(() => {
-            const modalReautenticar = document.getElementById("modalReautenticarEliminar");
-
-            if (modalReautenticar) {
-                const modal = new bootstrap.Modal(modalReautenticar);
-                modal.show();
-            }
-        }, 300);
-    });
-
-    botonReautenticar.addEventListener("click", async () => {
-        const password = inputPassword.value.trim();
-
-        if (!password) {
-            if (mensajeEliminar) {
-                mensajeEliminar.textContent = "Ingresá tu contraseña actual.";
-                mensajeEliminar.className = "small mt-2 text-danger";
-            }
-            inputPassword.classList.add("is-invalid");
-            return;
-        }
-
-        botonReautenticar.disabled = true;
-        botonReautenticar.textContent = "Verificando...";
-
-        if (mensajeEliminar) {
-            mensajeEliminar.textContent = "";
-            mensajeEliminar.className = "small mt-2";
-        }
-
-        inputPassword.classList.remove("is-invalid");
-
-        try {
-            const credencial = EmailAuthProvider.credential(user.email, password);
-
-            await reauthenticateWithCredential(user, credencial);
-            await eliminarBecasUsuario(user.uid);
-            await deleteDoc(referenciaUsuario);
-            await deleteUser(user);
-
-            if (mensajeEliminar) {
-                mensajeEliminar.textContent = "Tu cuenta fue eliminada correctamente.";
-                mensajeEliminar.className = "small mt-2 text-success";
-            }
-
-            botonReautenticar.textContent = "Cuenta eliminada";
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            window.location.href = "index.html";
-
-        } catch (error) {
-            console.error("Error durante la eliminación:", error);
-
-            botonReautenticar.disabled = false;
-            botonReautenticar.textContent = "Continuar";
-
-            if (
-                error.code === "auth/wrong-password" ||
-                error.code === "auth/invalid-credential"
-            ) {
-                if (mensajeEliminar) {
-                    mensajeEliminar.textContent = "La contraseña ingresada no es correcta.";
-                    mensajeEliminar.className = "small mt-2 text-danger";
+            if (!password) {
+                if (mensajeDeshabilitar) {
+                    mensajeDeshabilitar.textContent = "Ingresá tu contraseña actual.";
+                    mensajeDeshabilitar.className = "small mt-2 text-danger";
                 }
-                inputPassword.classList.add("is-invalid");
-            } else {
-                if (mensajeEliminar) {
-                    mensajeEliminar.textContent = "No se pudo eliminar la cuenta. Intentá nuevamente.";
-                    mensajeEliminar.className = "small mt-2 text-danger";
-                }
+                if (inputPassword) inputPassword.classList.add("is-invalid");
+                return;
             }
-        }
-    });
+
+            botonReautenticar.disabled = true;
+            botonReautenticar.textContent = "Verificando...";
+
+            if (mensajeDeshabilitar) {
+                mensajeDeshabilitar.textContent = "";
+                mensajeDeshabilitar.className = "small mt-2";
+            }
+
+            try {
+                const credencial = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credencial);
+
+                await updateDoc(referenciaUsuario, {
+                    activo: false,
+                    fechaCambioEstado: new Date().toISOString()
+                });
+
+                if (mensajeDeshabilitar) {
+                    mensajeDeshabilitar.textContent = "Tu cuenta ha sido deshabilitada correctamente.";
+                    mensajeDeshabilitar.className = "small mt-2 text-success";
+                }
+
+                botonReautenticar.textContent = "Cuenta deshabilitada";
+
+                setTimeout(async () => {
+                    await auth.signOut();
+                    window.location.href = "index.html";
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error al deshabilitar cuenta:", error);
+                botonReautenticar.disabled = false;
+                botonReautenticar.textContent = "Continuar";
+
+                if (mensajeDeshabilitar) {
+                    if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+                        mensajeDeshabilitar.textContent = "La contraseña ingresada no es correcta.";
+                    } else {
+                        mensajeDeshabilitar.textContent = "No se pudo deshabilitar la cuenta. Intentá nuevamente.";
+                    }
+                    mensajeDeshabilitar.className = "small mt-2 text-danger";
+                }
+
+                if (inputPassword) inputPassword.classList.add("is-invalid");
+            }
+        });
+    }
 }
 
 function configurarBotonesEdicion(user, referenciaUsuario) {
@@ -843,6 +782,10 @@ function mostrarNotificacion(mensaje, tipo = "exito") {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        if (contenidoPerfil) {
+            contenidoPerfil.classList.remove("d-none");
+        }
+
         const referenciaUsuario = doc(db, "usuarios", user.uid);
         const docSnap = await getDoc(referenciaUsuario);
 
@@ -852,12 +795,11 @@ onAuthStateChanged(auth, async (user) => {
             cargarDatosEnPerfil(datosUsuario, user);
             configurarBotonesEdicion(user, referenciaUsuario);
             configurarModificarPassword(user);
-            configurarServiciosAdquiridos(datosUsuario);
-            configurarEliminarCuenta(user, referenciaUsuario);
+            deshabilitarCuenta(user, referenciaUsuario);
         } else {
             console.warn("No se encontraron datos adicionales en Firestore para este usuario.");
         }
     } else {
-        window.location.href = "index.html";
+        mostrarAccesoDenegado("Debés iniciar sesión para ver tu perfil de usuario.", "ingresar.html");
     }
 });

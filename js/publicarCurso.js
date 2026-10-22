@@ -1,170 +1,430 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-const contenidoAdministrador = document.getElementById("contenidoAdministrador");  
-const formPublicarCurso = document.getElementById("formPublicarCurso");
-const mensajeCurso = document.getElementById("mensajeCurso");
-const btnPublicarCurso = document.getElementById("btnPublicarCurso");
-const contenedorModulos = document.getElementById("contenedorModulos");
-const btnAgregarModulo = document.getElementById("btnAgregarModulo");
-const selectCategoria = document.getElementById("categoria");
+const contenidoAdministrador =
+  document.getElementById("contenidoAdministrador");
 
-const imagenCurso = document.getElementById("imagenCurso");
-const nombreImagenCurso = document.getElementById("nombreImagenCurso");
-const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
+const formPublicarCurso =
+  document.getElementById("formPublicarCurso");
+
+const mensajeCurso =
+  document.getElementById("mensajeCurso");
+
+const btnPublicarCurso =
+  document.getElementById("btnPublicarCurso");
+
+const selectCategoria =
+  document.getElementById("categoria");
+
+const contenedorModulos =
+  document.getElementById("contenedorModulos");
+
+const btnAgregarModulo =
+  document.getElementById("btnAgregarModulo");
+
+const imagenCurso =
+  document.getElementById("imagenCurso");
+
+const nombreImagenCurso =
+  document.getElementById("nombreImagenCurso");
+
+const vistaPreviaCurso =
+  document.getElementById("vistaPreviaCurso");
 
 const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
 const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
 let archivoImagenCurso = null;
 let cantidadModulos = 1;
+let urlVistaPrevia = null;
 
 iniciarPagina();
+
+function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
+  if (contenidoAdministrador) {
+    contenidoAdministrador.classList.add("d-none");
+  }
+
+  const contenedorMensaje = document.getElementById("mensajeSinPermiso");
+  if (!contenedorMensaje) return;
+
+  contenedorMensaje.className = "container py-5";
+  contenedorMensaje.classList.remove("d-none");
+  contenedorMensaje.innerHTML = `
+      <style>
+          @keyframes entradaSmooth {
+              0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+              100% { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes pulsoAtencion {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.08); }
+              100% { transform: scale(1); }
+          }
+          .card-microinteraccion {
+              animation: entradaSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+              border-radius: 1rem;
+              background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+          }
+          .icono-alerta-animado {
+              animation: pulsoAtencion 1.8s infinite ease-in-out;
+              display: inline-block;
+          }
+      </style>
+      <div class="row justify-content-center my-5">
+          <div class="col-12 col-md-8 col-lg-6">
+              <div class="card border-0 shadow-lg text-center p-4 card-microinteraccion">
+                  <div class="card-body">
+                      <div class="mb-3">
+                          <span class="icono-alerta-animado p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1">
+                              <i class="bi bi-shield-lock-fill"></i>
+                          </span>
+                      </div>
+                      <h2 class="h4 fw-bold text-dark mb-2">Acceso Restringido</h2>
+                      <p class="text-secondary mb-4">${mensajeTexto}</p>
+                      
+                      <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                          <span class="small text-muted">Redirigiendo en unos segundos...</span>
+                      </div>
+
+                      <a href="${destinoRedireccion}" class="btn btn-primary btn-sm px-4 rounded-pill">
+                          <i class="bi bi-house-door-fill me-1"></i> Ir ahora
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  `;
+
+  setTimeout(() => {
+    window.location.href = destinoRedireccion;
+  }, 3500);
+}
 
 function iniciarPagina() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      alert("Debés iniciar sesión para acceder.");
-      window.location.href = "ingresar.html";
+      mostrarAccesoDenegado("Debés iniciar sesión para publicar un curso.", "ingresar.html");
       return;
     }
 
     try {
-      const docRef = doc(db, "usuarios", user.uid);
-      const docSnap = await getDoc(docRef);
+      const referenciaUsuario = doc(db, "usuarios", user.uid);
+      const documentoUsuario = await getDoc(referenciaUsuario);
 
-      if (docSnap.exists()) {
-        const datos = docSnap.data();
-        const rol = (datos.tipoUsuario || datos.rol || "").toLowerCase().trim();
+      if (!documentoUsuario.exists()) {
+        mostrarAccesoDenegado("No se encontraron datos de usuario registrados.", "catalogo.html");
+        return;
+      }
 
-        if (rol.includes("admin") || rol.includes("docente")) {
-          if (contenidoAdministrador) {
-            contenidoAdministrador.classList.remove("d-none");
-          }
-        
-          await cargarCategorias();
-        } else {
-          alert("No tenés permiso para crear cursos.");
-          window.location.href = "catalogo.html";
+      const datosUsuario = documentoUsuario.data();
+
+      const rol = (
+        datosUsuario.tipoUsuario ||
+        datosUsuario.rol ||
+        ""
+      ).toLowerCase().trim();
+
+      if (rol.includes("admin") || rol.includes("docente")) {
+        if (contenidoAdministrador) {
+          contenidoAdministrador.classList.remove("d-none");
         }
+
+        await cargarCategorias();
       } else {
-        window.location.href = "catalogo.html";
+        mostrarAccesoDenegado("Solo los docentes y administradores tienen acceso para crear y publicar cursos.", "catalogo.html");
       }
     } catch (error) {
       console.error("Error al validar sesión y rol:", error);
-      window.location.href = "catalogo.html";
+      mostrarAccesoDenegado("Ocurrió un error al verificar tus permisos de acceso.", "catalogo.html");
     }
   });
 }
 
 async function cargarCategorias() {
-  if (!selectCategoria) return;
-
   try {
-    const querySnapshot = await getDocs(collection(db, "cursos"));
+    const snapshot = await getDocs(collection(db, "cursoscc"));
     const categoriasSet = new Set();
 
-    querySnapshot.forEach((doc) => {
-      const datos = doc.data();
-      const cat = datos.categoria || datos.categorias;
+    snapshot.forEach((documento) => {
+      const curso = documento.data();
+      const categoria = curso.categoria || curso.categorias;
 
-      if (cat) {
-        if (Array.isArray(cat)) {
-          cat.forEach((c) => c && categoriasSet.add(c.trim()));
-        } else if (typeof cat === "string") {
-          categoriasSet.add(cat.trim());
-        }
+      if (Array.isArray(categoria)) {
+        categoria.forEach((nombre) => {
+          if (typeof nombre === "string" && nombre.trim()) {
+            categoriasSet.add(nombre.trim());
+          }
+        });
+      } else if (
+        typeof categoria === "string" &&
+        categoria.trim()
+      ) {
+        categoriasSet.add(categoria.trim());
       }
     });
 
-    selectCategoria.innerHTML = '<option value="">Seleccioná una categoría</option>';
+    if (!selectCategoria) return;
 
-    const categoriasOrdenadas = Array.from(categoriasSet).sort();
-    
-    categoriasOrdenadas.forEach((catNombre) => {
-      const option = document.createElement("option");
-      option.value = catNombre;
-      option.textContent = catNombre;
-      selectCategoria.appendChild(option);
+    selectCategoria.replaceChildren();
+
+    const opcionInicial = document.createElement("option");
+    opcionInicial.value = "";
+    opcionInicial.textContent = "Seleccioná una categoría";
+
+    selectCategoria.appendChild(opcionInicial);
+
+    const categoriasOrdenadas =
+      Array.from(categoriasSet).sort((a, b) =>
+        a.localeCompare(b, "es")
+      );
+
+    categoriasOrdenadas.forEach((nombreCategoria) => {
+      const opcion = document.createElement("option");
+
+      opcion.value = nombreCategoria;
+      opcion.textContent = nombreCategoria;
+
+      selectCategoria.appendChild(opcion);
     });
-
   } catch (error) {
-    console.error("Error al obtener las categorías desde la colección cursos:", error);
-    selectCategoria.innerHTML = '<option value="">Error al cargar categorías</option>';
+    console.error("Error al cargar las categorías:", error);
+
+    if (selectCategoria) {
+      selectCategoria.replaceChildren();
+
+      const opcionError = document.createElement("option");
+      opcionError.value = "";
+      opcionError.textContent = "Error al cargar categorías";
+
+      selectCategoria.appendChild(opcionError);
+    }
+
+    mostrarMensaje(
+      "No se pudieron cargar las categorías. Intentá recargar la página.",
+      "danger"
+    );
   }
 }
+
 if (imagenCurso) {
   imagenCurso.addEventListener("change", (event) => {
     const archivo = event.target.files[0];
 
+    if (urlVistaPrevia) {
+      URL.revokeObjectURL(urlVistaPrevia);
+      urlVistaPrevia = null;
+    }
+
     if (!archivo) {
       archivoImagenCurso = null;
-      if (nombreImagenCurso) nombreImagenCurso.textContent = "No se seleccionó ninguna imagen.";
+
+      if (nombreImagenCurso) {
+        nombreImagenCurso.textContent =
+          "No se seleccionó ninguna imagen.";
+      }
+
       if (vistaPreviaCurso) {
         vistaPreviaCurso.classList.add("d-none");
         vistaPreviaCurso.removeAttribute("src");
       }
+
+      return;
+    }
+
+    if (!archivo.type.startsWith("image/")) {
+      archivoImagenCurso = null;
+      imagenCurso.value = "";
+
+      if (nombreImagenCurso) {
+        nombreImagenCurso.textContent =
+          "El archivo seleccionado no es una imagen válida.";
+      }
+
+      if (vistaPreviaCurso) {
+        vistaPreviaCurso.classList.add("d-none");
+        vistaPreviaCurso.removeAttribute("src");
+      }
+
+      mostrarMensaje(
+        "Seleccioná un archivo de imagen válido.",
+        "danger"
+      );
+
       return;
     }
 
     archivoImagenCurso = archivo;
-    if (nombreImagenCurso) nombreImagenCurso.textContent = archivo.name;
+
+    if (nombreImagenCurso) {
+      nombreImagenCurso.textContent = archivo.name;
+    }
 
     if (vistaPreviaCurso) {
-      vistaPreviaCurso.src = URL.createObjectURL(archivo);
+      urlVistaPrevia = URL.createObjectURL(archivo);
+      vistaPreviaCurso.src = urlVistaPrevia;
       vistaPreviaCurso.classList.remove("d-none");
     }
   });
 }
 
-if (btnAgregarModulo) {
+if (btnAgregarModulo && contenedorModulos) {
   btnAgregarModulo.addEventListener("click", () => {
     cantidadModulos++;
 
-    const nuevoModulo = document.createElement("div");
-    nuevoModulo.className = "modulo-item mb-3";
+    const numero = cantidadModulos;
+    const nuevoModulo = document.createElement("fieldset");
+
+    nuevoModulo.className =
+      "modulo-item border rounded p-3 mb-3 bg-light";
 
     nuevoModulo.innerHTML = `
+      <legend class="visually-hidden">
+        Módulo ${numero}
+      </legend>
+
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <label class="form-label mb-0">
-          Módulo ${cantidadModulos}
-          <span class="text-danger">*</span>
+        <label
+          for="nombreModulo${numero}"
+          class="form-label fw-bold mb-0">
+
+          Módulo ${numero}: Nombre del módulo
+          <span class="text-danger" aria-hidden="true">*</span>
         </label>
-        <button type="button" class="btn btn-outline-danger btn-sm btnEliminarModulo">
-          <i class="bi bi-trash3 me-1"></i>
+
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm btnEliminarModulo"
+          aria-label="Eliminar módulo ${numero}">
+
+          <i class="bi bi-trash3 me-1" aria-hidden="true"></i>
           Eliminar
         </button>
       </div>
-      <textarea class="form-control moduloCurso" rows="3" placeholder="Ingresá los temas del módulo" required></textarea>
+
+      <div class="mb-3">
+        <input
+          type="text"
+          class="form-control nombreModulo"
+          id="nombreModulo${numero}"
+          placeholder="Ej.: Introducción a la programación"
+          required>
+      </div>
+
+      <div>
+        <label
+          for="temasModulo${numero}"
+          class="form-label">
+
+          Temas del módulo (un tema por línea)
+          <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+
+        <textarea
+          class="form-control temasModulo"
+          id="temasModulo${numero}"
+          rows="3"
+          placeholder="Variables&#10;Tipos de datos&#10;Operadores"
+          required></textarea>
+      </div>
     `;
 
     contenedorModulos.appendChild(nuevoModulo);
+
+    const campoNombre = nuevoModulo.querySelector(".nombreModulo");
+    campoNombre?.focus();
   });
 }
 
 if (contenedorModulos) {
   contenedorModulos.addEventListener("click", (event) => {
-    const botonEliminar = event.target.closest(".btnEliminarModulo");
+    const objetivo = event.target;
+
+    if (!(objetivo instanceof Element)) return;
+
+    const botonEliminar = objetivo.closest(".btnEliminarModulo");
+
     if (!botonEliminar) return;
 
     const modulo = botonEliminar.closest(".modulo-item");
+
+    if (!modulo) return;
+
+    const modulos = contenedorModulos.querySelectorAll(".modulo-item");
+
+    if (modulos.length <= 1) {
+      mostrarMensaje(
+        "El curso debe tener al menos un módulo.",
+        "warning"
+      );
+      return;
+    }
+
     modulo.remove();
 
     renumerarModulos();
+
+    const primerCampo =
+      contenedorModulos.querySelector(".nombreModulo");
+
+    primerCampo?.focus();
   });
 }
 
 function renumerarModulos() {
-  const modulos = contenedorModulos.querySelectorAll(".modulo-item");
+  if (!contenedorModulos) return;
+
+  const modulos =
+    contenedorModulos.querySelectorAll(".modulo-item");
 
   modulos.forEach((modulo, indice) => {
-    const etiqueta = modulo.querySelector("label");
-    if (etiqueta) {
-      etiqueta.innerHTML = `
-        Módulo ${indice + 1}
-        <span class="text-danger">*</span>
+    const numero = indice + 1;
+
+    const leyenda = modulo.querySelector("legend");
+    const campoNombre = modulo.querySelector(".nombreModulo");
+    const campoTemas = modulo.querySelector(".temasModulo");
+    const botonEliminar = modulo.querySelector(".btnEliminarModulo");
+    const etiquetas = modulo.querySelectorAll("label");
+
+    if (leyenda) {
+      leyenda.textContent = `Módulo ${numero}`;
+    }
+
+    if (campoNombre) {
+      campoNombre.id = `nombreModulo${numero}`;
+    }
+
+    if (campoTemas) {
+      campoTemas.id = `temasModulo${numero}`;
+    }
+
+    if (etiquetas[0]) {
+      etiquetas[0].htmlFor = `nombreModulo${numero}`;
+
+      etiquetas[0].innerHTML = `
+        Módulo ${numero}: Nombre del módulo
+        <span class="text-danger" aria-hidden="true">*</span>
       `;
+    }
+
+    if (etiquetas[1]) {
+      etiquetas[1].htmlFor = `temasModulo${numero}`;
+    }
+
+    if (botonEliminar) {
+      botonEliminar.setAttribute(
+        "aria-label",
+        `Eliminar módulo ${numero}`
+      );
     }
   });
 
@@ -176,93 +436,191 @@ if (formPublicarCurso) {
     event.preventDefault();
 
     const usuario = auth.currentUser;
+
     if (!usuario) {
-      mostrarMensaje("Debés iniciar sesión para crear un curso.", "danger");
+      mostrarMensaje(
+        "Debés iniciar sesión para crear un curso.",
+        "danger"
+      );
       return;
     }
 
-    const titulo = document.getElementById("titulo").value.trim();
-    const descripcion = document.getElementById("descripcion").value.trim();
-    const categoria = selectCategoria.value;
-    const precio = Number(document.getElementById("precio").value);
-    const duracionHoras = Number(document.getElementById("duracion").value);
-    const cuposDisponibles = Number(document.getElementById("cupos").value);
+    const titulo =
+      document.getElementById("titulo").value.trim();
 
-    const camposModulos = document.querySelectorAll(".moduloCurso");
-    const modulos = {};
+    const descripcion =
+      document.getElementById("descripcion").value.trim();
 
-    camposModulos.forEach((campo, indice) => {
-      modulos[`modulo${indice + 1}`] = campo.value.trim();
-    });
+    const categoria =
+      selectCategoria ? selectCategoria.value : "";
 
-    const modulosCompletos = Object.values(modulos).every((contenido) => contenido !== "");
+    const precio =
+      Number(document.getElementById("precio").value);
+
+    const duracionHoras =
+      Number(document.getElementById("duracion").value);
+
+    const cuposDisponibles =
+      Number(document.getElementById("cupos").value);
+
+    const elementosModulos =
+      contenedorModulos.querySelectorAll(".modulo-item");
+
+    const modulos = Array.from(elementosModulos).map(
+      (elemento, indice) => {
+        const campoNombre =
+          elemento.querySelector(".nombreModulo");
+
+        const campoTemas =
+          elemento.querySelector(".temasModulo");
+
+        const temasArray = campoTemas
+          ? campoTemas.value
+              .split("\n")
+              .map((tema) => tema.trim())
+              .filter((tema) => tema.length > 0)
+          : [];
+
+        return {
+          numero: indice + 1,
+          nombre: campoNombre
+            ? campoNombre.value.trim()
+            : "",
+          temas: temasArray
+        };
+      }
+    );
+
+    const modulosValidos =
+      modulos.length > 0 &&
+      modulos.every(
+        (modulo) =>
+          modulo.nombre !== "" &&
+          modulo.temas.length > 0
+      );
 
     if (
       !titulo ||
       !descripcion ||
       !categoria ||
+      !Number.isFinite(precio) ||
       precio <= 0 ||
+      !Number.isFinite(duracionHoras) ||
       duracionHoras <= 0 ||
+      !Number.isInteger(duracionHoras) ||
+      !Number.isFinite(cuposDisponibles) ||
       cuposDisponibles <= 0 ||
-      !modulosCompletos
+      !Number.isInteger(cuposDisponibles) ||
+      !modulosValidos
     ) {
-      mostrarMensaje("Revisá los datos ingresados en el formulario.", "danger");
+      mostrarMensaje(
+        "Revisá los datos ingresados. Seleccioná una categoría e ingresá un nombre y al menos un tema en cada módulo.",
+        "danger"
+      );
       return;
     }
 
     btnPublicarCurso.disabled = true;
+
     btnPublicarCurso.innerHTML = `
-      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-      Creando...
+      <span
+        class="spinner-border spinner-border-sm"
+        role="status"
+        aria-hidden="true"></span>
+      <span>Creando...</span>
     `;
 
     try {
       let imagenUrl = "";
+
       if (archivoImagenCurso) {
-        imagenUrl = await subirImagenACloudinary(archivoImagenCurso);
+        imagenUrl =
+          await subirImagenACloudinary(archivoImagenCurso);
       }
 
-      await addDoc(collection(db, "cursos"), {
-        titulo: titulo,
-        descripcion: descripcion,
-        categoria: categoria,
-        precio: precio,
-        duracion_horas: duracionHoras,
-        cupos_disponibles: cuposDisponibles,
-        URL_imagen: imagenUrl,
-        modalidad: "Virtual",
-        activo: true, 
-        ...modulos,
-        creadoPor: usuario.uid,
-        creadoEn: serverTimestamp()
-      });
+      const referenciaCurso = await addDoc(
+        collection(db, "cursoscc"),
+        {
+          titulo: titulo,
+          descripcion: descripcion,
+          categoria: categoria,
+          precio: precio,
+          duracion_horas: duracionHoras,
+          cupos_disponibles: cuposDisponibles,
+          URL_imagen: imagenUrl,
+          modalidad: "Virtual",
+          activo: true,
+          creadoPor: usuario.uid,
+          creadoEn: serverTimestamp()
+        }
+      );
 
-      mostrarMensaje("El curso fue creado correctamente. Redirigiendo a administración...", "success");
+      const referenciaModulos = collection(
+        db,
+        "cursoscc",
+        referenciaCurso.id,
+        "modulos"
+      );
+
+      for (const modulo of modulos) {
+        await addDoc(referenciaModulos, modulo);
+      }
+
+      mostrarMensaje(
+        "El curso fue creado correctamente. Redirigiendo a administración...",
+        "success"
+      );
 
       formPublicarCurso.reset();
 
       archivoImagenCurso = null;
-      if (nombreImagenCurso) nombreImagenCurso.textContent = "No se seleccionó ninguna imagen.";
+
+      if (urlVistaPrevia) {
+        URL.revokeObjectURL(urlVistaPrevia);
+        urlVistaPrevia = null;
+      }
+
+      if (nombreImagenCurso) {
+        nombreImagenCurso.textContent =
+          "No se seleccionó ninguna imagen.";
+      }
+
       if (vistaPreviaCurso) {
         vistaPreviaCurso.classList.add("d-none");
         vistaPreviaCurso.removeAttribute("src");
       }
 
-      const modulosAgregados = contenedorModulos.querySelectorAll(".modulo-item:not(:first-child)");
+      const modulosAgregados =
+        contenedorModulos.querySelectorAll(
+          ".modulo-item:not(:first-child)"
+        );
+
       modulosAgregados.forEach((modulo) => modulo.remove());
 
       cantidadModulos = 1;
+      renumerarModulos();
 
       setTimeout(() => {
         window.location.href = "administrarCursos.html";
-      }, 3500); 
+      }, 3500);
 
     } catch (error) {
-      console.error("Error al crear el curso:", error);
-      mostrarMensaje("No se pudo crear el curso. Intentá nuevamente.", "danger");
+      console.error(
+        "Error al crear el curso en cursoscc:",
+        error
+      );
+
+      mostrarMensaje(
+        "No se pudo crear el curso. Intentá nuevamente.",
+        "danger"
+      );
+
       btnPublicarCurso.disabled = false;
+
       btnPublicarCurso.innerHTML = `
-        <i class="bi bi-cloud-arrow-up-fill me-2"></i>
+        <i
+          class="bi bi-cloud-arrow-up-fill me-2"
+          aria-hidden="true"></i>
         Crear curso
       `;
     }
@@ -270,24 +628,35 @@ if (formPublicarCurso) {
 }
 
 function mostrarMensaje(texto, tipo) {
-  if (mensajeCurso) {
-    mensajeCurso.textContent = texto;
-    mensajeCurso.className = `alert alert-${tipo}`;
-    
-    mensajeCurso.style.transition = "transform 0.2s ease, opacity 0.2s ease";
-    mensajeCurso.style.transform = "scale(1.03)";
-    setTimeout(() => {
-      mensajeCurso.style.transform = "scale(1)";
-    }, 200);
+  if (!mensajeCurso) return;
 
-    mensajeCurso.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
+  mensajeCurso.textContent = texto;
+  mensajeCurso.className = `alert alert-${tipo}`;
+  mensajeCurso.setAttribute("role", "alert");
+
+  mensajeCurso.style.transition =
+    "transform 0.2s ease, opacity 0.2s ease";
+
+  mensajeCurso.style.transform = "scale(1.03)";
+
+  setTimeout(() => {
+    mensajeCurso.style.transform = "scale(1)";
+  }, 200);
+
+  mensajeCurso.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 }
 
 async function subirImagenACloudinary(archivo) {
   const datosFormulario = new FormData();
+
   datosFormulario.append("file", archivo);
-  datosFormulario.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  datosFormulario.append(
+    "upload_preset",
+    CLOUDINARY_UPLOAD_PRESET
+  );
 
   const respuesta = await fetch(
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -302,5 +671,12 @@ async function subirImagenACloudinary(archivo) {
   }
 
   const datos = await respuesta.json();
+
+  if (!datos.secure_url) {
+    throw new Error(
+      "Cloudinary no devolvió la URL de la imagen."
+    );
+  }
+
   return datos.secure_url;
 }

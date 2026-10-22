@@ -1,0 +1,247 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: ¿El usuario actual es admin/docente?
+    function esAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipoUsuario == "docente/admin";
+    }
+
+    // Regla para la colección de cursos
+    match /cursos/{cursoId} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    // Regla para la colección de certificados
+    match /certificados/{certificadoId} {
+      allow read: if request.auth != null 
+        && (resource.data.usuarioId == request.auth.uid || esAdmin());
+      
+      allow create, update, delete: if esAdmin();
+    }
+
+    // Regla para la colección de usuarios
+    match /usuarios/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null
+                    && (request.auth.uid == userId || esAdmin());
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regla para la colección principal de cursoscc
+    match /cursoscc/{cursoId} {
+
+      allow read: if true;
+      allow create, delete: if esAdmin();
+
+      allow update: if esAdmin()
+                 || (
+                   request.auth != null
+                   && request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasOnly(["cupos_disponibles"])
+                   && request.resource.data.cupos_disponibles ==
+                      resource.data.cupos_disponibles - 1
+                 );
+
+      // Módulos
+      match /modulos/{moduloId} {
+        allow read: if true;
+        allow write: if esAdmin();
+
+        match /temas/{temaId} {
+          allow read: if true;
+          allow write: if esAdmin();
+        }
+      }
+
+      // Entregas de tareas
+      match /entregas/{entregaId} {
+        allow read: if request.auth != null
+                    && (entregaId == request.auth.uid || esAdmin());
+
+        allow create: if esAdmin()
+                      || (
+                        request.auth != null
+                        && entregaId == request.auth.uid
+                        && request.resource.data.keys().hasOnly([
+                          "archivoUrl",
+                          "enlaceUrl",
+                          "fechaEnvio",
+                          "nombreEstudiante",
+                          "emailEstudiante"
+                        ])
+                      );
+
+        allow update: if esAdmin()
+                      || (
+                        request.auth != null
+                        && entregaId == request.auth.uid
+                        && request.resource.data.diff(resource.data)
+                             .affectedKeys()
+                             .hasOnly([
+                               "archivoUrl",
+                               "enlaceUrl",
+                               "fechaEnvio",
+                               "nombreEstudiante",
+                               "emailEstudiante"
+                             ])
+                      );
+
+        allow delete: if esAdmin();
+      }
+
+      // Foro de los cursos
+      match /foro/{publicacionId} {
+        allow read: if request.auth != null;
+
+        allow create: if request.auth != null
+                   && (
+                     request.resource.data.uid == request.auth.uid 
+                     || request.resource.data.autorId == request.auth.uid
+                     || esAdmin()
+                   );
+
+        allow update, delete: if request.auth != null
+                           && (
+                             resource.data.uid == request.auth.uid
+                             || resource.data.autorId == request.auth.uid
+                             || esAdmin()
+                           );
+            
+        match /respuestas/{respuestaId} {
+          allow read: if request.auth != null;
+
+          allow create: if request.auth != null
+                     && (
+                       request.resource.data.uid == request.auth.uid
+                       || request.resource.data.autorId == request.auth.uid
+                       || esAdmin()
+                     );
+
+          allow update, delete: if request.auth != null
+                             && (
+                               resource.data.uid == request.auth.uid 
+                               || resource.data.autorId == request.auth.uid 
+                               || esAdmin()
+                             );
+        }
+      }
+    }
+
+    // Colección de Notificaciones
+    match /notificaciones/{notificacionId} {
+
+      allow create: if request.auth != null;
+
+      allow read: if esAdmin()
+          || (
+              request.auth != null
+              && (
+                resource.data.destinatarioUid == request.auth.uid
+                || resource.data.destinatarioId == request.auth.uid
+                || resource.data.estudianteUid == request.auth.uid
+              )
+          );
+
+      allow update: if esAdmin()
+          || (
+              request.auth != null
+              && (
+                resource.data.destinatarioUid == request.auth.uid
+                || resource.data.destinatarioId == request.auth.uid
+              )
+              && request.resource.data.diff(resource.data)
+                  .affectedKeys()
+                  .hasOnly(["leida", "fechaLectura"])
+          );
+
+      allow delete: if esAdmin();
+    }
+
+    // Colección de Adquisiciones de cursos
+    match /adquisiciones/{adquisicionId} {
+
+      allow create: if request.auth != null
+        && (
+          request.resource.data.usuarioId == request.auth.uid
+          || esAdmin()
+        );
+
+      allow read: if request.auth != null
+        && (
+          resource.data.usuarioId == request.auth.uid
+          || resource.data.estudianteUid == request.auth.uid
+          || esAdmin()
+        );
+
+      allow update: if esAdmin()
+        || (
+          request.auth != null
+          && resource.data.usuarioId == request.auth.uid
+          && resource.data.metodoPago == "beca"
+          && resource.data.saldoPendiente > 0
+          && resource.data.estadoPagoSaldo != "pagado"
+          && (
+            (
+              request.resource.data.diff(resource.data)
+                .affectedKeys()
+                .hasOnly([
+                  "comprobanteUrl",
+                  "comprobanteNombre",
+                  "metodoPagoSaldo",
+                  "estadoPagoSaldo",
+                  "fechaEnvioComprobanteSaldo"
+                ])
+              && request.resource.data.metodoPagoSaldo == "transferencia"
+              && request.resource.data.estadoPagoSaldo == "pendiente"
+              && request.resource.data.comprobanteUrl is string
+              && request.resource.data.comprobanteNombre is string
+            )
+            ||
+            (
+              request.resource.data.diff(resource.data)
+                .affectedKeys()
+                .hasOnly([
+                  "saldoPendiente",
+                  "estadoPagoSaldo",
+                  "estado",
+                  "metodoPagoSaldo",
+                  "fechaPagoSaldo"
+                ])
+              && request.resource.data.metodoPagoSaldo == "tarjeta"
+              && request.resource.data.estadoPagoSaldo == "pagado"
+              && request.resource.data.saldoPendiente == 0
+              && request.resource.data.estado == "aprobada"
+            )
+          )     
+        );
+
+      allow delete: if esAdmin();
+    }
+
+    // Colección de Solicitudes de Becas
+    match /solicitudesBecas/{solicitudId} {
+
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.estado == "pendiente"
+                    && request.resource.data.curso is string
+                    && request.resource.data.curso.size() > 0
+                    && request.resource.data.tipoBeca is string
+                    && request.resource.data.motivo is string;
+
+      allow read: if request.auth != null
+                  && (
+                    resource.data.uid == request.auth.uid
+                    || esAdmin()
+                  );
+
+      allow update, delete: if esAdmin();
+    }
+
+  }
+}

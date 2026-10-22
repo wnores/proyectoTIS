@@ -1,166 +1,129 @@
 import { auth, db } from './firebase-config.js';
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { 
-    collection, 
-    addDoc, 
-    getDocs, 
-    doc, 
-    getDoc, 
-    serverTimestamp 
+import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    doc,
+    getDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-function mostrarNotificacionExito(mensaje, redireccionarA = "index.html", tiempoEspera = 3000) {
-   
-    if (typeof Swal !== "undefined") {
-        Swal.fire({
-            icon: 'success',
-            title: '¡Solicitud Enviada!',
-            text: mensaje,
-            showConfirmButton: false,
-            timer: tiempoEspera,
-            timerProgressBar: true
-        }).then(() => {
-            window.location.href = redireccionarA;
-        });
+function obtenerCursoDesdeURL() {
+    const parametros = new URLSearchParams(window.location.search);
+    return parametros.get("curso");
+}
+
+function mostrarNotificacionExito() {
+    const notificacion = document.createElement("div");
+    notificacion.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3 shadow";
+    notificacion.style.zIndex = "9999";
+    notificacion.innerHTML = `
+        <strong>Solicitud enviada correctamente.</strong>
+        <br>
+        Tu solicitud de beca fue registrada y será evaluada por el equipo docente.
+    `;
+    document.body.appendChild(notificacion);
+
+    setTimeout(() => {
+        notificacion.remove();
+    }, 5000);
+}
+
+async function controlarAccesoBoton(usuario) {
+    const botonSolicitar = document.getElementById("btnSolicitarBeca");
+
+    if (!botonSolicitar) return;
+
+    botonSolicitar.hidden = false;
+
+    if (!usuario) {
+        botonSolicitar.disabled = true;
         return;
     }
 
-    const overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100vw";
-    overlay.style.height = "100vh";
-    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-    overlay.style.display = "flex";
-    overlay.style.justifyContent = "center";
-    overlay.style.alignItems = "center";
-    overlay.style.zIndex = "9999";
-    overlay.style.backdropFilter = "blur(4px)";
-
-    overlay.innerHTML = `
-        <div style="
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            animation: popIn 0.3s ease-out;
-            font-family: system-ui, -apple-system, sans-serif;
-        ">
-            <div style="
-                width: 60px;
-                height: 60px;
-                background-color: #d1e7dd;
-                color: #0f5132;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 15px auto;
-                font-size: 30px;
-            ">✓</div>
-            <h3 style="margin: 0 0 10px 0; color: #198754; font-size: 1.5rem;">¡Solicitud enviada!</h3>
-            <p style="margin: 0 0 15px 0; color: #6c757d; font-size: 0.95rem;">${mensaje}</p>
-            <small style="color: #6c757d; font-style: italic;">Redirigiendo al inicio en breve...</small>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    setTimeout(() => {
-        window.location.href = redireccionarA;
-    }, tiempoEspera);
+    try {
+        const datosUsuario = await obtenerDatosUsuario(usuario.uid);
+        const rol = (datosUsuario?.tipoUsuario || datosUsuario?.rol || "").toLowerCase().trim();
+        botonSolicitar.disabled = (rol !== "estudiante");
+    } catch (error) {
+        console.error("Error al verificar el rol para solicitar una beca:", error);
+        botonSolicitar.disabled = true;
+    }
 }
 
-function controlarAccesoBoton() {
-    const btnSolicitarBeca = document.getElementById("btnSolicitarBeca");
-    if (!btnSolicitarBeca) return;
-
-    btnSolicitarBeca.addEventListener("click", (evento) => {
-        if (btnSolicitarBeca.disabled) {
-            evento.preventDefault();
-            evento.stopPropagation();
-        }
-    });
-
-    onAuthStateChanged(auth, async (usuario) => {
-        if (!usuario) {
-            btnSolicitarBeca.disabled = true;
-            btnSolicitarBeca.title = "Debés iniciar sesión para solicitar una beca.";
-            return;
-        }
-
-        try {
-            const userDocRef = doc(db, "usuarios", usuario.uid);
-            const userSnapshot = await getDoc(userDocRef);
-
-            if (userSnapshot.exists()) {
-                const datosUsuario = userSnapshot.data();
-                const tipoUsuario = datosUsuario.tipoUsuario 
-                    ? String(datosUsuario.tipoUsuario).trim().toLowerCase() 
-                    : "";
-
-                if (tipoUsuario === "estudiante") {
-                    btnSolicitarBeca.disabled = false;
-                    btnSolicitarBeca.removeAttribute("title");
-                } else {
-                    btnSolicitarBeca.disabled = true;
-                    btnSolicitarBeca.title = "Solo los usuarios registrados como estudiantes pueden solicitar becas.";
-                }
-            } else {
-                btnSolicitarBeca.disabled = true;
-                btnSolicitarBeca.title = "No se encontraron datos asociados a tu usuario.";
-            }
-        } catch (error) {
-            console.error("Error al obtener el tipo de usuario desde Firestore:", error);
-            btnSolicitarBeca.disabled = true;
-        }
-    });
-}
-
-async function cargarCursosEnSelect() {
+async function cargarCursosEnSelect(cursoSeleccionado = null) {
     const selectCurso = document.getElementById("curso");
     if (!selectCurso) return;
 
     try {
-        const querySnapshot = await getDocs(collection(db, "cursos"));
-        selectCurso.innerHTML = `<option value="">Seleccioná un curso...</option>`;
+        const cursosRef = collection(db, "cursoscc");
+        const resultado = await getDocs(cursosRef);
 
-        querySnapshot.forEach((doc) => {
-            const curso = doc.data();
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = curso.nombre || curso.titulo || curso.nombreCurso || "Curso sin nombre";
-            selectCurso.appendChild(option);
+        selectCurso.innerHTML = `<option value="">Seleccioná un curso</option>`;
+
+        resultado.forEach((documento) => {
+            const curso = documento.data();
+            if (curso.activo !== false) {
+                const opcion = document.createElement("option");
+                opcion.value = documento.id;
+                opcion.textContent = curso.titulo || "Curso sin título";
+
+                if (cursoSeleccionado && documento.id === cursoSeleccionado) {
+                    opcion.selected = true;
+                }
+                selectCurso.appendChild(opcion);
+            }
         });
-
-        const parametros = new URLSearchParams(window.location.search);
-        const cursoId = parametros.get("curso");
-        if (cursoId) {
-            selectCurso.value = cursoId;
-        }
-
     } catch (error) {
-        console.error("Error al obtener los cursos desde Firestore:", error);
-        selectCurso.innerHTML = `<option value="">Error al cargar los cursos</option>`;
+        console.error("Error al cargar los cursos:", error);
     }
 }
 
-function inicializarFormularioBeca() {
+async function obtenerDatosUsuario(uid) {
+    try {
+        const referenciaUsuario = doc(db, "usuarios", uid);
+        const documentoUsuario = await getDoc(referenciaUsuario);
+        return documentoUsuario.exists() ? documentoUsuario.data() : null;
+    } catch (error) {
+        console.error("Error al obtener el usuario:", error);
+        return null;
+    }
+}
+
+async function validarSolicitudBeca(uid, cursoId, tipoBeca) {
+    const datosUsuario = await obtenerDatosUsuario(uid);
+    if (!datosUsuario) throw new Error("No se pudieron verificar los datos del usuario.");
+
+    const rol = (datosUsuario.tipoUsuario || datosUsuario.rol || "").toLowerCase().trim();
+    if (rol !== "estudiante") throw new Error("Solo los estudiantes pueden solicitar becas.");
+
+    return true;
+}
+
+function inicializarFormularioBeca(usuario) {
     const formulario = document.getElementById("formularioBeca");
     if (!formulario) return;
 
+    const campoNombre = document.getElementById("nombre");
+    const campoCorreo = document.getElementById("correo");
+    const botonEnviar = formulario.querySelector('button[type="submit"]');
+
+    if (campoCorreo) campoCorreo.value = usuario.email || "";
+
+    obtenerDatosUsuario(usuario.uid).then((datosUsuario) => {
+        if (datosUsuario && campoNombre) {
+            campoNombre.value = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
+        }
+    });
+
+    if (formulario.dataset.eventoRegistrado === "true") return;
+    formulario.dataset.eventoRegistrado = "true";
+
     formulario.addEventListener("submit", async (evento) => {
         evento.preventDefault();
-
-        const usuario = auth.currentUser;
-        if (!usuario) {
-            alert("Debés iniciar sesión para solicitar una beca.");
-            return;
-        }
 
         const nombre = document.getElementById("nombre").value.trim();
         const correo = document.getElementById("correo").value.trim();
@@ -168,8 +131,19 @@ function inicializarFormularioBeca() {
         const tipoBeca = document.getElementById("tipo-beca").value;
         const motivo = document.getElementById("motivo").value.trim();
 
+        if (!nombre || !correo || !curso || !tipoBeca || !motivo) {
+            alert("Por favor completa todos los campos obligatorios.");
+            return;
+        }
+
+        if (botonEnviar) botonEnviar.disabled = true;
+
         try {
-            await addDoc(collection(db, "solicitudesBecas"), {
+            await validarSolicitudBeca(usuario.uid, curso, tipoBeca);
+
+            const cursoTitulo = document.getElementById("curso").selectedOptions[0]?.textContent || "Curso";
+
+            const referenciaSolicitud = await addDoc(collection(db, "solicitudesBecas"), {
                 uid: usuario.uid,
                 nombre: nombre,
                 correo: correo,
@@ -180,23 +154,45 @@ function inicializarFormularioBeca() {
                 fechaSolicitud: serverTimestamp()
             });
 
-            formulario.reset();
+            await addDoc(collection(db, "notificaciones"), {
+                tipo: "solicitud_beca",
+                destinatarioRol: "docente/admin",
+                estudianteUid: usuario.uid,
+                autorNombre: nombre,
+                cursoId: curso,
+                solicitudId: referenciaSolicitud.id,
+                titulo: "Nueva solicitud de beca",
+                mensaje: `${nombre} solicitó una beca para "${cursoTitulo}".`,
+                leida: false,
+                fechaCreacion: serverTimestamp(),
+                enlace: "administrarCursos.html"
+            });
 
-            mostrarNotificacionExito(
-                "Tu solicitud fue registrada con éxito. Te avisaremos pronto sobre el estado de la beca.", 
-                "index.html", 
-                3000
-            );
+            mostrarNotificacionExito();
+
+            document.getElementById("curso").value = "";
+            document.getElementById("tipo-beca").value = "";
+            document.getElementById("motivo").value = "";
+            const confirmacion = document.getElementById("confirmacion");
+            if (confirmacion) confirmacion.checked = false;
 
         } catch (error) {
-            console.error("Error al guardar la solicitud de beca:", error);
-            alert("No se pudo enviar la solicitud. Intentá nuevamente.");
+            console.error("Error al enviar la solicitud de beca:", error);
+            alert("No se pudo enviar la solicitud de beca.\n\n" + error.message);
+        } finally {
+            if (botonEnviar) botonEnviar.disabled = false;
         }
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    controlarAccesoBoton();
-    cargarCursosEnSelect();
-    inicializarFormularioBeca();
+onAuthStateChanged(auth, async (usuario) => {
+    if (!usuario) {
+        await controlarAccesoBoton(null);
+        return;
+    }
+
+    await controlarAccesoBoton(usuario);
+    const cursoDesdeURL = obtenerCursoDesdeURL();
+    await cargarCursosEnSelect(cursoDesdeURL);
+    inicializarFormularioBeca(usuario);
 });

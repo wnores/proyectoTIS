@@ -1,418 +1,661 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="styles/estilos.css">
+
+    <meta
+        name="description"
+        content="Conocé cómo Cursos CC recopila, utiliza y protege los datos personales de sus usuarios."
+    >
+
     <title>Cursos CC | Política de privacidad</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <link rel="stylesheet" href="styles/estilos.css">
 </head>
-<body>
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <img src="recursos/imagenes/logo.jpg"
-                    alt="Cursos de Ciencias de la Computación"
-                    class="logo">
-            </a>
 
-            <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainNav"
-                aria-controls="mainNav"
-                aria-expanded="false"
-                aria-label="Mostrar menú de navegación">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<body data-page="politicaDePrivacidad.html" class="d-flex flex-column min-vh-100">
 
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="inicio" href="index.html">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a>
-                    </li>
-                </ul>
- <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+    <header>
+        <nav
+            class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+            aria-label="Navegación principal"
+        >
+            <div class="container">
 
-    <a href="ingresar.html" class="btn btn-outline-light btn-sm">
-        Iniciar sesión
-        <img src="recursos/iconos/ingresar.png" alt="Ingresar">
-    </a>
+                <a
+                    class="navbar-brand"
+                    href="index.html"
+                    aria-label="Cursos CC, página de inicio"
+                >
+                    <img
+                        src="recursos/imagenes/logo.jpg"
+                        alt="Cursos de Ciencias de la Computación"
+                        class="logo"
+                    >
+                </a>
 
-</div>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNav"
+                    aria-controls="mainNav"
+                    aria-expanded="false"
+                    aria-label="Mostrar u ocultar el menú de navegación"
+                >
+                    <span class="navbar-toggler-icon" aria-hidden="true"></span>
+                </button>
 
-<div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                <div class="collapse navbar-collapse" id="mainNav">
 
-    <a href="registrarse.html" class="btn btn-outline-light btn-sm">
-        Registrarse
-        <img src="recursos/iconos/registrarse.png" alt="Registro">
-    </a>
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="inicio" href="index.html">
+                                Inicio
+                            </a>
+                        </li>
 
-</div>
-<div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-        <i class="bi bi-person-circle fs-5"></i>
-        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
-    </button>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="producto" href="acercaDe.html">
+                                Acerca de
+                            </a>
+                        </li>
 
-    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-   
-        <li>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                <i class="bi bi-person fs-5"></i>
-                Mi perfil
-            </a>
-        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="catalogo" href="catalogo.html">
+                                Catálogo de cursos
+                            </a>
+                        </li>
 
-        <li id="menuAdminCursos" class="d-none">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
-                <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
-                Administrar cursos
-            </a>
-        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="admin" href="beca.html">
+                                Becas
+                            </a>
+                        </li>
 
-        <li><hr class="dropdown-divider"></li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="contacto" href="contacto.html">
+                                Contacto
+                            </a>
+                        </li>
+                    </ul>
 
-        <li>
-            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                <i class="bi bi-box-arrow-right fs-5"></i>
-                Cerrar sesión
-            </button>
-        </li>
-    </ul>
-</div>
-              
+                    <div
+                        class="d-flex align-items-center gap-2 logged-out d-none"
+                        id="grupIngresar"
+                    >
+                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+                            Iniciar sesión
+                            <img src="recursos/iconos/ingresar.png" alt="">
+                        </a>
+                    </div>
+
+                    <div
+                        class="d-flex align-items-center gap-2 ms-2 logged-out d-none"
+                        id="grupoRegistrarse"
+                    >
+                        <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+                            Registrarse
+                            <img src="recursos/iconos/registrarse.png" alt="">
+                        </a>
+                    </div>
+
+                    <div
+                        class="d-flex align-items-center gap-2 ms-2 position-relative d-none"
+                        id="grupoUsuario"
+                    >
+                        <button
+                            class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button"
+                            id="dropdownUsuario"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="true"
+                            aria-expanded="false"
+                        >
+                            <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
+                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                        </button>
+
+                        <ul
+                            class="dropdown-menu dropdown-menu-end shadow mt-2"
+                            aria-labelledby="dropdownUsuario"
+                        >
+                            <li>
+                                <a
+                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="perfil.html"
+                                >
+                                    <i class="bi bi-person fs-5" aria-hidden="true"></i>
+                                    Mi perfil
+                                </a>
+                            </li>
+
+                            <li id="menuAdminCursos" class="d-none">
+                                <a
+                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                    href="administrarCursos.html"
+                                >
+                                    <i
+                                        class="bi bi-gear-wide-connected fs-5 text-primary"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Administrar cursos
+                                </a>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <button
+                                    class="dropdown-item text-danger d-flex align-items-center gap-2 py-2"
+                                    type="button"
+                                    id="btnCerrarSesion"
+                                >
+                                    <i class="bi bi-box-arrow-right fs-5" aria-hidden="true"></i>
+                                    Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<main class="flex-grow-1">
-        <section class="hero">
+    <main id="contenidoPrincipal" class="flex-grow-1">
+
+        <section class="hero" aria-labelledby="tituloPolitica">
             <div class="container text-center">
-                <h1> Política de privacidad - Cursos de Informática</h1> 
-                <p>Conoce cómo protegemos y utilizamos tus datos personales.</p>
-            </div>
-        </section>
+                <h1 id="tituloPolitica">
+                    Política de privacidad - Cursos de Informática
+                </h1>
 
-        <section class="container py-5">
-            <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <h2>1. Responsable de la plataforma</h2>
-                <p><strong>Ciencias de la computación</strong> es una plataforma educativa
-                dedicada a ofrecer cursos de informática y tecnología en modalidad
-                virtual. A través de nuestro sitio web, los usuarios
-                pueden consultar el catálogo de cursos, registrarse, solicitar
-                información, postularse a becas e inscribirse en las propuestas
-                educativas disponibles.</p>
-
-                <p>La presente Política de Privacidad establece cómo recopilamos,
-                utilizamos, almacenamos y protegemos los datos personales de las
-                personas que utilizan nuestra plataforma.</p>
-                    
-                <h2>2. Información que recopilamos</h2>    
                 <p>
-                En <strong>Ciencias de la Computación</strong> recopilamos los datos
-                personales que los usuarios proporcionan voluntariamente al utilizar
-                nuestra plataforma y sus servicios educativos.</p>
-
-                <p>Entre los datos que podemos solicitar se encuentran:</p>
-
-                <ul>
-                    <li>Nombre y apellido.</li>
-                    <li>Correo electrónico.</li>
-                    <li>Número de teléfono, cuando sea necesario para la comunicación.</li>
-                    <li>Datos necesarios para crear y gestionar la cuenta de usuario.</li>
-                    <li>Información relacionada con los cursos en los que el usuario se
-                        inscribe o consulta.</li>
-                    <li>Información proporcionada al realizar una solicitud de beca.</li>
-                    <li>Datos enviados mediante el formulario de contacto.</li>
-                </ul>
-
-                <p>La plataforma recopila únicamente los datos que resulten necesarios
-                para gestionar las cuentas de los usuarios, brindar los servicios
-                educativos y atender las solicitudes realizadas a través del sitio web.</p>    
-                                         
-            
-                <h2>3. Finalidad del uso de los datos</h2>
-                <p>Los datos personales recopilados por
-                <strong>Ciencias de la Computación</strong> serán utilizados para
-                gestionar y brindar los servicios ofrecidos a través de nuestra
-                plataforma educativa.</p>
-                <p>En particular, la información podrá utilizarse para:</p>
-
-            <ul>
-                <li>Crear y administrar las cuentas de los usuarios.</li>
-                <li>Gestionar la inscripción y participación en los cursos.</li>
-                <li>Proporcionar información sobre cursos, horarios, contenidos y
-                propuestas educativas.</li>
-                <li>Gestionar las solicitudes de becas.</li>
-                <li>Responder consultas y solicitudes realizadas mediante el formulario
-                de contacto.</li>
-                <li>Enviar comunicaciones relacionadas con los cursos, inscripciones,
-                becas y servicios solicitados por el usuario.</li>
-                <li>Mejorar el funcionamiento y la experiencia de navegación de la
-                plataforma.</li>
-                <li>Cumplir con las obligaciones legales que correspondan.</li>
-            </ul>
-
-                <p>Los datos personales no serán utilizados para finalidades diferentes
-                de aquellas informadas al usuario, salvo que exista una base legal
-                que permita dicho tratamiento o el usuario haya otorgado su
-                consentimiento cuando corresponda.</p>
-
-                <h2>4. Consentimiento y base legal</h2>
-
-                <p>Al registrarse, completar formularios o utilizar determinados servicios
-                de <strong>Ciencias de la Computación</strong>, el usuario proporciona
-                los datos personales necesarios para la prestación de los servicios
-                solicitados.</p>
-
-                <p>Cuando el tratamiento de los datos requiera el consentimiento del
-                usuario, este será solicitado de forma previa, libre, específica,
-                informada e inequívoca, de acuerdo con la normativa vigente en materia
-                de protección de datos personales.</p>
-
-                <p>El usuario podrá retirar su consentimiento cuando corresponda, sin que
-                ello afecte la licitud del tratamiento realizado previamente sobre la
-                base de dicho consentimiento.</p>
-
-                <p>El tratamiento de los datos personales se realizará de acuerdo con la
-                <strong>Ley N.º 18.331 de Protección de Datos Personales y Acción de
-                Habeas Data</strong>, su normativa reglamentaria y las disposiciones
-                aplicables en la República Oriental del Uruguay.
-</p>      
-                <h2>5. Protección y seguridad de los datos</h2>
-                <p><strong>Ciencias de la Computación</strong> adopta medidas técnicas y
-                organizativas razonables para proteger los datos personales de los
-                usuarios frente a accesos no autorizados, pérdida, alteración,
-                divulgación o uso indebido.</p>
-
-                <p>El acceso a la información personal estará limitado a las personas
-                que necesiten utilizarla para cumplir con las funciones relacionadas
-                con la prestación de los servicios educativos y la gestión de la
-                plataforma.</p>
-
-                <p>Los usuarios son responsables de mantener la confidencialidad de sus
-                credenciales de acceso y de comunicar cualquier uso no autorizado de
-                su cuenta o cualquier situación que pueda comprometer la seguridad
-                de sus datos.</p>
-
-                <p>Si bien se implementan medidas de seguridad adecuadas, ningún sistema
-                de almacenamiento o transmisión de información a través de Internet
-                puede garantizar una seguridad absoluta.</p>
-                
-                <h2>6. Compartir información con terceros</h2>
-                <p><strong>Ciencias de la Computación</strong> no comercializa ni vende
-                los datos personales de sus usuarios.</p>
-
-                <p>Los datos personales podrán ser compartidos con proveedores de
-                servicios que colaboren con el funcionamiento de la plataforma,
-                únicamente cuando resulte necesario para brindar los servicios
-                solicitados por el usuario. Estos proveedores deberán utilizar la
-                información de acuerdo con las finalidades establecidas y adoptar
-                medidas adecuadas para su protección.</p>
-
-                <p>También podremos proporcionar información cuando sea necesario para
-                cumplir con una obligación legal, una solicitud de una autoridad
-                competente o para proteger los derechos y la seguridad de los
-                usuarios y de la plataforma.</p>
-
-                <p>Fuera de las situaciones anteriormente indicadas, los datos personales
-                no serán compartidos con terceros sin contar previamente con la
-                correspondiente autorización o base legal que habilite su tratamiento.</p>
-
-                <h2>7. Derechos del usuario</h2>
-                <p>De acuerdo con la normativa uruguaya sobre protección de datos
-                personales, los usuarios de <strong>Ciencias de la Computación</strong>
-                tienen derecho a conocer qué datos personales posee la plataforma y
-                cuál es la finalidad de su tratamiento.</p>
-
-                <p>Los usuarios podrán solicitar, cuando corresponda:</p>
-
-                <ul>
-                    <li>El acceso a sus datos personales.</li>
-                    <li>La rectificación de datos que sean incorrectos o incompletos.</li>
-                    <li>La actualización de sus datos personales.</li>
-                    <li>La inclusión de información cuando corresponda.</li>
-                    <li>La supresión de sus datos personales cuando corresponda de acuerdo
-                        con la normativa vigente.</li>
-                    <li>La oposición al tratamiento de sus datos en los casos previstos
-                        por la normativa.</li>
-                </ul>
-
-                <p>Para ejercer estos derechos, el usuario podrá realizar una solicitud
-                a través de los medios de contacto disponibles en nuestra plataforma,
-                acreditando su identidad cuando corresponda.</p>
-
-                <p>Las solicitudes serán atendidas dentro de los plazos establecidos por
-                la normativa vigente. En particular, la Ley N.º 18.331 establece un
-                plazo máximo de cinco días hábiles para determinadas solicitudes de
-                acceso, rectificación, actualización, inclusión o supresión.</p>
-
-                <p>Si el usuario considera que sus derechos no han sido respetados,
-                podrá recurrir ante la <strong>Unidad Reguladora y de Control de
-                Datos Personales (URCDP)</strong>, organismo encargado del control
-                de la normativa de protección de datos personales en Uruguay.</p>
-                
-                <h2>8. Cookies y tecnologías similares</h2>
-                <p><strong>Ciencias de la Computación</strong> puede utilizar cookies y
-                tecnologías similares para permitir el correcto funcionamiento de la
-                plataforma, recordar determinadas preferencias y mejorar la experiencia
-                de navegación de los usuarios.</p>
-
-                <p>Las cookies pueden utilizarse para mantener determinadas sesiones,
-                recordar preferencias de navegación y obtener información estadística
-                que permita analizar y mejorar el funcionamiento del sitio web.</p>
-
-                <p>El usuario puede configurar su navegador para aceptar, rechazar o
-                eliminar cookies. Sin embargo, la desactivación de determinadas cookies
-                puede afectar algunas funciones de la plataforma.</p>
-
-                <p>Cuando se utilicen cookies que requieran consentimiento de acuerdo con
-                la normativa aplicable, se solicitará la autorización correspondiente
-                al usuario.</p>
-                                
-                    
-                <h2>9. Marco legal aplicable</h2>
-                <p>El tratamiento de los datos personales realizado por
-                <strong>Ciencias de la Computación</strong> se encuentra sujeto a la
-                normativa vigente de la República Oriental del Uruguay en materia de
-                protección de datos personales.</p>
-
-                <p>En particular, la plataforma se rige por la
-                <strong>Ley N.º 18.331 de Protección de Datos Personales y Acción de
-                Habeas Data</strong>, que reconoce la protección de los datos
-                personales como un derecho fundamental, y por el
-                <strong>Decreto N.º 414/009</strong>, que reglamenta dicha ley.</p>
-
-                <p>Asimismo, serán consideradas las modificaciones y disposiciones
-                complementarias que resulten aplicables al tratamiento de datos
-                personales, incluyendo la normativa vigente sobre responsabilidad,
-                seguridad y protección de la información.</p>
-
-                <p>La autoridad de control en materia de protección de datos personales
-                en Uruguay es la <strong>Unidad Reguladora y de Control de Datos
-                Personales (URCDP)</strong>.</p>
-
-                <p><strong>Ciencias de la Computación</strong> se compromete a tratar los
-                datos personales de acuerdo con los principios de legalidad,
-                finalidad, consentimiento informado, seguridad, reserva y
-                responsabilidad establecidos por la normativa aplicable.</p>
-                    
-                <h2>10. Conservación de los datos personales</h2>    
-                <p><strong>Ciencias de la Computación</strong> conservará los datos
-                personales durante el tiempo necesario para cumplir con las
-                finalidades para las que fueron recopilados y mientras exista una
-                relación con el usuario o una obligación legal que justifique su
-                conservación.</p>
-
-                <p>Cuando los datos personales ya no sean necesarios para las
-                finalidades para las cuales fueron recopilados, serán eliminados,
-                anonimizados o conservados únicamente cuando exista una obligación
-                legal que así lo requiera.</p>
-                
-                <h2>11. Cambios en esta política</h2>
-                <p><strong>Ciencias de la Computación</strong> podrá actualizar esta
-                Política de Privacidad cuando sea necesario para reflejar cambios
-                en los servicios ofrecidos, en la forma en que se gestionan los
-                datos personales o en la normativa aplicable.</p>
-
-                <p>Cuando se realicen modificaciones importantes, la versión actualizada
-                será publicada en esta misma página, indicando la fecha de su última
-                actualización.</p>
-
-                <p>Recomendamos a los usuarios consultar periódicamente esta Política
-                de Privacidad para conocer cualquier modificación.</p>
-                
-                <h2>12. Contacto</h2>
-                <p>Si tienes preguntas o inquietudes sobre nuestra política de
-                   privacidad, puedes contactarnos a través de nuestro correo
-                   electrónico o mediante el 
-                   <a href="contacto.html"> formulario de contacto</a> disponible en
-                nuestra plataforma.</p>
-
-                <div class="alert alert-secondary mt-4" role="alert">
-                    <strong>Última actualización:</strong> agosto de 2026.
-                </div>   
-            </div>
+                    Conocé cómo protegemos y utilizamos tus datos personales.
+                </p>
             </div>
         </section>
-     </main>
-     <!-- FOOTER -->
+
+        <article
+            class="container py-5"
+            aria-labelledby="tituloPolitica"
+        >
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+
+                    <section aria-labelledby="responsable">
+                        <h2 id="responsable">1. Responsable de la plataforma</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> es una plataforma
+                            educativa dedicada a ofrecer cursos de informática y tecnología
+                            en modalidad virtual. A través de nuestro sitio web, los usuarios
+                            pueden consultar el catálogo de cursos, registrarse, solicitar
+                            información, postularse a becas e inscribirse en las propuestas
+                            educativas disponibles.
+                        </p>
+
+                        <p>
+                            La presente Política de Privacidad establece cómo recopilamos,
+                            utilizamos, almacenamos y protegemos los datos personales de las
+                            personas que utilizan nuestra plataforma.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="datosRecopilados">
+                        <h2 id="datosRecopilados">2. Información que recopilamos</h2>
+
+                        <p>
+                            En <strong>Ciencias de la Computación</strong> recopilamos los
+                            datos personales que los usuarios proporcionan voluntariamente
+                            al utilizar nuestra plataforma y sus servicios educativos.
+                        </p>
+
+                        <p>Entre los datos que podemos solicitar se encuentran:</p>
+
+                        <ul>
+                            <li>Nombre y apellido.</li>
+                            <li>Correo electrónico.</li>
+                            <li>Número de teléfono, cuando sea necesario para la comunicación.</li>
+                            <li>Datos necesarios para crear y gestionar la cuenta de usuario.</li>
+                            <li>
+                                Información relacionada con los cursos en los que el usuario
+                                se inscribe o consulta.
+                            </li>
+                            <li>Información proporcionada al realizar una solicitud de beca.</li>
+                            <li>Datos enviados mediante el formulario de contacto.</li>
+                        </ul>
+
+                        <p>
+                            La plataforma recopila únicamente los datos que resulten necesarios
+                            para gestionar las cuentas de los usuarios, brindar los servicios
+                            educativos y atender las solicitudes realizadas a través del sitio web.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="finalidadDatos">
+                        <h2 id="finalidadDatos">3. Finalidad del uso de los datos</h2>
+
+                        <p>
+                            Los datos personales recopilados por
+                            <strong>Ciencias de la Computación</strong> serán utilizados para
+                            gestionar y brindar los servicios ofrecidos a través de nuestra
+                            plataforma educativa.
+                        </p>
+
+                        <p>En particular, la información podrá utilizarse para:</p>
+
+                        <ul>
+                            <li>Crear y administrar las cuentas de los usuarios.</li>
+                            <li>Gestionar la inscripción y participación en los cursos.</li>
+                            <li>
+                                Proporcionar información sobre cursos, horarios, contenidos
+                                y propuestas educativas.
+                            </li>
+                            <li>Gestionar las solicitudes de becas.</li>
+                            <li>
+                                Responder consultas y solicitudes realizadas mediante el
+                                formulario de contacto.
+                            </li>
+                            <li>
+                                Enviar comunicaciones relacionadas con los cursos, inscripciones,
+                                becas y servicios solicitados por el usuario.
+                            </li>
+                            <li>
+                                Mejorar el funcionamiento y la experiencia de navegación
+                                de la plataforma.
+                            </li>
+                            <li>Cumplir con las obligaciones legales que correspondan.</li>
+                        </ul>
+
+                        <p>
+                            Los datos personales no serán utilizados para finalidades diferentes
+                            de aquellas informadas al usuario, salvo que exista una base legal
+                            que permita dicho tratamiento o el usuario haya otorgado su
+                            consentimiento cuando corresponda.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="consentimiento">
+                        <h2 id="consentimiento">4. Consentimiento y base legal</h2>
+
+                        <p>
+                            Al registrarse, completar formularios o utilizar determinados
+                            servicios de <strong>Ciencias de la Computación</strong>, el usuario
+                            proporciona los datos personales necesarios para la prestación de
+                            los servicios solicitados.
+                        </p>
+
+                        <p>
+                            Cuando el tratamiento de los datos requiera el consentimiento del
+                            usuario, este será solicitado de forma previa, libre, específica,
+                            informada e inequívoca, de acuerdo con la normativa vigente en
+                            materia de protección de datos personales.
+                        </p>
+
+                        <p>
+                            El usuario podrá retirar su consentimiento cuando corresponda,
+                            sin que ello afecte la licitud del tratamiento realizado previamente
+                            sobre la base de dicho consentimiento.
+                        </p>
+
+                        <p>
+                            El tratamiento de los datos personales se realizará de acuerdo con
+                            la <strong>Ley N.º 18.331 de Protección de Datos Personales y Acción
+                            de Habeas Data</strong>, su normativa reglamentaria y las
+                            disposiciones aplicables en la República Oriental del Uruguay.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="seguridadDatos">
+                        <h2 id="seguridadDatos">5. Protección y seguridad de los datos</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> adopta medidas técnicas
+                            y organizativas razonables para proteger los datos personales de
+                            los usuarios frente a accesos no autorizados, pérdida, alteración,
+                            divulgación o uso indebido.
+                        </p>
+
+                        <p>
+                            El acceso a la información personal estará limitado a las personas
+                            que necesiten utilizarla para cumplir con las funciones relacionadas
+                            con la prestación de los servicios educativos y la gestión de la
+                            plataforma.
+                        </p>
+
+                        <p>
+                            Los usuarios son responsables de mantener la confidencialidad de
+                            sus credenciales de acceso y de comunicar cualquier uso no
+                            autorizado de su cuenta o cualquier situación que pueda comprometer
+                            la seguridad de sus datos.
+                        </p>
+
+                        <p>
+                            Si bien se implementan medidas de seguridad adecuadas, ningún
+                            sistema de almacenamiento o transmisión de información a través
+                            de Internet puede garantizar una seguridad absoluta.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="terceros">
+                        <h2 id="terceros">6. Compartir información con terceros</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> no comercializa ni vende
+                            los datos personales de sus usuarios.
+                        </p>
+
+                        <p>
+                            Los datos personales podrán ser compartidos con proveedores de
+                            servicios que colaboren con el funcionamiento de la plataforma,
+                            únicamente cuando resulte necesario para brindar los servicios
+                            solicitados por el usuario. Estos proveedores deberán utilizar la
+                            información de acuerdo con las finalidades establecidas y adoptar
+                            medidas adecuadas para su protección.
+                        </p>
+
+                        <p>
+                            También podremos proporcionar información cuando sea necesario
+                            para cumplir con una obligación legal, una solicitud de una
+                            autoridad competente o para proteger los derechos y la seguridad
+                            de los usuarios y de la plataforma.
+                        </p>
+
+                        <p>
+                            Fuera de las situaciones anteriormente indicadas, los datos
+                            personales no serán compartidos con terceros sin contar
+                            previamente con la correspondiente autorización o base legal
+                            que habilite su tratamiento.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="derechosUsuario">
+                        <h2 id="derechosUsuario">7. Derechos del usuario</h2>
+
+                        <p>
+                            De acuerdo con la normativa uruguaya sobre protección de datos
+                            personales, los usuarios de
+                            <strong>Ciencias de la Computación</strong> tienen derecho a
+                            conocer qué datos personales posee la plataforma y cuál es la
+                            finalidad de su tratamiento.
+                        </p>
+
+                        <p>Los usuarios podrán solicitar, cuando corresponda:</p>
+
+                        <ul>
+                            <li>El acceso a sus datos personales.</li>
+                            <li>La rectificación de datos que sean incorrectos o incompletos.</li>
+                            <li>La actualización de sus datos personales.</li>
+                            <li>La inclusión de información cuando corresponda.</li>
+                            <li>
+                                La supresión de sus datos personales cuando corresponda
+                                de acuerdo con la normativa vigente.
+                            </li>
+                            <li>
+                                La oposición al tratamiento de sus datos en los casos
+                                previstos por la normativa.
+                            </li>
+                        </ul>
+
+                        <p>
+                            Para ejercer estos derechos, el usuario podrá realizar una
+                            solicitud a través de los medios de contacto disponibles en
+                            nuestra plataforma, acreditando su identidad cuando corresponda.
+                        </p>
+
+                        <p>
+                            Las solicitudes serán atendidas dentro de los plazos establecidos
+                            por la normativa vigente. En particular, la Ley N.º 18.331 establece
+                            un plazo máximo de cinco días hábiles para determinadas solicitudes
+                            de acceso, rectificación, actualización, inclusión o supresión.
+                        </p>
+
+                        <p>
+                            Si el usuario considera que sus derechos no han sido respetados,
+                            podrá recurrir ante la
+                            <strong>Unidad Reguladora y de Control de Datos Personales
+                            (URCDP)</strong>, organismo encargado del control de la normativa
+                            de protección de datos personales en Uruguay.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="cookies">
+                        <h2 id="cookies">8. Cookies y tecnologías similares</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> puede utilizar cookies
+                            y tecnologías similares para permitir el correcto funcionamiento
+                            de la plataforma, recordar determinadas preferencias y mejorar
+                            la experiencia de navegación de los usuarios.
+                        </p>
+
+                        <p>
+                            Las cookies pueden utilizarse para mantener determinadas sesiones,
+                            recordar preferencias de navegación y obtener información
+                            estadística que permita analizar y mejorar el funcionamiento
+                            del sitio web.
+                        </p>
+
+                        <p>
+                            El usuario puede configurar su navegador para aceptar, rechazar
+                            o eliminar cookies. Sin embargo, la desactivación de determinadas
+                            cookies puede afectar algunas funciones de la plataforma.
+                        </p>
+
+                        <p>
+                            Cuando se utilicen cookies que requieran consentimiento de acuerdo
+                            con la normativa aplicable, se solicitará la autorización
+                            correspondiente al usuario.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="marcoLegal">
+                        <h2 id="marcoLegal">9. Marco legal aplicable</h2>
+
+                        <p>
+                            El tratamiento de los datos personales realizado por
+                            <strong>Ciencias de la Computación</strong> se encuentra sujeto
+                            a la normativa vigente de la República Oriental del Uruguay
+                            en materia de protección de datos personales.
+                        </p>
+
+                        <p>
+                            En particular, la plataforma se rige por la
+                            <strong>Ley N.º 18.331 de Protección de Datos Personales y Acción
+                            de Habeas Data</strong>, que reconoce la protección de los datos
+                            personales como un derecho fundamental, y por el
+                            <strong>Decreto N.º 414/009</strong>, que reglamenta dicha ley.
+                        </p>
+
+                        <p>
+                            Asimismo, serán consideradas las modificaciones y disposiciones
+                            complementarias que resulten aplicables al tratamiento de datos
+                            personales, incluyendo la normativa vigente sobre responsabilidad,
+                            seguridad y protección de la información.
+                        </p>
+
+                        <p>
+                            La autoridad de control en materia de protección de datos
+                            personales en Uruguay es la
+                            <strong>Unidad Reguladora y de Control de Datos Personales
+                            (URCDP)</strong>.
+                        </p>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> se compromete a tratar
+                            los datos personales de acuerdo con los principios de legalidad,
+                            finalidad, consentimiento informado, seguridad, reserva y
+                            responsabilidad establecidos por la normativa aplicable.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="conservacionDatos">
+                        <h2 id="conservacionDatos">10. Conservación de los datos personales</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> conservará los datos
+                            personales durante el tiempo necesario para cumplir con las
+                            finalidades para las que fueron recopilados y mientras exista
+                            una relación con el usuario o una obligación legal que justifique
+                            su conservación.
+                        </p>
+
+                        <p>
+                            Cuando los datos personales ya no sean necesarios para las
+                            finalidades para las cuales fueron recopilados, serán eliminados,
+                            anonimizados o conservados únicamente cuando exista una obligación
+                            legal que así lo requiera.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="cambiosPolitica">
+                        <h2 id="cambiosPolitica">11. Cambios en esta política</h2>
+
+                        <p>
+                            <strong>Ciencias de la Computación</strong> podrá actualizar esta
+                            Política de Privacidad cuando sea necesario para reflejar cambios
+                            en los servicios ofrecidos, en la forma en que se gestionan los
+                            datos personales o en la normativa aplicable.
+                        </p>
+
+                        <p>
+                            Cuando se realicen modificaciones importantes, la versión
+                            actualizada será publicada en esta misma página, indicando la
+                            fecha de su última actualización.
+                        </p>
+
+                        <p>
+                            Recomendamos a los usuarios consultar periódicamente esta Política
+                            de Privacidad para conocer cualquier modificación.
+                        </p>
+                    </section>
+
+                    <section aria-labelledby="contactoPrivacidad">
+                        <h2 id="contactoPrivacidad">12. Contacto</h2>
+
+                        <p>
+                            Si tenés preguntas o inquietudes sobre nuestra política de
+                            privacidad, podés contactarnos a través de nuestro correo
+                            electrónico o mediante el
+                            <a href="contacto.html">formulario de contacto</a>
+                            disponible en nuestra plataforma.
+                        </p>
+                    </section>
+
+                    <aside class="alert alert-secondary mt-4" role="note">
+                        <strong>Última actualización:</strong> agosto de 2026.
+                    </aside>
+
+                </div>
+            </div>
+        </article>
+
+    </main>
+
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-lg-5">
-                    <h5>Cursos de Ciencias de la Computación</h5>
-                    <p>
-                        Desarrollá nuevas habilidades
-                        y preparate para el mundo digital.
-                    </p>
-                </div>
 
-                <div class="col-lg-3">
-                    <h5>Enlaces</h5>
-                    <a href="politicaDePrivacidad.html">
-                        Política de privacidad
-                    </a>
-                </div>
+                <section class="col-lg-5 mb-4" aria-labelledby="tituloInstitucion">
+                    <h2 id="tituloInstitucion" class="h5">
+                        Cursos de Ciencias de la Computación
+                    </h2>
 
-                <div class="col-lg-4">
-                    <h5>Contacto</h5>
                     <p>
-                        Seguinos en nuestras redes
+                        Desarrollá nuevas habilidades y preparate para el mundo digital.
                     </p>
-                    <div class="footer-social">
-                        <a href="https://www.facebook.com/"
+                </section>
+
+                <nav class="col-lg-3 mb-4" aria-labelledby="tituloEnlacesFooter">
+                    <h2 id="tituloEnlacesFooter" class="h5">Enlaces</h2>
+
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="politicaDePrivacidad.html" aria-current="page">
+                                Política de privacidad
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <section class="col-lg-4 mb-4" aria-labelledby="tituloContactoFooter">
+                    <h2 id="tituloContactoFooter" class="h5">Contacto</h2>
+
+                    <p>Seguinos en nuestras redes.</p>
+
+                    <nav class="footer-social" aria-label="Redes sociales">
+                        <a
+                            href="https://www.facebook.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label="Facebook">
-                            <i class="bi bi-facebook"></i>
+                            aria-label="Facebook (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-facebook" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.instagram.com/"
+
+                        <a
+                            href="https://www.instagram.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label="Instagram">
-                            <i class="bi bi-instagram"></i>
+                            aria-label="Instagram (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-instagram" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.youtube.com/"
+
+                        <a
+                            href="https://www.youtube.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label="YouTube">
-                            <i class="bi bi-youtube"></i>
+                            aria-label="YouTube (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-youtube" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.linkedin.com/"
+
+                        <a
+                            href="https://www.linkedin.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label="LinkedIn">
-                            <i class="bi bi-linkedin"></i>
+                            aria-label="LinkedIn (se abre en una nueva pestaña)"
+                        >
+                            <i class="bi bi-linkedin" aria-hidden="true"></i>
                         </a>
-                    </div>
-                </div>
+                    </nav>
+                </section>
+
             </div>
+
             <hr>
+
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+                <img
+                    src="recursos/iconos/derechosAutor.png"
+                    alt=""
+                    aria-hidden="true"
+                >
+                2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js" type="module"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+
 </body>
 </html>
+```

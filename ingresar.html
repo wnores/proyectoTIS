@@ -81,7 +81,18 @@
                             <label class="form-label fw-bold small text-uppercase" for="passwordInput">Contraseña:</label>
                             <div class="password-wrapper">
                                 <input type="password" class="form-control" id="passwordInput"  placeholder="Ingresa tu contraseña" required>
-                                <i class="bi bi-eye-slash-fill password-toggle" id="togglePassword" style="cursor: pointer;"></i>
+                                <button
+                                    type="button"
+                                    class="btn btn-link p-0 border-0 password-toggle"
+                                    id="togglePassword"
+                                    aria-label="Mostrar contraseña"
+                                    aria-pressed="false">
+
+                                    <i
+                                        class="bi bi-eye-slash-fill"
+                                        aria-hidden="true">
+                                    </i>
+                                </button>
                             </div>
                         
 
@@ -193,14 +204,31 @@
         });
         const togglePassword = document.querySelector('#togglePassword');
         const passwordInput = document.querySelector('#passwordInput');
+        const iconoPassword = togglePassword.querySelector("i");
 
-        togglePassword.addEventListener('click', function (e) {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            this.classList.toggle('bi-eye-slash-fill');
-            this.classList.toggle('bi-eye-fill');
-        });
+        togglePassword.addEventListener('click', function () {
+            const mostrar = passwordInput.type === 'password';             
+            passwordInput.type = mostrar ? 'text' : 'password';
+             iconoPassword.classList.toggle(
+        "bi-eye-slash-fill"
+    );
+
+    iconoPassword.classList.toggle(
+        "bi-eye-fill"
+    );
+
+    togglePassword.setAttribute(
+        "aria-label",
+        mostrar
+            ? "Ocultar contraseña"
+            : "Mostrar contraseña"
+    );
+
+    togglePassword.setAttribute(
+        "aria-pressed",
+        String(mostrar)
+    );
+});
 
     </script>
     

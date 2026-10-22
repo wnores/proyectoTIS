@@ -3,543 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta
-        name="description"
-        content="Perfil de usuario registrado en la plataforma">
+    <meta name="description" content="Consultá y administrá tu perfil de usuario en la plataforma Cursos CC.">
+    <title>Cursos CC | Perfil de usuario</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/estilos.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Cursos CC | Perfil de Usuario</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100" data-page="perfil.html">
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
-    aria-label="Navegación principal">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
-            </a>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
+            <div class="container">
+                <a class="navbar-brand" href="index.html" aria-label="Cursos CC, página de inicio">
+                    <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
+                </a>
 
-            <button class="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#mainNav"
-                aria-controls="mainNav"
-                aria-expanded="false"
-                aria-label="Mostrar menú de navegación">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Mostrar u ocultar el menú de navegación">
+                    <span class="navbar-toggler-icon" aria-hidden="true"></span>
+                </button>
 
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            data-page="producto"
-                            href="acercaDe.html">
-                            Acerca de
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a>
-                    </li>
-                </ul>
-
-                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
-                        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5"></i>
-                        <span id="nombreUsuario" class="fs-6 fw-bold"></span>
-                    </button>
-
-                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                        <li>
-                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                                <i class="bi bi-box-arrow-right fs-5"></i>
-                                Cerrar sesión
-                            </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="admin" href="beca.html">Becas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="contacto" href="contacto.html">Contacto</a>
                         </li>
                     </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>    
 
-    <main class="flex-grow-1">
-        <section class="container py-4"
-        aria-labelledby="tituloPerfil">
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-10 col-xl-9">
-                    <div class="perfil-card">
-                        <h1 id="tituloPerfil" class="text-center fw-bold mb-4">Perfil</h1>
+                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
+                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                        </button>
 
-                        <div class="row g-4">
-                            <!-- FOTO -->
-                            <div class="col-12 col-md-5 order-1 order-md-2">
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                    <div class="avatar-wrapper">
-                                        <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100">
-                                            <i class="bi bi-person-fill text-secondary"></i>
-                                        </div>
-                                        <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute" title="Cambiar foto">
-                                            <i class="bi bi-camera-fill text-dark"></i>
-                                        </button>
-                                    </div>
-                                    <h5 class="fw-bold mt-3 mb-1">Cargando...</h5>
-                                    <span class="text-secondary">-</span>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-7 order-2 order-md-1">
-                                <h2 class="h5 fw-bold mb-4">Información del perfil</h2>
-
-                                <div class="perfil-dato">
-                                    <label>Nombre</label>
-                                    <div>
-                                        <span id="perfilNombre">-</span>
-                                        <button class="btn-editar" title="Editar nombre">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Apellido</label>
-                                    <div>
-                                        <span id="perfilApellido">-</span>
-                                        <button class="btn-editar" title="Editar apellido">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Dirección de correo</label>
-                                    <div>
-                                        <span id="perfilEmail">-</span>
-                                    </div>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Departamento</label>
-                                    <div>
-                                        <span id="perfilDepartamento">-</span>
-                                        <button class="btn-editar" title="Editar departamento">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Tipo de documento</label>
-                                    <span id="perfilTipoDocumento">-</span>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Nro. de documento</label>
-                                    <span id="perfilNroDocumento">-</span>
-                                </div>
-
-                                <div class="perfil-dato">
-                                    <label>Rol</label>
-                                    <span id="perfilRol">-</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="perfil-botones mt-4 pt-4">
-                            <button type="button" class="btn btn-primary" id="btnModificarPassword">
-                                <i class="bi bi-key"></i>
-                                Modificar contraseña
-                            </button>
-
-                            <button type="button" class="btn btn-primary d-none" id="btnServiciosAdquiridos">
-                                <i class="bi bi-mortarboard"></i>Servicios adquiridos
-                            </button>
-
-                            <button type="button" class="btn btn-outline-danger" id="btnEliminarCuenta">
-                                <i class="bi bi-trash3"></i>
-                                Eliminar cuenta
-                            </button>
-                        </div>
-
+                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                            <li id="menuMisCursos">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
+                                    <i class="bi bi-book fs-5" aria-hidden="true"></i> Mis cursos
+                                </a>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                                    <i class="bi bi-box-arrow-right fs-5" aria-hidden="true"></i> Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
+        </nav>
+    </header>
 
-            <div class="text-center mt-4">
-                <a href="index.html" class="btn btn-primary">
-                    Volver al inicio
-                    <img src="recursos/iconos/atras.png" alt="atrás">
-                </a>
-            </div>
-        </section>
+    <main class="flex-grow-1" id="contenidoPrincipal">
+        <!-- MENSAJE DE ACCESO DENEGADO (MICROINTERACCIÓN) -->
+        <div id="mensajeSinPermiso" class="container py-5 d-none"></div>
+
+        <!-- CONTENIDO VISIBLE SOLO SI HAY SESIÓN INICIADA -->
+        <div id="contenidoPerfil" class="d-none">
+            <section class="container py-4" aria-labelledby="tituloPerfil">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-10 col-xl-9">
+
+                        <article class="perfil-card">
+                            <header>
+                                <h1 id="tituloPerfil" class="text-center fw-bold mb-4">Perfil</h1>
+                            </header>
+
+                            <div class="row g-4">
+                                <section class="col-12 col-md-5 order-1 order-md-2" aria-label="Foto y datos principales del usuario">
+                                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+
+                                        <div class="avatar-wrapper">
+                                            <div class="bg-secondary bg-opacity-10 rounded-circle border border-secondary d-flex align-items-center justify-content-center w-100 h-100" aria-hidden="true">
+                                                <i class="bi bi-person-fill text-secondary fs-1"></i>
+                                            </div>
+
+                                            <button type="button" class="btn btn-light border border-dark rounded-circle shadow-sm camera-btn position-absolute" title="Cambiar foto" aria-label="Cambiar foto de perfil">
+                                                <i class="bi bi-camera-fill text-dark" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- NOMBRE Y ROL DEBAJO DE LA FOTO DE PERFIL -->
+                                        <h5 id="perfilNombreFoto" class="fw-bold mt-3 mb-1 text-center" aria-live="polite">
+                                            Cargando...
+                                        </h5>
+
+                                        <p id="perfilRolFoto" class="text-secondary mb-0 text-center text-capitalize">
+                                            -
+                                        </p>
+
+                                    </div>
+                                </section>
+
+                                <section class="col-12 col-md-7 order-2 order-md-1" aria-labelledby="tituloInformacionPerfil">
+                                    <h2 id="tituloInformacionPerfil" class="h5 fw-bold mb-4">
+                                        Información del perfil
+                                    </h2>
+
+                                    <dl class="mb-0">
+                                        <div class="perfil-dato">
+                                            <dt><label for="perfilNombre">Nombre</label></dt>
+                                            <dd>
+                                                <span id="perfilNombre">-</span>
+                                                <button type="button" class="btn-editar" title="Editar nombre" aria-label="Editar nombre">
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                </button>
+                                            </dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt><label for="perfilApellido">Apellido</label></dt>
+                                            <dd>
+                                                <span id="perfilApellido">-</span>
+                                                <button type="button" class="btn-editar" title="Editar apellido" aria-label="Editar apellido">
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                </button>
+                                            </dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt>Dirección de correo</dt>
+                                            <dd><span id="perfilEmail">-</span></dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt><label for="perfilDepartamento">Departamento</label></dt>
+                                            <dd>
+                                                <span id="perfilDepartamento">-</span>
+                                                <button type="button" class="btn-editar" title="Editar departamento" aria-label="Editar departamento">
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                </button>
+                                            </dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt>Tipo de documento</dt>
+                                            <dd><span id="perfilTipoDocumento">-</span></dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt>Número de documento</dt>
+                                            <dd><span id="perfilNroDocumento">-</span></dd>
+                                        </div>
+
+                                        <div class="perfil-dato">
+                                            <dt>Rol</dt>
+                                            <dd><span id="perfilRol">-</span></dd>
+                                        </div>
+                                    </dl>
+                                </section>
+                            </div>
+
+                            <section class="perfil-botones mt-4 pt-4" aria-label="Acciones de la cuenta">
+                                <button type="button" class="btn btn-primary" id="btnModificarPassword">
+                                    <i class="bi bi-key" aria-hidden="true"></i> Modificar contraseña
+                                </button>
+
+                                <button type="button" class="btn btn-outline-danger" id="btnDeshabilitarCuenta">
+                                    <i class="bi bi-person-x" aria-hidden="true"></i> Deshabilitar cuenta
+                                </button>
+                            </section>
+                        </article>
+
+                    </div>
+                </div>
+
+                <nav class="text-center mt-4" aria-label="Navegación secundaria">
+                    <a href="index.html" class="btn btn-primary">
+                        Volver al inicio
+                        <img src="recursos/iconos/atras.png" alt="" aria-hidden="true">
+                    </a>
+                </nav>
+            </section>
+        </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-lg-5">
-                    <h5>Cursos de Ciencias de la Computación</h5>
+                <section class="col-lg-5 mb-4" aria-labelledby="tituloInstitucion">
+                    <h2 id="tituloInstitucion" class="h5">Cursos de Ciencias de la Computación</h2>
                     <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
-                </div>
-                <div class="col-lg-3">
-                    <h5>Enlaces</h5>
-                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
-                </div>
-                <div class="col-lg-4">
-                    <h5>Contacto</h5>
-                    <p>Seguinos en nuestras redes</p>
-                    <div class="footer-social">
-                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
-                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
+                </section>
+
+                <nav class="col-lg-3 mb-4" aria-labelledby="tituloEnlacesFooter">
+                    <h2 id="tituloEnlacesFooter" class="h5">Enlaces</h2>
+                    <ul class="list-unstyled">
+                        <li><a href="politicaDePrivacidad.html">Política de privacidad</a></li>
+                    </ul>
+                </nav>
+
+                <section class="col-lg-4 mb-4" aria-labelledby="tituloContactoFooter">
+                    <h2 id="tituloContactoFooter" class="h5">Contacto</h2>
+                    <p>Seguinos en nuestras redes.</p>
+                    <nav class="footer-social" aria-label="Redes sociales">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
+                    </nav>
+                </section>
             </div>
             <hr>
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyright">
-                2026 - Taller Integrador de Sistemas
+                <img src="recursos/iconos/derechosAutor.png" alt="" aria-hidden="true"> 2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>
 
-    <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
+    <!-- MODALES Y NOTIFICACIONES -->
+    <section class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalPasswordLabel">
-                        Modificar contraseña
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5" id="modalPasswordLabel">Modificar contraseña</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de modificación de contraseña"></button>
+                </header>
 
                 <div class="modal-body">
-
                     <div class="mb-3">
-                        <label for="nuevaPassword" class="form-label">
-                            Nueva contraseña
-                        </label>
-
+                        <label for="nuevaPassword" class="form-label">Nueva contraseña</label>
                         <div class="input-group">
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="nuevaPassword"
-                                minlength="8"
-                                maxlength="20"
-                                placeholder="Entre 8 y 20 caracteres">
-
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-toggle-password"
-                                data-target="nuevaPassword"
-                                aria-label="Mostrar contraseña">
-                                <i class="bi bi-eye"></i>
+                            <input type="password" class="form-control" id="nuevaPassword" minlength="8" maxlength="20" autocomplete="new-password" placeholder="Entre 8 y 20 caracteres">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="nuevaPassword" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="confirmarPassword" class="form-label">
-                            Confirmar contraseña
-                        </label>
-
+                        <label for="confirmarPassword" class="form-label">Confirmar contraseña</label>
                         <div class="input-group">
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="confirmarPassword"
-                                minlength="8"
-                                maxlength="20"
-                                placeholder="Repetí la nueva contraseña">
-
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-toggle-password"
-                                data-target="confirmarPassword"
-                                aria-label="Mostrar contraseña">
-                                <i class="bi bi-eye"></i>
+                            <input type="password" class="form-control" id="confirmarPassword" minlength="8" maxlength="20" autocomplete="new-password" placeholder="Repetí la nueva contraseña">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="confirmarPassword" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div id="mensajePassword" class="small"></div>
+                    <div id="mensajePassword" class="small" role="status" aria-live="polite"></div>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">
-                        Guardar contraseña
-                    </button>
-                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">Guardar contraseña</button>
+                </footer>
             </div>
         </div>
-    </div>
-    
-    <div class="modal fade" id="modalReautenticarPassword" tabindex="-1" aria-labelledby="modalReautenticarPasswordLabel" aria-hidden="true">
+    </section>
+
+    <section class="modal fade" id="modalReautenticarPassword" tabindex="-1" aria-labelledby="modalReautenticarPasswordLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalReautenticarPasswordLabel">
-                        Verificación de seguridad
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5" id="modalReautenticarPasswordLabel">Verificación de seguridad</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de verificación"></button>
+                </header>
 
                 <div class="modal-body">
-                    <p class="mb-3">
-                        Por seguridad, ingresá tu contraseña actual para continuar.
-                    </p>
-
+                    <p class="mb-3">Por seguridad, ingresá tu contraseña actual para continuar.</p>
                     <div class="input-group">
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="passwordActualReautenticar"
-                            placeholder="Contraseña actual">
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-toggle-password"
-                            data-target="passwordActualReautenticar"
-                            aria-label="Mostrar contraseña">
-                            <i class="bi bi-eye"></i>
+                        <input type="password" class="form-control" id="passwordActualReautenticar" autocomplete="current-password" placeholder="Contraseña actual" aria-label="Contraseña actual">
+                        <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="passwordActualReautenticar" aria-label="Mostrar contraseña">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
                         </button>
                     </div>
-
-                    <div id="mensajeReautenticarPassword" class="small mt-2"></div>
+                    <div id="mensajeReautenticarPassword" class="small mt-2" role="status" aria-live="polite"></div>
                 </div>
 
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        id="btnReautenticarPassword">
-                        Continuar
-                    </button>
-                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnReautenticarPassword">Continuar</button>
+                </footer>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="modal fade" id="modalServicios" tabindex="-1" aria-labelledby="modalServiciosLabel" aria-hidden="true">
+    <section class="modal fade" id="modalDeshabilitarCuenta" tabindex="-1" aria-labelledby="modalDeshabilitarCuentaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalServiciosLabel">
-                        Servicios adquiridos
-                    </h5>
-
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5 text-danger" id="modalDeshabilitarCuentaLabel">Deshabilitar cuenta</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de confirmación"></button>
+                </header>
 
                 <div class="modal-body">
-                    <div id="listaServiciosAdquiridos">
-                        <p class="text-secondary mb-0">
-                            Cargando servicios...
-                        </p>
-                    </div>
+                    <p>¿Estás seguro/a de que querés deshabilitar tu cuenta?</p>
+                    <p class="text-secondary small mb-0">No podrás ingresar a la plataforma hasta que un administrador vuelva a habilitar tu usuario.</p>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cerrar
-                    </button>
-                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarDeshabilitarCuenta">Sí, deshabilitar mi cuenta</button>
+                </footer>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-labelledby="modalEliminarCuentaLabel" aria-hidden="true">
+    <section class="modal fade" id="modalReautenticarDeshabilitar" tabindex="-1" aria-labelledby="modalReautenticarDeshabilitarLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="modalEliminarCuentaLabel">
-                        Eliminar cuenta
-                    </h5>
-
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5" id="modalReautenticarDeshabilitarLabel">Confirmar identidad</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de confirmación de identidad"></button>
+                </header>
 
                 <div class="modal-body">
-                    <p>
-                        ¿Estás segura de que querés eliminar tu cuenta?
-                    </p>
-
-                    <p class="text-danger fw-bold mb-0">
-                        Esta acción no se puede deshacer.
-                    </p>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-
-                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminarCuenta">
-                        Sí, eliminar mi cuenta
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-<div class="modal fade" id="modalReautenticarEliminar" tabindex="-1"
-    aria-labelledby="modalReautenticarEliminarLabel" aria-hidden="true">
-
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalReautenticarEliminarLabel">
-                    Confirmar identidad
-                </h5>
-
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar">
-                </button>
-            </div>
-
-            <div class="modal-body">
-
-                <p>
-                    Por seguridad, ingresá tu contraseña actual para continuar.
-                </p>
-
-                <div class="mb-3">
-                    <label for="passwordEliminarCuenta" class="form-label">
-                        Contraseña actual
-                    </label>
-
-                    <div class="input-group">
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="passwordEliminarCuenta"
-                            autocomplete="current-password"
-                            placeholder="Ingresá tu contraseña">
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-toggle-password"
-                            data-target="passwordEliminarCuenta"
-                            aria-label="Mostrar contraseña">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                    <p>Por seguridad, ingresá tu contraseña actual para continuar.</p>
+                    <div class="mb-3">
+                        <label for="passwordDeshabilitarCuenta" class="form-label">Contraseña actual</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="passwordDeshabilitarCuenta" autocomplete="current-password" placeholder="Ingresá tu contraseña">
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="passwordDeshabilitarCuenta" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
+                    <div id="mensajeDeshabilitarCuenta" class="small mt-2" role="status" aria-live="polite"></div>
                 </div>
 
-                <div id="mensajeEliminarCuenta"
-                    class="small mt-2">
-                </div>
-
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnReautenticarDeshabilitar">Continuar</button>
+                </footer>
             </div>
-
-            <div class="modal-footer">
-
-                <button type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-                    Cancelar
-                </button>
-
-                <button type="button"
-                    class="btn btn-danger"
-                    id="btnReautenticarEliminar">
-                    Continuar
-                </button>
-
-            </div>
-
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="modal fade" id="modalEditarNombre" tabindex="-1" aria-labelledby="modalEditarNombreLabel" aria-hidden="true">
+    <section class="modal fade" id="modalEditarNombre" tabindex="-1" aria-labelledby="modalEditarNombreLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarNombreLabel">
-                        Modificar nombre
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5" id="modalEditarNombreLabel">Modificar nombre</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de modificación de nombre"></button>
+                </header>
+
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="inputNuevoNombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="inputNuevoNombre" placeholder="Ingresá tu nombre">
+                        <input type="text" class="form-control" id="inputNuevoNombre" autocomplete="given-name" placeholder="Ingresá tu nombre">
                         <div id="mensajeErrorNombre" class="invalid-feedback">El nombre no puede quedar vacío.</div>
                     </div>
                 </div>
-                <div class="modal-footer">
+
+                <footer class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="btnGuardarNombre">Guardar cambios</button>
-                </div>
+                </footer>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="modal fade" id="modalEditarApellido" tabindex="-1" aria-labelledby="modalEditarApellidoLabel" aria-hidden="true">
+    <section class="modal fade" id="modalEditarApellido" tabindex="-1" aria-labelledby="modalEditarApellidoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarApellidoLabel">
-                        Modificar apellido
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+                <header class="modal-header">
+                    <h2 class="modal-title h5" id="modalEditarApellidoLabel">Modificar apellido</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana de modificación de apellido"></button>
+                </header>
+
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="inputNuevoApellido" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="inputNuevoApellido" placeholder="Ingresá tu apellido">
+                        <input type="text" class="form-control" id="inputNuevoApellido" autocomplete="family-name" placeholder="Ingresá tu apellido">
                         <div id="mensajeErrorApellido" class="invalid-feedback">El apellido no puede quedar vacío.</div>
                     </div>
                 </div>
-                <div class="modal-footer">
+
+                <footer class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="btnGuardarApellido">Guardar cambios</button>
-                </div>
+                </footer>
             </div>
         </div>
-    </div>
+    </section>
+
+    <aside class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" aria-label="Notificaciones">
+        <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i id="toastIcono" class="bi bi-check-circle-fill fs-5" aria-hidden="true"></i>
+                    <span id="toastMensaje">Cambio realizado con éxito.</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+            </div>
+        </div>
+    </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js" type="module"></script>
     <script src="js/perfil.js" type="module"></script>
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
-    <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center gap-2">
-                <i id="toastIcono" class="bi bi-check-circle-fill fs-5"></i>
-                <span id="toastMensaje">Cambio realizado con éxito.</span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-        </div>
-    </div>
-</div>
+
 </body>
 </html>

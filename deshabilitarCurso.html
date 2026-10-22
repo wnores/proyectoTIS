@@ -9,13 +9,10 @@
     <title>Cursos CC | Gestión de cursos</title>
 </head>
 
-<body class="d-flex flex-column min-vh-100" data-page="acercaDe.html">
+<body class="d-flex flex-column min-vh-100" data-page="deshabilitarCurso.html">
 <header>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
-        aria-label="Navegación principal">
-
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
         <div class="container">   
-
              <a class="navbar-brand" href="index.html">
                 <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
             </a>
@@ -26,209 +23,160 @@
             </button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active" data-page="producto" href="acercaDe.html">Acerca de</a></li>
+                    <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-            <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
-                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
-                <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
-            </div>
+                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
+                    <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
+                </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-                <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
-                <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
-            </div>
+                <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                    <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
+                    <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
+                </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
-                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true"aria-expanded="false">
-                <i class="bi bi-person-circle fs-5"></i>
-                <span class="fs-6" id="nombreUsuario" class="fw-bold"></span></button>
-    
-                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                    <li>
-                         <li
-        class="d-none"
-        data-requiere-permiso="verPanelAdmin">
-
-        <a
-            class="dropdown-item d-flex align-items-center gap-2 py-2"
-            href="administrarCursos.html">
-
-            <i class="bi bi-gear-fill fs-5"></i>
-            Administrar cursos
-        </a>
-    </li>
-
-    <li
-        class="d-none"
-        data-requiere-permiso="verPanelAdmin">
-
-        <hr class="dropdown-divider my-1">
-    </li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
-                    </li>
-                </ul>
+                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+                        type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span class="fs-6 fw-bold" id="nombreUsuario"></span>
+                    </button>
+        
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                        <li class="d-none" data-requiere-permiso="verPanelAdmin">
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                                <i class="bi bi-gear-fill fs-5"></i> Administrar cursos
+                            </a>
+                        </li>
+                        <li class="d-none" data-requiere-permiso="verPanelAdmin">
+                            <hr class="dropdown-divider my-1">
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                                <i class="bi bi-person fs-5"></i> Ver perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                                <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</nav>
+    </nav>
 </header>
 
-    <main class="flex-grow-1 container py-5">
+    <main class="flex-grow-1">
+        <!-- Mensaje de Acceso Denegado (Microinteracción) -->
+        <div id="mensajeSinPermiso" class="container py-5 d-none"></div>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3 fw-bold mb-1">Gestión de cursos</h1>
-                <p class="text-secondary mb-0">Selecciona la opción correspondiente para deshabilitar el curso, o bien para su habilitación.</p>
+        <!-- Panel accesible únicamente por Docentes/Admin -->
+        <div id="contenidoDocente" class="container py-5 d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">Gestión de cursos</h1>
+                    <p class="text-secondary mb-0">Seleccioná la opción correspondiente para deshabilitar o habilitar un curso.</p>
+                </div>
+                <span class="badge text-bg-light border px-3 py-2">
+                    <span id="contadorCursos">0</span> cursos
+                </span>
             </div>
-            <span class="badge text-bg-light border px-3 py-2">
-                <span id="contadorCursos">0</span> cursos
-            </span>
-        </div>
 
-        <div id="estadoCarga" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+            <div id="estadoCarga" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="text-secondary mt-3">Cargando cursos desde la base de datos...</p>
             </div>
-            <p class="text-secondary mt-3">Cargando cursos desde Firebase...</p>
-        </div>
 
+            <div id="contenedorTabla" class="table-responsive d-none">
+                <table class="table table-hover align-middle bg-white shadow-sm rounded tabla-cursos">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Título</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col" class="text-center">Estado</th>
+                            <th scope="col" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listadoCursos"></tbody>
+                </table>
+            </div>
 
-   
-<div id="contenedorTabla" class="table-responsive d-none">
-    <table class="table table-hover align-middle bg-white shadow-sm rounded tabla-cursos">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col">Título</th>
-                <th scope="col">Categoría</th>
-                <th scope="col" class="text-center">Estado</th>
-                <th scope="col" class="text-center">Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="listadoCursos"></tbody>
-    </table>
-</div>
-
-<nav aria-label="Paginación de cursos" class="mt-4">
-    <ul id="paginacion" class="pagination justify-content-center"></ul>
-</nav>
-
-        <!-- Mensaje de vacío -->
-        <div id="mensajeVacio" class="alert alert-info d-none">
-            No hay cursos cargados en la base de datos.
-        </div>
-        <a href="administrarCursos.html"
-            class="btn btn-primary">Atrás
-        </a>
-  
-</main>
-
-<!-- FOOTER -->
-<footer class="footer">
-
-<div class="container">
-    <div class="row">
-
-        <section class="col-lg-5" aria-labelledby="footerInfo">
-
-            <h5 id="footerInfo">Cursos de Ciencias de la Computación</h5>
-
-            <p>
-                Desarrollá nuevas habilidades
-                y preparate para el mundo digital.
-            </p>
-        </section>    
-
-        <nav class="col-lg-3" aria-labelledby="footerLinks">
-
-            <h5 id="footerLinks">Enlaces</h5>
-
-            <a href="politicaDePrivacidad.html">
-                Política de privacidad
-            </a>
-
-        </nav>
-
-        <section class="col-lg-4" aria-labelledby="footerContacto">
-
-            <h5 id="footerContacto">Contacto</h5>
-
-            <p>
-                Seguinos en nuestras redes
-            </p>
-
-            <nav class="footer-social">
-
-                <a href="https://www.facebook.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Facebook">
-                    <i class="bi bi-facebook" aria-hidden="true"></i>
-                </a>
-
-                <a href="https://www.instagram.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram">
-                    <i class="bi bi-instagram" aria-hidden="true"></i>
-                </a>
-
-                <a href="https://www.youtube.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="YouTube">
-                    <i class="bi bi-youtube" aria-hidden="true"></i>
-                </a>
-
-                <a href="https://www.linkedin.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn">
-                    <i class="bi bi-linkedin" aria-hidden="true"></i>
-                </a>
+            <nav aria-label="Paginación de cursos" class="mt-4">
+                <ul id="paginacion" class="pagination justify-content-center"></ul>
             </nav>
-        </section>
-    </div>
-    <hr>
-    <p class="footer-copy">
-        <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
-    </p>
-</div>
-</footer>
 
-<div class="modal fade" id="modalEliminar" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitulo">Confirmar acción</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- Mensaje de vacío -->
+            <div id="mensajeVacio" class="alert alert-info d-none">
+                No hay cursos cargados en la base de datos.
             </div>
-            <div class="modal-body">
-                <p id="modalMensaje">¿Está seguro?</p>
-                <p class="fw-bold mb-0" id="nombreCursoEliminar"></p>
-                <p class="text-secondary small mt-3 mb-0" id="modalDetalle"></p>
+
+            <a href="administrarCursos.html" class="btn btn-primary mt-3">Atrás</a>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <section class="col-lg-5" aria-labelledby="footerInfo">
+                    <h5 id="footerInfo">Cursos de Ciencias de la Computación</h5>
+                    <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
+                </section>    
+
+                <nav class="col-lg-3" aria-labelledby="footerLinks">
+                    <h5 id="footerLinks">Enlaces</h5>
+                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
+                </nav>
+
+                <section class="col-lg-4" aria-labelledby="footerContacto">
+                    <h5 id="footerContacto">Contacto</h5>
+                    <p>Seguinos en nuestras redes</p>
+                    <nav class="footer-social">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    </nav>
+                </section>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Confirmar</button>
+            <hr>
+            <p class="footer-copy">
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
+            </p>
+        </div>
+    </footer>
+
+    <!-- MODAL CONFIRMAR ACCIÓN -->
+    <div class="modal fade" id="modalEliminar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitulo">Confirmar acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalMensaje">¿Está seguro?</p>
+                    <p class="fw-bold mb-0" id="nombreCursoEliminar"></p>
+                    <p class="text-secondary small mt-3 mb-0" id="modalDetalle"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Confirmar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/deshabilitarCurso.js" type="module"></script>
-<script src="js/app.js" type="module"></script>
-<script src="js/visibilidadRoles.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+    <script src="js/deshabilitarCurso.js" type="module"></script>
 </body>
 </html>

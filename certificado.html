@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Visualización y descarga del certificado de aprobación de un curso en Cursos CC.">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="styles/estilos.css">
+    <title>Cursos CC | Certificado</title>
+    <style>
+        .zona-certificado { overflow-x: auto; }
+        .certificado {
+            width: 1120px;
+            height: 790px;
+            margin: 0 auto;
+            background: #fff;
+            border: 12px solid #2b7575;
+            padding: 14px;
+            box-sizing: border-box;
+            font-family: Georgia, "Times New Roman", serif;
+            color: #222;
+        }
+        .certificado-interior {
+            height: 100%;
+            border: 2px solid #c9a227;
+            padding: 30px 60px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .certificado .logo-cert { height: 80px; border-radius: 12px; }
+        .certificado h1 {
+            font-size: 44px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #2b7575;
+            margin: 8px 0 0;
+        }
+        .certificado .subtitulo { font-size: 18px; margin: 0; color: #555; }
+        .certificado .texto { font-size: 20px; margin: 0; }
+        .certificado .nombre {
+            font-size: 42px;
+            font-weight: bold;
+            border-bottom: 2px solid #c9a227;
+            display: inline-block;
+            padding: 0 30px 4px;
+            margin: 6px auto;
+        }
+        .certificado .curso { font-size: 32px; font-weight: bold; color: #2b7575; margin: 0; }
+        .certificado .datos { font-size: 18px; margin: 0; }
+        .certificado .pie {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 15px;
+        }
+        .certificado .firma { position: relative; width: 280px; border-top: 1px solid #222; padding-top: 6px; }
+        .certificado .firma-garabato {
+    position: absolute;
+    left: 30px;
+    bottom: 100%;
+    margin-bottom: -4px;
+    width: 220px;
+    height: 70px;
+}
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100" data-page="certificado.html">
+
+        <header>
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" aria-label="Navegación principal">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <img src="recursos/imagenes/logo.jpg" alt="Cursos de Ciencias de la Computación" class="logo">
+                </a>
+
+                <button class="navbar-toggler" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#mainNav"
+                        aria-controls="mainNav"
+                        aria-expanded="false"
+                        aria-label="Navegación principal">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                    
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
+                        <li class="nav-item"><a class="nav-link" data-page="catalogo" href="catalogo.html">Catálogo de cursos</a></li>
+                        <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
+                        <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                        <a href="ingresar.html" class="btn btn-outline-light btn-sm">
+                            Iniciar sesión
+                            <img src="recursos/iconos/ingresar.png" alt="Ingresar">
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                        <a href="registrarse.html" class="btn btn-outline-light btn-sm">
+                            Registrarse
+                            <img src="recursos/iconos/registrarse.png" alt="Registro">
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3"
+                            type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            <span id="nombreUsuario" class="fs-6 fw-bold"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                                    <i class="bi bi-person fs-5"></i>
+                                    Mi perfil
+                                </a>
+                            </li>
+
+                            <li id="menuMisCursos">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
+                                    <i class="bi bi-book fs-5"></i>
+                                    Mis cursos
+                                </a>
+                            </li>
+
+                            <li id="menuAdminCursos" class="d-none">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                                    <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
+                                    Administrar cursos
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                                    <i class="bi bi-box-arrow-right fs-5"></i>
+                                    Cerrar sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>   
+        </nav>
+    </header>
+
+    <main class="flex-grow-1 bg-light">
+        <div class="container py-4">
+
+            <div id="estadoCarga" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">Cargando certificado...</p>
+            </div>
+
+            <div id="mensajeError" class="alert alert-danger d-none" role="alert"></div>
+
+            <div id="zonaCertificado" class="d-none">
+
+                <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+                    <button type="button" class="btn btn-primary" id="btnDescargar">
+                        <i class="bi bi-download me-2"></i>
+                        Descargar certificado (PDF)
+                    </button>
+                    <a href="index.html" class="btn btn-outline-secondary">Ir a inicio</a>
+                </div>
+
+                <div class="zona-certificado">
+                    <article
+                        class="certificado"
+                        id="certificado"
+                        aria-labelledby="tituloCertificado">
+                        <div class="certificado-interior">
+
+                            <div>
+                                <img src="recursos/imagenes/logo.jpg" alt="Logo Cursos CC" class="logo-cert">
+                                <h1 id="tituloCertificado"> Certificado de aprobación</h1>
+                                <p class="subtitulo">Cursos de Ciencias de la Computación</p>
+                            </div>
+
+                            <div>
+                                <p class="texto">Se certifica que</p>
+                                <p class="nombre" id="certNombre"></p>
+                                <p class="datos" id="certDocumento"></p>
+                            </div>
+
+                            <div>
+                                <p class="texto">ha aprobado el curso</p>
+                                <p class="curso" id="certCurso"></p>
+                                <p class="datos">
+                                    Carga horaria: <strong id="certHoras"></strong> horas
+                                    &nbsp;·&nbsp;
+                                    Calificación: <strong id="certNota"></strong>
+                                </p>
+                            </div>
+
+                            <div class="pie">
+                                <div class="text-start">
+                                    <div>Fecha de emisión: <strong id="certFecha"></strong></div>
+                                    <div>Código de verificación: <strong id="certCodigo"></strong></div>
+                                </div>
+                                <div class="firma">
+    <svg class="firma-garabato" viewBox="0 0 220 70" fill="none" stroke="#1f3a93" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 48 C 20 10, 34 6, 36 30 C 38 56, 24 60, 30 40 C 38 14, 56 12, 54 36 C 52 52, 66 50, 72 36 C 78 24, 86 40, 94 36 C 104 30, 110 44, 120 38 C 132 30, 138 20, 146 34 C 154 48, 164 44, 176 28 C 184 18, 196 30, 212 22"/>
+        <path d="M30 58 C 80 52, 140 60, 200 50" stroke-width="1.8"/>
+    </svg>
+    Taller Integrador de Sistemas
+</div>
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <h5>Cursos de Ciencias de la Computación</h5>
+                    <p>Desarrollá nuevas habilidades y preparate para el mundo digital.</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Enlaces</h5>
+                    <a href="politicaDePrivacidad.html">Política de privacidad</a>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Contacto</h5>
+                    <p>Seguinos en nuestras redes</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <p class="footer-copy">
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/app.js" type="module"></script>
+    <script src="js/certificado.js" type="module"></script>
+</body>
+</html>

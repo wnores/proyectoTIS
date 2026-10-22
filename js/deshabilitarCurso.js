@@ -32,9 +32,6 @@ const CURSOS_POR_PAGINA = 5;
 let cursoSeleccionado = null;           
 let accion = null;                        
 
-// ==========================================
-// CONTROL DE ACCESO
-// ==========================================
 iniciarVerificacion();
 
 function iniciarVerificacion() {
@@ -132,9 +129,6 @@ function mostrarAccesoDenegado(mensaje, destinoRedireccion) {
     }, 3500);
 }
 
-// ==========================================
-// CARGA Y GESTIÓN DE CURSOS
-// ==========================================
 async function cargarCursos() {
     try {
         estadoCarga.classList.remove("d-none");

@@ -35,7 +35,6 @@
 
             </button>
                 
-            
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" data-page="producto" href="acercaDe.html">Acerca de</a></li>
@@ -43,37 +42,59 @@
                     <li class="nav-item"><a class="nav-link" data-page="admin" href="beca.html">Becas</a></li>
                     <li class="nav-item"><a class="nav-link" data-page="carrito" href="contacto.html">Contacto</a></li>
                 </ul>
-            <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
-                <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
-                <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
-            </div>
+                <div class="d-flex align-items-center gap-2 logged-out d-none" id="grupIngresar">
+                    <a href="ingresar.html" class="btn btn-outline-light btn-sm">Iniciar sesión
+                    <img src="recursos/iconos/ingresar.png" alt="Ingresar"></a>
+                </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
-                <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
-                <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
-            </div>
+                <div class="d-flex align-items-center gap-2 ms-2 logged-out d-none" id="grupoRegistrarse">
+                    <a href="registrarse.html" class="btn btn-outline-light btn-sm">Registrarse
+                    <img src="recursos/iconos/registrarse.png" alt="Registro"></a>
+                </div>
 
-            <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
-                type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                <i class="bi bi-person-circle fs-5"></i>
-                <span 
-                     id="nombreUsuario" class="fs-6 fw-bold"></span></button>
-    
-                <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
-                            <i class="bi bi-person fs-5"></i> Ver perfil</a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
-                        <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
-                    </li>
-                </ul>
+                <!-- CAMPANA DE NOTIFICACIONES -->
+                <div class="dropdown ms-auto me-2 logged-in d-none" id="grupoNotificaciones">
+                    <button class="btn btn-outline-light btn-sm position-relative py-2 px-3" type="button" id="dropdownNotificaciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notificaciones">
+                        <i class="bi bi-bell-fill fs-5"></i>
+                        <span id="contadorNotificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2 p-2" id="listaNotificaciones" aria-labelledby="dropdownNotificaciones" style="min-width: 280px; max-height: 380px; overflow-y: auto;">
+                        <li class="dropdown-header fw-bold text-dark">Notificaciones</li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="text-center text-muted p-2 small" id="sinNotificaciones">No tenés notificaciones</li>
+                    </ul>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-2 position-relative d-none" id="grupoUsuario">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 py-2 px-3" 
+                    type="button" id="dropdownUsuario" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                    <i class="bi bi-person-circle fs-5"></i>
+                    <span id="nombreUsuario" class="fs-6 fw-bold"></span></button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow mt-2" aria-labelledby="dropdownUsuario">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="perfil.html">
+                                <i class="bi bi-person fs-5"></i> Ver perfil</a>
+                        </li>
+                        <li id="menuMisCursos">
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="misCursos.html">
+                                <i class="bi bi-book fs-5"></i> Mis cursos
+                            </a>
+                        </li>
+                        <li id="menuAdminCursos" class="d-none">
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="administrarCursos.html">
+                                <i class="bi bi-gear-wide-connected fs-5"></i> Administrar cursos
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <button class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" type="button" id="btnCerrarSesion">
+                            <i class="bi bi-box-arrow-right fs-5"></i> Cerrar sesión</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
-    </div>
-</div>  
+        </div>  
     </nav>
     </header>
 
@@ -84,9 +105,9 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
-                    <h1 id="tituloEstadisticas" class="h4 fw-bold mb-1"></h1>
+                    <h1 id="tituloEstadisticas" class="h4 fw-bold mb-1">
                         <i class="bi bi-bar-chart-fill text-primary"></i> Estadísticas
-                    </h2>
+                    </h1>
                     <p class="text-secondary mb-0 small">Resumen general de la plataforma.</p>
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefrescarStats">
@@ -94,7 +115,6 @@
                 </button>
             </div>
 
-            <!-- KPI CARDS -->
             <div class="row g-3 mb-4" id="contenedorStats">
 
                 <div class="col-6 col-md-4 col-lg-2">
@@ -159,10 +179,8 @@
 
             </div>
 
-            <!-- FILA 2: RANKING + DISTRIBUCIÓN -->
             <div class="row g-4">
 
-                <!-- Cursos más populares -->
                 <div class="col-lg-7">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
@@ -176,7 +194,6 @@
                     </div>
                 </div>
 
-                <!-- Distribución por rol -->
                 <div class="col-lg-5">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
@@ -189,12 +206,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
     </section>
-
 
     <section class="py-5" aria-labelledby="tituloAdministrarCursos">
         <div class="container">
@@ -274,8 +288,7 @@
         </div>
     </section>
 
-    <!-- GESTIÓN DE ESTUDIANTES -->
-    <section class="py-5"aria-labelledby="tituloGestionEstudiantes">
+    <section class="py-5" aria-labelledby="tituloGestionEstudiantes">
         <div class="container">
 
             <div class="text-center mb-5">
@@ -294,7 +307,6 @@
 
             <div class="row justify-content-center g-4">
 
-                <!-- SOLICITUDES DE BECAS -->
                 <div class="col-12 col-md-6 col-lg-5">
 
                     <article class="card h-100 shadow-sm text-center">
@@ -329,25 +341,15 @@
                                     Ver solicitudes
 
                                 </button>
-
                             </div>
-
                         </div>
-
                     </article>
-
                 </div>
 
-
-                <!-- PAGOS POR TRANSFERENCIA -->
                 <div class="col-12 col-md-6 col-lg-5">
-
                     <article class="card h-100 shadow-sm text-center">
-
                         <div class="card-body p-4 d-flex flex-column justify-content-between">
-
                             <div>
-
                                 <i class="bi bi-bank fs-1 text-success"
                                     aria-hidden="true"></i>
 
@@ -358,11 +360,8 @@
                                 <p class="text-muted">
                                     Revisá y confirmá los pagos realizados mediante transferencia bancaria.
                                 </p>
-
                             </div>
-
                             <div>
-
                                 <button
                                     type="button"
                                     class="btn btn-primary w-100"
@@ -370,42 +369,26 @@
 
                                     <i class="bi bi-credit-card me-2"
                                         aria-hidden="true"></i>
-
                                     Ver pagos pendientes
-
                                 </button>
-
                             </div>
-
                         </div>
-
                     </article>
-
                 </div>
-
             </div>
 
-
-            <!-- CONTENIDO DE SOLICITUDES -->
             <div
                 id="contenedorSolicitudesBecas"
                 class="row justify-content-center g-4 mt-4 d-none">
             </div>
 
-
-            <!-- CONTENIDO DE PAGOS -->
             <div
                 id="contenedorPagosTransferencia"
                 class="row justify-content-center g-4 mt-4 d-none">
             </div>
-
         </div>
     </section>
 
-
-        <!-- ============================================ -->
-        <!-- GESTIÓN DE USUARIOS -->
-        <!-- ============================================ -->
         <section class="py-5 bg-light" aria-labelledby="tituloGestionUsuarios">
             <div class="container">
 
@@ -417,7 +400,6 @@
                     </p>
                 </div>
 
-                <!-- Filtros -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body">
                         <div class="row g-3">
@@ -443,25 +425,21 @@
                     </div>
                 </div>
 
-                <!-- Contador -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-secondary">
                         Usuarios mostrados: <strong id="contadorUsuarios">0</strong>
                     </span>
                 </div>
 
-                <!-- Spinner -->
                 <div id="cargandoUsuarios" class="text-center py-5">
                     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
                     <p class="text-secondary mt-3 fw-bold">Cargando usuarios...</p>
                 </div>
 
-                <!-- Sin resultados -->
                 <div id="sinUsuarios" class="alert alert-info d-none">
                     No se encontraron usuarios con esos filtros.
                 </div>
 
-                <!-- Tabla de usuarios -->
                 <div id="contenedorTablaUsuarios" class="table-responsive d-none">
                     <table class="table table-hover align-middle bg-white shadow-sm rounded tabla-usuarios">
                         <thead class="table-dark">
@@ -477,7 +455,6 @@
                     </table>
                 </div>
 
-                <!-- Paginación -->
                 <nav aria-label="Paginación de usuarios" class="mt-4">
                     <ul id="paginacionUsuarios" class="pagination justify-content-center"></ul>
                 </nav>
@@ -485,7 +462,6 @@
             </div>
         </section>
 
-        <!-- Modal de confirmación -->
         <div class="modal fade" id="modalUsuario" tabindex="-1"  aria-labelledby="modalUsuarioTitulo" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -505,7 +481,6 @@
                 </div>
             </div>
         </div>
-
 
     </main>
      <!-- FOOTER -->
@@ -563,7 +538,7 @@
             </div>
             <hr>
             <p class="footer-copy">
-                <img src="recursos/iconos/derechosAutor.png" alt="copyrihgt"> 2026 - Taller Integrador de Sistemas
+                <img src="recursos/iconos/derechosAutor.png" alt="copyright"> 2026 - Taller Integrador de Sistemas
             </p>
         </div>
     </footer>

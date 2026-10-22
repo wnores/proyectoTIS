@@ -19,7 +19,7 @@ iniciarPagina();
 function iniciarPagina() {
     onAuthStateChanged(auth, async (usuario) => {
         if (!usuario) {
-            mostrarAccesoDenegado("Debés iniciar sesión como estudiante para ver tus cursos.", "ingresar.html");
+            mostrarAccesoDenegado("Debés iniciar sesión como estudiante para ver tus cursos", "index.html");
             return;
         }
 

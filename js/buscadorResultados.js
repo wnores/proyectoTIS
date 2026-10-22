@@ -11,11 +11,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sinResultados = document.getElementById('sinResultados');
     const parrafoSinResultados = document.getElementById('parrafoSinResultados');
 
-    // Capturar el parámetro "buscar" de la URL
     const parametros = new URLSearchParams(window.location.search);
     const texto = parametros.get('buscar');
 
-    // Si no se ingresó texto o la búsqueda está vacía
     if (!texto || !texto.trim()) {
         if (textoBusqueda) {
             textoBusqueda.textContent = '';
@@ -38,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let resultados = [];
 
     try {
-        // Consultar la colección cursoscc en Firestore
         const referenciaCursos = collection(db, 'cursoscc');
         const snapshot = await getDocs(referenciaCursos);
 
@@ -47,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             ...doc.data()
         }));
 
-        // Filtrar cursos activos y que coincidan con el texto buscado
         const cursosEncontrados = cursos.filter(curso => {
             const esActivo = curso.activo !== false && curso.estado !== 'inactivo';
             if (!esActivo) return false;
@@ -78,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return contenidoCurso.includes(busqueda);
         });
 
-        // Convertir coincidencias en objetos lista
         cursosEncontrados.forEach(curso => {
             resultados.push({
                 titulo: curso.titulo || curso.nombre || 'Curso sin título',
@@ -91,7 +86,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error al cargar los cursos desde Firestore:', error);
     }
 
-    // SI NO SE ENCONTRARON COINCIDENCIAS
     if (resultados.length === 0) {
         if (contenedor) contenedor.innerHTML = '';
         if (parrafoSinResultados) {
@@ -101,7 +95,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // SI SE ENCONTRARON COINCIDENCIAS
     if (sinResultados) {
         sinResultados.classList.add('d-none');
     }
@@ -130,7 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Función para ignorar tildes, mayúsculas y acentos en la búsqueda
     function normalizarTexto(texto) {
         if (!texto) return '';
         return texto

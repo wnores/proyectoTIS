@@ -54,7 +54,7 @@ async function cargarUsuarios() {
                 apellido: data.apellido || "",
                 email: data.email || "",
                 rol: data.rol || data.tipoUsuario || "estudiante",
-                activo: data.activo !== false  // Si no existe, se asume activo
+                activo: data.activo !== false  
             });
         });
 

@@ -12,11 +12,6 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// ======================================================
-// MICROINTERACCIONES: modales centrados (reemplazan confirm() y alert())
-// Requiere el bundle de Bootstrap 5 cargado antes como <script> normal.
-// ======================================================
-
 const ESTILOS = `
     @keyframes entradaModalSmooth {
         0% { opacity: 0; transform: scale(0.85) translateY(20px); }
@@ -55,7 +50,6 @@ if (!document.getElementById("estilosMicrointeraccionesCSS")) {
     document.head.appendChild(estilo);
 }
 
-// Crea el modal, y cuando termina de cerrarse libera Bootstrap y borra el nodo
 function crearModalDinamico(html) {
     document.querySelectorAll(".modal-dinamico").forEach((el) => {
         window.bootstrap.Modal.getInstance(el)?.hide();
@@ -77,10 +71,6 @@ function crearModalDinamico(html) {
     return { elem, modal };
 }
 
-// ------------------------------------------------------
-// Confirmación: devuelve una Promise<boolean>
-//   const ok = await confirmarCentrado("Título", "Mensaje", { peligroso: true });
-// ------------------------------------------------------
 function confirmarCentrado(titulo, mensaje, opciones = {}) {
     const { peligroso = false, textoConfirmar = "Confirmar" } = opciones;
 
@@ -112,7 +102,6 @@ function confirmarCentrado(titulo, mensaje, opciones = {}) {
             </div>
         `);
 
-        // textContent: evita inyectar HTML con datos que vienen de Firestore
         elem.querySelector('[data-rol="titulo"]').textContent = titulo;
         elem.querySelector('[data-rol="mensaje"]').textContent = mensaje;
         elem.querySelector('[data-rol="confirmar"]').textContent = textoConfirmar;
@@ -124,18 +113,12 @@ function confirmarCentrado(titulo, mensaje, opciones = {}) {
             modal.hide();
         });
 
-        // Se resuelve recién cuando terminó la animación de cierre,
-        // así el modal siguiente nunca se pisa con este.
         elem.addEventListener("hidden.bs.modal", () => resolve(confirmado));
 
         modal.show();
     });
 }
 
-// ------------------------------------------------------
-// Resultado / advertencia: tipo = "exito" | "error" | "advertencia" | "info"
-// Devuelve una Promise que se resuelve al cerrarse (no hace falta esperarla)
-// ------------------------------------------------------
 function mostrarAlertaCentrada(mensaje, tipo = "exito") {
     const configuracion = {
         exito: { icono: "bi-check-circle-fill", colorTexto: "text-success", colorBorde: "border-success", bgIcono: "bg-success bg-opacity-10", titulo: "¡Operación exitosa!" },
@@ -176,12 +159,8 @@ function mostrarAlertaCentrada(mensaje, tipo = "exito") {
 const contenedor = document.getElementById("contenedorPagosTransferencia");
 const botonMostrarPagos = document.getElementById("btnMostrarPagosTransferencia");
 
-// Página a la que lleva la notificación de la campanita del estudiante
 const ENLACE_NOTIFICACION = "misCursos.html";
 
-// ======================================================
-// MOSTRAR / OCULTAR PAGOS
-// ======================================================
 if (botonMostrarPagos) {
     botonMostrarPagos.addEventListener("click", () => {
         const estaOculto = contenedor.classList.contains("d-none");
@@ -203,9 +182,6 @@ if (botonMostrarPagos) {
     });
 }
 
-// ======================================================
-// VERIFICAR USUARIO Y PERMISOS
-// ======================================================
 onAuthStateChanged(auth, async (usuario) => {
     if (!usuario) {
         mostrarMensaje("Debés iniciar sesión para acceder a esta sección.");
@@ -235,9 +211,6 @@ onAuthStateChanged(auth, async (usuario) => {
     }
 });
 
-// ======================================================
-// CARGAR PAGOS PENDIENTES
-// ======================================================
 async function cargarPagosPendientes() {
     try {
         const consulta = query(
@@ -247,7 +220,6 @@ async function cargarPagosPendientes() {
 
         const resultado = await getDocs(consulta);
 
-        // Transferencia normal o transferencia del saldo de una beca
         const pagosPendientes = resultado.docs.filter((documento) => {
             const pago = documento.data();
 
@@ -306,9 +278,6 @@ async function cargarPagosPendientes() {
     }
 }
 
-// ======================================================
-// CREAR TARJETA DEL PAGO
-// ======================================================
 function crearTarjetaPago(adquisicion, nombreUsuario, correoUsuario) {
     const columna = document.createElement("div");
     columna.className = "col-12 col-md-6 col-lg-4";
@@ -390,11 +359,6 @@ function crearTarjetaPago(adquisicion, nombreUsuario, correoUsuario) {
     return columna;
 }
 
-// ======================================================
-// NOTIFICACIÓN PARA LA CAMPANITA DEL ESTUDIANTE
-// Incluye destinatarioUid y destinatarioId porque app.js consulta por
-// destinatarioUid y las reglas de Firestore aceptan cualquiera de los dos.
-// ======================================================
 function datosNotificacion({ usuarioId, idAdquisicion, cursoId, titulo, mensaje }) {
     return {
         tipo: "transferencia",
@@ -424,9 +388,6 @@ function restaurarBoton(boton, htmlOriginal) {
     boton.innerHTML = htmlOriginal;
 }
 
-// ======================================================
-// APROBAR PAGO
-// ======================================================
 async function aprobarPago(idAdquisicion, boton) {
     const confirmado = await confirmarCentrado(
         "Aprobar transferencia",
@@ -444,7 +405,6 @@ async function aprobarPago(idAdquisicion, boton) {
         const referenciaAdquisicion = doc(db, "adquisiciones", idAdquisicion);
         const referenciaNotificacion = doc(collection(db, "notificaciones"));
 
-        // Todo en una transacción: estado + cupo + notificación, o nada
         const { notificado } = await runTransaction(db, async (transaccion) => {
             const resultadoAdquisicion = await transaccion.get(referenciaAdquisicion);
 
@@ -549,9 +509,6 @@ async function aprobarPago(idAdquisicion, boton) {
     }
 }
 
-// ======================================================
-// RECHAZAR PAGO
-// ======================================================
 async function rechazarPago(adquisicion, boton) {
     const confirmado = await confirmarCentrado(
         "Rechazar transferencia",
@@ -603,9 +560,6 @@ async function rechazarPago(adquisicion, boton) {
     }
 }
 
-// ======================================================
-// UTILIDADES
-// ======================================================
 function formatearPrecio(precio) {
     return Number(precio || 0).toLocaleString("es-UY", {
         style: "currency",

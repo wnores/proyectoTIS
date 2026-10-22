@@ -12,7 +12,7 @@ const cursoId = new URLSearchParams(window.location.search).get("curso");
 let tituloCurso = "Curso";
 
 if (!cursoId) {
-    mostrarError("No se indicó de qué curso es el certificado.");
+    mostrarError("No se indicó de qué curso es el certificado");
 } else {
     onAuthStateChanged(auth, async (usuario) => {
         if (!usuario) {
@@ -29,13 +29,13 @@ if (!cursoId) {
 
             if (!resCertificado.exists()) {
                 mostrarError(
-                    "Todavía no tenés un certificado para este curso. Se emite cuando el docente carga una nota aprobatoria."
+                    "Todavía no tenés un certificado para este curso. Se emite cuando el docente carga una nota aprobatoria"
                 );
                 return;
             }
 
             if (!resUsuario.exists() || !resCurso.exists()) {
-                mostrarError("No se pudieron obtener los datos del certificado o del curso.");
+                mostrarError("No se pudieron obtener los datos del certificado o del curso");
                 return;
             }
 
@@ -45,7 +45,7 @@ if (!cursoId) {
             const NOTA_MINIMA = 6;
 
             if (notaObtenida < NOTA_MINIMA) {
-                mostrarError(`Tu calificación es ${notaObtenida}. No aprobaste el curso, por lo tanto no hay certificado disponible.`);
+                mostrarError(`Tu calificación es ${notaObtenida}. No aprobaste el curso, por lo tanto no hay certificado disponible`);
                 return;
             }
 
@@ -56,7 +56,7 @@ if (!cursoId) {
             );
         } catch (error) {
             console.error("Error al cargar el certificado:", error);
-            mostrarError("No fue posible cargar el certificado.");
+            mostrarError("No fue posible cargar el certificado");
         }
     });
 }

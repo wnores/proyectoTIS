@@ -1,9 +1,5 @@
 import { auth, db } from "./firebase-config.js";
-
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
   doc,
   getDoc,
@@ -52,9 +48,6 @@ let urlVistaPrevia = null;
 
 iniciarPagina();
 
-/**
- * Muestra la tarjeta animada de acceso restringido y redirige al usuario.
- */
 function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
   if (contenidoAdministrador) {
     contenidoAdministrador.classList.add("d-none");
@@ -117,10 +110,6 @@ function mostrarAccesoDenegado(mensajeTexto, destinoRedireccion) {
   }, 3500);
 }
 
-/**
- * Valida la sesión y el rol del usuario.
- * Permite el acceso exclusivo a administradores y docentes.
- */
 function iniciarPagina() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -161,10 +150,6 @@ function iniciarPagina() {
   });
 }
 
-/**
- * Obtiene las categorías existentes en la colección cursoscc
- * y las carga en el selector del formulario.
- */
 async function cargarCategorias() {
   try {
     const snapshot = await getDocs(collection(db, "cursoscc"));
@@ -231,9 +216,6 @@ async function cargarCategorias() {
   }
 }
 
-/**
- * Gestiona la selección y la vista previa de la imagen.
- */
 if (imagenCurso) {
   imagenCurso.addEventListener("change", (event) => {
     const archivo = event.target.files[0];
@@ -295,9 +277,6 @@ if (imagenCurso) {
   });
 }
 
-/**
- * Agrega un módulo nuevo con campos accesibles.
- */
 if (btnAgregarModulo && contenedorModulos) {
   btnAgregarModulo.addEventListener("click", () => {
     cantidadModulos++;
@@ -366,10 +345,6 @@ if (btnAgregarModulo && contenedorModulos) {
   });
 }
 
-/**
- * Elimina los módulos agregados y actualiza su numeración.
- * El primer módulo se conserva como mínimo obligatorio.
- */
 if (contenedorModulos) {
   contenedorModulos.addEventListener("click", (event) => {
     const objetivo = event.target;
@@ -405,9 +380,6 @@ if (contenedorModulos) {
   });
 }
 
-/**
- * Actualiza los números de los módulos y sus etiquetas asociadas.
- */
 function renumerarModulos() {
   if (!contenedorModulos) return;
 
@@ -459,10 +431,6 @@ function renumerarModulos() {
   cantidadModulos = modulos.length;
 }
 
-/**
- * Procesa los datos y guarda el curso en Firestore.
- * Los módulos se guardan en una subcolección del curso.
- */
 if (formPublicarCurso) {
   formPublicarCurso.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -659,9 +627,6 @@ if (formPublicarCurso) {
   });
 }
 
-/**
- * Muestra mensajes de validación, error o confirmación.
- */
 function mostrarMensaje(texto, tipo) {
   if (!mensajeCurso) return;
 
@@ -684,9 +649,6 @@ function mostrarMensaje(texto, tipo) {
   });
 }
 
-/**
- * Sube la imagen del curso a Cloudinary y devuelve su URL.
- */
 async function subirImagenACloudinary(archivo) {
   const datosFormulario = new FormData();
 

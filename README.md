@@ -281,9 +281,11 @@ Se agregó la visualización de la categoría del curso tanto en las tarjetas de
 Se corrigió descripcionDeCurso.js para que también busque los cursos en Firestore (antes sólo buscaba en cursos.json, por lo que los cursos nuevos no se podían ver en detalle).
 Se completó manualmente el campo categoria en Firestore para los cursos que no lo tenían cargado.
 
+--------------------------------------------------------------------------------------------
+
 ## Sprint 3 (28/09/2026 al 11/10/2026)
 
-## Gestión de usuarios: habilitar / deshabilitar (Walter)
+### Gestión de usuarios: habilitar / deshabilitar (Walter)
 
 Se implementó un sistema de **baja lógica** sobre la colección `usuarios` de Firestore, que permite al administrador bloquear el acceso de un usuario sin eliminar su cuenta.
 
@@ -307,7 +309,7 @@ En `inicioCierreSesion.js`, luego de autenticar correctamente con Firebase Auth,
 
 De esta forma, un usuario deshabilitado **puede autenticarse** (Firebase Auth no lo bloquea), pero **no puede acceder a la aplicación** porque la validación ocurre antes de permitir el ingreso. Se definen además, las reglas de Firestore sobre la coleccción 'usuarios' de 'lectura/escritura' de acuerdo al 'tipoUsuario' 'docente/admin' y 'estudiante'.
 
-## Panel de estadísticas (Walter)
+### Panel de estadísticas (Walter)
 
 Se implementó un dashboard de métricas en el panel de administración (`administrarCursos.html`) que muestra un resumen general de la plataforma en tiempo real: total de usuarios (activos e inactivos), distribución por rol, estudiantes matriculados, ranking de cursos más populares, ingresos totales y becas otorgadas. Los datos se obtienen desde Firestore y se procesan con métodos de arrays para calcular agrupaciones y porcentajes.
 
@@ -319,9 +321,40 @@ Se implementó un dashboard de métricas en el panel de administración (`admini
 - **Ingresos:** suma total de adquisiciones aprobadas con estado de pago.
 - **Becas:** cantidad de solicitudes aprobadas u otorgadas.
 
+### Pasarela de pagos (Marilina y Silvana)
+**Marilina:** Se implementa la pasarela de pago del curso para acceder a los contenidos, para esta opción se debe estar logueado como "estudiante" y presenta dos opciones de pago. 
+1- Mediante pago con tarjeta donde se deben agregar los datos de la tarjeta: nombre del titular, número de tarjeta, fecha de vencimiento y CVV. Se validan todos los campos y no mes y año anterior al actual en la fecha de vencimiento. Luego el pago se concreta y se accede al curso directamente.
+2- Pago por transferencia, solicita adjuntar el comprobante de pago en formato JPG o PNG y al aceptar la compra queda pendiente de aprobación por el administrador, si el docente/admin ve el comprobante y lo aprueba se concreta el pago y se accede al curso, si rechaza el pago no puede acceder al curso.
+
+**Silvana:**
+
+### Control de acceso por compra (Marilina)
+Se controla que el usuario logueado como "estudiante" pueda ver el detalle del curso con información del curso y de los contenidos (sólo módulo y temas). Para acceder a los contenidos reales y materiales debe pagar el curso por medio de la pasarela de pagos. Luego el estudiante en la página **misCursos.html** ve el historial de adquisiciones, los cursos que accedió y los que fueron rechazados por algún motivo.
+
+### Descarga de materiales (Marilina)
+Por el momento el estudiante sólo puede descargar el PDF que contiene la consigna de la actividad final o de cierre, este archivo se sube a cloudinary y luego en la sección actividad final se integra una vista previa y la posibilidad de poder verlo en el navegador o descargarlo. A futuro se podría pensar implementar que también se puedan descargar los materiales de los módulos.
+
+### Protección de rutas privadas (Marilina)
+Se asegura que si se coloca el nombre del archivo html directo en la barra del navegador no se tenga acceso si es una página que sólo se puede ver cuando se inicia sesión o con un determinado tipo de usuario.
+--------------------------------------------------------------------------------------
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)
 
-### Configuración y Seguridad de Firestore
+### Crear curso (Marilina)
+A la creación del curso se le agrega la sección módulos del curso: dónde se agregan la cantidad de módulos que va a contener el curso y los temas correspondientes. Se pueden agregar o eliminar módulos.
+
+### Modificar curso (Marilina) 
+Se reestructura la modificación de los cursos. Además de los ítems que ya estaban en el sprint 2, Se muestran los módulos creados con sus temas correspondientes. Tanto al módulo como a los temas que ya estaban creados se les puede modificar el nombre y permite agregar para cada tema del módulo una descripción, los objetivos y recursos que pueden ser pdf, enlaces, drive o presentaciones. Y al final permite adjuntar en formato pdf la actividad final del curso que luego será la única que se podrá calificar y si se aprueba satisfactoriamente el curso obtener un certificado.
+
+### Registro de calificación (Marilina)
+Cuando se adjunta la tarea final, automáticamente el docente/admin recibe una notificación que tiene una tarea para ser calificada. Se ingresa, se corrige la tarea y se coloca una nota y un comentario para que el estudiante lo vea. Inmediatamente luego de calificar el estudiante recibe una notificación y en la sección de actividad final ya no puede realizar más entregas y podrá visualizar la calificación final del curso, si la nota es entre 6 y 10, aprueba el curso y obtiene un certificado. Si es menor a 6 no aprueba pero tampoco puede volver a realizar entregas de la actividad final.
+
+### Pruebas de flujo completo (Marilina y el resto)
+Marilina: chequeo de permisos, reglas y corrección de errores. Se hace un primer testing y luego cada uno prueba individualmente para poder integrar a main y actualizar el hosting
+
+### Configuración y Seguridad de Firestore (Marilina)
 
 Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
+
+### Publicación de la versión final (Marilina)
+Se pasa todo el proyecto de develop a main, se vuelven a realizar pruebas y se actualiza el hosting en firebase.

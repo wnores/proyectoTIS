@@ -1,9 +1,5 @@
 import { db } from "./firebase-config.js";
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
+import { collection, getDocs} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 export async function cargarEstadisticas() {
     try {
         const [usuarios, cursos, adquisiciones, solicitudes] = await Promise.all([

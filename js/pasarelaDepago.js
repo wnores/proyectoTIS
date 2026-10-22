@@ -1,8 +1,5 @@
 import { auth, db } from "./firebase-config.js";
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
   doc,
   getDoc,
@@ -36,11 +33,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputComprobante = document.getElementById("comprobantePago");
   const errorComprobante = document.getElementById("errorComprobante");
 
-  // CONFIGURACIÓN CLOUDINARY
   const CLOUDINARY_CLOUD_NAME = "fd9bzuxj";
   const CLOUDINARY_UPLOAD_PRESET = "ProyectoTaller";
 
-  // DATOS INICIALES
   const parametros = new URLSearchParams(window.location.search);
   const cursoId = parametros.get("curso");
   const adquisicionId = parametros.get("adquisicion");
@@ -50,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let adquisicionExistente = null;
   let esPagoSaldoBeca = false;
 
-  // MODAL DE ALERTA CENTRADA DINÁMICA
   function mostrarAlertaCentrada(mensaje, tipo = "exito", callbackAccion = null) {
     const idModal = "alertaCentradaPasarela";
     let modalExistente = document.getElementById(idModal);
@@ -95,7 +89,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     bsModal.show();
   }
 
-  // VERIFICAR USUARIO AUTENTICADO Y ROL
   onAuthStateChanged(auth, async (usuario) => {
     usuarioActual = usuario;
 

@@ -175,7 +175,6 @@ function cargarDatosEnPerfil(datosUsuario, user) {
         rolPerfil.textContent = rolUsuario;
     }
 
-    // Cargar Nombre y Rol directamente debajo de la foto
     const perfilNombreFoto = document.getElementById("perfilNombreFoto");
     if (perfilNombreFoto) {
         perfilNombreFoto.textContent = `${datosUsuario.nombre || ""} ${datosUsuario.apellido || ""}`.trim();
@@ -186,7 +185,6 @@ function cargarDatosEnPerfil(datosUsuario, user) {
         perfilRolFoto.textContent = rolUsuario;
     }
 
-    // Foto de perfil
     const photoURL = datosUsuario.photoURL || user.photoURL;
     if (photoURL) {
         const avatar = document.querySelector(".avatar-wrapper");

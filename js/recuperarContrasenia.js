@@ -7,13 +7,10 @@ const emailInput = document.querySelector("#email");
 const messageBox = document.querySelector("#messageBox");
 const btnSubmit = document.querySelector("#btnSubmit");
 
-// Control de acceso según sesión iniciada
 onAuthStateChanged(auth, (usuario) => {
     if (usuario) {
-        // Redirigir al inicio si ya hay una sesión activa
         window.location.replace("index.html");
     } else {
-        // Mostrar la vista solo si NO hay sesión
         if (contenedorPrincipalVista) {
             contenedorPrincipalVista.classList.remove("d-none");
         }

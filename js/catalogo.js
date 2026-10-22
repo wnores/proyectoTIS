@@ -153,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const descripcion = normalizarTexto(curso.descripcion ?? "");
       const coincideTexto = titulo.includes(texto) || descripcion.includes(texto);
       
-      // Obtener las categorías del curso
       let categoriasDelCurso = [];
       const catField = curso.categoria || curso.categorias;
       if (Array.isArray(catField)) {

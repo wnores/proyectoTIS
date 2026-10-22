@@ -254,7 +254,6 @@ function configurarFormularioPublicacion() {
                 nombreAutor = esDocenteOAdmin ? "Docente / Admin" : "Estudiante";
             }
 
-            // 1. Guardar publicación en Firestore
             await addDoc(collection(db, "cursoscc", cursoIdActual, "foro"), {
                 uid: usuarioActual.uid,
                 autorId: usuarioActual.uid,
@@ -265,9 +264,7 @@ function configurarFormularioPublicacion() {
                 fecha: serverTimestamp()
             });
 
-            // 2. ENVIAR NOTIFICACIÓN SEGÚN EL ROL QUE ESCRIBE
             if (!esDocenteOAdmin) {
-                // Si escribe un ESTUDIANTE -> Notifica al ROL de docentes/admins
                 await addDoc(collection(db, "notificaciones"), {
                     tipo: "foro_consulta",
                     destinatarioRol: "docente/admin",
@@ -279,7 +276,6 @@ function configurarFormularioPublicacion() {
                     enlace: `foroCurso.html?id=${cursoIdActual}`
                 });
             } else {
-                // Si escribe un DOCENTE/ADMIN -> Notifica a los ESTUDIANTES inscritos en el curso
                 const qInscriptos = query(
                     collection(db, "adquisiciones"),
                     where("cursoId", "==", cursoIdActual)

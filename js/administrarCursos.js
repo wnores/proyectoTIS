@@ -3,13 +3,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/f
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { cargarEstadisticas } from "./estadisticas.js";
 
-// NOTA: las solicitudes de becas y los pagos por transferencia los manejan
-// solicitudesBecas.js y pagosTransferencia.js. Antes este archivo también
-// los dibujaba en los mismos contenedores y se pisaban entre sí.
-
-// ======================================================
-// ESTILOS DE MICROINTERACCIONES (los usa mostrarAccesoDenegado)
-// ======================================================
 const ESTILOS = `
     @keyframes entradaModalSmooth {
         0% { opacity: 0; transform: scale(0.85) translateY(20px); }

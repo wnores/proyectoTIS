@@ -327,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Array.isArray(moduloData.temas)) {
           listaTemas = moduloData.temas;
         } else if (typeof moduloData.temas === 'string' && moduloData.temas.trim() !== '') {
-          // Si vienen separados por comas, los dividimos en una lista
           listaTemas = moduloData.temas.split(',').map(tema => tema.trim());
         } else if (moduloData.descripcion) {
           listaTemas = [moduloData.descripcion];

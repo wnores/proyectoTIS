@@ -1,9 +1,5 @@
     import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import {
-    doc,
-    getDoc
-    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
     import { auth, db } from "./firebase-config.js"; 
     import {showMessage} from "./showMessage.js";
 

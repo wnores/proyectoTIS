@@ -1,5 +1,4 @@
 import { db } from "./firebase-config.js";
-
 import {
     collection,
     addDoc,
@@ -13,9 +12,6 @@ import {
     runTransaction
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// ======================================================
-// ESTILOS DE MICROINTERACCIONES INYECTADOS
-// ======================================================
 const ESTILOS_MICROINTERACCIONES = `
     @keyframes entradaModalSmooth {
         0% { opacity: 0; transform: scale(0.85) translateY(20px); }
@@ -54,9 +50,6 @@ if (!document.getElementById("estilosMicrointeraccionesBecasCSS")) {
     document.head.appendChild(estilo);
 }
 
-// ======================================================
-// MODAL DE CONFIRMACIÓN CON MICROINTERACCIÓN
-// ======================================================
 function solicitarConfirmacionCentrada(titulo, mensaje, accionConfirmar, esPeligroso = false) {
     const idModal = "modalConfirmacionBeca";
     let modalExistente = document.getElementById(idModal);
@@ -115,9 +108,6 @@ function solicitarConfirmacionCentrada(titulo, mensaje, accionConfirmar, esPelig
     bsModal.show();
 }
 
-// ======================================================
-// MODAL DE ALERTA CON ANIMACIÓN
-// ======================================================
 function mostrarAlertaCentrada(mensaje, tipo = "exito") {
     const idModal = "alertaCentradaBeca";
     let modalExistente = document.getElementById(idModal);
@@ -434,7 +424,6 @@ async function aprobarSolicitud(idSolicitud, solicitud) {
             });
         });
 
-        // NOTIFICACIÓN EN LA CAMPANITA DEL ESTUDIANTE
         try {
             await addDoc(collection(db, "notificaciones"), {
                 tipo: "beca",

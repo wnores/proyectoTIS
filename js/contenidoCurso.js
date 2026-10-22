@@ -517,7 +517,6 @@ async function renderizarSeccionEstudiante(contenedor) {
             `;
         }
 
-        // Título y texto del botón según si ya se calificó
         let tituloFormulario = 'Realizar entrega';
         let textoBoton = 'Enviar Entrega';
         let iconoBoton = 'bi-send-fill';
@@ -567,7 +566,6 @@ async function renderizarSeccionEstudiante(contenedor) {
         const mensajeEntrega = document.getElementById("mensajeEntrega");
         const btnEnviar = document.getElementById("btnEnviarEntrega");
 
-        // Si la tarea ya fue calificada, cortamos la ejecución para no escuchar el submit
         if (tareaCalificada) {
             return;
         }

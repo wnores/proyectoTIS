@@ -24,7 +24,6 @@ const imagenCurso = document.getElementById("imagenCurso");
 const nombreImagenCurso = document.getElementById("nombreImagenCurso");
 const vistaPreviaCurso = document.getElementById("vistaPreviaCurso");
 
-// Campos de la Actividad Final (PDF)
 const actividadPdf = document.getElementById("actividadPdf");
 const nombreActividadPdf = document.getElementById("nombreActividadPdf");
 const contenedorPreviaPdf = document.getElementById("contenedorPreviaPdf");

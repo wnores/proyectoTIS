@@ -408,7 +408,8 @@ Por el momento el estudiante sólo puede descargar el PDF que contiene la consig
 
 ### Protección de rutas privadas (Marilina)
 Se asegura que si se coloca el nombre del archivo html directo en la barra del navegador no se tenga acceso si es una página que sólo se puede ver cuando se inicia sesión o con un determinado tipo de usuario.
---------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------------------------------------
 
 ## Sprint 4 (12/10/2026 al 23/10/2026)
 

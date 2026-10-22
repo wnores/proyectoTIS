@@ -90,6 +90,8 @@ Cuando se completa el formulario con los datos se guardan en la base de datos de
 Se publica una primera versión del sitio en Firebase Hosting luego de completado el sprint 1: 
 https://bdcursoscc.web.app/
 
+------------------------------------------------------------------------------------------------------------------
+
 ## Sprint 2 (31/08/2026 al 20/09/2026) - Semanas 7 a 9 Funcionalidades dinámicas
 
 ### iniciar sesión (ingresar.html) (Walter)
@@ -286,11 +288,9 @@ Se completó manualmente el campo categoria en Firestore para los cursos que no 
 ## Sprint 3 (28/09/2026 al 11/10/2026)
 
 ### Gestión de usuarios: habilitar / deshabilitar (Walter)
-
 Se implementó un sistema de **baja lógica** sobre la colección `usuarios` de Firestore, que permite al administrador bloquear el acceso de un usuario sin eliminar su cuenta.
 
 **Funcionamiento:**
-
 - Cada documento de la colección `usuarios` incluye un campo booleano `activo` (por defecto `true`).
 - El panel de administración (`administrarCursos.html`) lista a todos los usuarios registrados en una tabla, con búsqueda, filtro por estado (activos/inactivos) y paginación.
 - Cada fila muestra un botón dinámico:
@@ -300,7 +300,6 @@ Se implementó un sistema de **baja lógica** sobre la colección `usuarios` de 
 - Al confirmar, se actualiza el campo `activo` en Firestore y se registra la fecha del cambio (`fechaCambioEstado`).
 
 **Validación en el inicio de sesión:**
-
 En `inicioCierreSesion.js`, luego de autenticar correctamente con Firebase Auth, se consulta el documento del usuario en Firestore. Si el campo `activo` es `false`:
 
 1. Se cierra la sesión inmediatamente con `signOut(auth)`.
@@ -310,11 +309,9 @@ En `inicioCierreSesion.js`, luego de autenticar correctamente con Firebase Auth,
 De esta forma, un usuario deshabilitado **puede autenticarse** (Firebase Auth no lo bloquea), pero **no puede acceder a la aplicación** porque la validación ocurre antes de permitir el ingreso. Se definen además, las reglas de Firestore sobre la coleccción 'usuarios' de 'lectura/escritura' de acuerdo al 'tipoUsuario' 'docente/admin' y 'estudiante'.
 
 ### Panel de estadísticas (Walter)
-
 Se implementó un dashboard de métricas en el panel de administración (`administrarCursos.html`) que muestra un resumen general de la plataforma en tiempo real: total de usuarios (activos e inactivos), distribución por rol, estudiantes matriculados, ranking de cursos más populares, ingresos totales y becas otorgadas. Los datos se obtienen desde Firestore y se procesan con métodos de arrays para calcular agrupaciones y porcentajes.
 
 **Métricas mostradas:**
-
 - **Usuarios:** total registrados, activos, inactivos y distribución por rol (estudiante / docente-admin).
 - **Estudiantes matriculados:** usuarios únicos con al menos una adquisición aprobada.
 - **Cursos:** total publicados y ranking de los 5 más populares según cantidad de inscripciones.
@@ -326,10 +323,85 @@ Se implementó un dashboard de métricas en el panel de administración (`admini
 1- Mediante pago con tarjeta donde se deben agregar los datos de la tarjeta: nombre del titular, número de tarjeta, fecha de vencimiento y CVV. Se validan todos los campos y no mes y año anterior al actual en la fecha de vencimiento. Luego el pago se concreta y se accede al curso directamente.
 2- Pago por transferencia, solicita adjuntar el comprobante de pago en formato JPG o PNG y al aceptar la compra queda pendiente de aprobación por el administrador, si el docente/admin ve el comprobante y lo aprueba se concreta el pago y se accede al curso, si rechaza el pago no puede acceder al curso.
 
-**Silvana:**
+**Silvana:** Se explica más abajo junto con las becas.
 
 ### Control de acceso por compra (Marilina)
 Se controla que el usuario logueado como "estudiante" pueda ver el detalle del curso con información del curso y de los contenidos (sólo módulo y temas). Para acceder a los contenidos reales y materiales debe pagar el curso por medio de la pasarela de pagos. Luego el estudiante en la página **misCursos.html** ve el historial de adquisiciones, los cursos que accedió y los que fueron rechazados por algún motivo.
+
+### Comprobante de compra (Anny)
+Se desarrolló la página `comprobanteCompra.html` junto con su correspondiente lógica en JavaScript.
+Después de registrar una adquisición, el usuario es redirigido al comprobante mediante el identificador de la operación almacenada en Firestore.
+El comprobante permite visualizar:
+- Nombre del estudiante.
+- Curso adquirido.
+- Precio del curso.
+- Método de pago seleccionado.
+- Estado de la adquisición.
+- Fecha de la operación.
+- Identificador del comprobante.
+También se incorporaron mensajes de error para los casos en los que no se indica un comprobante, la adquisición no existe o el usuario no tiene permiso para consultarla.
+
+### Actualización de cupos disponibles (Anny)
+Se implementó la actualización automática de los cupos disponibles cuando una compra con tarjeta es aprobada.
+La operación se realiza mediante una transacción de Cloud Firestore, permitiendo:
+- Verificar que el curso exista.
+- Comprobar que queden cupos disponibles.
+- Descontar exactamente un cupo.
+- Registrar la adquisición.
+- Evitar que dos estudiantes ocupen simultáneamente el último cupo.
+- Mostrar un mensaje cuando el curso ya no dispone de lugares.
+Las transferencias pendientes no descuentan el cupo hasta que la operación sea aprobada.
+
+### Restricción para solicitar becas (Anny)
+Se incorporó una validación para impedir que un estudiante solicite una beca para un curso que ya adquirió.
+La aplicación consulta las adquisiciones del usuario en Firestore y, cuando detecta una compra aprobada, oculta o deshabilita la opción “Solicitar una beca”.
+Esto evita solicitudes duplicadas o incompatibles con el estado del estudiante dentro del curso.
+
+### Acceso al contenido de los cursos (Anny)
+Se desarrollaron las páginas `contenidoCurso.html` y su correspondiente archivo JavaScript para mostrar el contenido académico de cada curso.
+El acceso se controla según la autenticación, el rol y la relación del usuario con el curso:
+- El visitante puede consultar el catálogo y el detalle general.
+- El estudiante solamente puede acceder al material de los cursos adquiridos.
+- El docente/admin puede consultar y administrar los contenidos.
+- Los accesos no autorizados muestran un mensaje y redirigen al usuario.
+
+### Organización del contenido por módulos y temas (Anny)
+Se amplió la estructura de los cursos en Cloud Firestore utilizando subcolecciones de módulos y temas.
+Cada módulo puede contener:
+- Título.
+- Descripción.
+- Objetivos.
+- Temas.
+- Materiales teóricos.
+- Videos.
+- Proyecto o actividad final.
+Esta estructura permite que cada curso posea una cantidad diferente de módulos, temas y recursos.
+
+### Gestión de materiales educativos (Anny)
+Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
+Los recursos pueden incluir:
+- Documentos PDF.
+- Videos educativos.
+- Actividades prácticas.
+- Materiales teóricos.
+Los archivos y enlaces se recuperan dinámicamente desde Firestore y se presentan dentro del contenido correspondiente.
+
+### Elaboración de contenidos educativos (Anny)
+Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
+- Introducción a la Ciberseguridad.
+- Desarrollo Web.
+- Introducción a la Programación en Python
+- El resto de los compañeros cargó material e información en al menos 2 o 3 cursos cada uno.
+
+### Gestión de materiales educativos (Giovanna)
+Se agrega en conjunto con Anny la visualización de materiales educativos desde la administración de cursos, se incorpora: Documentos PDF, videos, actividades prácticas y materiales educativos. 
+Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
+
+### Elaboración de contenidos educativos (Giovanna)
+Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
+- Programación con Scratch.
+- Excel para el trabajo y el estudio.
+- Introducción a la placa Microbit.
 
 ### Descarga de materiales (Marilina)
 Por el momento el estudiante sólo puede descargar el PDF que contiene la consigna de la actividad final o de cierre, este archivo se sube a cloudinary y luego en la sección actividad final se integra una vista previa y la posibilidad de poder verlo en el navegador o descargarlo. A futuro se podría pensar implementar que también se puedan descargar los materiales de los módulos.
@@ -349,189 +421,59 @@ Se reestructura la modificación de los cursos. Además de los ítems que ya est
 ### Registro de calificación (Marilina)
 Cuando se adjunta la tarea final, automáticamente el docente/admin recibe una notificación que tiene una tarea para ser calificada. Se ingresa, se corrige la tarea y se coloca una nota y un comentario para que el estudiante lo vea. Inmediatamente luego de calificar el estudiante recibe una notificación y en la sección de actividad final ya no puede realizar más entregas y podrá visualizar la calificación final del curso, si la nota es entre 6 y 10, aprueba el curso y obtiene un certificado. Si es menor a 6 no aprueba pero tampoco puede volver a realizar entregas de la actividad final.
 
-### Pruebas de flujo completo (Marilina y el resto)
-Marilina: chequeo de permisos, reglas y corrección de errores. Se hace un primer testing y luego cada uno prueba individualmente para poder integrar a main y actualizar el hosting
-
-### Configuración y Seguridad de Firestore (Marilina)
-
-Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
-
-### Publicación de la versión final (Marilina)
-Se pasa todo el proyecto de develop a main, se vuelven a realizar pruebas y se actualiza el hosting en firebase.
-### Comprobante de compra (Anny)
-
-Se desarrolló la página `comprobanteCompra.html` junto con su correspondiente lógica en JavaScript.
-
-Después de registrar una adquisición, el usuario es redirigido al comprobante mediante el identificador de la operación almacenada en Firestore.
-
-El comprobante permite visualizar:
-
-- Nombre del estudiante.
-- Curso adquirido.
-- Precio del curso.
-- Método de pago seleccionado.
-- Estado de la adquisición.
-- Fecha de la operación.
-- Identificador del comprobante.
-
-También se incorporaron mensajes de error para los casos en los que no se indica un comprobante, la adquisición no existe o el usuario no tiene permiso para consultarla.
-
-### Actualización de cupos disponibles (Anny)
-
-Se implementó la actualización automática de los cupos disponibles cuando una compra con tarjeta es aprobada.
-
-La operación se realiza mediante una transacción de Cloud Firestore, permitiendo:
-
-- Verificar que el curso exista.
-- Comprobar que queden cupos disponibles.
-- Descontar exactamente un cupo.
-- Registrar la adquisición.
-- Evitar que dos estudiantes ocupen simultáneamente el último cupo.
-- Mostrar un mensaje cuando el curso ya no dispone de lugares.
-
-Las transferencias pendientes no descuentan el cupo hasta que la operación sea aprobada.
-
-### Restricción para solicitar becas (Anny)
-
-Se incorporó una validación para impedir que un estudiante solicite una beca para un curso que ya adquirió.
-
-La aplicación consulta las adquisiciones del usuario en Firestore y, cuando detecta una compra aprobada, oculta o deshabilita la opción “Solicitar una beca”.
-
-Esto evita solicitudes duplicadas o incompatibles con el estado del estudiante dentro del curso.
-
-### Acceso al contenido de los cursos (Anny)
-
-Se desarrollaron las páginas `contenidoCurso.html` y su correspondiente archivo JavaScript para mostrar el contenido académico de cada curso.
-
-El acceso se controla según la autenticación, el rol y la relación del usuario con el curso:
-
-- El visitante puede consultar el catálogo y el detalle general.
-- El estudiante solamente puede acceder al material de los cursos adquiridos.
-- El docente/admin puede consultar y administrar los contenidos.
-- Los accesos no autorizados muestran un mensaje y redirigen al usuario.
-
-### Organización del contenido por módulos y temas (Anny)
-
-Se amplió la estructura de los cursos en Cloud Firestore utilizando subcolecciones de módulos y temas.
-
-Cada módulo puede contener:
-
-- Título.
-- Descripción.
-- Objetivos.
-- Temas.
-- Materiales teóricos.
-- Videos.
-- Proyecto o actividad final.
-
-Esta estructura permite que cada curso posea una cantidad diferente de módulos, temas y recursos.
-
-### Gestión de materiales educativos (Anny)
-
-Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
-
-Los recursos pueden incluir:
-
-- Documentos PDF.
-- Videos educativos.
-- Actividades prácticas.
-- Materiales teóricos.
-
-Los archivos y enlaces se recuperan dinámicamente desde Firestore y se presentan dentro del contenido correspondiente.
-
-### Elaboración de contenidos educativos (Anny)
-
-Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
-
-- Introducción a la Ciberseguridad.
-- Desarrollo Web.
-- Introducción a la Programación en Python
-
-### Gestión de materiales educativos (Giovanna)
-
-Se agrega en conjunto con Anny la visualización de materiales educativos desde la administración de cursos, se incorpora: Documentos PDF, videos, actividades prácticas y materiales educativos. 
-Se incorporó la posibilidad de agregar y visualizar materiales educativos desde la administración de cursos.
-
-### Elaboración de contenidos educativos (Giovanna)
-
-Se diseñaron y cargaron materiales para diferentes cursos de la plataforma, principalmente:
-
-- Programación con Scratch.
-- Excel para el trabajo y el estudio.
-- Introducción a la placa Microbit.
-
-
-## Sprint 4 (12/10/2026 al 23/10/2026)
-
-### Integración, comunicación y mejoras finales
-
 ### Foro interno de los cursos (Anny)
-
 Se incorporó un foro dentro del contenido de cada curso para facilitar la comunicación entre estudiantes y docentes.
-
 Los usuarios autorizados pueden:
-
 - Publicar mensajes.
 - Consultar las publicaciones del curso.
 - Responder mensajes.
 - Identificar el autor y la fecha de publicación.
 - Eliminar sus propias publicaciones.
 - Participar únicamente en los cursos a los que tienen acceso.
-
 Cada foro se almacena como una subcolección del curso correspondiente en Cloud Firestore, evitando que las publicaciones de diferentes cursos se mezclen.
 
 ### Respuestas a publicaciones (Anny)
-
 Se agregó la posibilidad de responder las publicaciones del foro.
-
 Las respuestas quedan asociadas al mensaje original e incluyen:
-
 - Identificador del autor.
 - Nombre del usuario.
 - Contenido de la respuesta.
 - Fecha de publicación.
-
 Esta funcionalidad permite generar intercambios entre los estudiantes y el docente dentro de cada curso.
 
 ### Notificaciones del foro (Anny)
-
 Se incorporó un sistema de notificaciones para informar al docente/admin sobre la existencia de nuevas publicaciones en los foros.
-
 Las notificaciones se muestran mediante una campana ubicada en el encabezado y permiten identificar:
-
 - El curso relacionado.
 - El autor del mensaje.
 - El contenido o resumen de la publicación.
 - La fecha del mensaje.
 - Su estado de lectura.
-
 Esto permite que el docente pueda conocer la actividad de los foros sin tener que ingresar individualmente a cada curso.
 
 ### Reglas de seguridad para foros y notificaciones (Anny)
-
 Se actualizaron las reglas de seguridad de Cloud Firestore para controlar el acceso a:
-
 - Publicaciones del foro.
 - Respuestas.
 - Notificaciones.
 - Módulos y temas.
 - Adquisiciones.
 - Solicitudes de becas.
-
 Las reglas comprueban que el usuario esté autenticado y controlan las acciones según el autor del contenido o el rol docente/admin.
-
 Los usuarios pueden modificar o eliminar únicamente sus propias publicaciones, mientras que el docente/admin dispone de permisos de moderación.
 
 ### Corrección del acceso a “Mis cursos” (Anny)
-
 Se corrigió el enlace de la opción “Mis cursos”, que anteriormente redirigía incorrectamente al perfil.
-
 La opción dirige ahora a la sección correspondiente, donde el estudiante puede consultar los cursos adquiridos y acceder a sus contenidos.
 
+### Configuración y Seguridad de Firestore (Marilina)
+Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
+
+### Pruebas de flujo completo (Marilina y el resto)
+Marilina: chequeo de permisos, reglas y corrección de errores. Se hace un primer testing y luego cada uno prueba individualmente para poder integrar a main y actualizar el hosting
+
 ### Integración y pruebas realizadas (Marilina)
-
 Se realizaron pruebas sobre los principales flujos implementados:
-
 - Creación y modificación de cursos.
 - Incorporación de módulos y temas.
 - Carga de PDF, videos y actividades.
@@ -545,8 +487,6 @@ Se realizaron pruebas sobre los principales flujos implementados:
 - Navegación desde “Mis cursos”.
 - Mensajes de error y estados de carga.
 
-También se revisaron errores de consola, enlaces, permisos de Firestore y la integración entre las diferentes páginas.
-
 ### Certificado de aprobación (Giovanna)
 - Página `certificado.html` con su lógica en `js/certificado.js`: el estudiante puede ver y descargar su certificado en PDF.
 - Incluye logo, nombre, cédula, curso, carga horaria, calificación, fecha de emisión, firma ficticia y código de verificación.
@@ -554,30 +494,21 @@ También se revisaron errores de consola, enlaces, permisos de Firestore y la in
 - El certificado se emite cuando el docente carga una nota mayor a 6.
 
 ### Reglas de seguridad para certificados (Giovanna)
-
 Se actualizaron las reglas de seguridad de Cloud Firestore para controlar el acceso a:
 - Certificados.
 
 ### Pruebas (Giovanna)
-
 Se realizaron pruebas sobre los principales flujos implementados:
-
 - Modificación de cursos.
 - Incorporación de módulos y temas.
 - Carga de PDF, videos y actividades.
 - Acceso al contenido según el rol.
 - Vista y descarga de Certificados. 
 
-### Configuración y Seguridad de Firestore (Walter)
+### Gestión de becas y Mis cursos (Silvana)
 
-Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
-
-## Gestión de becas y Mis cursos (Silvana)
-
-### Gestión de becas
-
+**Gestión de becas**
 Implementación del sistema de solicitud, validación y administración de becas mediante JavaScript, Firebase Authentication y Cloud Firestore.
-
 - **Solicitud de becas:** formulario para solicitar becas asociadas a cursos, con selección del tipo de beneficio.
 - **Validación de solicitudes:** incorporación de restricciones para evitar solicitudes incompatibles según las solicitudes existentes, las becas aprobadas y las adquisiciones del estudiante.
 - **Control de becas activas:** prevención de solicitudes de otro tipo para un curso que ya cuenta con una beca activa, y de solicitudes para otros cursos cuando existe una beca activa del mismo tipo.
@@ -591,9 +522,7 @@ Implementación del sistema de solicitud, validación y administración de becas
 - **Reutilización del beneficio:** posibilidad de volver a solicitar una beca una vez finalizado el curso, respetando las validaciones establecidas.
 
 ### Mis cursos
-
 Desarrollo de una sección personal para que los estudiantes puedan consultar sus cursos adquiridos y el estado de sus solicitudes de becas.
-
 - **Visualización de cursos:** presentación de tarjetas con información obtenida de la colección `cursoscc` y vinculada a las adquisiciones y solicitudes del usuario.
 - **Seguimiento de solicitudes:** visualización de cursos asociados a solicitudes de becas pendientes, aprobadas o rechazadas.
 - **Estado de adquisición:** presentación de información sobre el estado de cada curso, el método de pago y la beca correspondiente, cuando aplica.
@@ -605,16 +534,15 @@ Desarrollo de una sección personal para que los estudiantes puedan consultar su
 - **Integración con el catálogo:** contemplación de restricciones para evitar que se ofrezcan nuevamente las opciones de inscripción o solicitud de beca cuando el usuario ya adquirió el curso.
 
 ### Tecnologías utilizadas
-
 - JavaScript (ES Modules).
 - Firebase Authentication.
 - Cloud Firestore.
 - HTML5 y CSS3.
-
+- Firebase Hosting
+- Formspree
+  
 ### Elaboración de contenidos educativos (Silvana)
-
 Diseño y desarrollo de materiales didácticos para los cursos **Introducción a la Inteligencia Artificial** y **Machine Learning Aplicado**, destinados a la formación en Ciencias de la Computación.
-
 - **Introducción a la Inteligencia Artificial:** elaboración de contenidos teóricos y actividades prácticas organizados.
 - **Machine Learning Aplicado:** desarrollo de materiales organizados por temas y diferenciados en documentos teóricos y prácticos.
 - **Material teórico:** elaboración de explicaciones conceptuales, fundamentos, metodologías y ejemplos para facilitar la comprensión progresiva de los contenidos.

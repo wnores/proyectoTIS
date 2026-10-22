@@ -529,7 +529,7 @@ Se realizaron pruebas sobre los principales flujos implementados:
 - Acceso al contenido según el rol.
 - Vista y descarga de Certificados. 
 
-### Configuración y Seguridad de Firestore
+### Configuración y Seguridad de Firestore (Walter)
 
 Se ha incorporado el archivo **`firestore.rules`** en la raíz del proyecto. Este archivo contiene la configuración de seguridad (Reglas de Firestore) necesaria para proteger la base de datos y garantizar el correcto funcionamiento de las funcionalidades del sistema.
 
